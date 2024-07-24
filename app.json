@@ -2,6 +2,7 @@
   "expo": {
     "name": "seedcom-app-pick",
     "slug": "seedcom-app-pick",
+    "entryPoint": "./screens/Home/Home.js",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,13 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.caohoang2911.seedcom-app-pick"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.caohoang2911.seedcomapppick"
     },
     "web": {
       "favicon": "./assets/favicon.png"
