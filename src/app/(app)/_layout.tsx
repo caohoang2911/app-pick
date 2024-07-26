@@ -33,14 +33,9 @@ export default function TabLayout() {
     }
   }, [hideSplash, status]);
 
-  if (status === "idle") {
-    alert(3);
+  if (status === "signOut") {
     return <Redirect href="/login" />;
   }
-
-  // if (status === "signOut") {
-  //   return <Redirect href="/login" />;
-  // }
 
   return (
     <>

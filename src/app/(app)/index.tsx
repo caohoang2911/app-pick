@@ -1,8 +1,17 @@
+import { signOut, useAuth } from "@/core";
+import { useRouter } from "expo-router";
 import React from "react";
-import { Text } from "react-native";
+import { Button, Text } from "react-native";
 
 const Index = () => {
-  return <Text>Index</Text>;
+  const router = useRouter();
+
+  const onSubmit = () => {
+    signOut();
+    router.push("/");
+  };
+
+  return <Button title="Logout" onPress={onSubmit} />;
 };
 
 export default Index;

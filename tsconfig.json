@@ -4,6 +4,9 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
+      "~/*": [
+        "*"
+      ],
       "@/*": [
         "./src/*"
       ],
@@ -17,10 +20,12 @@
   "exclude": [
     "node_modules",
     "babel.config.js",
+    "metro.config.js",
     "docs",
     "cli",
     "android",
-    "ios"
+    "ios",
+    "lint-staged.config.js"
   ],
   "include": [
     "**/*.ts",
