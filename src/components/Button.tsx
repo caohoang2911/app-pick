@@ -58,7 +58,7 @@ function Button({
   label,
   labelClasses,
   className,
-  variant,
+  variant = 'default',
   size,
   ...props
 }: ButtonProps) {

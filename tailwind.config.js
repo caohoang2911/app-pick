@@ -1,4 +1,6 @@
-const colors = require('./src/ui/colors');
+
+import { colors } from "./src/ui/colors"
+import { fontFamily } from "./src/ui/font-family"
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -8,6 +10,7 @@ module.exports = {
   theme: {
     extend: {
       colors,
+      fontFamily,
     },
   },
   plugins: [],
