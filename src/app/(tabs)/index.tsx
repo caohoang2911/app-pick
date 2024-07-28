@@ -11,6 +11,8 @@ import { Input } from '~/src/components/Input';
 import Motobike from '~/src/components/svgs/Motobike';
 import { Badge } from '~/src/components/Badge';
 import clsx from 'clsx';
+import ScannerBox from '~/src/components/shared/ScannerBox';
+import { result } from 'lodash';
 
 const data = [
   { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
@@ -21,38 +23,38 @@ const data = [
   },
   { id: 3, title: 'title 3', details: 'details 3 details 3' },
   { id: 4, title: 'title 4 title 4', details: 'details 4' },
-  { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
+  { id: 5, title: 'title 1', details: 'details 1 details 1 details 1' },
   {
-    id: 2,
+    id: 6,
     title: 'title 2',
     details: 'details 2 details 2 details 2 details 2 details 2 details 2',
   },
-  { id: 3, title: 'title 3', details: 'details 3 details 3' },
-  { id: 4, title: 'title 4 title 4', details: 'details 4' },
-  { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
+  { id: 7, title: 'title 3', details: 'details 3 details 3' },
+  { id: 8, title: 'title 4 title 4', details: 'details 4' },
+  { id: 9, title: 'title 1', details: 'details 1 details 1 details 1' },
   {
-    id: 2,
+    id: 10,
     title: 'title 2',
     details: 'details 2 details 2 details 2 details 2 details 2 details 2',
   },
-  { id: 3, title: 'title 3', details: 'details 3 details 3' },
-  { id: 4, title: 'title 4 title 4', details: 'details 4' },
-  { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
+  { id: 11, title: 'title 3', details: 'details 3 details 3' },
+  { id: 12, title: 'title 4 title 4', details: 'details 4' },
+  { id: 13, title: 'title 1', details: 'details 1 details 1 details 1' },
   {
-    id: 2,
+    id: 14,
     title: 'title 2',
     details: 'details 2 details 2 details 2 details 2 details 2 details 2',
   },
-  { id: 3, title: 'title 3', details: 'details 3 details 3' },
-  { id: 4, title: 'title 4 title 4', details: 'details 4' },
-  { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
+  { id: 15, title: 'title 3', details: 'details 3 details 3' },
+  { id: 16, title: 'title 4 title 4', details: 'details 4' },
+  { id: 17, title: 'title 1', details: 'details 1 details 1 details 1' },
   {
-    id: 2,
+    id: 18,
     title: 'title 2',
     details: 'details 2 details 2 details 2 details 2 details 2 details 2',
   },
-  { id: 3, title: 'title 3', details: 'details 3 details 3' },
-  { id: 4, title: 'title 4 title 4', details: 'details 4' },
+  { id: 19, title: 'title 3', details: 'details 3 details 3' },
+  { id: 20, title: 'title 4 title 4', details: 'details 4' },
 ];
 
 const dataStatus = [
@@ -115,31 +117,31 @@ export function TabsStatus({ statusSeleted = 'shipping', onPressItem }: any) {
         const isLast = index === dataStatus?.length - 1;
 
         return (
-          <TouchableOpacity
-            key={item.id}
-            className={clsx('py-1 rounded', {
-              'pr-4': isFirst,
-              'px-3': !isFirst,
-              'px-0 pl-3': isLast,
-            })}
-            onPress={() => onPressItem(item.id)}
-          >
-            <Text
-              className={clsx({
-                'color-colorPrimary font-semibold': isStatusSeleted,
-                'color-gray-500': !isStatusSeleted,
+          <TouchableOpacity key={item.id} onPress={() => onPressItem(item.id)}>
+            <View
+              className={clsx('py-1 rounded', {
+                'pr-4': isFirst,
+                'px-3': !isFirst,
+                'px-0 pl-3': isLast,
               })}
             >
-              {item.label}
-            </Text>
-            {isStatusSeleted && (
-              <View
-                style={{ height: 2, marginTop: 5 }}
+              <Text
                 className={clsx({
-                  'rounded-t-md bg-colorPrimary': isStatusSeleted,
+                  'color-colorPrimary font-semibold': isStatusSeleted,
+                  'color-gray-500': !isStatusSeleted,
                 })}
-              />
-            )}
+              >
+                {item.label}
+              </Text>
+              {isStatusSeleted && (
+                <View
+                  style={{ height: 2, marginTop: 5 }}
+                  className={clsx({
+                    'rounded-t-md bg-colorPrimary': isStatusSeleted,
+                  })}
+                />
+              )}
+            </View>
           </TouchableOpacity>
         );
       }}
@@ -174,7 +176,11 @@ const ItemProduct = () => {
   );
 };
 
-const FixedHeader = () => {
+const FixedHeader = ({
+  onOpenBarcodeScanner,
+}: {
+  onOpenBarcodeScanner: () => void;
+}) => {
   const [statusSeleted, setStatusSelected] = useState('all');
 
   const handlePressItem = useCallback((status: any) => {
@@ -191,8 +197,10 @@ const FixedHeader = () => {
       </View>
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input className="flex-grow" placeholder="Mã đơn hàng, sản phẩm" />
-        <TouchableOpacity className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
-          <FontAwesome name="qrcode" size={24} color="white" />
+        <TouchableOpacity onPress={onOpenBarcodeScanner}>
+          <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
+            <FontAwesome name="qrcode" size={24} color="white" />
+          </View>
         </TouchableOpacity>
       </View>
       <View className="mt-6">
@@ -207,35 +215,54 @@ const FixedHeader = () => {
 
 const Index = () => {
   const router = useRouter();
+
+  const [isScanner, setIsscanner] = useState(false);
+
   const onSubmit = () => {
     signOut();
     router.push('/login');
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View className="flex-1 bg-white text-xl px-4">
-        <View>
-          <FixedHeader />
+    <>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View className="flex-1 bg-white text-xl px-4">
+          <View>
+            <FixedHeader
+              onOpenBarcodeScanner={() => {
+                setIsscanner(true);
+              }}
+            />
+          </View>
+          <View className="mt-4 flex-grow">
+            <FlatList
+              className="flex-1"
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl refreshing={false} onRefresh={() => {}} />
+              }
+              data={data}
+              renderItem={({ item }: { item: any }) => (
+                <View key={item.title} className="my-3">
+                  <ItemProduct />
+                </View>
+              )}
+            />
+          </View>
         </View>
-        <View className="mt-4 flex-grow">
-          <FlatList
-            className="flex-1"
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={false} onRefresh={() => {}} />
-            }
-            data={data}
-            renderItem={({ item }: { item: any }) => (
-              <View key={item.title} className="my-3">
-                <ItemProduct />
-              </View>
-            )}
-          />
-        </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+      <ScannerBox
+        type="qr"
+        visible={isScanner}
+        onSuccessBarcodeScanned={(result) => {
+          alert(JSON.stringify(result));
+        }}
+        onDestroy={() => {
+          setIsscanner(false);
+        }}
+      />
+    </>
   );
 };
 
