@@ -17,7 +17,7 @@ export default function Login() {
 
   const onSubmit = () => {
     signIn({ access: 'access-token', refresh: 'refresh-token' });
-    router.push('/order-list');
+    router.push('/');
   };
   return (
     <View className="h-full items-center justify-center">

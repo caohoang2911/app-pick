@@ -12,7 +12,8 @@
     "pod": "npx pod-install",
     "clean-ios": "expo prebuild --platform ios  --clean",
     "clean-android": "expo prebuild --platform android  --clean",
-    "serve": "npx serve -s dist"
+    "serve": "npx serve -s dist",
+    "build-android": "eas build:run -p android"
   },
   "dependencies": {
     "@dev-plugins/react-navigation": "^0.0.6",
