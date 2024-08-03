@@ -1,18 +1,24 @@
-import { signOut } from '@/core';
+import { signOut, useAuth } from '@/core';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
-import { FlatList, RefreshControl } from 'react-native-gesture-handler';
+import { Pressable, Text, View } from 'react-native';
+import {
+  FlatList,
+  GestureHandlerRootView,
+  RefreshControl,
+} from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import Motobike from '~/src/components/svgs/Motobike';
 import { Badge } from '~/src/components/Badge';
+import * as Linking from 'expo-linking';
 import clsx from 'clsx';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import { result } from 'lodash';
+import { Button } from '../components/Button';
 
 const data = [
   { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
@@ -97,7 +103,7 @@ export function TabsStatus({ statusSeleted = 'shipping', onPressItem }: any) {
     );
 
     setTimeout(() => {
-      ref.current.scrollToIndex({
+      ref.current?.scrollToIndex({
         animated: true,
         index,
         viewPosition: 0.5,
@@ -187,13 +193,19 @@ const FixedHeader = ({
     setStatusSelected(status);
   }, []);
 
+  const press = () => {
+    Linking.openURL('apppick://order');
+  };
+
   return (
     <>
       <View className="flex flex-row mt-3 justify-between items-center">
         <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-        </Avatar>
+        <TouchableOpacity onPress={signOut}>
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          </Avatar>
+        </TouchableOpacity>
       </View>
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input className="flex-grow" placeholder="Mã đơn hàng, sản phẩm" />
@@ -213,18 +225,11 @@ const FixedHeader = ({
   );
 };
 
-const Index = () => {
-  const router = useRouter();
-
+const OrderPick = () => {
   const [isScanner, setIsscanner] = useState(false);
 
-  const onSubmit = () => {
-    signOut();
-    router.push('/login');
-  };
-
   return (
-    <>
+    <GestureHandlerRootView className="flex-1">
       <SafeAreaView style={{ flex: 1 }}>
         <View className="flex-1 bg-white text-xl px-4">
           <View>
@@ -239,9 +244,9 @@ const Index = () => {
               className="flex-1"
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl refreshing={false} onRefresh={() => {}} />
-              }
+              // refreshControl={
+              //   <RefreshControl refreshing={false} onRefresh={() => {}} />
+              // }
               data={data}
               renderItem={({ item }: { item: any }) => (
                 <View key={item.title} className="my-3">
@@ -262,8 +267,8 @@ const Index = () => {
           setIsscanner(false);
         }}
       />
-    </>
+    </GestureHandlerRootView>
   );
 };
 
-export default Index;
+export default OrderPick;

@@ -2,6 +2,7 @@
   "expo": {
     "name": "seedcom-app-pick",
     "slug": "seedcom-app-pick",
+    "scheme": "apppick",
     "entryPoint": "./screens/Home/Home.js",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +15,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.caohoang2911.seedcom-app-pick"
+      "bundleIdentifier": "com.caohoang2911.seedcom-app-pick",
+      "associatedDomains": ["applinks:expo.dev"]
     },
     "android": {
       "adaptiveIcon": {

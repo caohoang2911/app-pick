@@ -1,27 +1,27 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-import { createSelectors } from "../utils";
-import type { TokenType } from "./utils";
-import { getToken, removeToken, setToken } from "./utils";
+import { createSelectors } from '../utils';
+import type { TokenType } from './utils';
+import { getToken, removeToken, setToken } from './utils';
 
 interface AuthState {
   token: TokenType | null;
-  status: "idle" | "signOut" | "signIn";
+  status: 'idle' | 'signOut' | 'signIn';
   signIn: (data: TokenType) => void;
   signOut: () => void;
   hydrate: () => void;
 }
 
 const _useAuth = create<AuthState>((set, get) => ({
-  status: "idle",
+  status: 'idle',
   token: null,
   signIn: (token) => {
     setToken(token);
-    set({ status: "signIn", token });
+    set({ status: 'signIn', token });
   },
   signOut: () => {
     removeToken();
-    set({ status: "signOut", token: null });
+    set({ status: 'signOut', token: null });
   },
   hydrate: () => {
     try {

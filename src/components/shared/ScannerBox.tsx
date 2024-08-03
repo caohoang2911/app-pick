@@ -1,6 +1,5 @@
 import React from 'react';
 import { CameraView, BarcodeScanningResult } from 'expo-camera';
-import useCarmera from '~/src/hooks/useCarmera';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {
   Alert,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { Button } from '../Button';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
+import useCarmera from '~/src/core/hooks/useCarmera';
 
 type Props = {
   visible?: boolean;

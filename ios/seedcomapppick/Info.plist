@@ -27,6 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>apppick</string>
           <string>com.caohoang2911.seedcom-app-pick</string>
         </array>
       </dict>
