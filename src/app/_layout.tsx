@@ -33,7 +33,7 @@ import { APIProvider } from '../api/shared';
 import Loading from '../components/Loading';
 
 export const unstable_settings = {
-  initialRouteName: 'orders',
+  initialRouteName: 'login',
 };
 
 const prefix = Linking.createURL('/');
@@ -47,7 +47,9 @@ function useProtectedRoute() {
   const router = useRouter();
 
   useEffect(() => {
-    const inAuthGroup = segments[0] === 'auth';
+    const inAuthGroup = segments[0] === 'authorize';
+
+    if (inAuthGroup) return;
 
     if (status === 'signOut') {
       router.replace('/login');
@@ -84,10 +86,6 @@ function RootLayoutNav() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
-
-  const linking = {
-    prefixes: [prefix, 'oms.seedcom.vn'],
-  };
 
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();

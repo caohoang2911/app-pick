@@ -1,13 +1,23 @@
 import { create } from 'zustand';
 
 import { createSelectors } from '../utils';
-import type { TokenType } from './utils';
-import { getToken, removeToken, setToken } from './utils';
+import type { TokenType, UserInfo } from './utils';
+import {
+  getToken,
+  getUserInfo,
+  removeToken,
+  setToken,
+  setUserInfo,
+} from './utils';
 
 interface AuthState {
-  token: TokenType | null;
+  token: string | null;
   status: 'idle' | 'signOut' | 'signIn';
+  urlRedirect: string;
+  userInfo: UserInfo | {};
   signIn: (data: TokenType) => void;
+  setRedirectUrl: (url: string) => void;
+  setUser: (userInfo: UserInfo | {}) => void;
   signOut: () => void;
   hydrate: () => void;
 }
@@ -15,9 +25,18 @@ interface AuthState {
 const _useAuth = create<AuthState>((set, get) => ({
   status: 'idle',
   token: null,
-  signIn: (token) => {
+  urlRedirect: '',
+  userInfo: {},
+  setRedirectUrl: (url: string) => {
+    set({ urlRedirect: url });
+  },
+  setUser: (userInfo: UserInfo | {}) => {
+    set({ userInfo });
+  },
+  signIn: ({ token, userInfo }: TokenType) => {
     setToken(token);
-    set({ status: 'signIn', token });
+    setUserInfo(userInfo);
+    set({ status: 'signIn', token, userInfo });
   },
   signOut: () => {
     removeToken();
@@ -26,8 +45,13 @@ const _useAuth = create<AuthState>((set, get) => ({
   hydrate: () => {
     try {
       const userToken = getToken();
+      const userInfo = getUserInfo();
+
       if (userToken !== null) {
-        get().signIn(userToken);
+        get().signIn({
+          token: userToken,
+          userInfo: userInfo,
+        });
       } else {
         get().signOut();
       }
@@ -42,4 +66,6 @@ export const useAuth = createSelectors(_useAuth);
 
 export const signOut = () => _useAuth.getState().signOut();
 export const signIn = (token: TokenType) => _useAuth.getState().signIn(token);
+export const setRedirectUrl = (url: string) =>
+  _useAuth.getState().setRedirectUrl(url);
 export const hydrateAuth = () => _useAuth.getState().hydrate();

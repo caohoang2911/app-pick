@@ -3,6 +3,7 @@ import { axiosClient } from '../shared';
 import { AxiosError } from 'axios';
 
 const login = async () => {
+  console.log(process.env);
   return await axiosClient.post('auth/genHRVLoginURL');
 };
 

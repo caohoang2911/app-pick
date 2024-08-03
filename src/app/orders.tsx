@@ -1,4 +1,4 @@
-import { signOut, useAuth } from '@/core';
+import { signOut, useAuth, userInfo } from '@/core';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
@@ -193,10 +193,6 @@ const FixedHeader = ({
     setStatusSelected(status);
   }, []);
 
-  const press = () => {
-    Linking.openURL('apppick://order');
-  };
-
   return (
     <>
       <View className="flex flex-row mt-3 justify-between items-center">
@@ -228,10 +224,13 @@ const FixedHeader = ({
 const OrderPick = () => {
   const [isScanner, setIsscanner] = useState(false);
 
+  const userInfo: any = useAuth.use.userInfo();
+
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaView style={{ flex: 1 }}>
         <View className="flex-1 bg-white text-xl px-4">
+          <Text className="mt-2">Username: {userInfo?.name}</Text>
           <View>
             <FixedHeader
               onOpenBarcodeScanner={() => {

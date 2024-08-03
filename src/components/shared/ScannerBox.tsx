@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   layout: {
     position: 'absolute',
     width: deviceWidth,
-    height: deviceHeight,
+    height: '100%',
     zIndex: 1,
   },
 });
