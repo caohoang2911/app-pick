@@ -36,7 +36,11 @@ export default function Login() {
           className="w-100"
           style={{ width: 230, height: 40 }}
         />
-        <Button onPress={handleLogin} label={'Đăng nhập bằng Harawork '} />
+        <Button
+          loading={isPending}
+          onPress={handleLogin}
+          label={'Đăng nhập bằng Harawork '}
+        />
       </View>
     </View>
   );

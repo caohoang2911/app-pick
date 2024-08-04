@@ -4,6 +4,7 @@ export const colors = {
   bgPrimary: '#E2E8F0',
   colorPrimary: '#3280F6',
   gray: {
+    300: '#4A5568',
     500: '#718096',
   },
   pink: {

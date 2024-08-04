@@ -13,6 +13,7 @@
     "clean-ios": "expo prebuild --platform ios  --clean",
     "clean-android": "expo prebuild --platform android  --clean",
     "serve": "npx serve -s dist",
+    "build-preview": "eas build -p android --profile preview",
     "build-android": "eas build:run -p android"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { createSelectors } from '../utils';
+import { createSelectors } from '../utils/browser';
 import type { TokenType, UserInfo } from './utils';
 import {
   getToken,
@@ -56,6 +56,7 @@ const _useAuth = create<AuthState>((set, get) => ({
         get().signOut();
       }
     } catch (e) {
+      get().signOut();
       // catch error here
       // Maybe sign_out user!
     }

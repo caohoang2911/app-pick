@@ -1,27 +1,14 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { useReactNavigationDevTools } from '@dev-plugins/react-navigation';
-import { NavigationContainer } from '@react-navigation/native';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
-import {
-  SplashScreen,
-  Stack,
-  useNavigationContainerRef,
-  useRouter,
-  useSegments,
-} from 'expo-router';
+import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import * as Linking from 'expo-linking';
-import { Text } from 'react-native';
-
-// import { APIProvider } from "@/api";
-// import { hydrateAuth, loadSelectedTheme } from "@/core";
-// import { useThemeConfig } from "@/core/use-theme-config";
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -29,40 +16,19 @@ export { ErrorBoundary } from 'expo-router';
 import { hydrateAuth, useAuth } from '@/core';
 import '@/ui/global.css';
 import React, { useCallback, useEffect } from 'react';
-import { APIProvider } from '../api/shared';
-import Loading from '../components/Loading';
+import { APIProvider } from '@/api/shared';
+import Loading from '@/components/Loading';
+import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 
 export const unstable_settings = {
-  initialRouteName: 'login',
+  initialRouteName: 'order/index',
 };
-
-const prefix = Linking.createURL('/');
 
 hydrateAuth();
 SplashScreen.preventAutoHideAsync();
 
-function useProtectedRoute() {
-  const status = useAuth.use.status();
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    const inAuthGroup = segments[0] === 'authorize';
-
-    if (inAuthGroup) return;
-
-    if (status === 'signOut') {
-      router.replace('/login');
-    } else if ('signIn') {
-      // Redirect away from the sign-in page.
-      router.navigate('/orders');
-    }
-  }, [segments, router, status]);
-}
-
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
-
   return <>{children}</>;
 };
 
@@ -75,10 +41,20 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <Providers>
-      <Stack>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="authorize" options={{ headerShown: false }} />
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: 'red',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
         <Stack.Screen name="orders" options={{ headerShown: false }} />
+        <Stack.Screen name="authorize" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
       </Stack>
     </Providers>
   );
@@ -115,7 +91,9 @@ function Providers({ children }: { children: React.ReactNode }) {
     <GestureHandlerRootView className="flex-1">
       <StatusBar style="dark" />
       <APIProvider>
-        <AuthWrapper>{children}</AuthWrapper>
+        <AuthWrapper>
+          <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+        </AuthWrapper>
       </APIProvider>
     </GestureHandlerRootView>
   );

@@ -2,13 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { WebView } from 'react-native-webview';
 import Constants from 'expo-constants';
 import { StyleSheet, Text } from 'react-native';
-import {
-  WebViewErrorEvent,
-  WebViewMessageEvent,
-  WebViewNavigation,
-} from 'react-native-webview/lib/WebViewTypes';
-import { signIn, useAuth } from '../core';
-import { INJECTED_SCRIPT, parseEventData } from './utils';
+import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
+import { INJECTED_SCRIPT, parseEventData, signIn, useAuth } from '@/core';
 import { router } from 'expo-router';
 
 const Authorize = () => {
@@ -90,7 +85,3 @@ const styles = StyleSheet.create({
     marginTop: Constants.statusBarHeight,
   },
 });
-
-const EventHandler: any = {
-  setItem: async ({ key, value }: any) => {},
-};
