@@ -102,28 +102,26 @@ const SBottomSheet = forwardRef<any, Props>(
 
     return (
       <>
-        <View className="flex-1">
-          <BottomSheetModal
-            ref={bottomSheetModalRef}
-            index={0}
-            snapPoints={snapPoints}
-            onChange={handleSheetChanges}
-            handleIndicatorStyle={{ display: 'none', padding: 0 }}
-            key={'order-pick-action'}
-            backdropComponent={renderBackdrop}
-            enableOverDrag
-            enableHandlePanningGesture
-          >
-            <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
-              <View />
-              <Text className="text-center font-semibold text-lg">{title}</Text>
-              <Pressable onPress={() => bottomSheetModalRef.current?.dismiss()}>
-                <CloseLine />
-              </Pressable>
-            </View>
-            <BottomSheetScrollView>{children}</BottomSheetScrollView>
-          </BottomSheetModal>
-        </View>
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={0}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+          handleIndicatorStyle={{ display: 'none', padding: 0 }}
+          key={'order-pick-action'}
+          backdropComponent={renderBackdrop}
+          enableOverDrag
+          enableHandlePanningGesture
+        >
+          <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
+            <View />
+            <Text className="text-center font-semibold text-lg">{title}</Text>
+            <Pressable onPress={() => bottomSheetModalRef.current?.dismiss()}>
+              <CloseLine />
+            </Pressable>
+          </View>
+          <BottomSheetScrollView>{children}</BottomSheetScrollView>
+        </BottomSheetModal>
       </>
     );
   }
