@@ -3,10 +3,18 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Badge } from '../Badge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { QRScanLine } from '~/src/core/svgs';
+import QRCodeLine from '~/src/core/svgs/QRCodeLine';
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-const OrderPickProduct = ({ title, onScan }: { title: string }) => {
+const OrderPickProduct = ({
+  title,
+  onScan,
+}: {
+  title: string;
+  onScan: (barcode: string) => void;
+}) => {
   return (
     <>
       <View className="border rounded-md border-gray-200 overflow-hidden">
@@ -36,16 +44,22 @@ const OrderPickProduct = ({ title, onScan }: { title: string }) => {
             <Text className="text-lg font-semibold">
               Nước ngọt Pepsi 330ml lốc 6 lon
             </Text>
-            <View className="flex-row gap-4">
+            <View className="flex-row gap-3 items-center">
               <Text className="text-gray-500">SKU: 1020304</Text>
+              <View className="size-1.5 rounded-full bg-gray-200" />
               <Text className="text-gray-500">Giá: 50,000đ</Text>
+              <View className="size-1.5 rounded-full bg-gray-200" />
               <Text className="text-gray-500">Unit: Pack</Text>
             </View>
           </View>
         </View>
-        <TouchableOpacity onPress={onScan} style={{ flex: 1 }}>
-          <View className="bg-blue-500 p-3 mt-6">
-            <Text className="text-center text-white">Scan</Text>
+        <TouchableOpacity
+          onPress={() => onScan('FJOEJFOEJF')}
+          style={{ flex: 1 }}
+        >
+          <View className="bg-blue-500 p-3 mt-6 flex-row items-center justify-center gap-1">
+            <Text className="text-center text-white font-medium">Scan</Text>
+            <QRCodeLine color={'white'} width={15} height={15} />
           </View>
         </TouchableOpacity>
       </View>

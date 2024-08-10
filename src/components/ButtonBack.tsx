@@ -9,7 +9,7 @@ const ButtonBack = () => {
   };
 
   return (
-    <Pressable onPress={goBack}>
+    <Pressable onPress={goBack} className="text-left">
       <ArrowLeft />
     </Pressable>
   );

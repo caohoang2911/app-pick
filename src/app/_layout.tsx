@@ -9,6 +9,7 @@ import {
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PortalProvider } from '@gorhom/portal';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -19,6 +20,7 @@ import React, { useCallback, useEffect } from 'react';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const unstable_settings = {
   initialRouteName: 'order/index',
@@ -44,7 +46,7 @@ function RootLayoutNav() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: 'red',
+            backgroundColor: '#fff',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -88,13 +90,17 @@ function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <GestureHandlerRootView className="flex-1">
-      <StatusBar style="dark" />
-      <APIProvider>
-        <AuthWrapper>
-          <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-        </AuthWrapper>
-      </APIProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PortalProvider>
+        <StatusBar style="dark" />
+        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+          <APIProvider>
+            <AuthWrapper>
+              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+            </AuthWrapper>
+          </APIProvider>
+        </SafeAreaView>
+      </PortalProvider>
     </GestureHandlerRootView>
   );
 }

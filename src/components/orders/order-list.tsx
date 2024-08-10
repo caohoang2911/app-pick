@@ -86,7 +86,7 @@ const ItemProduct = ({ id }: any) => {
 
 const OrderList = () => {
   return (
-    <View className="mt-4 flex-grow">
+    <View className="flex-grow">
       <FlatList
         className="flex-1"
         showsVerticalScrollIndicator={false}

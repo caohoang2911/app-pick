@@ -55,9 +55,7 @@ const Authorize = () => {
       originWhitelist={['*']}
       style={styles.container}
       source={{
-        uri:
-          currentUrl ||
-          'https://80f5-2402-800-637c-9211-7585-5dd5-b592-700e.ngrok-free.app',
+        uri: currentUrl || '',
       }}
       onNavigationStateChange={handleNavigationStateChange}
       injectedJavaScript={INJECTED_SCRIPT}
@@ -82,6 +80,5 @@ export default Authorize;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Constants.statusBarHeight,
   },
 });

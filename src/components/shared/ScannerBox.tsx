@@ -1,17 +1,12 @@
 import React from 'react';
 import { CameraView, BarcodeScanningResult } from 'expo-camera';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import {
-  Alert,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../Button';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
+import { FullWindowOverlay } from 'react-native-screens';
+import { Portal } from '@gorhom/portal';
 
 type Props = {
   visible?: boolean;
@@ -93,10 +88,7 @@ const ScannerBox = ({
   }
 
   return (
-    <>
-      <View style={styles.container}>
-        <View className="absolute start-0 top-0 right-0 end-0 b-red"></View>
-      </View>
+    <Portal>
       <CameraView
         style={styles.camera}
         facing={facing}
@@ -110,7 +102,7 @@ const ScannerBox = ({
       >
         <ScannerLayout onClose={onDestroy} isQRScanner={isQRScanner} />
       </CameraView>
-    </>
+    </Portal>
   );
 };
 
@@ -156,8 +148,8 @@ const styles = StyleSheet.create({
   layout: {
     position: 'absolute',
     width: deviceWidth,
-    height: '100%',
-    zIndex: 1,
+    height: deviceHeight,
+    zIndex: 3,
   },
 });
 

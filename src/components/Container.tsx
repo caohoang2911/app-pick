@@ -9,14 +9,13 @@ const Container = ({
   ...rest
 }: {
   children: React.ReactNode;
+  className?: string;
   [key: string]: any;
 }) => {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View className={clsx('flex-1 px-4 bg-white', className)} {...rest}>
-        {children}
-      </View>
-    </SafeAreaView>
+    <View className={clsx('flex-1 px-4 bg-white', className)} {...rest}>
+      {children}
+    </View>
   );
 };
 

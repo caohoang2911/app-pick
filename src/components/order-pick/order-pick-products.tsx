@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
+import React from 'react';
+import { View, Text } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
+import FooterSticky from '../shared/FooterSticky';
 import OrderPickProduct from './order-pick-product';
-import ScannerBox from '../shared/ScannerBox';
+import { Button } from '../Button';
+import { Input } from '../Input';
 const data = [
   { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
   {
@@ -48,7 +50,7 @@ const data = [
 
 const OrderPickProducts = ({ onScan }: { onScan: () => void }) => {
   return (
-    <View className="mt-4 flex-1 flex-grow">
+    <View className="flex-1 flex-grow">
       <FlatList
         className="flex-1"
         showsVerticalScrollIndicator={false}

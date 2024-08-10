@@ -1,13 +1,17 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { useNavigation } from 'expo-router';
-import React, { useLayoutEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Badge } from '~/src/components/Badge';
+import ButtonBack from '~/src/components/ButtonBack';
 import Container from '~/src/components/Container';
-import { Input } from '~/src/components/Input';
-import OrderPickHeader from '~/src/components/order-pick/order-pick-header';
+import Header from '~/src/components/order-pick/header';
+import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/order-pick-header-action-bottom-sheet';
 import OrderPickProducts from '~/src/components/order-pick/order-pick-products';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import { More2Fill } from '~/src/core/svgs';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -16,9 +20,28 @@ const OrderPick = () => {
   const [isScanner, setIsscanner] = useState(false);
 
   const headerAcrtionRef = useRef<any>();
+  const inputAmountPopupRef = useRef<any>();
 
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    navigation.setOptions({
+      // headerShown: true,
+      // headerBackTitleVisible: false,
+      // headerShadowVisible: false, // applied here,
+      // headerStyle: {
+      //   backgroundColor: 'white',
+      //   shadowColor: 'transparent',
+      //   borderBottomWidth: 0,
+      //   borderBottomColor: 'transparent',
+      // },
+      // title: null,
+      header: () => {
+        return (
+          <Header orderCode="OL350253" onClickHeaderAction={openHeaderAction} />
+        );
+      },
+    });
   }, []);
 
   const openHeaderAction = () => {
@@ -40,16 +63,7 @@ const OrderPick = () => {
   return (
     <>
       <Container>
-        <View className="mt-4 flex-1">
-          <View>
-            <OrderPickHeader
-              onClickHeaderAction={openHeaderAction}
-              orderCode="OL100100"
-            />
-            <View className="mt-4">
-              <Input className="flex-grow" placeholder="SKU, tên sản phẩm" />
-            </View>
-          </View>
+        <View className="flex-1">
           <OrderPickProducts onScan={handleScan} />
         </View>
       </Container>
@@ -61,12 +75,17 @@ const OrderPick = () => {
           alert(JSON.stringify(result));
         }}
         onDestroy={() => {
+          inputAmountPopupRef.current?.present();
           setIsscanner(false);
         }}
       />
       <OrderPickHeadeActionBottomSheet
         ref={headerAcrtionRef}
         onClickAction={handleClickAction}
+      />
+      <InputAmountPopup
+        ref={inputAmountPopupRef}
+        productName="Nước ngọt Pepsi 330ml lốc 6 lon"
       />
     </>
   );
