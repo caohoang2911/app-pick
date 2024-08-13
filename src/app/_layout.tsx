@@ -9,7 +9,7 @@ import {
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PortalProvider } from '@gorhom/portal';
+import { PortalHost, PortalProvider } from '@gorhom/portal';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -21,6 +21,7 @@ import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePushNotifications } from '~/src/core/hooks/usePushNotifications';
 
 export const unstable_settings = {
   initialRouteName: 'order/index',
@@ -65,6 +66,8 @@ function RootLayoutNav() {
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
 
+  const { token, channels, notification } = usePushNotifications();
+
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -93,13 +96,16 @@ function Providers({ children }: { children: React.ReactNode }) {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PortalProvider>
         <StatusBar style="dark" />
-        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-          <APIProvider>
-            <AuthWrapper>
-              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-            </AuthWrapper>
-          </APIProvider>
-        </SafeAreaView>
+
+        <APIProvider>
+          <AuthWrapper>
+            <BottomSheetModalProvider>
+              <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                {children}
+              </SafeAreaView>
+            </BottomSheetModalProvider>
+          </AuthWrapper>
+        </APIProvider>
       </PortalProvider>
     </GestureHandlerRootView>
   );

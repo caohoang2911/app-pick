@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "60134511875",
+    "project_id": "oms-app-pick",
+    "storage_bucket": "oms-app-pick.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60134511875:android:96177fe436406d3fabc536",
+        "android_client_info": {
+          "package_name": "com.caohoang2911.seedcomapppick"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7tQHIUYW_zoEz8s2BgWhCkBhClaY5tvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

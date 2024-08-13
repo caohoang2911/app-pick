@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { createSelectors } from '../utils/browser';
+import { createSelectors } from '../../utils/browser';
 import type { TokenType, UserInfo } from './utils';
 import {
   getToken,

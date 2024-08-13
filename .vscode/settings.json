@@ -1,5 +1,6 @@
 {
   "java.project.sourcePaths": [
-    "src/components/order-pick"
+    "src/components/order-pick",
+    "src/core"
   ]
 }

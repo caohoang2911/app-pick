@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useAuth } from '../auth';
+import { useAuth } from '../store/auth';
 import { useRouter, useSegments } from 'expo-router';
 
 export function useProtectedRoute() {
