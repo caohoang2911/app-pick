@@ -1,10 +1,11 @@
 import messaging from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
-import { registerForPushNotificationsAsync } from './utils';
 import { Platform } from 'react-native';
+import { registerForPushNotificationsAsync } from '@/core/utils/notification';
+import { router } from 'expo-router';
 
-export const useNotification: any = () => {
+export const usePushNotifications: any = () => {
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
     []
@@ -32,10 +33,11 @@ export const useNotification: any = () => {
 
     // Handle user clicking on a notification and open the screen
     const handleNotificationClick = async (response: any) => {
-      console.log(response, 'response');
+      console.log(response?.notification?.request?.content, 'response');
       const screen = response?.notification?.request?.content?.data?.screen;
+      router.push('order-pick/1');
       if (screen !== null) {
-        // navigation.navigate(screen);
+        router.push('order-pick/1');
       }
     };
 

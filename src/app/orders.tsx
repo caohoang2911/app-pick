@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Dimensions, Text } from 'react-native';
-import ScannerBox from '~/src/components/shared/ScannerBox';
-import Header from '~/src/components/orders/header';
-import OrderList from '~/src/components/orders/order-list';
-import { useNavigation } from 'expo-router';
 import Container from '@/components/Container';
 import { toggleScanQrCode, useOrders } from '@/core/store/orders';
-import { usePushNotifications } from '~/src/core/hooks/usePushNotifications';
+import { useNavigation } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Dimensions } from 'react-native';
+import Header from '~/src/components/orders/header';
+import OrderList from '~/src/components/orders/order-list';
+import ScannerBox from '~/src/components/shared/ScannerBox';
 
 const Orders = () => {
   const navigation = useNavigation();
-
   const isScanQrCode = useOrders.use.isScanQrCode();
 
   useEffect(() => {
@@ -28,6 +26,8 @@ const Orders = () => {
       ),
     });
   }, []);
+
+  // console.log(data, 'data');
 
   return (
     <>

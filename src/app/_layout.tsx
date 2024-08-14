@@ -16,12 +16,73 @@ export { ErrorBoundary } from 'expo-router';
 // Import  global CSS file
 import { hydrateAuth, useAuth } from '@/core';
 import '@/ui/global.css';
-import React, { useCallback, useEffect } from 'react';
+import React, { Children, useCallback, useEffect } from 'react';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { usePushNotifications } from '~/src/core/hooks/usePushNotifications';
+import { usePushNotifications } from '@/core/hooks/usePushNotifications';
+import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
+import { useSendFCMNotification } from '@/api/employee/useSendFCMNotification';
+
+const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
+  const { token, notification } = usePushNotifications();
+  const data = JSON.stringify(notification, undefined, 2);
+
+  const { mutate: setFCMRegistrationToken, isPending } =
+    useSetFCMRegistrationToken();
+
+  const { mutate: sendFCMNotification } = useSendFCMNotification();
+
+  useEffect(() => {
+    if (token) {
+      console.log(token, 'expoPushToken');
+      setFCMRegistrationToken(
+        { token: token },
+        {
+          onSuccess: (data: any) => {
+            console.log(data, 'data');
+          },
+          onError: (err: any) => {
+            console.log(err, 'err');
+            // showErrorMessage('Error adding post');
+          },
+        }
+      );
+    }
+  }, [token]);
+
+  const handleSendNotice = () => {
+    sendFCMNotification(
+      {
+        title: 'Cao Hoàng',
+        body: 'Tuyết Giang',
+        screen: 'order-pick/1',
+      },
+      {
+        onSuccess: (data: any) => {
+          console.log(data, 'data');
+        },
+        onError: (err: any) => {
+          console.log(err, 'err');
+          // showErrorMessage('Error adding post');
+        },
+      }
+    );
+  };
+
+  return (
+    <>
+      {/* <Text>Token: {JSON.stringify(token)}</Text>
+      <ScrollView>
+        <Text>Notification: {data}</Text>
+      </ScrollView>
+      <Button label="Send notice" onPress={handleSendNotice} />
+      <Button label="Send notice schedule" onPress={schedulePushNotification} /> */}
+      {children}
+    </>
+  );
+};
 
 export const unstable_settings = {
   initialRouteName: 'order/index',
@@ -66,8 +127,6 @@ function RootLayoutNav() {
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
 
-  const { token, channels, notification } = usePushNotifications();
-
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -96,15 +155,16 @@ function Providers({ children }: { children: React.ReactNode }) {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PortalProvider>
         <StatusBar style="dark" />
-
         <APIProvider>
-          <AuthWrapper>
-            <BottomSheetModalProvider>
-              <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                {children}
-              </SafeAreaView>
-            </BottomSheetModalProvider>
-          </AuthWrapper>
+          <NotificationWrapper>
+            <AuthWrapper>
+              <BottomSheetModalProvider>
+                <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                  {children}
+                </SafeAreaView>
+              </BottomSheetModalProvider>
+            </AuthWrapper>
+          </NotificationWrapper>
         </APIProvider>
       </PortalProvider>
     </GestureHandlerRootView>
