@@ -53,15 +53,6 @@ const OrderPickProduct = ({
             </View>
           </View>
         </View>
-        <TouchableOpacity
-          onPress={() => onScan('FJOEJFOEJF')}
-          style={{ flex: 1 }}
-        >
-          <View className="bg-blue-500 p-3 mt-6 flex-row items-center justify-center gap-1">
-            <Text className="text-center text-white font-medium">Scan</Text>
-            <QRCodeLine color={'white'} width={15} height={15} />
-          </View>
-        </TouchableOpacity>
       </View>
     </>
   );

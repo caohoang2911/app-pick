@@ -17,6 +17,7 @@ export default function Login() {
   const handleLogin = async () => {
     login(undefined, {
       onSuccess: (data: any) => {
+        console.log(data, 'datadata');
         setRedirectUrl(data.data);
         router.push('/authorize');
       },

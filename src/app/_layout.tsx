@@ -9,7 +9,8 @@ import {
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PortalHost, PortalProvider } from '@gorhom/portal';
+import { PortalProvider } from '@gorhom/portal';
+import FlashMessage from 'react-native-flash-message';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -161,6 +162,7 @@ function Providers({ children }: { children: React.ReactNode }) {
               <BottomSheetModalProvider>
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                   {children}
+                  <FlashMessage position="top" />
                 </SafeAreaView>
               </BottomSheetModalProvider>
             </AuthWrapper>

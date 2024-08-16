@@ -3,45 +3,40 @@ import clsx from 'clsx';
 import React, { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+import {
+  OrderCounterResponse,
+  useGetOrderStatusCounters,
+} from '~/src/api/app-pick';
+import { ORDER_COUNTER_STATUS } from '~/src/contants/order';
+import { useRefreshOnFocus } from '~/src/core/hooks/useRefreshOnFocus';
+import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 
-const dataStatus = [
-  {
-    id: 'all',
-    label: 'Tất cả (25)',
-  },
-  {
-    id: 'confirm',
-    label: 'Đã xác nhận (10)',
-  },
-  {
-    id: 'pick',
-    label: 'Đang pick (2)',
-  },
-  {
-    id: 'picked',
-    label: 'Đã Pick (0)',
-  },
-  {
-    id: 'packing',
-    label: 'Đang soạn hàng (5)',
-  },
-  {
-    id: 'shipping',
-    label: 'Đang vận chuyển (30)',
-  },
-  {
-    id: 'complete',
-    label: 'Đã hoàn thành (10)',
-  },
-];
-
-export function TabsStatus({ statusSeleted = 'shipping', onPressItem }: any) {
+export function TabsStatus() {
   const ref = useRef<any>();
 
+  const { data, refetch } = useGetOrderStatusCounters();
+  const orderStatusCounters = data?.data || {};
+  const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+
+  useRefreshOnFocus(async () => {
+    refetch();
+  });
+
+  const dataStatusCouters = Object.keys(orderStatusCounters)?.map(
+    (key: string) => {
+      return {
+        id: key,
+        label: ORDER_COUNTER_STATUS[key],
+        number: (orderStatusCounters as any)[key],
+      };
+    }
+  );
+
   useEffect(() => {
-    const index = dataStatus.findIndex(
-      (status) => status.id === (statusSeleted as any)
+    const index = dataStatusCouters.findIndex(
+      (status) => status.id === (selectedOrderCounter as any)
     );
+    if (index === -1) return;
 
     setTimeout(() => {
       ref.current?.scrollToIndex({
@@ -50,21 +45,24 @@ export function TabsStatus({ statusSeleted = 'shipping', onPressItem }: any) {
         viewPosition: 0.5,
       });
     });
-  }, [statusSeleted]);
+  }, [selectedOrderCounter]);
 
   return (
     <FlatList
       ref={ref}
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
-      data={dataStatus}
+      data={dataStatusCouters || []}
       renderItem={({ item, index }: { item: any; index: number }) => {
-        const isStatusSeleted = item.id === statusSeleted;
+        const isStatusSeleted = item.id === selectedOrderCounter;
         const isFirst = index === 0;
-        const isLast = index === dataStatus?.length - 1;
+        const isLast = index === dataStatusCouters?.length - 1;
 
         return (
-          <TouchableOpacity key={item.id} onPress={() => onPressItem(item.id)}>
+          <TouchableOpacity
+            key={item.id}
+            onPress={() => setSelectedOrderCounter(item.id)}
+          >
             <View
               className={clsx('py-1 rounded', {
                 'pr-4': isFirst,
@@ -78,7 +76,7 @@ export function TabsStatus({ statusSeleted = 'shipping', onPressItem }: any) {
                   'color-gray-500': !isStatusSeleted,
                 })}
               >
-                {item.label}
+                {item.label} ({item.number})
               </Text>
               {isStatusSeleted && (
                 <View

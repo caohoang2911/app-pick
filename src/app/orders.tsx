@@ -6,6 +6,7 @@ import { Dimensions } from 'react-native';
 import Header from '~/src/components/orders/header';
 import OrderList from '~/src/components/orders/order-list';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import { useRefreshOnFocus } from '../core/hooks/useRefreshOnFocus';
 
 const Orders = () => {
   const navigation = useNavigation();
@@ -14,20 +15,11 @@ const Orders = () => {
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      headerTitleContainerStyle: {
-        width: Dimensions.get('window').width,
-      },
-      header: () => (
-        <Header
-          onOpenBarcodeScanner={() => {
-            toggleScanQrCode(true);
-          }}
-        />
-      ),
+      header: () => <Header />,
     });
   }, []);
 
-  // console.log(data, 'data');
+  useRefreshOnFocus(async () => {});
 
   return (
     <>
