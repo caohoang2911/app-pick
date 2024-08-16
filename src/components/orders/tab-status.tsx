@@ -3,10 +3,7 @@ import clsx from 'clsx';
 import React, { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import {
-  OrderCounterResponse,
-  useGetOrderStatusCounters,
-} from '~/src/api/app-pick';
+import { useGetOrderStatusCounters } from '~/src/api/app-pick';
 import { ORDER_COUNTER_STATUS } from '~/src/contants/order';
 import { useRefreshOnFocus } from '~/src/core/hooks/useRefreshOnFocus';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';

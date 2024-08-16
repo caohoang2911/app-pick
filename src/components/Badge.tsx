@@ -12,6 +12,10 @@ const badgeVariants = cva(
         secondary: 'bg-secondary',
         destructive: 'bg-destructive',
         success: 'bg-green-500 dark:bg-green-700',
+        // 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED';
+        confirmed: 'bg-blue-50',
+        store_picking: 'bg-orange-50',
+        store_packed: 'bg-purple-50',
       },
     },
     defaultVariants: {
@@ -27,6 +31,9 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
       secondary: 'text-secondary-foreground',
       destructive: 'text-destructive-foreground',
       success: 'text-green-100',
+      confirmed: 'text-blue-600',
+      store_picking: 'text-orange-600',
+      store_packed: 'text-purple-600',
     },
   },
   defaultVariants: {

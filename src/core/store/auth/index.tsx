@@ -14,7 +14,7 @@ interface AuthState {
   token: string | null;
   status: 'idle' | 'signOut' | 'signIn';
   urlRedirect: string;
-  userInfo: UserInfo | {};
+  userInfo: UserInfo;
   signIn: (data: TokenType) => void;
   setRedirectUrl: (url: string) => void;
   setUser: (userInfo: UserInfo | {}) => void;

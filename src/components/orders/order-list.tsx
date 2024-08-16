@@ -1,6 +1,7 @@
-import { Link, router } from 'expo-router';
-import React from 'react';
-import { Text, View } from 'react-native';
+import { router } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import moment from 'moment';
+import { ActivityIndicator, Text, View } from 'react-native';
 import {
   FlatList,
   RefreshControl,
@@ -8,51 +9,24 @@ import {
 } from 'react-native-gesture-handler';
 import { Badge } from '~/src/components/Badge';
 import { Motobike } from '@/core/svgs';
+import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
+import { useOrders } from '~/src/core/store/orders';
+import { toLower } from 'lodash';
 
-const data = [
-  { id: 1, title: 'title 1', details: 'details 1 details 1 details 1' },
-  {
-    id: 2,
-    title: 'title 2',
-    details: 'details 2 details 2 details 2 details 2 details 2 details 2',
-  },
-  { id: 3, title: 'title 3', details: 'details 3 details 3' },
-  { id: 4, title: 'title 4 title 4', details: 'details 4' },
-  { id: 5, title: 'title 1', details: 'details 1 details 1 details 1' },
-  {
-    id: 6,
-    title: 'title 2',
-    details: 'details 2 details 2 details 2 details 2 details 2 details 2',
-  },
-  { id: 7, title: 'title 3', details: 'details 3 details 3' },
-  { id: 8, title: 'title 4 title 4', details: 'details 4' },
-  { id: 9, title: 'title 1', details: 'details 1 details 1 details 1' },
-  {
-    id: 10,
-    title: 'title 2',
-    details: 'details 2 details 2 details 2 details 2 details 2 details 2',
-  },
-  { id: 11, title: 'title 3', details: 'details 3 details 3' },
-  { id: 12, title: 'title 4 title 4', details: 'details 4' },
-  { id: 13, title: 'title 1', details: 'details 1 details 1 details 1' },
-  {
-    id: 14,
-    title: 'title 2',
-    details: 'details 2 details 2 details 2 details 2 details 2 details 2',
-  },
-  { id: 15, title: 'title 3', details: 'details 3 details 3' },
-  { id: 16, title: 'title 4 title 4', details: 'details 4' },
-  { id: 17, title: 'title 1', details: 'details 1 details 1 details 1' },
-  {
-    id: 18,
-    title: 'title 2',
-    details: 'details 2 details 2 details 2 details 2 details 2 details 2',
-  },
-  { id: 19, title: 'title 3', details: 'details 3 details 3' },
-  { id: 20, title: 'title 4 title 4', details: 'details 4' },
-];
-
-const ItemProduct = ({ id }: any) => {
+const ItemProduct = ({
+  statusName,
+  orderTime,
+  code,
+  status,
+  customer,
+  selectedOrderCounter,
+}: {
+  statusName: string;
+  orderTime: string;
+  code: string;
+  status: OrderStatus;
+  customer: any;
+}) => {
   return (
     <TouchableOpacity
       onPress={() => {
@@ -64,19 +38,26 @@ const ItemProduct = ({ id }: any) => {
           <View className="flex flex-row gap-2 items-center">
             <Motobike />
             <Text className="font-semibold text-base text-colorPrimary">
-              Mã đơn OL100100
+              Mã đơn {code}
             </Text>
           </View>
-          <Badge label={'Đang xác nhận'} variant={'default'} />
+          {selectedOrderCounter === 'ALL' && (
+            <Badge label={statusName} variant={toLower(status) as any} />
+          )}
         </View>
         <View className="p-4 pt-2 gap-1">
-          <Text className="font-semibold">Khách hàng: Minh Nguyễn</Text>
+          <Text className="font-semibold">Khách hàng: {customer?.name}</Text>
           <Text>
-            Ngày tạo: <Text className="font-semibold">12/07/2024 10:00</Text>
+            Ngày tạo:{' '}
+            <Text className="font-semibold">
+              &nbsp;{moment(orderTime).format('DD/MM/YYYY HH:mm')}
+            </Text>
           </Text>
           <Text>
             Ngày giao hàng:
-            <Text className="font-semibold">12/07/2024 14:00</Text>
+            <Text className="font-semibold">
+              &nbsp;{moment(orderTime).format('DD/MM/YYYY HH:mm')}
+            </Text>
           </Text>
         </View>
       </View>
@@ -85,19 +66,66 @@ const ItemProduct = ({ id }: any) => {
 };
 
 const OrderList = () => {
+  const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+  const keyword = useOrders.use.keyword();
+
+  const {
+    data: ordersResponse,
+    isFetching,
+    refetch,
+  } = useSearchOrders({
+    keyword,
+    status: selectedOrderCounter == 'ALL' ? undefined : selectedOrderCounter,
+  });
+
+  const withoutRefresh = useRef(false);
+  const orderList = ordersResponse?.data.list;
+
+  useEffect(() => {
+    withoutRefresh.current = true;
+    refetch();
+  }, [selectedOrderCounter, keyword]);
+
+  if (isFetching && withoutRefresh.current) {
+    return (
+      <View className="text-center py-3">
+        <ActivityIndicator className="text-gray-300" />
+      </View>
+    );
+  }
+
+  if (ordersResponse?.error) {
+    return (
+      <View className="text-center">
+        <Text>Error: {ordersResponse?.error}</Text>
+      </View>
+    );
+  }
+
   return (
-    <View className="flex-grow">
+    <View className="flex-grow mb-4">
       <FlatList
         className="flex-1"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={() => {}} />
+          <RefreshControl
+            refreshing={false}
+            onRefresh={() => {
+              withoutRefresh.current = false;
+              refetch();
+            }}
+          />
         }
-        data={data}
+        refreshing={isFetching}
+        ListEmptyComponent={<Text className="text-center mt-3">Empty</Text>}
+        data={orderList}
         renderItem={({ item }: { item: any }) => (
-          <View key={item.title} className="my-3">
-            <ItemProduct {...item} />
+          <View key={item.id} className="my-3">
+            <ItemProduct
+              {...item}
+              selectedOrderCounter={selectedOrderCounter}
+            />
           </View>
         )}
       />
