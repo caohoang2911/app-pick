@@ -27,8 +27,6 @@ const ActionBottom = () => {
 
   const { error } = orderStatusPickingData || orderStatusPickedData || {};
 
-  console.log(error, 'error');
-
   const { code } = useGlobalSearchParams<{
     code: string;
   }>();
@@ -46,7 +44,10 @@ const ActionBottom = () => {
       orderPickProducts[key].picked;
     })?.length === productItems?.length;
 
-  const disbleButton = status !== 'STORE_PICKING' && !canCompletePick;
+  const disbleButton =
+    status !== 'STORE_PICKING' &&
+    !canCompletePick &&
+    status === 'STORE_PICKING';
 
   useEffect(() => {
     if (error) {

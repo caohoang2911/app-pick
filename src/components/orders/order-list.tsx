@@ -83,7 +83,7 @@ const OrderList = () => {
   });
 
   const withoutRefresh = useRef(false);
-  const orderList = ordersResponse?.data.list;
+  const orderList = ordersResponse?.data?.list || [];
 
   useEffect(() => {
     withoutRefresh.current = true;
@@ -113,7 +113,7 @@ const OrderList = () => {
 
   if (ordersResponse?.error) {
     return (
-      <View className="text-center">
+      <View className="text-center mt-2">
         <Text>Error: {ordersResponse?.error}</Text>
       </View>
     );

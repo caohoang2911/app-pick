@@ -47,6 +47,7 @@
     "expo-notifications": "~0.28.15",
     "expo-router": "^3.5.18",
     "expo-status-bar": "~1.12.1",
+    "expo-updates": "~0.25.22",
     "formik": "^2.4.6",
     "lodash": "^4.17.21",
     "lucide-react": "^0.414.0",

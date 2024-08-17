@@ -38,10 +38,10 @@ export function TabsStatus() {
     setTimeout(() => {
       ref.current?.scrollToIndex({
         animated: true,
-        index,
+        index: index || 0,
         viewPosition: 0.5,
       });
-    });
+    }, 200);
   }, [selectedOrderCounter]);
 
   return (

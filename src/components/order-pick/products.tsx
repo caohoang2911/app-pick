@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import OrderPickProduct from './product';
@@ -16,6 +16,7 @@ const OrderPickProducts = () => {
   const { data, refetch } = useOrderDetailQuery({ orderCode: code });
 
   const orderDetail = data?.data || {};
+  const { error } = data || {};
   const { productItems } = orderDetail?.deliveries?.[0] || {};
 
   useEffect(() => {
@@ -26,6 +27,14 @@ const OrderPickProducts = () => {
 
     setInitOrderPickProducts(obj);
   }, [productItems]);
+
+  if (error) {
+    return (
+      <View className="text-center mt-2">
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 flex-grow">

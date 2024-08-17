@@ -26,7 +26,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { status, statusName } = header || {};
 
   return (
-    <View className="px-4 py-b pb-3 bg-white">
+    <View className="px-4 py-3 pb-3 bg-white">
       <View className="pt-4  flex-row justify-between">
         <View className="flex flex-row gap-2 items-center">
           <ButtonBack />
