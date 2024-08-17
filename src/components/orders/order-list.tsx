@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useRef } from 'react';
 import moment from 'moment';
 import { ActivityIndicator, Text, View } from 'react-native';
 import {
@@ -26,11 +26,13 @@ const ItemProduct = ({
   code: string;
   status: OrderStatus;
   customer: any;
+  selectedOrderCounter?: OrderStatus;
 }) => {
+  const router = useRouter();
   return (
     <TouchableOpacity
       onPress={() => {
-        router.push('order-pick/1');
+        router.push({ pathname: `orders/${code}`, params: { status } });
       }}
     >
       <View className="rounded-md border-bgPrimary border">
@@ -69,6 +71,8 @@ const OrderList = () => {
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const keyword = useOrders.use.keyword();
 
+  const firtTime = useRef<boolean>(true);
+
   const {
     data: ordersResponse,
     isFetching,
@@ -83,8 +87,21 @@ const OrderList = () => {
 
   useEffect(() => {
     withoutRefresh.current = true;
+    firtTime.current = false;
     refetch();
   }, [selectedOrderCounter, keyword]);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Hello, I am focused!');
+      if (!firtTime.current) {
+        refetch();
+      }
+      return () => {
+        console.log('This route is now unfocused.');
+      };
+    }, [])
+  );
 
   if (isFetching && withoutRefresh.current) {
     return (

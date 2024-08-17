@@ -54,6 +54,7 @@ interface ButtonProps
     VariantProps<typeof buttonVariants> {
   label: string;
   labelClasses?: string;
+  disabed?: boolean;
   loading?: boolean;
 }
 function Button({
@@ -63,12 +64,15 @@ function Button({
   variant = 'default',
   size,
   loading = false,
+  disabled,
   ...props
 }: ButtonProps) {
   return (
     <TouchableOpacity
-      disabled={loading}
-      className={cn(buttonVariants({ variant, size, className }))}
+      disabled={loading || disabled}
+      className={cn(buttonVariants({ variant, size, className }), {
+        'bg-gray-200': disabled,
+      })}
       {...props}
     >
       <Text

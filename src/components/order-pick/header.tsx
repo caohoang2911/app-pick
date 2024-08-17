@@ -3,30 +3,38 @@ import { More2Fill } from '@/core/svgs';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Badge } from '../Badge';
-import Header from '../Header';
-import SearchLine from '~/src/core/svgs/SearchLine';
-import { Input } from '../Input';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useQuery } from '@tanstack/react-query';
+import { useGlobalSearchParams } from 'expo-router';
+import { toLower } from 'lodash';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { toggleScanQrCodeProduct } from '~/src/core/store/order-pick';
+import SearchLine from '~/src/core/svgs/SearchLine';
+import { OrderDetail } from '~/src/types/order-detail';
+import { Input } from '../Input';
 
 type Props = {
-  orderCode?: string;
   onClickHeaderAction?: () => void;
-  onOpenBarcodeScanner?: () => void;
 };
 
-const OrderPickHeader = ({
-  orderCode,
-  onClickHeaderAction,
-  onOpenBarcodeScanner,
-}: Props) => {
+const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
+  const { code } = useGlobalSearchParams<{ code: string }>();
+  const data: any = useQuery({ queryKey: ['orderDetail', code] });
+
+  const orderDetail: OrderDetail = data?.data?.data || {};
+  const { header } = orderDetail;
+  const { status, statusName } = header || {};
+
   return (
     <View className="px-4 py-b pb-3 bg-white">
       <View className="pt-4  flex-row justify-between">
         <View className="flex flex-row gap-2 items-center">
           <ButtonBack />
-          <Text className="font-semibold text-xl">{orderCode}</Text>
-          <Badge label={'Đang xác nhận'} variant={'default'} />
+          <Text className="font-semibold text-xl">{code}</Text>
+          <Badge
+            label={statusName as string}
+            variant={toLower(status as string) as any}
+          />
         </View>
         <Pressable onPress={onClickHeaderAction}>
           <More2Fill />
@@ -38,7 +46,7 @@ const OrderPickHeader = ({
           placeholder="SKU, tên sản phẩm"
           prefix={<SearchLine width={20} height={20} />}
         />
-        <TouchableOpacity onPress={onOpenBarcodeScanner}>
+        <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
           <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
             <FontAwesome name="qrcode" size={24} color="white" />
           </View>

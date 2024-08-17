@@ -1,33 +1,34 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { useNavigation } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { View } from 'react-native';
 import Container from '~/src/components/Container';
+import ActionBottom from '~/src/components/order-pick/action-bottom';
 import Header from '~/src/components/order-pick/header';
+import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
-import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/order-pick-header-action-bottom-sheet';
-import OrderPickProducts from '~/src/components/order-pick/order-pick-products';
+import OrderPickProducts from '~/src/components/order-pick/products';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import {
+  setSuccessForBarcodeScan,
+  toggleScanQrCodeProduct,
+  useOrderPick,
+} from '~/src/core/store/order-pick';
 
 const OrderPick = () => {
   const navigation = useNavigation();
-  const { dismiss, dismissAll } = useBottomSheetModal();
+  const { dismiss } = useBottomSheetModal();
 
-  const [isScanner, setIsscanner] = useState(false);
+  const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
 
   const headerAcrtionRef = useRef<any>();
   const inputAmountPopupRef = useRef<any>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
+      headerShown: true,
       header: () => {
-        return (
-          <Header
-            orderCode="OL350253"
-            onClickHeaderAction={openHeaderAction}
-            onOpenBarcodeScanner={handleScan}
-          />
-        );
+        return <Header onClickHeaderAction={openHeaderAction} />;
       },
     });
   }, []);
@@ -44,27 +45,24 @@ const OrderPick = () => {
     dismiss();
   };
 
-  const handleScan = () => {
-    setIsscanner(true);
-  };
-
   return (
     <>
       <Container>
         <View className="flex-1">
-          <OrderPickProducts onScan={handleScan} />
+          <OrderPickProducts />
         </View>
       </Container>
+      <ActionBottom />
       {/* bottomshet */}
       <ScannerBox
         type="qr"
-        visible={isScanner}
+        visible={isScanQrCodeProduct}
         onSuccessBarcodeScanned={(result) => {
-          alert(JSON.stringify(result));
+          inputAmountPopupRef.current?.present();
+          setSuccessForBarcodeScan(result?.data);
         }}
         onDestroy={() => {
-          inputAmountPopupRef.current?.present();
-          setIsscanner(false);
+          toggleScanQrCodeProduct(false);
         }}
       />
       <OrderPickHeadeActionBottomSheet

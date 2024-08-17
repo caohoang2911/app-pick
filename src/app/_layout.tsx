@@ -1,30 +1,30 @@
 import { useReactNavigationDevTools } from '@dev-plugins/react-navigation';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PortalProvider } from '@gorhom/portal';
 import FlashMessage from 'react-native-flash-message';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
 
 // Import  global CSS file
-import { hydrateAuth, useAuth } from '@/core';
-import '@/ui/global.css';
-import React, { Children, useCallback, useEffect } from 'react';
+import { useSendFCMNotification } from '@/api/employee/useSendFCMNotification';
+import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
+import { hydrateAuth, useAuth } from '@/core';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
-import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
-import { useSendFCMNotification } from '@/api/employee/useSendFCMNotification';
+import '@/ui/global.css';
+import React, { useCallback, useEffect } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token, notification } = usePushNotifications();
@@ -118,6 +118,7 @@ function RootLayoutNav() {
         }}
       >
         <Stack.Screen name="orders" options={{ headerShown: false }} />
+        <Stack.Screen name="orders/[code]" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
       </Stack>
@@ -162,8 +163,8 @@ function Providers({ children }: { children: React.ReactNode }) {
               <BottomSheetModalProvider>
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                   {children}
-                  <FlashMessage position="top" />
                 </SafeAreaView>
+                <FlashMessage position="top" />
               </BottomSheetModalProvider>
             </AuthWrapper>
           </NotificationWrapper>

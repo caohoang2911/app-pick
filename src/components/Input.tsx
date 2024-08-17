@@ -1,7 +1,8 @@
 import { forwardRef } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { cn } from '../lib/utils';
 import clsx from 'clsx';
+import { TextInput } from 'react-native-gesture-handler';
 
 export interface InputProps
   extends React.ComponentPropsWithoutRef<typeof TextInput> {
@@ -10,6 +11,7 @@ export interface InputProps
   inputClasses?: string;
   suffix?: React.ReactNode;
   prefix?: React.ReactNode;
+  [key: string]: any;
 }
 const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
   (

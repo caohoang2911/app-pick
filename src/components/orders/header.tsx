@@ -1,6 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { debounce } from 'lodash';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';

@@ -1,14 +1,15 @@
-import { createMutation } from 'react-query-kit';
-import { axiosClient } from '../shared';
-import { AxiosError } from 'axios';
+import { axiosClient } from '@/api/shared';
+import { useMutation } from '@tanstack/react-query';
 
-const login = async () => {
-  console.log(process.env);
+type Response = { error: string } & { data: {} };
+
+const genHRVLoginURL = async (): Promise<Response> => {
   return await axiosClient.post('auth/genHRVLoginURL');
 };
 
-// type Variables = { title: string; body: string; userId: number };
-
-export const useLogin = createMutation<Response, void, AxiosError>({
-  mutationFn: async () => login().then((response) => response.data),
-});
+export const useLogin = () => {
+  return useMutation({
+    mutationKey: ['genHRVLoginURL'],
+    mutationFn: () => genHRVLoginURL(),
+  });
+};
