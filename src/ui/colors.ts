@@ -19,7 +19,7 @@ export const colors = {
   },
   orange: {
     50: '#FFFAF0',
-    200: '#FBD38D',
+    200: '#D6BCFA',
     600: '#C05621',
   },
   cyan: {

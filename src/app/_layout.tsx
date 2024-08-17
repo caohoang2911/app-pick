@@ -58,7 +58,7 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
       {
         title: 'Cao Hoàng',
         body: 'Tuyết Giang',
-        screen: 'order-pick/1',
+        screen: 'orders/1',
       },
       {
         onSuccess: (data: any) => {
@@ -86,7 +86,7 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const unstable_settings = {
-  initialRouteName: 'order/index',
+  initialRouteName: 'orders',
 };
 
 hydrateAuth();
@@ -117,7 +117,8 @@ function RootLayoutNav() {
           },
         }}
       >
-        <Stack.Screen name="orders" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="orders/index" options={{ headerShown: false }} />
         <Stack.Screen name="orders/[code]" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />

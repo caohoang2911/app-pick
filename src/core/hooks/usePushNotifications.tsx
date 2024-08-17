@@ -35,9 +35,8 @@ export const usePushNotifications: any = () => {
     const handleNotificationClick = async (response: any) => {
       console.log(response?.notification?.request?.content, 'response');
       const screen = response?.notification?.request?.content?.data?.screen;
-      router.push('order-pick/1');
       if (screen !== null) {
-        router.push('order-pick/1');
+        // router.push('order-pick/1');
       }
     };
 

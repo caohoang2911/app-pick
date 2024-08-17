@@ -1,4 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { router } from 'expo-router';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -6,7 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import { TabsStatus } from '~/src/components/orders/tab-status';
-import { signOut, useAuth } from '~/src/core';
+import { setEnv, signOut, useAuth } from '~/src/core';
 import { setKeyWord, toggleScanQrCode } from '~/src/core/store/orders';
 import NotificationOutline from '~/src/core/svgs/NotificationOutline';
 import SearchLine from '~/src/core/svgs/SearchLine';
@@ -20,7 +21,7 @@ const Header = () => {
   );
 
   const userInfo = useAuth.use.userInfo();
-  console.log(userInfo, 'userInfo');
+  const env = useAuth.use.env();
 
   return (
     <View className="px-4 py-4 bg-blue-100">
@@ -36,6 +37,14 @@ const Header = () => {
             <Text>
               {userInfo?.id} - {userInfo.role}
             </Text>
+            <Pressable
+              onPress={() => {
+                router.replace('/orders');
+                setEnv();
+              }}
+            >
+              <Text>{env === 'dev' ? 'Dev' : 'Prod'}</Text>
+            </Pressable>
           </View>
         </View>
         <Pressable>
@@ -56,9 +65,7 @@ const Header = () => {
           </View>
         </TouchableOpacity>
       </View>
-      <View className="mt-6">
-        <TabsStatus />
-      </View>
+      <TabsStatus />
     </View>
   );
 };

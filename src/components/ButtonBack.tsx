@@ -5,7 +5,9 @@ import { router } from 'expo-router';
 
 const ButtonBack = () => {
   const goBack = () => {
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    }
   };
 
   return (

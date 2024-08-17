@@ -25,16 +25,20 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { header } = orderDetail;
   const { status, statusName } = header || {};
 
+  const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
+
   return (
     <View className="px-4 py-3 pb-3 bg-white">
       <View className="pt-4  flex-row justify-between">
         <View className="flex flex-row gap-2 items-center">
           <ButtonBack />
           <Text className="font-semibold text-xl">{code}</Text>
-          <Badge
-            label={statusName as string}
-            variant={toLower(status as string) as any}
-          />
+          {status && (
+            <Badge
+              label={statusName as string}
+              variant={toLower(status as string) as any}
+            />
+          )}
         </View>
         <Pressable onPress={onClickHeaderAction}>
           <More2Fill />
@@ -46,11 +50,13 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           placeholder="SKU, tên sản phẩm"
           prefix={<SearchLine width={20} height={20} />}
         />
-        <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
-          <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
-            <FontAwesome name="qrcode" size={24} color="white" />
-          </View>
-        </TouchableOpacity>
+        {shouldDisplayQrScan && (
+          <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
+            <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
+              <FontAwesome name="qrcode" size={24} color="white" />
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

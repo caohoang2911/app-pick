@@ -3,14 +3,15 @@ import { Alert, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { useGlobalSearchParams } from 'expo-router';
-import Loading from '../Loading';
 import { showMessage } from 'react-native-flash-message';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-detail';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 
 const ActionBottom = () => {
+  const queryClient = useQueryClient();
+
   const {
     mutate: setOrderStatusPicking,
     data: orderStatusPickingData,
@@ -41,13 +42,15 @@ const ActionBottom = () => {
 
   const canCompletePick =
     Object.keys(orderPickProducts).filter((key) => {
-      orderPickProducts[key].picked;
+      return orderPickProducts[key].picked;
     })?.length === productItems?.length;
 
-  const disbleButton =
-    status !== 'STORE_PICKING' &&
-    !canCompletePick &&
-    status === 'STORE_PICKING';
+  const disbleButton = () => {
+    if (status === 'CONFIRMED') return false;
+    if (canCompletePick && status === 'STORE_PICKING') return false;
+
+    return true;
+  };
 
   useEffect(() => {
     if (error) {
@@ -63,6 +66,7 @@ const ActionBottom = () => {
             : 'Đã pick đơn thành công',
         type: 'success',
       });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     }
   }, [orderStatusPickingData, orderStatusPickedData]);
 
@@ -91,13 +95,14 @@ const ActionBottom = () => {
     );
   };
 
+  if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;
   return (
     <View className="border-t border-gray-200 pb-4">
       <View className="px-4 py-5 bg-white ">
         <Button
           loading={isLoadingOrderStatusPicked || isLoadingOrderStatusPicking}
           onPress={handlePick}
-          disabled={disbleButton}
+          disabled={disbleButton()}
           label={status === 'STORE_PICKING' ? 'Đã pick xong' : 'Bắt đầu pick'}
         />
       </View>

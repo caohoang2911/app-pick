@@ -13,6 +13,7 @@ export function TabsStatus() {
 
   const { data, refetch } = useGetOrderStatusCounters();
   const orderStatusCounters = data?.data || {};
+  const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
 
   useRefreshOnFocus(async () => {
@@ -44,8 +45,11 @@ export function TabsStatus() {
     }, 200);
   }, [selectedOrderCounter]);
 
+  if (error) return <></>;
+
   return (
     <FlatList
+      className="mt-6"
       ref={ref}
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
@@ -54,7 +58,6 @@ export function TabsStatus() {
         const isStatusSeleted = item.id === selectedOrderCounter;
         const isFirst = index === 0;
         const isLast = index === dataStatusCouters?.length - 1;
-
         return (
           <TouchableOpacity
             key={item.id}

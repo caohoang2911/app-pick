@@ -26,3 +26,6 @@ export const removeToken = () => {
 export const setToken = (value: string) => setItem<string>(TOKEN, value);
 export const setUserInfo = (value: TokenType['userInfo']) =>
   setItem<TokenType['userInfo']>(USER_INFO, value);
+
+export const setENV = (value: string) => setItem<string>('env', value);
+export const getENV = () => getItem<string>('env');

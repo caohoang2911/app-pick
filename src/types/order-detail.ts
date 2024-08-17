@@ -123,7 +123,7 @@ export interface OrderDetailHeader {
   code?: string;
   customer?: Customer;
   company?: number;
-  status?: number | string;
+  status?: OrderStatus;
   sourceSale?: number;
   refund?: TemplateOrderRefund;
   statusName?: string;

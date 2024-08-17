@@ -29,7 +29,7 @@ interface AuthState {
 const _useAuth = create<AuthState>((set, get) => ({
   status: 'idle',
   token: null,
-  env: 'dev',
+  env: 'prod',
   urlRedirect: '',
   userInfo: {},
   setRedirectUrl: (url: string) => {
@@ -50,7 +50,7 @@ const _useAuth = create<AuthState>((set, get) => ({
   setEnv: () => {
     const currentEnv = get().env;
     const nextEnv = currentEnv == 'dev' ? 'prod' : 'dev';
-    setENV(currentEnv);
+    setENV(nextEnv);
     set({ env: nextEnv });
   },
   hydrate: () => {
