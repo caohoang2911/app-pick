@@ -35,7 +35,12 @@ const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
   const productName = currentProduct?.name || '';
 
   return (
-    <SBottomSheet title={productName} snapPoints={snapPoints} ref={ref}>
+    <SBottomSheet
+      title={productName}
+      snapPoints={snapPoints}
+      ref={ref}
+      // enableDismissOnClose={false}
+    >
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
         <Formik
           initialValues={{ number: 0 }}
@@ -46,8 +51,11 @@ const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
               barcode: barcodeScanSuccess,
               number: values.number,
             });
-            Keyboard.dismiss();
-            dismiss();
+
+            setTimeout(() => {
+              Keyboard.dismiss();
+              dismiss();
+            }, 100);
           }}
         >
           {({ values, handleBlur, setFieldValue, handleSubmit }) => (

@@ -2,6 +2,7 @@ import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useRef } from 'react';
 import { View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import Container from '~/src/components/Container';
 import ActionBottom from '~/src/components/order-pick/action-bottom';
 import Header from '~/src/components/order-pick/header';
@@ -20,6 +21,7 @@ const OrderPick = () => {
   const { dismiss } = useBottomSheetModal();
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
+  const orderPickProducts: any = useOrderPick.use.orderPickProducts();
 
   const headerAcrtionRef = useRef<any>();
   const inputAmountPopupRef = useRef<any>();
@@ -34,11 +36,7 @@ const OrderPick = () => {
   }, []);
 
   const openHeaderAction = () => {
-    if (headerAcrtionRef.current?.present()) {
-      dismiss();
-    } else {
-      headerAcrtionRef.current?.present();
-    }
+    headerAcrtionRef.current?.present();
   };
 
   const handleClickAction = (key: string) => {
@@ -58,6 +56,13 @@ const OrderPick = () => {
         type="qr"
         visible={isScanQrCodeProduct}
         onSuccessBarcodeScanned={(result) => {
+          if (!orderPickProducts[result?.data]) {
+            showMessage({
+              message: 'Mã vừa quét không nằm trong đơn hàng',
+              type: 'warning',
+            });
+            return;
+          }
           inputAmountPopupRef.current?.present();
           setSuccessForBarcodeScan(result?.data);
         }}

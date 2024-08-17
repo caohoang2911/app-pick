@@ -11,6 +11,7 @@ import { setEnv, signOut, useAuth } from '~/src/core';
 import { setKeyWord, toggleScanQrCode } from '~/src/core/store/orders';
 import NotificationOutline from '~/src/core/svgs/NotificationOutline';
 import SearchLine from '~/src/core/svgs/SearchLine';
+import { Badge } from '../Badge';
 
 const Header = () => {
   const handleSearch = useCallback(
@@ -43,7 +44,18 @@ const Header = () => {
                 setEnv();
               }}
             >
-              <Text>{env === 'dev' ? 'Dev' : 'Prod'}</Text>
+              <View className="flex flex-row gap-2">
+                <Badge
+                  label={'Dev'}
+                  variant={env === 'dev' ? 'default' : 'secondary'}
+                  className="self-start"
+                />
+                <Badge
+                  label={'Prod'}
+                  variant={env === 'prod' ? 'default' : 'secondary'}
+                  className="self-start"
+                />
+              </View>
             </Pressable>
           </View>
         </View>

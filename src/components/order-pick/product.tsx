@@ -6,6 +6,7 @@ import { Product } from '~/src/types/product';
 import { formatCurrency, formatNumber } from '~/src/core/utils/number';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { CheckCircleFill } from '~/src/core/svgs';
+
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 

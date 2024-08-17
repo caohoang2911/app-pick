@@ -4,7 +4,10 @@ import React, { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
-import { ORDER_COUNTER_STATUS } from '~/src/contants/order';
+import {
+  ORDER_COUNTER_STATUS,
+  ORDER_COUNTER_STATUS_PRIORITY,
+} from '~/src/contants/order';
 import { useRefreshOnFocus } from '~/src/core/hooks/useRefreshOnFocus';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 
@@ -20,18 +23,21 @@ export function TabsStatus() {
     refetch();
   });
 
-  const dataStatusCouters = Object.keys(orderStatusCounters)?.map(
+  const dataStatusCounters = Object.keys(orderStatusCounters)?.map(
     (key: string) => {
       return {
         id: key,
         label: ORDER_COUNTER_STATUS[key],
+        priority: ORDER_COUNTER_STATUS_PRIORITY[key],
         number: (orderStatusCounters as any)[key],
       };
     }
   );
 
+  console.log(dataStatusCounters, 'dataStatusCounters');
+
   useEffect(() => {
-    const index = dataStatusCouters.findIndex(
+    const index = dataStatusCounters.findIndex(
       (status) => status.id === (selectedOrderCounter as any)
     );
     if (index === -1) return;
@@ -53,11 +59,11 @@ export function TabsStatus() {
       ref={ref}
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
-      data={dataStatusCouters || []}
+      data={sortByPriority(dataStatusCounters || [])}
       renderItem={({ item, index }: { item: any; index: number }) => {
         const isStatusSeleted = item.id === selectedOrderCounter;
         const isFirst = index === 0;
-        const isLast = index === dataStatusCouters?.length - 1;
+        const isLast = index === dataStatusCounters?.length - 1;
         return (
           <TouchableOpacity
             key={item.id}
@@ -93,4 +99,8 @@ export function TabsStatus() {
       horizontal
     />
   );
+}
+
+function sortByPriority(data: Array<any>) {
+  return data.sort((a, b) => a.priority - b.priority);
 }

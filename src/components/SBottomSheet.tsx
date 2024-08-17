@@ -67,7 +67,6 @@ const SBottomSheet = forwardRef<any, Props>(
           handleIndicatorStyle={{ display: 'none', padding: 0 }}
           key={'order-pick-action'}
           backdropComponent={renderBackdrop}
-          enableDismissOnClose={false}
           android_keyboardInputMode="adjustPan"
           enablePanDownToClose
           enableHandlePanningGesture

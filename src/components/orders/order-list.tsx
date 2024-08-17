@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
 import moment from 'moment';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import {
   FlatList,
   RefreshControl,
@@ -12,6 +12,7 @@ import { Motobike } from '@/core/svgs';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useOrders } from '~/src/core/store/orders';
 import { toLower } from 'lodash';
+import { SectionAlert } from '../SectionAlert';
 
 const ItemProduct = ({
   statusName,
@@ -20,6 +21,7 @@ const ItemProduct = ({
   status,
   customer,
   selectedOrderCounter,
+  expectedDeliveryTimeRange,
 }: {
   statusName: string;
   orderTime: string;
@@ -27,6 +29,7 @@ const ItemProduct = ({
   status: OrderStatus;
   customer: any;
   selectedOrderCounter?: OrderStatus;
+  expectedDeliveryTimeRange?: any;
 }) => {
   const router = useRouter();
   return (
@@ -58,7 +61,8 @@ const ItemProduct = ({
           <Text>
             Ngày giao hàng:
             <Text className="font-semibold">
-              &nbsp;{moment(orderTime).format('DD/MM/YYYY HH:mm')}
+              &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} -{' '}
+              {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
             </Text>
           </Text>
         </View>
@@ -113,8 +117,10 @@ const OrderList = () => {
 
   if (ordersResponse?.error) {
     return (
-      <View className="text-center mt-2">
-        <Text>Error: {ordersResponse?.error}</Text>
+      <View className=" mt-2">
+        <SectionAlert variant={'danger'}>
+          <Text>Error: {ordersResponse?.error}</Text>
+        </SectionAlert>
       </View>
     );
   }
@@ -151,3 +157,19 @@ const OrderList = () => {
 };
 
 export default OrderList;
+
+const expectedDeliveryTime = (expectedDeliveryTimeRange: Array<any>): any => {
+  const startTime = expectedDeliveryTimeRange?.[0];
+  const endTime = expectedDeliveryTimeRange?.[1];
+
+  if (!startTime || !endTime) return '-';
+  if (moment(startTime).valueOf() === moment(endTime).valueOf())
+    return moment(startTime).format('HH:mm') + ' - ';
+  return {
+    day: moment(startTime).format('DD/MM/YYYY'),
+    hh:
+      moment(startTime).format('HH:mm') +
+      ' - ' +
+      moment(endTime).format('HH:mm'),
+  };
+};
