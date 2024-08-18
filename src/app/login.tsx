@@ -2,11 +2,12 @@ import { Button } from '@/components/Button';
 import { useAssets } from 'expo-asset';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
-import { useLogin } from '../api/auth';
-import { setRedirectUrl } from '../core';
+import { Pressable, View } from 'react-native';
+import { useLogin } from '@/api/auth';
+import { setEnv, setRedirectUrl, useAuth } from '@/core';
 import { router } from 'expo-router';
 import { showMessage } from 'react-native-flash-message';
+import { Badge } from '@/components/Badge';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -14,8 +15,7 @@ const blurhash =
 export default function Login() {
   const { mutate: login, data, isPending } = useLogin();
   const [assets] = useAssets([require('assets/logo.png')]);
-
-  console.log(data, 'datadata');
+  const env = useAuth.use.env();
 
   useEffect(() => {
     if (data?.error) {
@@ -29,19 +29,8 @@ export default function Login() {
     }
   }, [data]);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     login();
-    // login(undefined, {
-    //   onSuccess: (data: any) => {
-    //     console.log(data, 'datadata');
-    //     setRedirectUrl(data.data);
-    //     router.push('/authorize');
-    //   },
-    //   onError: (err) => {
-    //     console.log(err, 'err');
-    //     // showErrorMessage('Error adding post');
-    //   },
-    // });
   };
   return (
     <View className="h-full items-center justify-center">
@@ -58,6 +47,24 @@ export default function Login() {
           onPress={handleLogin}
           label={'Đăng nhập bằng Harawork '}
         />
+        <Pressable
+          onPress={() => {
+            setEnv();
+          }}
+        >
+          <View className="flex flex-row gap-2">
+            <Badge
+              label={'Dev'}
+              variant={env === 'dev' ? 'default' : 'secondary'}
+              className="self-start"
+            />
+            <Badge
+              label={'Prod'}
+              variant={env === 'prod' ? 'default' : 'secondary'}
+              className="self-start"
+            />
+          </View>
+        </Pressable>
       </View>
     </View>
   );

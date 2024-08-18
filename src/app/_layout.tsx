@@ -25,6 +25,7 @@ import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import '@/ui/global.css';
 import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View } from 'react-native';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token, notification } = usePushNotifications();
@@ -129,6 +130,7 @@ function RootLayoutNav() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
+  const env = useAuth.use.env();
 
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
@@ -163,6 +165,11 @@ function Providers({ children }: { children: React.ReactNode }) {
             <AuthWrapper>
               <BottomSheetModalProvider>
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                  <View className="absolute bottom-3 right-5 z-10">
+                    <Text className="text-gray-500 text-xs">
+                      {env === 'prod' ? 'Production' : 'Development'}
+                    </Text>
+                  </View>
                   {children}
                 </SafeAreaView>
                 <FlashMessage position="top" />

@@ -141,7 +141,15 @@ const OrderList = () => {
           />
         }
         refreshing={isFetching}
-        ListEmptyComponent={<Text className="text-center mt-3">Empty</Text>}
+        ListEmptyComponent={
+          !isFetching ? (
+            <View className="mt-3">
+              <Text className="text-center">Không có dữ liệu</Text>
+            </View>
+          ) : (
+            <></>
+          )
+        }
         data={orderList}
         renderItem={({ item }: { item: any }) => (
           <View key={item.id} className="my-3">

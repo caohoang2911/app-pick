@@ -1,5 +1,4 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { router } from 'expo-router';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -7,11 +6,10 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import { TabsStatus } from '~/src/components/orders/tab-status';
-import { setEnv, signOut, useAuth } from '~/src/core';
+import { signOut, useAuth } from '~/src/core';
 import { setKeyWord, toggleScanQrCode } from '~/src/core/store/orders';
 import NotificationOutline from '~/src/core/svgs/NotificationOutline';
 import SearchLine from '~/src/core/svgs/SearchLine';
-import { Badge } from '../Badge';
 
 const Header = () => {
   const handleSearch = useCallback(
@@ -22,7 +20,6 @@ const Header = () => {
   );
 
   const userInfo = useAuth.use.userInfo();
-  const env = useAuth.use.env();
 
   return (
     <View className="px-4 py-4 bg-blue-100">
@@ -38,25 +35,6 @@ const Header = () => {
             <Text>
               {userInfo?.id} - {userInfo.role}
             </Text>
-            <Pressable
-              onPress={() => {
-                router.replace('/orders');
-                setEnv();
-              }}
-            >
-              <View className="flex flex-row gap-2">
-                <Badge
-                  label={'Dev'}
-                  variant={env === 'dev' ? 'default' : 'secondary'}
-                  className="self-start"
-                />
-                <Badge
-                  label={'Prod'}
-                  variant={env === 'prod' ? 'default' : 'secondary'}
-                  className="self-start"
-                />
-              </View>
-            </Pressable>
           </View>
         </View>
         <Pressable>
