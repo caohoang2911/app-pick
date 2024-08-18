@@ -45,6 +45,7 @@ const _useAuth = create<AuthState>((set, get) => ({
   },
   signOut: () => {
     removeToken();
+    setENV('prod');
     set({ status: 'signOut', token: null });
   },
   setEnv: () => {
