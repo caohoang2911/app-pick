@@ -19,7 +19,7 @@ const Authorize = () => {
   }, [urlRedirect]);
 
   const handleNavigationStateChange = (data: any) => {
-    if (data?.url?.startsWith?.('https://oms.seedcom.vn/') && flag.current) {
+    if (data?.url?.startsWith?.('seedcom.vn') && flag.current) {
       flag.current = false;
       console.log(data?.url, 'data?.url');
       setCurrentUrl(data?.url);

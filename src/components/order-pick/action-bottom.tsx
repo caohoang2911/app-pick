@@ -61,9 +61,9 @@ const ActionBottom = () => {
     } else if (orderStatusPickingData || orderStatusPickedData) {
       showMessage({
         message:
-          status !== 'STORE_PICKING'
-            ? 'Xác nhận pick đơn thành công'
-            : 'Đã pick đơn thành công',
+          status === 'STORE_PICKING'
+            ? 'Xác nhận đang soạn hàng thành công'
+            : 'Đã soạn hàng thành công',
         type: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });

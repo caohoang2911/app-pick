@@ -16,7 +16,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.caohoang2911.seedcom-app-pick",
-      "associatedDomains": ["applinks:expo.dev"],
+      "associatedDomains": [
+        "applinks:expo.dev"
+      ],
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
@@ -55,6 +57,13 @@
         }
       ],
       [
+        "expo-asset",
+  
+        {
+          "assets": ["./assets/logo.png"]
+        }
+      ],
+      [
         "@react-native-firebase/app"
       ]
     ],
@@ -62,6 +71,10 @@
       "eas": {
         "projectId": "58d442de-186f-4ce5-a7b4-664b666f2ac0"
       }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/58d442de-186f-4ce5-a7b4-664b666f2ac0"
     }
   }
 }

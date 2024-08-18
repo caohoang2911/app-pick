@@ -2,7 +2,7 @@ import { Button } from '@/components/Button';
 import { useAssets } from 'expo-asset';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useLogin } from '@/api/auth';
 import { setEnv, setRedirectUrl, useAuth } from '@/core';
 import { router } from 'expo-router';
@@ -38,10 +38,11 @@ export default function Login() {
         <Image
           placeholder={{ blurhash }}
           contentFit="cover"
-          source={assets?.[0] as any}
+          source={'logo'}
           className="w-100"
           style={{ width: 230, height: 40 }}
         />
+
         <Button
           loading={isPending}
           onPress={handleLogin}
