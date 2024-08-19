@@ -19,8 +19,13 @@ export function TabsStatus() {
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
 
+  const isFirtTime = useRef(true);
+
   useRefreshOnFocus(async () => {
-    refetch();
+    if (!isFirtTime.current) {
+      refetch();
+    }
+    isFirtTime.current = false;
   });
 
   const dataStatusCounters = Object.keys(orderStatusCounters)?.map(

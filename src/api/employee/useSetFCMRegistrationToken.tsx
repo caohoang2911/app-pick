@@ -1,14 +1,18 @@
-import { createMutation } from 'react-query-kit';
+import { useMutation } from '@tanstack/react-query';
 import { axiosClient } from '../shared';
-import { AxiosError } from 'axios';
 
-const setFCMRegistrationToken = async (params: any) => {
+type Variables = { token: string };
+
+type Response = { error: string } & {};
+
+const setFCMRegistrationToken = async (
+  params: Variables
+): Promise<Response> => {
   return await axiosClient.post('employee/setFCMRegistrationToken', params);
 };
 
-// type Variables = { title: string; body: string; userId: number };
-
-export const useSetFCMRegistrationToken = createMutation<any, any, AxiosError>({
-  mutationFn: async (params: any) =>
-    setFCMRegistrationToken(params).then((response) => response.data),
-});
+export const useSetFCMRegistrationToken = () => {
+  return useMutation({
+    mutationFn: (params: Variables) => setFCMRegistrationToken(params),
+  });
+};

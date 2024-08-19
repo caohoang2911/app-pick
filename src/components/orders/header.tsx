@@ -1,17 +1,26 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { debounce } from 'lodash';
-import { useCallback } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { debounce, toUpper } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
+import { Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import { TabsStatus } from '~/src/components/orders/tab-status';
 import { signOut, useAuth } from '~/src/core';
-import { setKeyWord, toggleScanQrCode } from '~/src/core/store/orders';
+import {
+  setKeyWord,
+  toggleScanQrCode,
+  useOrders,
+} from '~/src/core/store/orders';
 import NotificationOutline from '~/src/core/svgs/NotificationOutline';
 import SearchLine from '~/src/core/svgs/SearchLine';
 
+const windowWidth = Dimensions.get('window').width;
+
 const Header = () => {
+  const [value, setValue] = useState<string>();
+  const keyword = useOrders.use.keyword();
+
   const handleSearch = useCallback(
     debounce((value: string) => {
       setKeyWord(value);
@@ -31,9 +40,15 @@ const Header = () => {
             </Avatar>
           </TouchableOpacity>
           <View className="gap-1">
-            <Text className="font-semibold text-xl">Chào {userInfo?.name}</Text>
-            <Text>
-              {userInfo?.id} - {userInfo.role}
+            <Text className="font-semibold text-lg">
+              {userInfo?.name} - {toUpper(userInfo?.email)}
+            </Text>
+            <Text
+              className="text-sm"
+              style={{ maxWidth: windowWidth - 120 }}
+              numberOfLines={1}
+            >
+              {userInfo?.storeCode} - {userInfo?.storeName}
             </Text>
           </View>
         </View>
@@ -47,7 +62,15 @@ const Header = () => {
           className="flex-grow"
           placeholder="Mã đơn hàng, sản phẩm"
           prefix={<SearchLine width={20} height={20} />}
-          onChangeText={handleSearch}
+          onChangeText={(value: string) => {
+            setValue(value);
+            handleSearch(value);
+          }}
+          value={value}
+          onClear={() => {
+            setValue('');
+            setKeyWord('');
+          }}
         />
         <TouchableOpacity onPress={() => toggleScanQrCode(true)}>
           <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">

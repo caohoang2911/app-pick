@@ -4,8 +4,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo run:android --device",
-    "ios": "expo run:ios --device",
+    "android": "expo run:android --no-build-cache --device",
+    "ios": "expo run:ios --no-build-cache --device",
     "web": "expo start --web",
     "export": "expo export --platform web",
     "prebuild": "expo prebuild",
@@ -14,9 +14,9 @@
     "clean-android": "expo prebuild --platform android  --clean",
     "serve": "npx serve -s dist",
     "build-preview": "eas build -p android --profile preview",
-    "build-android": "eas build:run -p android",
-    "reset-pod": "rm -rf ~/Library/Developer/Xcode/DerivedData && cd ios && rm -rf buid && rm -rf DerivedData && rm -rf Pods",
-    "reset": "rm -rf ~/Library/Developer/Xcode/DerivedData && watchman watch-del-all && rm -rf node_modules && yarn install && yarn reset-pod"
+    "build-android": "eas build:run -p android --lastest",
+    "build-android-local": "eas build --platform android --local",
+    "codepush-preview": "eas update --channel=preview"
   },
   "dependencies": {
     "@dev-plugins/react-navigation": "^0.0.6",

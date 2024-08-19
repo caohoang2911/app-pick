@@ -3,9 +3,12 @@ import * as Notifications from 'expo-notifications';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { registerForPushNotificationsAsync } from '@/core/utils/notification';
-import { router } from 'expo-router';
+import { usePathname } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const usePushNotifications: any = () => {
+  const queryClient = useQueryClient();
+
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
     []
@@ -95,9 +98,12 @@ export const usePushNotifications: any = () => {
         data: remoteMessage.data, // optional data payload
       };
 
+      queryClient.resetQueries({ queryKey: ['searchOrders'] });
+      queryClient.resetQueries({ queryKey: ['getOrderStatusCounters'] });
+
       await Notifications.scheduleNotificationAsync({
         content: notification,
-        trigger: { seconds: 2 },
+        trigger: null,
       });
     };
 

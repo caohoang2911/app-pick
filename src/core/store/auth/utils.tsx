@@ -10,6 +10,8 @@ export type UserInfo = {
   email?: string;
   company?: string;
   role?: string;
+  storeCode: string;
+  storeName: string;
 };
 
 export type TokenType = {

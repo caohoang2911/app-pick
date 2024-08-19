@@ -26,5 +26,4 @@ export const useGetOrderStatusCounters = () =>
     queryFn: () => {
       return getCounter();
     },
-    enabled: false,
   });

@@ -9,7 +9,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import FlashMessage from 'react-native-flash-message';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -28,31 +28,31 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { token, notification } = usePushNotifications();
-  const data = JSON.stringify(notification, undefined, 2);
+  const { token } = usePushNotifications();
+  const status = useAuth.use.status();
 
-  const { mutate: setFCMRegistrationToken, isPending } =
+  const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
 
   const { mutate: sendFCMNotification } = useSendFCMNotification();
 
   useEffect(() => {
-    if (token) {
-      console.log(token, 'expoPushToken');
-      setFCMRegistrationToken(
-        { token: token },
-        {
-          onSuccess: (data: any) => {
-            console.log(data, 'data');
-          },
-          onError: (err: any) => {
-            console.log(err, 'err');
-            // showErrorMessage('Error adding post');
-          },
-        }
-      );
+    console.log(token, 'expoPushToken');
+    if (token && status === 'signIn') {
+      setFCMRegistrationToken({ token: token });
     }
-  }, [token]);
+  }, [token, status]);
+
+  useEffect(() => {
+    if (data?.error) {
+      showMessage({
+        message: data?.error as string,
+        type: 'danger',
+      });
+    } else if (data) {
+      console.log('success');
+    }
+  }, [data]);
 
   const handleSendNotice = () => {
     sendFCMNotification(
@@ -167,7 +167,9 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
-                      {env === 'prod' ? 'Production' : 'Development'}
+                      {env === 'prod'
+                        ? 'Production 1.0.0'
+                        : 'Development 1.0.0'}
                     </Text>
                   </View>
                   {children}

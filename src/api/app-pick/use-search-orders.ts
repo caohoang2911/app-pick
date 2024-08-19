@@ -32,5 +32,5 @@ export const useSearchOrders = (params?: Variables) =>
     queryFn: () => {
       return searchOrders(params);
     },
-    enabled: false,
+    enabled: !!params,
   });

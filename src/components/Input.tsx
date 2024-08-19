@@ -1,8 +1,9 @@
 import { forwardRef } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { cn } from '../lib/utils';
 import clsx from 'clsx';
 import { TextInput } from 'react-native-gesture-handler';
+import { CloseLine } from '../core/svgs';
 
 export interface InputProps
   extends React.ComponentPropsWithoutRef<typeof TextInput> {
@@ -11,11 +12,21 @@ export interface InputProps
   inputClasses?: string;
   suffix?: React.ReactNode;
   prefix?: React.ReactNode;
+  onClear: () => void;
   [key: string]: any;
 }
 const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
   (
-    { className, label, suffix, prefix, labelClasses, inputClasses, ...props },
+    {
+      className,
+      label,
+      suffix,
+      prefix,
+      labelClasses,
+      inputClasses,
+      onClear,
+      ...props
+    },
     ref
   ) => {
     return (
@@ -41,6 +52,14 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             <View className="absolute top-1/2 left-3 transform -translate-y-1/2">
               {prefix && prefix}
             </View>
+          )}
+          {props.value && (
+            <Pressable
+              onPress={onClear}
+              className="absolute top-1/2 right-3 transform -translate-y-1/2"
+            >
+              <CloseLine width={20} height={20} color={'#dfdfdf'} />
+            </Pressable>
           )}
         </View>
       </View>
