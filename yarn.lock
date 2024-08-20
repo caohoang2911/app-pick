@@ -4157,6 +4157,11 @@ expo-modules-core@1.12.19:
   dependencies:
     invariant "^2.2.4"
 
+expo-network@~6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/expo-network/-/expo-network-6.0.1.tgz#0e1f8e2476d8094ae7eada651a58219eda2ec4e8"
+  integrity sha512-WXXvkt1H75ojHVa263Jq+qjIyMzCfaoRzHKzOBMuSyDDcma9WpvKJpR1YpEQZH/zDhSfkKvh7Q3wRGOJr1J+dQ==
+
 expo-notifications@~0.28.15:
   version "0.28.15"
   resolved "https://registry.yarnpkg.com/expo-notifications/-/expo-notifications-0.28.15.tgz#41d43d518ee5be2b7d57f4472ba49402717d3c48"

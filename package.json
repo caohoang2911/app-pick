@@ -14,6 +14,7 @@
     "clean-android": "expo prebuild --platform android  --clean",
     "serve": "npx serve -s dist",
     "build-preview": "eas build -p android --profile preview",
+    "build-ios": "eas build -p ios --profile preview",
     "build-android": "eas build:run -p android --lastest",
     "build-android-local": "eas build --platform android --local",
     "codepush-preview": "eas update --channel=preview"
@@ -44,6 +45,7 @@
     "expo-font": "~12.0.9",
     "expo-image": "~1.12.13",
     "expo-linking": "~6.3.1",
+    "expo-network": "~6.0.1",
     "expo-notifications": "~0.28.15",
     "expo-router": "^3.5.18",
     "expo-status-bar": "~1.12.1",
