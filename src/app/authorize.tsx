@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { WebView } from 'react-native-webview';
 import Constants from 'expo-constants';
-import { StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet, Text } from 'react-native';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { INJECTED_SCRIPT, parseEventData, signIn, useAuth } from '@/core';
 import { router } from 'expo-router';
+import { showMessage } from 'react-native-flash-message';
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
@@ -39,10 +40,36 @@ const Authorize = () => {
     switch (event) {
       case 'login':
         const { authInfo } = dataParser.data || {};
-        const { zas } = authInfo || {};
+        const { zas, role } = authInfo || {};
 
-        signIn({ token: zas, userInfo: authInfo });
-        router.replace('/orders');
+        console.log(authInfo, 'authInfo');
+        if (role === 'STORE') {
+          signIn({ token: zas, userInfo: authInfo });
+          router.replace('/orders');
+        } else {
+          router.back();
+          Alert.alert(
+            'Chưa thể đang nhập',
+            'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
+            [
+              {
+                text: 'Quay lại',
+                style: 'cancel',
+              },
+              {
+                text: 'Yêu cầu mở quyền',
+                onPress: () => {
+                  showMessage({
+                    message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
+                    type: 'success',
+                  });
+                },
+                style: 'cancel',
+              },
+            ],
+            { cancelable: false }
+          );
+        }
         break;
       default:
         break;
@@ -71,6 +98,7 @@ const Authorize = () => {
       useSharedProcessPool
       startInLoadingState={false}
       allowsBackForwardNavigationGestures={false}
+      incognito={true}
     />
   );
 };
