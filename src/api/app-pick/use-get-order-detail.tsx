@@ -29,26 +29,19 @@ const getDetailShareOrder = async ({
   return await axiosClient.get(`share/order`, { params });
 };
 
-export const useOrderDetailQuery = (
-  { orderCode }: Variables,
-  config = { enabled: true }
-) => {
+export const useOrderDetailQuery = ({ orderCode }: Variables) => {
   return useQuery({
     queryKey: ['orderDetail', orderCode],
     queryFn: () => {
       return getDetailOrder({ orderCode });
     },
-    ...config,
+    enabled: true,
   });
 };
 
-export const useOrderShareDetailQuery = (
-  { orderCode }: Variables,
-  config = { enabled: true }
-) => {
+export const useOrderShareDetailQuery = ({ orderCode }: Variables) => {
   return useQuery({
     queryKey: ['useOrderShareDetailQuery'],
     queryFn: () => getDetailShareOrder({ orderCode }),
-    ...config,
   });
 };

@@ -1,11 +1,12 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Badge } from '../Badge';
 import { Product } from '~/src/types/product';
 import { formatCurrency, formatNumber } from '~/src/core/utils/number';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { CheckCircleFill } from '~/src/core/svgs';
+import clsx from 'clsx';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -18,12 +19,16 @@ const OrderPickProduct = ({
   unit,
   quantity,
   stockAvailable,
+  isLast,
 }: Partial<Product | any>) => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
 
   return (
     <>
-      <View className="border rounded-md border-gray-200 overflow-hidden">
+      <View
+        className={clsx(`rounded-xl mb-3 bg-white`, { 'mb-6': isLast })}
+        style={styles.box}
+      >
         <View className="p-4">
           {orderPickProducts?.[barcode]?.picked && (
             <View className="absolute z-10 left-2 top-2">
@@ -76,10 +81,21 @@ const OrderPickProduct = ({
 export default OrderPickProduct;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  box: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#222',
+        shadowOffset: { width: 1, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+      },
+      android: {
+        shadowOffset: { width: 0, height: 1 },
+        shadowColor: '#666',
+        shadowOpacity: 0.8,
+        elevation: 6,
+        zIndex: 999,
+      },
+    }),
   },
 });

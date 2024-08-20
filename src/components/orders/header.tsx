@@ -1,5 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { debounce, toUpper } from 'lodash';
+import { debounce, set, toUpper } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -20,6 +20,10 @@ const windowWidth = Dimensions.get('window').width;
 const Header = () => {
   const [value, setValue] = useState<string>();
   const keyword = useOrders.use.keyword();
+
+  useEffect(() => {
+    setValue(keyword);
+  }, [keyword]);
 
   const handleSearch = useCallback(
     debounce((value: string) => {
@@ -60,7 +64,7 @@ const Header = () => {
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input
           className="flex-grow"
-          placeholder="Mã đơn hàng, sản phẩm"
+          placeholder="Mã đơn hàng, SDT khách hàng"
           prefix={<SearchLine width={20} height={20} />}
           onChangeText={(value: string) => {
             setValue(value);

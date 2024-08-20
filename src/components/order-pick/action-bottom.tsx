@@ -98,7 +98,7 @@ const ActionBottom = () => {
   if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;
   return (
     <View className="border-t border-gray-200 pb-4">
-      <View className="px-4 py-5 bg-white ">
+      <View className="px-4 py-3 bg-white ">
         <Button
           loading={isLoadingOrderStatusPicked || isLoadingOrderStatusPicking}
           onPress={handlePick}

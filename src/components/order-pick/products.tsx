@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import OrderPickProduct from './product';
@@ -13,11 +13,15 @@ const OrderPickProducts = () => {
     status: OrderStatus;
   }>();
 
-  const { data, refetch } = useOrderDetailQuery({ orderCode: code });
+  const { data, refetch, isPending, isFetching } = useOrderDetailQuery({
+    orderCode: code,
+  });
 
   const orderDetail = data?.data || {};
   const { error } = data || {};
   const { productItems } = orderDetail?.deliveries?.[0] || {};
+
+  console.log(productItems, 'productItemsproductItemsproductItems');
 
   useEffect(() => {
     const obj: any = {};
@@ -36,6 +40,14 @@ const OrderPickProducts = () => {
     );
   }
 
+  if (isPending) {
+    return (
+      <View className="text-center py-3">
+        <ActivityIndicator className="text-gray-300" />
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 flex-grow">
       <FlatList
@@ -46,7 +58,16 @@ const OrderPickProducts = () => {
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refetch} />
         }
-        data={productItems as []}
+        data={productItems as Array<any>}
+        ListEmptyComponent={
+          !isFetching ? (
+            <View className="mt-3">
+              <Text className="text-center">Không có dữ liệu</Text>
+            </View>
+          ) : (
+            <></>
+          )
+        }
         renderItem={({
           item,
           index,
@@ -54,8 +75,11 @@ const OrderPickProducts = () => {
           item: Array<Product>;
           index: number;
         }) => (
-          <View key={index} className="my-3">
-            <OrderPickProduct {...item} />
+          <View key={index} className="px-4 mt-2">
+            <OrderPickProduct
+              {...item}
+              isLast={index === Number((productItems || []).length - 1)}
+            />
           </View>
         )}
       />

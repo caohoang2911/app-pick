@@ -1,12 +1,11 @@
-import React from 'react';
-import { CameraView, BarcodeScanningResult } from 'expo-camera';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { Portal } from '@gorhom/portal';
+import { BarcodeScanningResult, CameraView } from 'expo-camera';
+import React, { useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../Button';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
-import { FullWindowOverlay } from 'react-native-screens';
-import { Portal } from '@gorhom/portal';
+import { Button } from '../Button';
 
 type Props = {
   visible?: boolean;

@@ -12,6 +12,7 @@ export interface InputProps
   inputClasses?: string;
   suffix?: React.ReactNode;
   prefix?: React.ReactNode;
+  allowClear?: boolean;
   onClear: () => void;
   [key: string]: any;
 }
@@ -24,6 +25,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
       prefix,
       labelClasses,
       inputClasses,
+      allowClear,
       onClear,
       ...props
     },
@@ -53,12 +55,14 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
               {prefix && prefix}
             </View>
           )}
-          {props.value && (
+          {props.value && allowClear && (
             <Pressable
               onPress={onClear}
-              className="absolute top-1/2 right-3 transform -translate-y-1/2"
+              className="absolute top-1/2 right-2 -translate-y-1/2  "
             >
-              <CloseLine width={20} height={20} color={'#dfdfdf'} />
+              <View className="rounded-full bg-gray-50">
+                <CloseLine width={20} height={20} color={'#dfdfdf'} />
+              </View>
             </Pressable>
           )}
         </View>

@@ -168,8 +168,8 @@ function Providers({ children }: { children: React.ReactNode }) {
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
                       {env === 'prod'
-                        ? 'Production 1.0.0'
-                        : 'Development 1.0.0'}
+                        ? 'Production 1.0.3'
+                        : 'Development 1.0.3'}
                     </Text>
                   </View>
                   {children}

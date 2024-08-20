@@ -1,6 +1,7 @@
 import Container from '@/components/Container';
 import { useRefreshOnFocus } from '@/core/hooks/useRefreshOnFocus';
-import { toggleScanQrCode, useOrders } from '@/core/store/orders';
+import { setKeyWord, toggleScanQrCode, useOrders } from '@/core/store/orders';
+import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
 import React, { useEffect } from 'react';
 import Header from '~/src/components/orders/header';
@@ -28,8 +29,8 @@ const Orders = () => {
       <ScannerBox
         type="qr"
         visible={isScanQrCode}
-        onSuccessBarcodeScanned={(result) => {
-          alert(JSON.stringify(result));
+        onSuccessBarcodeScanned={(result: BarcodeScanningResult) => {
+          setKeyWord(result?.data || '');
         }}
         onDestroy={() => {
           toggleScanQrCode(false);
