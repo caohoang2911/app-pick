@@ -1,12 +1,17 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Badge } from '../Badge';
 import { Product } from '~/src/types/product';
 import { formatCurrency, formatNumber } from '~/src/core/utils/number';
-import { useOrderPick } from '~/src/core/store/order-pick';
-import { CheckCircleFill } from '~/src/core/svgs';
+import {
+  setSuccessForBarcodeScan,
+  toggleShowAmountInput,
+  useOrderPick,
+} from '~/src/core/store/order-pick';
+import { CheckCircleFill, More2Fill } from '~/src/core/svgs';
 import clsx from 'clsx';
+import EditOutLine from '~/src/core/svgs/EditOutLine';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -68,6 +73,16 @@ const OrderPickProduct = ({
               <Text className="text-gray-500">Unit: {unit}</Text>
             </View>
           </View>
+        </View>
+        <View className="absolute z-10 right-3 top-4">
+          <Pressable
+            onPress={() => {
+              toggleShowAmountInput(true);
+              setSuccessForBarcodeScan(barcode);
+            }}
+          >
+            <EditOutLine color={'gray'} />
+          </Pressable>
         </View>
       </View>
     </>

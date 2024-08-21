@@ -1,6 +1,6 @@
 import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Badge } from '../Badge';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -20,6 +20,7 @@ type Props = {
 const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { code } = useGlobalSearchParams<{ code: string }>();
   const data: any = useQuery({ queryKey: ['orderDetail', code] });
+  const [keyword, setKeyWord] = useState('');
 
   const orderDetail: OrderDetail = data?.data?.data || {};
   const { header } = orderDetail;
@@ -49,11 +50,17 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           className="flex-grow"
           placeholder="SKU, tên sản phẩm"
           prefix={<SearchLine width={20} height={20} />}
+          onChangeText={setKeyWord}
+          value={keyword}
+          onClear={() => {
+            setKeyWord('');
+          }}
+          allowClear
         />
         {shouldDisplayQrScan && (
           <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
-            <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
-              <FontAwesome name="qrcode" size={24} color="white" />
+            <View className=" bg-colorPrimary rounded-md size-11 flex flex-row justify-center items-center">
+              <FontAwesome name="qrcode" size={25} color="white" />
             </View>
           </TouchableOpacity>
         )}

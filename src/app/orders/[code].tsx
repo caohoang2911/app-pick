@@ -30,7 +30,6 @@ const OrderPick = () => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
 
   const headerAcrtionRef = useRef<any>();
-  const inputAmountPopupRef = useRef<any>();
 
   const { code } = useGlobalSearchParams<{ code: string }>();
   const data: any = useQuery({ queryKey: ['orderDetail', code] });
@@ -83,7 +82,7 @@ const OrderPick = () => {
           });
           return;
         }
-        inputAmountPopupRef.current?.present();
+        toggleScanQrCodeProduct(true);
         setSuccessForBarcodeScan(result?.data);
       }
     },
@@ -114,10 +113,7 @@ const OrderPick = () => {
         ref={headerAcrtionRef}
         onClickAction={handleClickAction}
       />
-      <InputAmountPopup
-        ref={inputAmountPopupRef}
-        productName="Nước ngọt Pepsi 330ml lốc 6 lon"
-      />
+      <InputAmountPopup />
     </>
   );
 };

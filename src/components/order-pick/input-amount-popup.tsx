@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 import { Keyboard, Text, View } from 'react-native';
 import { Formik } from 'formik';
 
@@ -11,14 +11,26 @@ import { useQuery } from '@tanstack/react-query';
 import { OrderDetail } from '~/src/types/order-detail';
 import {
   setOrderPickProducts,
+  toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { Product } from '~/src/types/product';
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
+import SDropdown from '../SDropdown';
 
-const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
-  const snapPoints = useMemo(() => [260], []);
+const dataEx = [
+  { label: 'Item 1', value: '1' },
+  { label: 'Item 2', value: '2' },
+  { label: 'Item 3', value: '3' },
+  { label: 'Item 4', value: '4' },
+];
+
+const InputAmountPopup = ({}) => {
+  const snapPoints = useMemo(() => [300], []);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
+  const isShowAmountInput = useOrderPick.use.isShowAmountInput();
+
+  const inputBottomSheetRef = useRef<any>();
 
   const { dismiss } = useBottomSheetModal();
 
@@ -34,19 +46,29 @@ const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
 
   const productName = currentProduct?.name || '';
 
+  useEffect(() => {
+    if (isShowAmountInput) {
+      inputBottomSheetRef.current.present();
+    } else {
+      inputBottomSheetRef.current.dismiss();
+    }
+  }, [isShowAmountInput]);
+
   return (
     <SBottomSheet
       title={productName}
       snapPoints={snapPoints}
-      ref={ref}
-      // enableDismissOnClose={false}
+      ref={inputBottomSheetRef}
+      enableDismissOnClose={false}
+      onClose={() => {
+        toggleShowAmountInput(false);
+      }}
     >
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
         <Formik
           initialValues={{ number: 0 }}
-          onSubmit={(values) => {
+          onSubmit={(values, { resetForm }) => {
             if (!productName) return;
-
             setOrderPickProducts({
               barcode: barcodeScanSuccess,
               number: values.number,
@@ -54,13 +76,17 @@ const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
 
             setTimeout(() => {
               Keyboard.dismiss();
+              toggleShowAmountInput(false);
               dismiss();
+              resetForm();
             }, 100);
           }}
         >
           {({ values, handleBlur, setFieldValue, handleSubmit }) => (
             <>
               <Input
+                selectTextOnFocus
+                labelClasses="font-medium"
                 label="Số lượng pick"
                 placeholder="Nhập số lượng"
                 inputClasses="text-center"
@@ -104,6 +130,13 @@ const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
                   </TouchableOpacity>
                 }
               />
+              <SDropdown
+                data={dataEx}
+                label="Chọn loại"
+                labelClasses="font-medium"
+                dropdownPosition="top"
+                placeholder="Vui lòng chọn"
+              />
               <Button
                 onPress={handleSubmit as VoidFunction}
                 label={'Xác nhận'}
@@ -114,6 +147,6 @@ const InputAmountPopup = forwardRef<{}, any>(({}, ref) => {
       </View>
     </SBottomSheet>
   );
-});
+};
 
 export default InputAmountPopup;

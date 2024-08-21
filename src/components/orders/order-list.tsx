@@ -40,12 +40,9 @@ const ItemProduct = ({
     >
       <View className="rounded-md border-bgPrimary border">
         <View className="bg-bgPrimary p-4 flex flex-row justify-between items-center">
-          <View className="flex flex-row gap-2 items-center">
-            <Motobike />
-            <Text className="font-semibold text-base text-colorPrimary">
-              Mã đơn {code}
-            </Text>
-          </View>
+          <Text className="font-semibold text-base text-colorPrimary">
+            # {code}
+          </Text>
           {selectedOrderCounter === 'ALL' && (
             <Badge label={statusName} variant={toLower(status) as any} />
           )}

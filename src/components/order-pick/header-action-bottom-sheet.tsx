@@ -10,6 +10,7 @@ import {
   TruckLine,
 } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
+import SaveOutLine from '~/src/core/svgs/SaveOutline';
 
 const actions = [
   {
@@ -43,6 +44,11 @@ const actions = [
     icon: <EBikeLine />,
   },
   {
+    key: 'book-ahamove',
+    title: 'Lưu tạm',
+    icon: <SaveOutLine />,
+  },
+  {
     key: 'cancel-order',
     title: <Text className="text-red-500">Huỷ đơn</Text>,
     icon: <CloseLine color={'#E53E3E'} />,
@@ -56,7 +62,7 @@ type Props = {
 
 const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
   ({ onClickAction }, ref) => {
-    const snapPoints = useMemo(() => [420], []);
+    const snapPoints = useMemo(() => [500], []);
 
     const renderItem = ({
       onClickAction,
@@ -72,7 +78,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       return (
         <Pressable
           onPress={() => onClickAction?.(key)}
-          className="flex-row items-center px-4 py-3 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
+          className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
         >
           {icon}
           <Text className="text-gray-300">{title}</Text>

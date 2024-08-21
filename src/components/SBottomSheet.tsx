@@ -19,24 +19,43 @@ type Props = {
   snapPoints?: any;
   title?: string;
   children: React.ReactNode;
+  titleAlign: 'left' | 'center';
+  onClose: () => void;
   [key: string]: any;
 };
 
 const SBottomSheet = forwardRef<any, Props>(
   (
-    { snapPoints = ['25%', '50%'], title = 'Title', children, ...rests },
+    {
+      snapPoints = ['25%', '50%'],
+      title = 'Title',
+      children,
+      titleAlign = 'left',
+      onClose,
+      ...rests
+    },
     ref
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
 
-    const handleSheetChanges = useCallback((index: number) => {}, []);
+    const handleSheetChanges = useCallback(
+      (index: number) => {
+        if (index == -1) {
+          onClose?.();
+        }
+      },
+      [onClose]
+    );
 
     useImperativeHandle(
       ref,
       () => {
         return {
           present: () => bottomSheetModalRef.current?.present(),
-          dismiss: () => bottomSheetModalRef.current?.dismiss(),
+          dismiss: () => {
+            onClose?.();
+            bottomSheetModalRef.current?.dismiss();
+          },
         };
       },
       []
@@ -73,11 +92,14 @@ const SBottomSheet = forwardRef<any, Props>(
           {...rests}
         >
           <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
-            <View />
-            <Text className="text-center font-semibold text-lg">{title}</Text>
+            {titleAlign == 'center' && <View />}
+            <Text className={`text-${titleAlign} font-semibold text-lg`}>
+              {title}
+            </Text>
             <Pressable
               onPress={() => {
                 Keyboard.dismiss();
+                onClose?.();
                 bottomSheetModalRef.current?.dismiss();
               }}
             >

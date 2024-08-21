@@ -27,6 +27,8 @@ import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
 
+const VERSION = '1.0.6';
+
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
@@ -168,8 +170,8 @@ function Providers({ children }: { children: React.ReactNode }) {
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
                       {env === 'prod'
-                        ? 'Production 1.0.4'
-                        : 'Development 1.0.4'}
+                        ? `Production ${VERSION}`
+                        : `Development ${VERSION}`}
                     </Text>
                   </View>
                   {children}
