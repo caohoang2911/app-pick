@@ -59,8 +59,8 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
         />
         {shouldDisplayQrScan && (
           <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
-            <View className=" bg-colorPrimary rounded-md size-11 flex flex-row justify-center items-center">
-              <FontAwesome name="qrcode" size={25} color="white" />
+            <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
+              <FontAwesome name="qrcode" size={24} color="white" />
             </View>
           </TouchableOpacity>
         )}
