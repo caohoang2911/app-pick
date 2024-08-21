@@ -19,16 +19,12 @@ const OrderPickProduct = ({
   unit,
   quantity,
   stockAvailable,
-  isLast,
 }: Partial<Product | any>) => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
 
   return (
     <>
-      <View
-        className={clsx(`rounded-xl mb-3 bg-white`, { 'mb-6': isLast })}
-        style={styles.box}
-      >
+      <View className={clsx(`rounded-xl bg-white shadow`)} style={styles.box}>
         <View className="p-4">
           {orderPickProducts?.[barcode]?.picked && (
             <View className="absolute z-10 left-2 top-2">
@@ -90,11 +86,14 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
       },
       android: {
-        shadowOffset: { width: 0, height: 1 },
-        shadowColor: '#666',
-        shadowOpacity: 0.8,
-        elevation: 6,
-        zIndex: 999,
+        shadowColor: '#222',
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 5.46,
+        elevation: 9,
       },
     }),
   },

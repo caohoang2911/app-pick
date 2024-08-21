@@ -161,7 +161,7 @@ const ScanOnView = ({
 
   return (
     <View
-      className="rounded-xl overflow-hidden my-2"
+      className="rounded-xl overflow-hidden mt-2 my-2 mb-3"
       style={styles.cameraContainer}
     >
       <CameraView

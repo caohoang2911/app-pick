@@ -92,7 +92,7 @@ const OrderPick = () => {
 
   return (
     <>
-      <View className="flex-1 bg-white pt-2">
+      <View className="flex-1 bg-gray-50 pt-2">
         {!isScanQrCodeProduct && shouldDisplayQrScan && (
           <ScanOnView onSuccessBarcodeScanned={handleSuccessBarCode} />
         )}

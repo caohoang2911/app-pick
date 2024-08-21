@@ -6,6 +6,7 @@ import OrderPickProduct from './product';
 import { useLocalSearchParams } from 'expo-router';
 import { Product } from '~/src/types/product';
 import { setInitOrderPickProducts } from '~/src/core/store/order-pick';
+import clsx from 'clsx';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{
@@ -20,8 +21,6 @@ const OrderPickProducts = () => {
   const orderDetail = data?.data || {};
   const { error } = data || {};
   const { productItems } = orderDetail?.deliveries?.[0] || {};
-
-  console.log(productItems, 'productItemsproductItemsproductItems');
 
   useEffect(() => {
     const obj: any = {};
@@ -49,7 +48,7 @@ const OrderPickProducts = () => {
   }
 
   return (
-    <View className="flex-1 flex-grow">
+    <View className="flex-1 flex-grow mt-2">
       <FlatList
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -74,14 +73,19 @@ const OrderPickProducts = () => {
         }: {
           item: Array<Product>;
           index: number;
-        }) => (
-          <View key={index} className="px-4 mt-2">
-            <OrderPickProduct
-              {...item}
-              isLast={index === Number((productItems || []).length - 1)}
-            />
-          </View>
-        )}
+        }) => {
+          const isLast = Boolean(
+            index === Number((productItems || []).length - 1)
+          );
+          return (
+            <View
+              key={index}
+              className={clsx('px-4 mb-4', { 'mb-10': isLast })}
+            >
+              <OrderPickProduct {...item} />
+            </View>
+          );
+        }}
       />
     </View>
   );
