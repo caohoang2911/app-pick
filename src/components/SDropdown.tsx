@@ -33,10 +33,8 @@ const SDropdown = ({
   const [isFocus, setIsFocus] = useState(false);
 
   return (
-    <View style={styles.container}>
-      {label && (
-        <Text className={cn('text-base mb-2', labelClasses)}>{label}</Text>
-      )}
+    <View className={cn('flex flex-col gap-1.5')} style={styles.container}>
+      {label && <Text className={cn('text-base', labelClasses)}>{label}</Text>}
       <Dropdown
         style={[
           styles.dropdown,

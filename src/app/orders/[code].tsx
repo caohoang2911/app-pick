@@ -16,6 +16,7 @@ import useCarmera from '~/src/core/hooks/useCarmera';
 import {
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
+  toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-detail';
@@ -57,9 +58,6 @@ const OrderPick = () => {
     dismiss();
   };
 
-  const { permission, facing, requestPermission, toggleCameraFacing } =
-    useCarmera();
-
   let timeout: any = useRef(null);
 
   const handleSuccessBarCode = useCallback(
@@ -82,8 +80,8 @@ const OrderPick = () => {
           });
           return;
         }
-        toggleScanQrCodeProduct(true);
         setSuccessForBarcodeScan(result?.data);
+        toggleShowAmountInput(true);
       }
     },
     [currentQr]

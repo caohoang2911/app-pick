@@ -29,7 +29,7 @@ const OrderPickProduct = ({
 
   return (
     <>
-      <View className={clsx(`rounded-xl bg-white shadow`)} style={styles.box}>
+      <View className={clsx(`bg-white shadow`)} style={styles.box}>
         <View className="p-4">
           {orderPickProducts?.[barcode]?.picked && (
             <View className="absolute z-10 left-2 top-2">
@@ -74,7 +74,7 @@ const OrderPickProduct = ({
             </View>
           </View>
         </View>
-        <View className="absolute z-10 right-3 top-4">
+        <View style={styles.edit}>
           <Pressable
             onPress={() => {
               toggleShowAmountInput(true);
@@ -92,7 +92,13 @@ const OrderPickProduct = ({
 export default OrderPickProduct;
 
 const styles = StyleSheet.create({
+  edit: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+  },
   box: {
+    borderRadius: 10,
     ...Platform.select({
       ios: {
         shadowColor: '#222',

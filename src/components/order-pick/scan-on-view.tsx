@@ -160,10 +160,7 @@ const ScanOnView = ({
   if (!permission) return <View />;
 
   return (
-    <View
-      className="rounded-xl overflow-hidden mt-2 my-2 mb-3"
-      style={styles.cameraContainer}
-    >
+    <View className="overflow-hidden mt-2 my-2" style={styles.cameraContainer}>
       <CameraView
         style={styles.camera}
         facing={'back'}
@@ -182,6 +179,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: 'red',
     marginHorizontal: 16,
+    borderRadius: 10,
+    marginBottom: 10,
   },
   camera: {
     position: 'absolute',
