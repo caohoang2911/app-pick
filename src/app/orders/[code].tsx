@@ -29,6 +29,7 @@ const OrderPick = () => {
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
+  const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const headerAcrtionRef = useRef<any>();
 
@@ -62,7 +63,9 @@ const OrderPick = () => {
 
   const handleSuccessBarCode = useCallback(
     (result: BarcodeScanningResult) => {
-      const codeScanned: string = result.data;
+      const codeScanned: string = result.data.toString();
+      console.log(codeScanned, 'codeScanned');
+      console.log(orderPickProducts, 'orderPickProducts');
 
       if (currentQr != codeScanned) {
         setCurrentQr(codeScanned);
@@ -81,10 +84,12 @@ const OrderPick = () => {
           return;
         }
         setSuccessForBarcodeScan(result?.data);
-        toggleShowAmountInput(true);
+        if (!isShowAmountInput) {
+          toggleShowAmountInput(true);
+        }
       }
     },
-    [currentQr]
+    [orderPickProducts, currentQr]
   );
 
   return (

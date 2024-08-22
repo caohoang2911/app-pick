@@ -7,6 +7,7 @@ interface OrdersState {
   isShowAmountInput: boolean;
   barcodeScanSuccess: string;
   keyword: string;
+  barcodeScrollTo: string;
   orderPickProducts:
     | {
         barcode?: {
@@ -18,6 +19,7 @@ interface OrdersState {
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean) => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
+  setBarcodeScrollTo: (barcode: string) => void;
   setInitOrderPickProducts: (data: any) => void;
   setOrderPickProducts: ({
     barcode,
@@ -32,6 +34,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   isScanQrCodeProduct: false,
   isShowAmountInput: false,
   keyword: '',
+  barcodeScrollTo: '',
   orderPickProducts: {},
   barcodeScanSuccess: '',
   toggleScanQrCode: (isScanQrCodeProduct: boolean) => {
@@ -46,6 +49,10 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setInitOrderPickProducts: (data: any) => {
     set({ orderPickProducts: { ...data } });
   },
+  setBarcodeScrollTo: (data: any) => {
+    set({ barcodeScrollTo: { ...data } });
+  },
+
   setOrderPickProducts: ({
     barcode,
     number,
@@ -59,6 +66,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       return;
     }
     set({
+      barcodeScrollTo: barcode,
       orderPickProducts: {
         ...orderPickProducts,
         [barcode]: { number, picked: true },
@@ -81,6 +89,9 @@ export const setSuccessForBarcodeScan = (barcode: string) =>
 export const setInitOrderPickProducts = (
   data: Array<{ [barcode: string]: number }>
 ) => _useOrderPick.getState().setInitOrderPickProducts(data);
+
+export const setBarcodeScrollTo = (barcode: string) =>
+  _useOrderPick.getState().setBarcodeScrollTo(barcode);
 
 export const setOrderPickProducts = ({
   barcode,

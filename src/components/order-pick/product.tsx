@@ -9,7 +9,7 @@ import {
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import { CheckCircleFill, More2Fill } from '~/src/core/svgs';
+import { CheckCircleFill } from '~/src/core/svgs';
 import clsx from 'clsx';
 import EditOutLine from '~/src/core/svgs/EditOutLine';
 

@@ -42,6 +42,7 @@ const SBottomSheet = forwardRef<any, Props>(
       (index: number) => {
         if (index == -1) {
           onClose?.();
+          bottomSheetModalRef?.current?.snapToIndex(0);
         }
       },
       [onClose]
@@ -54,16 +55,13 @@ const SBottomSheet = forwardRef<any, Props>(
           present: () => bottomSheetModalRef.current?.present(),
           dismiss: () => {
             onClose?.();
+            bottomSheetModalRef?.current?.snapToIndex(0);
             bottomSheetModalRef.current?.dismiss();
           },
         };
       },
       []
     );
-
-    useEffect(() => {
-      bottomSheetModalRef?.current?.snapToIndex(0);
-    });
 
     const renderBackdrop = useCallback(
       (props: any) => (
@@ -80,7 +78,6 @@ const SBottomSheet = forwardRef<any, Props>(
       <>
         <BottomSheetModal
           ref={bottomSheetModalRef}
-          index={0}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           handleIndicatorStyle={{ display: 'none', padding: 0 }}
@@ -100,6 +97,7 @@ const SBottomSheet = forwardRef<any, Props>(
               onPress={() => {
                 Keyboard.dismiss();
                 onClose?.();
+                bottomSheetModalRef?.current?.snapToIndex(0);
                 bottomSheetModalRef.current?.dismiss();
               }}
             >

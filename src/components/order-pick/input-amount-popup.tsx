@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Keyboard, Text, View } from 'react-native';
 import { Formik } from 'formik';
 
@@ -19,10 +19,9 @@ import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import SDropdown from '../SDropdown';
 
 const dataEx = [
-  { label: 'Item 1', value: '1' },
-  { label: 'Item 2', value: '2' },
-  { label: 'Item 3', value: '3' },
-  { label: 'Item 4', value: '4' },
+  { label: 'Hàng khô', value: '1' },
+  { label: 'Hàng đông lạnh', value: '2' },
+  { label: 'Hàng tươi', value: '3' },
 ];
 
 const InputAmountPopup = ({}) => {
@@ -50,9 +49,11 @@ const InputAmountPopup = ({}) => {
     if (isShowAmountInput) {
       inputBottomSheetRef.current.present();
     } else {
-      inputBottomSheetRef.current.dismiss();
+      // inputBottomSheetRef.current.dismiss();
     }
   }, [isShowAmountInput]);
+
+  if (!isShowAmountInput) return <></>;
 
   return (
     <SBottomSheet

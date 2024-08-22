@@ -149,7 +149,7 @@ const ScanOnView = ({
 }: {
   onSuccessBarcodeScanned: (result: BarcodeScanningResult) => void;
 }) => {
-  const { permission, facing, requestPermission } = useCarmera();
+  const { permission, requestPermission } = useCarmera();
 
   useEffect(() => {
     if (!permission?.granted) {
@@ -199,4 +199,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ScanOnView;
+export default React.memo(ScanOnView);

@@ -1,11 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import OrderPickProduct from './product';
 import { useLocalSearchParams } from 'expo-router';
 import { Product } from '~/src/types/product';
-import { setInitOrderPickProducts } from '~/src/core/store/order-pick';
+import {
+  setBarcodeScrollTo,
+  setInitOrderPickProducts,
+  useOrderPick,
+} from '~/src/core/store/order-pick';
 import clsx from 'clsx';
 
 const OrderPickProducts = () => {
@@ -13,6 +17,9 @@ const OrderPickProducts = () => {
     code: string;
     status: OrderStatus;
   }>();
+  const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
+
+  const ref: any = useRef<FlatList>();
 
   const { data, refetch, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -30,6 +37,27 @@ const OrderPickProducts = () => {
 
     setInitOrderPickProducts(obj);
   }, [productItems]);
+
+  const indexCurrentProduct = useMemo(
+    () =>
+      productItems?.findIndex((productItem: Product) => {
+        return productItem.barcode === barcodeScrollTo;
+      }),
+    [barcodeScrollTo, productItems]
+  );
+
+  useEffect(() => {
+    if (indexCurrentProduct !== -1) {
+      setTimeout(() => {
+        ref.current?.scrollToIndex({
+          animated: true,
+          index: indexCurrentProduct || 0,
+          viewPosition: 0.5,
+        });
+        setBarcodeScrollTo('');
+      }, 200);
+    }
+  }, [indexCurrentProduct]);
 
   if (error) {
     return (
@@ -50,6 +78,7 @@ const OrderPickProducts = () => {
   return (
     <View className="flex-1 flex-grow mt-2">
       <FlatList
+        ref={ref}
         className="flex-1"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}

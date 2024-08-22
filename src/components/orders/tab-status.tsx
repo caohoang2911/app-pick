@@ -39,8 +39,6 @@ export function TabsStatus() {
     }
   );
 
-  console.log(dataStatusCounters, 'dataStatusCounters');
-
   useEffect(() => {
     const index = dataStatusCounters.findIndex(
       (status) => status.id === (selectedOrderCounter as any)
