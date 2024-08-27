@@ -116,11 +116,34 @@ PODS:
   - EXUpdatesInterface (0.16.2):
     - ExpoModulesCore
   - FBLazyVector (0.74.3)
+  - Firebase (10.29.0):
+    - Firebase/Core (= 10.29.0)
+  - Firebase/Core (10.29.0):
+    - Firebase/CoreOnly
+    - FirebaseAnalytics (~> 10.29.0)
   - Firebase/CoreOnly (10.29.0):
     - FirebaseCore (= 10.29.0)
   - Firebase/Messaging (10.29.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 10.29.0)
+  - FirebaseAnalytics (10.29.0):
+    - FirebaseAnalytics/AdIdSupport (= 10.29.0)
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+  - FirebaseAnalytics/AdIdSupport (10.29.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleAppMeasurement (= 10.29.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30911.0, >= 2.30908.0)
   - FirebaseCore (10.29.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
@@ -145,6 +168,26 @@ PODS:
     - nanopb (< 2.30911.0, >= 2.30908.0)
   - fmt (9.1.0)
   - glog (0.3.5)
+  - GoogleAppMeasurement (10.29.0):
+    - GoogleAppMeasurement/AdIdSupport (= 10.29.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+  - GoogleAppMeasurement/AdIdSupport (10.29.0):
+    - GoogleAppMeasurement/WithoutAdIdSupport (= 10.29.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+  - GoogleAppMeasurement/WithoutAdIdSupport (10.29.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
+    - GoogleUtilities/MethodSwizzler (~> 7.11)
+    - GoogleUtilities/Network (~> 7.11)
+    - "GoogleUtilities/NSData+zlib (~> 7.11)"
+    - nanopb (< 2.30911.0, >= 2.30908.0)
   - GoogleDataTransport (9.4.1):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30911.0, >= 2.30908.0)
@@ -1520,9 +1563,9 @@ PODS:
     - Yoga
   - RNSVG (15.4.0):
     - React-Core
-  - SDWebImage (5.19.4):
-    - SDWebImage/Core (= 5.19.4)
-  - SDWebImage/Core (5.19.4)
+  - SDWebImage (5.19.7):
+    - SDWebImage/Core (= 5.19.7)
+  - SDWebImage/Core (5.19.7)
   - SDWebImageAVIFCoder (0.11.0):
     - libavif/core (>= 0.11.0)
     - SDWebImage (~> 5.10)
@@ -1567,6 +1610,7 @@ DEPENDENCIES:
   - EXUpdates (from `../node_modules/expo-updates/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
+  - Firebase
   - FirebaseCore
   - FirebaseCoreInternal
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
@@ -1637,11 +1681,13 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Firebase
+    - FirebaseAnalytics
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
     - FirebaseInstallations
     - FirebaseMessaging
+    - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
     - libavif
@@ -1859,6 +1905,7 @@ SPEC CHECKSUMS:
   EXUpdatesInterface: 996527fd7d1a5d271eb523258d603f8f92038f24
   FBLazyVector: 7e977dd099937dc5458851233141583abba49ff2
   Firebase: cec914dab6fd7b1bd8ab56ea07ce4e03dd251c2d
+  FirebaseAnalytics: 23717de130b779aa506e757edb9713d24b6ffeda
   FirebaseCore: 30e9c1cbe3d38f5f5e75f48bfcea87d7c358ec16
   FirebaseCoreExtension: 705ca5b14bf71d2564a0ddc677df1fc86ffa600f
   FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
@@ -1866,6 +1913,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 7b5d8033e183ab59eb5b852a53201559e976d366
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
+  GoogleAppMeasurement: f9de05ee17401e3355f68e8fc8b5064d429f5918
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   hermes-engine: 1f547997900dd0752dc0cc0ae6dd16173c49e09b
@@ -1934,7 +1982,7 @@ SPEC CHECKSUMS:
   RNReanimated: f4ff116e33e0afc3d127f70efe928847c7c66355
   RNScreens: 5aeecbb09aa7285379b6e9f3c8a3c859bb16401c
   RNSVG: cb24fb322de8c1ebf59904e7aca0447bb8dbed5a
-  SDWebImage: 066c47b573f408f18caa467d71deace7c0f8280d
+  SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
@@ -1943,6 +1991,6 @@ SPEC CHECKSUMS:
   Yoga: 04f1db30bb810187397fa4c37dd1868a27af229c
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 90bd73ca5ab1b80adf442fece6fd9bb2ec846ca2
+PODFILE CHECKSUM: ce834aa651f45ed8373c3bf3c9d620ae65485308
 
 COCOAPODS: 1.15.2
