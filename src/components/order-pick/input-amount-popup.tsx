@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Keyboard, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Formik } from 'formik';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -15,7 +15,11 @@ import {
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { Product } from '~/src/types/product';
-import { useBottomSheetModal } from '@gorhom/bottom-sheet';
+import {
+  BottomSheetFooter,
+  BottomSheetTextInput,
+  useBottomSheetModal,
+} from '@gorhom/bottom-sheet';
 import SDropdown from '../SDropdown';
 
 const dataEx = [
@@ -25,7 +29,7 @@ const dataEx = [
 ];
 
 const InputAmountPopup = ({}) => {
-  const snapPoints = useMemo(() => [300], []);
+  const snapPoints = useMemo(() => [310], []);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -52,8 +56,6 @@ const InputAmountPopup = ({}) => {
       // inputBottomSheetRef.current.dismiss();
     }
   }, [isShowAmountInput]);
-
-  if (!isShowAmountInput) return <></>;
 
   return (
     <SBottomSheet
@@ -138,10 +140,7 @@ const InputAmountPopup = ({}) => {
                 dropdownPosition="top"
                 placeholder="Vui lòng chọn"
               />
-              <Button
-                onPress={handleSubmit as VoidFunction}
-                label={'Xác nhận'}
-              />
+              <Button onPress={() => {}} label={'Xác nhận'} />
             </>
           )}
         </Formik>
@@ -151,3 +150,24 @@ const InputAmountPopup = ({}) => {
 };
 
 export default InputAmountPopup;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: 'grey',
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  input: {
+    marginTop: 8,
+    marginBottom: 10,
+    borderRadius: 10,
+    fontSize: 16,
+    lineHeight: 20,
+    padding: 8,
+    backgroundColor: 'rgba(151, 151, 151, 0.25)',
+  },
+});

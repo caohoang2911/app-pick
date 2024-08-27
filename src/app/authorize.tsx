@@ -49,7 +49,7 @@ const Authorize = () => {
         } else {
           router.back();
           Alert.alert(
-            'Chưa thể đang nhập',
+            'Chưa thể đăng nhập',
             'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
             [
               {

@@ -14,6 +14,7 @@ import {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { CloseLine } from '~/src/core/svgs';
+import { useKeyboardVisible } from '../core/hooks/useKeyboardVisible';
 
 type Props = {
   snapPoints?: any;
@@ -37,12 +38,12 @@ const SBottomSheet = forwardRef<any, Props>(
     ref
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
+    const isKeyboardVisible = useKeyboardVisible();
 
     const handleSheetChanges = useCallback(
       (index: number) => {
-        if (index == -1) {
+        if (index == -1 && !isKeyboardVisible) {
           onClose?.();
-          bottomSheetModalRef?.current?.snapToIndex(0);
         }
       },
       [onClose]
@@ -55,7 +56,6 @@ const SBottomSheet = forwardRef<any, Props>(
           present: () => bottomSheetModalRef.current?.present(),
           dismiss: () => {
             onClose?.();
-            bottomSheetModalRef?.current?.snapToIndex(0);
             bottomSheetModalRef.current?.dismiss();
           },
         };
@@ -83,9 +83,12 @@ const SBottomSheet = forwardRef<any, Props>(
           handleIndicatorStyle={{ display: 'none', padding: 0 }}
           key={'order-pick-action'}
           backdropComponent={renderBackdrop}
-          android_keyboardInputMode="adjustPan"
           enablePanDownToClose
           enableHandlePanningGesture
+          keyboardBehavior="interactive"
+          //@ts-ignore
+          keyboardBlurBehavior="restore"
+          android_keyboardInputMode="adjustResize"
           {...rests}
         >
           <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
@@ -94,11 +97,14 @@ const SBottomSheet = forwardRef<any, Props>(
               {title}
             </Text>
             <Pressable
-              onPress={() => {
-                Keyboard.dismiss();
-                onClose?.();
-                bottomSheetModalRef?.current?.snapToIndex(0);
-                bottomSheetModalRef.current?.dismiss();
+              onPress={async () => {
+                if (isKeyboardVisible) {
+                  Keyboard.dismiss();
+                }
+                setTimeout(() => {
+                  onClose?.();
+                  bottomSheetModalRef.current?.dismiss();
+                }, 200);
               }}
             >
               <CloseLine />
