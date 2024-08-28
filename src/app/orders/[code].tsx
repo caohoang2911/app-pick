@@ -64,8 +64,6 @@ const OrderPick = () => {
   const handleSuccessBarCode = useCallback(
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
-      console.log(codeScanned, 'codeScanned');
-      console.log(orderPickProducts, 'orderPickProducts');
 
       if (currentQr != codeScanned) {
         setCurrentQr(codeScanned);

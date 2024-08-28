@@ -27,7 +27,7 @@ import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
 
-const VERSION = '1.0.19';
+const VERSION = '1.0.20';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -52,37 +52,11 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
         type: 'danger',
       });
     } else if (data) {
-      console.log('success');
     }
   }, [data]);
 
-  const handleSendNotice = () => {
-    sendFCMNotification(
-      {
-        title: 'Cao Hoàng',
-        body: 'Tuyết Giang',
-        screen: 'orders/1',
-      },
-      {
-        onSuccess: (data: any) => {
-          console.log(data, 'data');
-        },
-        onError: (err: any) => {
-          console.log(err, 'err');
-          // showErrorMessage('Error adding post');
-        },
-      }
-    );
-  };
-
   return (
     <>
-      {/* <Text>Token: {JSON.stringify(token)}</Text>
-      <ScrollView>
-        <Text>Notification: {data}</Text>
-      </ScrollView>
-      <Button label="Send notice" onPress={handleSendNotice} />
-      <Button label="Send notice schedule" onPress={schedulePushNotification} /> */}
       {children}
     </>
   );

@@ -22,7 +22,6 @@ const Authorize = () => {
   const handleNavigationStateChange = (data: any) => {
     if (data?.url?.startsWith?.('seedcom.vn') && flag.current) {
       flag.current = false;
-      console.log(data?.url, 'data?.url');
       setCurrentUrl(data?.url);
       webViewRef.current.reload();
     }
@@ -42,7 +41,6 @@ const Authorize = () => {
         const { authInfo } = dataParser.data || {};
         const { zas, role } = authInfo || {};
 
-        console.log(authInfo, 'authInfo');
         if (role === 'STORE') {
           signIn({ token: zas, userInfo: authInfo });
           router.replace('/orders');

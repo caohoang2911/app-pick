@@ -31,7 +31,7 @@ const getDetailShareOrder = async ({
 
 export const useOrderDetailQuery = ({ orderCode }: Variables) => {
   return useQuery({
-    queryKey: ['orderDetail', orderCode],
+    queryKey: ['orderDetail'],
     queryFn: () => {
       return getDetailOrder({ orderCode });
     },
