@@ -10,6 +10,7 @@ import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import FlashMessage, { showMessage } from 'react-native-flash-message';
+import * as Updates from 'expo-updates';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -27,16 +28,41 @@ import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
 
-const VERSION = '1.0.20';
+const VERSION = '1.0.22';
+
+const useCodepush = () => {
+  const {
+    currentlyRunning,
+    isUpdateAvailable,
+    isUpdatePending
+  } = Updates.useUpdates();
+
+  useEffect(() => {
+    if (isUpdatePending) {
+      // Update has successfully downloaded; apply it now
+      showMessage({
+        message: 'Đang tải bundle',
+        type: 'success',
+      });
+      Updates.reloadAsync();
+    }
+  }, [isUpdatePending]);
+
+  useEffect(() => {
+    if(isUpdateAvailable){
+      Updates.fetchUpdateAsync()
+    }
+  },[isUpdateAvailable])
+}
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
 
+  useCodepush();
+
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
-
-  const { mutate: sendFCMNotification } = useSendFCMNotification();
 
   useEffect(() => {
     console.log(token, 'expoPushToken');
