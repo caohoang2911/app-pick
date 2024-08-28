@@ -26,12 +26,13 @@ const getDetailShareOrder = async ({
     orderCode,
     secretKey: SHARE_SECRET_KEY,
   };
+
   return await axiosClient.get(`share/order`, { params });
 };
 
 export const useOrderDetailQuery = ({ orderCode }: Variables) => {
   return useQuery({
-    queryKey: ['orderDetail'],
+    queryKey: ['orderDetail', orderCode],
     queryFn: () => {
       return getDetailOrder({ orderCode });
     },

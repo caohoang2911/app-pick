@@ -57,6 +57,8 @@ const InputAmountPopup = ({}) => {
     }
   }, [isShowAmountInput]);
 
+  if(!isShowAmountInput) return <></>
+
   return (
     <SBottomSheet
       title={productName}
@@ -64,7 +66,7 @@ const InputAmountPopup = ({}) => {
       ref={inputBottomSheetRef}
       enableDismissOnClose={false}
       onClose={() => {
-        toggleShowAmountInput(false);
+      toggleShowAmountInput(false);
       }}
     >
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
@@ -140,7 +142,7 @@ const InputAmountPopup = ({}) => {
                 dropdownPosition="top"
                 placeholder="Vui lòng chọn"
               />
-              <Button onPress={() => {}} label={'Xác nhận'} />
+              <Button onPress={handleSubmit as any} label={'Xác nhận'} />
             </>
           )}
         </Formik>

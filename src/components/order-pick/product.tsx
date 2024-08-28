@@ -12,6 +12,9 @@ import {
 import { CheckCircleFill } from '~/src/core/svgs';
 import clsx from 'clsx';
 import EditOutLine from '~/src/core/svgs/EditOutLine';
+import { useQuery } from '@tanstack/react-query';
+import { OrderDetail } from '~/src/types/order-detail';
+import { useGlobalSearchParams } from 'expo-router';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -26,6 +29,18 @@ const OrderPickProduct = ({
   stockAvailable,
 }: Partial<Product | any>) => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
+
+  const { code } = useGlobalSearchParams<{ code: string }>();
+
+  const data: any = useQuery({ queryKey: ['orderDetail', code] });
+
+  const orderDetail: OrderDetail = data?.data?.data || {};
+
+  const { header } = orderDetail || {};
+  const { status } = header || {};
+
+
+  const shouldDisplayEdit = status === 'STORE_PICKING'
 
   return (
     <>
@@ -74,7 +89,7 @@ const OrderPickProduct = ({
             </View>
           </View>
         </View>
-        <View style={styles.edit}>
+        {shouldDisplayEdit && <View style={styles.edit}>
           <Pressable
             onPress={() => {
               toggleShowAmountInput(true);
@@ -83,7 +98,7 @@ const OrderPickProduct = ({
           >
             <EditOutLine color={'gray'} />
           </Pressable>
-        </View>
+        </View>}
       </View>
     </>
   );
