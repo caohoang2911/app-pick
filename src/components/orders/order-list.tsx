@@ -81,7 +81,8 @@ const OrderList = () => {
     isFetchingNextPage,
     hasNextPage,
     refetch,
-    isRefetching
+    isRefetching,
+    hasPreviousPage
   } = useSearchOrders({
     keyword,
     status: selectedOrderCounter === 'ALL' ? undefined : selectedOrderCounter,
@@ -92,10 +93,17 @@ const OrderList = () => {
   const withoutRefresh = useRef(false);
   const orderList = ordersResponse?.pages || []
 
+  const goFirstPage = async () => {
+    await queryClient.setQueryData(['searchOrders'], (data: any) => ({
+      pages: [],
+      pageParams: data.pageParams,
+    }))
+    refetch();
+  }
+
   useEffect(() => {
     withoutRefresh.current = true;
-    firtTime.current = false;
-    refetch();
+    goFirstPage();
   }, [selectedOrderCounter, keyword]);
 
   useFocusEffect(
@@ -105,6 +113,7 @@ const OrderList = () => {
         refetch();
       }
       return () => {
+        firtTime.current = false;
         console.log('This route is now unfocused.');
       };
     }, [])
@@ -116,7 +125,7 @@ const OrderList = () => {
     return <View />;
   }, [isFetchingNextPage, hasNextPage, isFetching]);
 
-  if (isFetching && withoutRefresh.current) {
+  if (!hasPreviousPage && isFetching && withoutRefresh.current) {
     return (
       <View className="text-center py-3">
         <ActivityIndicator className="text-gray-300" />
@@ -147,11 +156,7 @@ const OrderList = () => {
             refreshing={false}
             onRefresh={async () => {
               withoutRefresh.current = false;
-              await  queryClient.setQueryData(['searchOrders'], (data: any) => ({
-                pages: [],
-                pageParams: data.pageParams,
-              }))
-              refetch()
+              goFirstPage();
             }}
           />
         }
@@ -169,6 +174,7 @@ const OrderList = () => {
         onEndReachedThreshold={0.3}
         onEndReached={() => {
           if(hasNextPage && !isFetching) {
+            withoutRefresh.current = false;
             fetchNextPage();
           }
         }}

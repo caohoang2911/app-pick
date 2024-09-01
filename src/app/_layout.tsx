@@ -8,9 +8,7 @@ import {
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import * as Updates from 'expo-updates';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
+import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -25,42 +23,18 @@ import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import '@/ui/global.css';
 import React, { useCallback, useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLoading } from '../core/store/loading';
+import { useCodepush } from '../core/hooks/useCodePush';
 
 const VERSION = '1.0.23';
-
-const useCodepush = () => {
-  const {
-    currentlyRunning,
-    isUpdateAvailable,
-    isUpdatePending
-  } = Updates.useUpdates();
-
-  useEffect(() => {
-    if (isUpdatePending) {
-      // Update has successfully downloaded; apply it now
-      showMessage({
-        message: 'Đang tải bundle',
-        type: 'success',
-      });
-      Updates.reloadAsync();
-    }
-  }, [isUpdatePending]);
-
-  useEffect(() => {
-    if(isUpdateAvailable){
-      Updates.fetchUpdateAsync()
-    }
-  },[isUpdateAvailable])
-}
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
 
-  useCodepush();
+  // const { isDoneCodepush } = useCodepush();
 
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
@@ -70,6 +44,10 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
       setFCMRegistrationToken({ token: token });
     }
   }, [token, status]);
+
+  // if(!isDoneCodepush) {
+  //   return <></>
+  // }
 
   return (
     <>
@@ -170,7 +148,10 @@ function Providers({ children }: { children: React.ReactNode }) {
                   </View>
                   {children}
                 </SafeAreaView>
-                <FlashMessage position="top" />
+                <FlashMessage
+                  position="top"
+                  statusBarHeight={StatusBar.currentHeight}
+                />
               </BottomSheetModalProvider>
             </AuthWrapper>
           </NotificationWrapper>
