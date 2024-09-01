@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import moment from 'moment';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import {
@@ -8,11 +8,11 @@ import {
   TouchableOpacity,
 } from 'react-native-gesture-handler';
 import { Badge } from '~/src/components/Badge';
-import { Motobike } from '@/core/svgs';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useOrders } from '~/src/core/store/orders';
 import { toLower } from 'lodash';
 import { SectionAlert } from '../SectionAlert';
+import { queryClient } from '~/src/api/shared';
 
 const ItemProduct = ({
   statusName,
@@ -76,15 +76,21 @@ const OrderList = () => {
 
   const {
     data: ordersResponse,
+    fetchNextPage,
     isFetching,
+    isFetchingNextPage,
+    hasNextPage,
     refetch,
+    isRefetching
   } = useSearchOrders({
     keyword,
-    status: selectedOrderCounter == 'ALL' ? undefined : selectedOrderCounter,
+    status: selectedOrderCounter === 'ALL' ? undefined : selectedOrderCounter,
   });
 
+
+
   const withoutRefresh = useRef(false);
-  const orderList = ordersResponse?.data?.list || [];
+  const orderList = ordersResponse?.pages || []
 
   useEffect(() => {
     withoutRefresh.current = true;
@@ -104,6 +110,12 @@ const OrderList = () => {
     }, [])
   );
 
+  const renderFooterList = useMemo(() => {
+    if (isFetchingNextPage) return <ActivityIndicator color={"blue"} />;
+    if (!hasNextPage && !isFetchingNextPage && !isFetching) return <Text className="text-center text-xs text-gray-500">Danh sách đã hết</Text>;
+    return <View />;
+  }, [isFetchingNextPage, hasNextPage, isFetching]);
+
   if (isFetching && withoutRefresh.current) {
     return (
       <View className="text-center py-3">
@@ -112,15 +124,17 @@ const OrderList = () => {
     );
   }
 
-  if (ordersResponse?.error) {
+
+  if ((ordersResponse as any)?.error) {
     return (
       <View className=" mt-2">
         <SectionAlert variant={'danger'}>
-          <Text>Error: {ordersResponse?.error}</Text>
+          <Text>Error: {(ordersResponse as any)?.error}</Text>
         </SectionAlert>
       </View>
     );
   }
+
 
   return (
     <View className="flex-grow mb-4">
@@ -131,13 +145,16 @@ const OrderList = () => {
         refreshControl={
           <RefreshControl
             refreshing={false}
-            onRefresh={() => {
+            onRefresh={async () => {
               withoutRefresh.current = false;
-              refetch();
+              await  queryClient.setQueryData(['searchOrders'], (data: any) => ({
+                pages: [],
+                pageParams: data.pageParams,
+              }))
+              refetch()
             }}
           />
         }
-        refreshing={isFetching}
         ListEmptyComponent={
           !isFetching ? (
             <View className="mt-3">
@@ -147,7 +164,16 @@ const OrderList = () => {
             <></>
           )
         }
+        refreshing={isFetching}
         data={orderList}
+        onEndReachedThreshold={0.3}
+        onEndReached={() => {
+          if(hasNextPage && !isFetching) {
+            fetchNextPage();
+          }
+        }}
+        ListFooterComponent={renderFooterList}
+        keyExtractor={(item, idx) => idx + item.id}
         renderItem={({ item }: { item: any }) => (
           <View key={item.id} className="my-3">
             <ItemProduct

@@ -9,7 +9,6 @@ import {
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
 import { Button } from '../Button';
 import { Input } from '../Input';

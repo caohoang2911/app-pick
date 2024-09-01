@@ -36,8 +36,6 @@ const OrderPickProduct = ({
   const config = useConfig.use.config();
   const productPickedErrors = config?.productPickedErrors || [];
 
-
-  const pickedNote = orderPickProducts?.[barcode]?.pickedNote;
   const pickedError = orderPickProducts?.[barcode]?.pickedError;
   const pickedQuantity = orderPickProducts?.[barcode]?.pickedQuantity;
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);

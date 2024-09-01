@@ -1,9 +1,10 @@
 import { axiosClient } from '@/api/shared';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 type Variables = {
   status?: OrderStatus;
   keyword?: string;
+  pageIndex?: number;
 };
 
 export type SearchOrdersResponse = {
@@ -17,7 +18,7 @@ export type SearchOrdersResponse = {
 
 type Response = { error: string } & {
   data: SearchOrdersResponse;
-};
+} | any;
 
 const searchOrders = async (filter?: Variables): Promise<Response> => {
   const params = {
@@ -27,10 +28,16 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
   return await axiosClient.get('app-pick/searchOrders', { params });
 };
 export const useSearchOrders = (params?: Variables) =>
-  useQuery({
+  useInfiniteQuery({
     queryKey: ['searchOrders'],
     queryFn: () => {
-      return searchOrders(params);
+      return searchOrders({...params})
     },
+    getNextPageParam: (lastPage: any, pages) => lastPage.data?.pageIndex,
+    select: (data) => ({
+      pages: data.pages.flatMap(page => page.data?.list || []),
+      pageParams: [...data.pageParams].reverse(),
+    }),
     enabled: !!params,
+    initialPageParam: 0,
   });
