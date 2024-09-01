@@ -19,7 +19,7 @@ export function useProtectedRoute() {
     } else if ('signIn' && firstTime.current) {
       firstTime.current = false;
       // Redirect away from the sign-in page.
-      router.navigate('/orders');
+      router.navigate('/');
     }
   }, [segments, router, status]);
 }

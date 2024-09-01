@@ -8,6 +8,9 @@ export enum ProductLabelEnum {
 }
 
 export type Product = {
+  pickedError?: string;
+  pickedNote?: string;
+  pickedQuantity?: number;
   unitType?: string;
   quantity: number;
   image?: string;

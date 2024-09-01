@@ -20,7 +20,7 @@ interface AuthState {
   userInfo: UserInfo;
   signIn: (data: TokenType) => void;
   setRedirectUrl: (url: string) => void;
-  setUser: (userInfo: UserInfo | {}) => void;
+  setUser: (userInfo: UserInfo) => void;
   signOut: () => void;
   hydrate: () => void;
   setEnv: () => void;
@@ -31,11 +31,14 @@ const _useAuth = create<AuthState>((set, get) => ({
   token: null,
   env: 'prod',
   urlRedirect: '',
-  userInfo: {},
+  userInfo: {
+    storeCode: '',
+    storeName: ''
+  },
   setRedirectUrl: (url: string) => {
     set({ urlRedirect: url });
   },
-  setUser: (userInfo: UserInfo | {}) => {
+  setUser: (userInfo: UserInfo) => {
     set({ userInfo });
   },
   signIn: ({ token, userInfo }: TokenType) => {

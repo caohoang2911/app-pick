@@ -1,28 +1,27 @@
 import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { toLower } from 'lodash';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { Badge } from '../Badge';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useQuery } from '@tanstack/react-query';
-import { useGlobalSearchParams } from 'expo-router';
-import { toLower } from 'lodash';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { toggleScanQrCodeProduct } from '~/src/core/store/order-pick';
+import { toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { OrderDetail } from '~/src/types/order-detail';
+import { Badge } from '../Badge';
 import { Input } from '../Input';
+import { useGlobalSearchParams } from 'expo-router';
 
 type Props = {
   onClickHeaderAction?: () => void;
 };
 
 const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
+
   const { code } = useGlobalSearchParams<{ code: string }>();
-  const data: any = useQuery({ queryKey: ['orderDetail', code] });
   const [keyword, setKeyWord] = useState('');
 
-  const orderDetail: OrderDetail = data?.data?.data || {};
+  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
   const { status, statusName } = header || {};
 

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { WebView } from 'react-native-webview';
-import Constants from 'expo-constants';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { INJECTED_SCRIPT, parseEventData, signIn, useAuth } from '@/core';
 import { router } from 'expo-router';

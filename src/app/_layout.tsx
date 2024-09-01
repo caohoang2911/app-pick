@@ -9,26 +9,27 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
 import * as Updates from 'expo-updates';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
 
 // Import  global CSS file
-import { useSendFCMNotification } from '@/api/employee/useSendFCMNotification';
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { hydrateAuth, useAuth } from '@/core';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
+import { hydrateConfig } from '@/core/store/config';
 import '@/ui/global.css';
 import React, { useCallback, useEffect } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLoading } from '../core/store/loading';
 
-const VERSION = '1.0.22';
+const VERSION = '1.0.23';
 
 const useCodepush = () => {
   const {
@@ -65,21 +66,10 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
     useSetFCMRegistrationToken();
 
   useEffect(() => {
-    console.log(token, 'expoPushToken');
     if (token && status === 'signIn') {
       setFCMRegistrationToken({ token: token });
     }
   }, [token, status]);
-
-  useEffect(() => {
-    if (data?.error) {
-      showMessage({
-        message: data?.error as string,
-        type: 'danger',
-      });
-    } else if (data) {
-    }
-  }, [data]);
 
   return (
     <>
@@ -93,6 +83,8 @@ export const unstable_settings = {
 };
 
 hydrateAuth();
+hydrateConfig();
+
 SplashScreen.preventAutoHideAsync();
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -134,6 +126,8 @@ function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
   const env = useAuth.use.env();
 
+  const loading = useLoading.use.loading();
+
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -161,14 +155,15 @@ function Providers({ children }: { children: React.ReactNode }) {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PortalProvider>
-        <StatusBar style="dark" />
         <APIProvider>
           <NotificationWrapper>
             <AuthWrapper>
               <BottomSheetModalProvider>
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                  {loading && <Loading />}
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
+                    loading: {JSON.stringify(loading)}
                       {env === 'prod'
                         ? `Production ${VERSION}`
                         : `Development ${VERSION}`}

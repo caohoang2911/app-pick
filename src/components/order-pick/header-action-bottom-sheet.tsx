@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
 
 import {
@@ -11,6 +11,11 @@ import {
 } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import SaveOutLine from '~/src/core/svgs/SaveOutline';
+import { setLoading } from '~/src/core/store/loading';
+import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
+import { useOrderPick } from '~/src/core/store/order-pick';
+import { Product } from '~/src/types/product';
+import { useGlobalSearchParams } from 'expo-router';
 
 const actions = [
   {
@@ -44,7 +49,7 @@ const actions = [
     icon: <EBikeLine />,
   },
   {
-    key: 'book-ahamove',
+    key: 'save-draft',
     title: 'Lưu tạm',
     icon: <SaveOutLine />,
   },
@@ -55,14 +60,29 @@ const actions = [
   },
 ];
 
-type Props = {
-  onClickAction: (key: string) => void;
-  snapPoints?: any;
-};
+type Props = {};
 
 const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
-  ({ onClickAction }, ref) => {
+  ({ }, ref) => {
+    const { code } = useGlobalSearchParams<{ code: string }>();
     const snapPoints = useMemo(() => [500], []);
+
+    const orderPickProducts = useOrderPick.use.orderPickProducts();
+    
+    const actionRef = useRef<any>();
+
+    const { mutate: saveOrderPickingAsDraft } = useSaveOrderPickingAsDraft();
+
+    useImperativeHandle(
+      ref,
+      () => {
+        return {
+          present: () => actionRef.current?.present(),
+        };
+      },
+      []
+    );
+
 
     const renderItem = ({
       onClickAction,
@@ -86,9 +106,29 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       );
     };
 
+    const handleClickAction = (key: string) => {
+      switch (key) {
+        case 'save-draft':
+          saveOrderPickingAsDraft({ pickedItems: Object.values(orderPickProducts).map((item) => ({
+            ...item,
+            name: item.name || '',
+            quantity: item.quantity || 0,
+            barcode: item.barcode || '',
+            pickedQuantity: item.pickedQuantity || 0,
+            pickedError: item.pickedError || '',
+            pickedNote: item.pickedNote || '',
+          })), orderCode: code,});
+          break;
+        default:
+          break;
+      }
+      actionRef.current?.dismiss();
+      setLoading(true);
+    };
+
     return (
-      <SBottomSheet title="Thao tác" snapPoints={snapPoints} ref={ref}>
-        {actions.map((action) => renderItem({ ...action, onClickAction }))}
+      <SBottomSheet title="Thao tác" snapPoints={snapPoints} ref={actionRef}>
+        {actions.map((action) => renderItem({ ...action, onClickAction: handleClickAction }))}
       </SBottomSheet>
     );
   }

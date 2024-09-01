@@ -1,8 +1,11 @@
-import { axiosClient } from '@/api/shared';
+import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
+import { showMessage } from 'react-native-flash-message';
+import { Product } from '~/src/types/product';
 
 type Variables = {
   orderCode?: string;
+  pickedItems: Product[];
 };
 
 type Response = { error: string } & {};
@@ -14,5 +17,14 @@ const setOrderStatusPacked = async (params: Variables): Promise<Response> => {
 export const useSetOrderStatusPacked = () => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderStatusPacked(params),
+    onSuccess: (response: Response) => {
+      if (!response.error) {
+        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+        showMessage({
+        message: 'Đã đóng gói thành công',
+        type: 'success',
+        });
+      }
+    },
   });
 };

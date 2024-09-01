@@ -7,10 +7,15 @@ import React, { useEffect } from 'react';
 import Header from '~/src/components/orders/header';
 import OrderList from '~/src/components/orders/order-list';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import { useConfig } from '~/src/core/store/config';
 
 const Orders = () => {
   const navigation = useNavigation();
   const isScanQrCode = useOrders.use.isScanQrCode();
+
+  const config = useConfig.use.config();
+
+  console.log(config?.productPickedErrors, "my-config");
 
   useEffect(() => {
     navigation.setOptions({

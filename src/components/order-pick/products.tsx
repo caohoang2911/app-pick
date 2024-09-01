@@ -32,7 +32,7 @@ const OrderPickProducts = () => {
   useEffect(() => {
     const obj: any = {};
     productItems?.forEach((productItem: Product) => {
-      obj[productItem.barcode] = { number: 0 };
+      obj[productItem.barcode] = { ...productItem };
     });
 
     setInitOrderPickProducts(obj);

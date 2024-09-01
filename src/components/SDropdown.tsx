@@ -24,8 +24,8 @@ const SDropdown = ({
   placeholder,
   showSearch,
   data = [],
-  labelField = 'label',
-  valueField = 'value',
+  labelField = 'name',
+  valueField = 'id',
   value,
   onSelect,
   ...rests
@@ -56,7 +56,7 @@ const SDropdown = ({
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item: any) => {
-          onSelect?.(item?.value);
+          onSelect?.(item?.[valueField]);
           setIsFocus(false);
         }}
         {...rests}
@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
     borderColor: 'border-color: rgb(203 213 225)',
     borderWidth: 1,
     borderRadius: 5,
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
+    // paddingLeft: 10,
   },
 
   icon: {

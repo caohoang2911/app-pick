@@ -1,40 +1,28 @@
-import React, { useEffect } from 'react';
-import { Alert, View } from 'react-native';
 import { Button } from '@/components/Button';
-import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { useGlobalSearchParams } from 'expo-router';
-import { showMessage } from 'react-native-flash-message';
+import React from 'react';
+import { Alert, View } from 'react-native';
+import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
+import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-detail';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 
 const ActionBottom = () => {
-  const queryClient = useQueryClient();
 
   const {
     mutate: setOrderStatusPicking,
-    data: orderStatusPickingData,
     isPending: isLoadingOrderStatusPicking,
   } = useSetOrderStatusPicking();
 
   const {
     mutate: setOrderStatusPacked,
-    data: orderStatusPickedData,
     isPending: isLoadingOrderStatusPicked,
   } = useSetOrderStatusPacked();
 
+  const { code } = useGlobalSearchParams<{ code: string }>();
+
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
-
-  const { error } = orderStatusPickingData || orderStatusPickedData || {};
-
-  const { code } = useGlobalSearchParams<{
-    code: string;
-  }>();
-
-  const data: any = useQuery({ queryKey: ['orderDetail', code] });
-
-  const orderDetail: OrderDetail = data?.data?.data || {};
+  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { productItems } = orderDetail?.deliveries?.[0] || {};
 
   const { header } = orderDetail || {};
@@ -52,24 +40,6 @@ const ActionBottom = () => {
     return true;
   };
 
-  useEffect(() => {
-    if (error) {
-      showMessage({
-        message: error as string,
-        type: 'danger',
-      });
-    } else if (orderStatusPickingData || orderStatusPickedData) {
-      showMessage({
-        message:
-          status === 'STORE_PICKING'
-            ? 'Xác nhận đang soạn hàng thành công'
-            : 'Đã soạn hàng thành công',
-        type: 'success',
-      });
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-    }
-  }, [orderStatusPickingData, orderStatusPickedData]);
-
   const handlePick = () => {
     Alert.alert(
       status !== 'STORE_PICKING'
@@ -85,10 +55,17 @@ const ActionBottom = () => {
         },
         {
           text: 'Xác nhận',
-
           onPress: () =>
             status === 'STORE_PICKING'
-              ? setOrderStatusPacked({ orderCode: code })
+              ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProducts).map((item: any) => ({
+                ...item,
+                name: item.name || '',
+                quantity: item.quantity || 0,
+                barcode: item.barcode || '',
+                pickedQuantity: item.pickedQuantity || 0,
+                pickedError: item.pickedError || '',
+                pickedNote: item.pickedNote || '',
+              })), orderCode: code})
               : setOrderStatusPicking({ orderCode: code }),
         },
       ]

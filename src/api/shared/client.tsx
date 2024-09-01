@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
@@ -16,6 +16,8 @@ axiosClient.interceptors.response.use(function (
   response: AxiosResponse & { error?: string }
 ): AxiosResponse & { error?: string } {
   const { url } = response.config;
+
+  console.log(response?.data, "response?.data")
   if (
     response &&
     [
@@ -30,18 +32,27 @@ axiosClient.interceptors.response.use(function (
     });
     router.replace('login');
   }
-  if (
-    response &&
-    ['ERR_UNKOWN', 'ERROR_METHOD_NOT_FOUND'].includes(response?.data?.error)
-  ) {
-    Alert.prompt(`${url}: Lỗi server`);
+
+  if (response?.data?.error) {
+    console.log('response?.data?.error', response?.data?.error);
+    showMessage({
+      message: response?.data?.error,
+      type: 'danger',
+    });
   }
 
   if (response && response?.data) {
-    return response?.data || response?.data;
+    return response?.data;
   }
 
   return response;
+}, (error: AxiosError) => {
+   showMessage({
+      message: error?.message,
+      type: 'danger',
+    });
+  // reject with error if response status is not 403
+  return Promise.reject(error);
 });
 
 axiosClient.interceptors.request.use(function (config: any) {

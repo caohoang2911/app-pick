@@ -18,12 +18,7 @@ export default function Login() {
   const env = useAuth.use.env();
 
   useEffect(() => {
-    if (data?.error) {
-      showMessage({
-        message: data?.error as string,
-        type: 'danger',
-      });
-    } else if (data) {
+    if (data) {
       setRedirectUrl(data?.data as string);
       router.push('/authorize');
     }

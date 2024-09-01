@@ -15,6 +15,8 @@ import EditOutLine from '~/src/core/svgs/EditOutLine';
 import { useQuery } from '@tanstack/react-query';
 import { OrderDetail } from '~/src/types/order-detail';
 import { useGlobalSearchParams } from 'expo-router';
+import { useConfig } from '~/src/core/store/config';
+import { getConfigNameById } from '~/src/core/utils/config';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -29,12 +31,17 @@ const OrderPickProduct = ({
   stockAvailable,
 }: Partial<Product | any>) => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
+  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
 
-  const { code } = useGlobalSearchParams<{ code: string }>();
+  const config = useConfig.use.config();
+  const productPickedErrors = config?.productPickedErrors || [];
 
-  const data: any = useQuery({ queryKey: ['orderDetail', code] });
 
-  const orderDetail: OrderDetail = data?.data?.data || {};
+  const pickedNote = orderPickProducts?.[barcode]?.pickedNote;
+  const pickedError = orderPickProducts?.[barcode]?.pickedError;
+  const pickedQuantity = orderPickProducts?.[barcode]?.pickedQuantity;
+  const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
+
 
   const { header } = orderDetail || {};
   const { status } = header || {};
@@ -63,7 +70,7 @@ const OrderPickProduct = ({
               <View className="flex gap-2">
                 <Text className="font-semibold">Số lượng đặt: {quantity}</Text>
                 <Text className="">
-                  Thực pick: {orderPickProducts?.[barcode]?.number || 0}
+                  Thực pick: {pickedQuantity || 0}
                 </Text>
                 <Text className="text-gray-500">
                   Tồn kho: {formatNumber(stockAvailable)}
@@ -88,6 +95,9 @@ const OrderPickProduct = ({
               <Text className="text-gray-500">Unit: {unit}</Text>
             </View>
           </View>
+          {pickedErrorName && <View className="flex gap-1 mt-2">
+            <Text className="text-red-500 italic">Lỗi: {pickedErrorName}</Text>
+          </View>}
         </View>
         {shouldDisplayEdit && <View style={styles.edit}>
           <Pressable

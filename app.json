@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "seedcom-app-pick",
+    "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
     "entryPoint": "./screens/Home/Home.js",

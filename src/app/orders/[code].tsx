@@ -2,7 +2,7 @@ import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { useQuery } from '@tanstack/react-query';
 import { BarcodeScanningResult } from 'expo-camera';
 import { useGlobalSearchParams, useNavigation } from 'expo-router';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import ActionBottom from '~/src/components/order-pick/action-bottom';
@@ -12,8 +12,8 @@ import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
 import OrderPickProducts from '~/src/components/order-pick/products';
 import ScanOnView from '~/src/components/order-pick/scan-on-view';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import useCarmera from '~/src/core/hooks/useCarmera';
 import {
+  setOrderDetail,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
@@ -39,6 +39,10 @@ const OrderPick = () => {
   const orderDetail: OrderDetail = data?.data?.data || {};
   const { header } = orderDetail;
   const { status } = header || {};
+
+  useEffect(() => {
+    setOrderDetail(data?.data?.data || {});
+  }, [data]);
 
   const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
 

@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
+import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
 
 interface OrdersState {
+  orderDetail: OrderDetail;
   isScanQrCodeProduct: boolean;
   isShowAmountInput: boolean;
   barcodeScanSuccess: string;
@@ -10,12 +12,10 @@ interface OrdersState {
   barcodeScrollTo: string;
   orderPickProducts:
     | {
-        barcode?: {
-          number?: number;
-          picked?: boolean;
-        };
+        barcode?: Product;
       }
     | {};
+  setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean) => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
@@ -23,20 +23,28 @@ interface OrdersState {
   setInitOrderPickProducts: (data: any) => void;
   setOrderPickProducts: ({
     barcode,
-    number,
+    pickedQuantity,
+    pickedError,
+    pickedNote,
   }: {
     barcode: string;
-    number: number;
+    pickedQuantity: number;
+    pickedError: string;
+    pickedNote: string;
   }) => void;
 }
 
 const _useOrderPick = create<OrdersState>((set, get) => ({
+  orderDetail: {} as OrderDetail,
   isScanQrCodeProduct: false,
   isShowAmountInput: false,
   keyword: '',
   barcodeScrollTo: '',
   orderPickProducts: {},
   barcodeScanSuccess: '',
+  setOrderDetail: (orderDetail: OrderDetail) => {
+    set({ orderDetail });
+  },
   toggleScanQrCode: (isScanQrCodeProduct: boolean) => {
     set({ isScanQrCodeProduct });
   },
@@ -49,16 +57,20 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setInitOrderPickProducts: (data: any) => {
     set({ orderPickProducts: { ...data } });
   },
-  setBarcodeScrollTo: (data: any) => {
-    set({ barcodeScrollTo: { ...data } });
+  setBarcodeScrollTo: (barcode: string) => {
+    set({ barcodeScrollTo: barcode });
   },
-
   setOrderPickProducts: ({
     barcode,
-    number,
+    pickedQuantity,
+    pickedError,
+    pickedNote,
+    ...rests
   }: {
     barcode: string;
-    number: number;
+    pickedQuantity: number;
+    pickedError: string;
+    pickedNote: string;
   }) => {
     const orderPickProducts = get().orderPickProducts;
 
@@ -69,7 +81,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       barcodeScrollTo: barcode,
       orderPickProducts: {
         ...orderPickProducts,
-        [barcode]: { number, picked: true },
+        [barcode]: { pickedQuantity, picked: true, pickedError, pickedNote, barcode, ...rests },
       },
     });
   },
@@ -95,8 +107,17 @@ export const setBarcodeScrollTo = (barcode: string) =>
 
 export const setOrderPickProducts = ({
   barcode,
-  number,
+  pickedQuantity,
+  pickedError,
+  pickedNote,
+  ...rests
 }: {
   barcode: string;
-  number: number;
-}) => _useOrderPick.getState().setOrderPickProducts({ barcode, number });
+  pickedQuantity: number;
+  pickedError: string;
+  pickedNote: string;
+}) => _useOrderPick.getState().setOrderPickProducts({ barcode, pickedQuantity, pickedError,
+  pickedNote, ...rests });
+
+export const setOrderDetail = (orderDetail: OrderDetail) =>
+  _useOrderPick.getState().setOrderDetail(orderDetail);

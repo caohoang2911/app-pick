@@ -1,11 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import { BarcodeScanningResult, CameraView } from 'expo-camera';
-import { useGlobalSearchParams } from 'expo-router';
-import { default as React, useEffect, useState } from 'react';
+import { default as React, useEffect } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
-import { OrderDetail } from '~/src/types/order-detail';
 
 const deviceWidth = Dimensions.get('window').width;
 
@@ -125,16 +122,6 @@ const ScannerLayout = ({}: {}) => {
       <Svg height="100%" width="100%">
         <Defs>
           <Mask id="mask" x="0" y="0" height="100%" width="100%">
-            {/* <Rect height="100%" width="100%" fill="white" opacity={0.5} /> */}
-            {/* <Rect
-              x={10}
-              y={10}
-              width={CAMERA_WIDTH - 20}
-              height={CAMERA_HEIGHT - 20}
-              stroke="transparent"
-              strokeWidth="0"
-              fill-opacity="0"
-            /> */}
             <Corner />
           </Mask>
         </Defs>

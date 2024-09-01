@@ -1,59 +1,38 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { Formik } from 'formik';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Button } from '../Button';
-import { Input } from '../Input';
-import SBottomSheet from '../SBottomSheet';
-import { useGlobalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { OrderDetail } from '~/src/types/order-detail';
+import { useConfig } from '~/src/core/store/config';
 import {
   setOrderPickProducts,
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
+import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
-import {
-  BottomSheetFooter,
-  BottomSheetTextInput,
-  useBottomSheetModal,
-} from '@gorhom/bottom-sheet';
+import { Button } from '../Button';
+import { Input } from '../Input';
+import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 
-const dataEx = [
-  { label: 'Hàng khô', value: '1' },
-  { label: 'Hàng đông lạnh', value: '2' },
-  { label: 'Hàng tươi', value: '3' },
-];
-
 const InputAmountPopup = ({}) => {
-  const snapPoints = useMemo(() => [310], []);
+  const snapPoints = useMemo(() => [420], []);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
+  const config = useConfig.use.config();
+  const productPickedErrors = config?.productPickedErrors || [];
+
   const inputBottomSheetRef = useRef<any>();
-
-  const { dismiss } = useBottomSheetModal();
-
-  const { code } = useGlobalSearchParams<{ code: string }>();
-  const data: any = useQuery({ queryKey: ['orderDetail', code] });
-
-  const orderDetail: OrderDetail = data?.data?.data || {};
-  const { productItems } = orderDetail?.deliveries?.[0] || {};
-
-  const currentProduct = productItems?.find((productItem: Product) => {
-    return productItem.barcode === barcodeScanSuccess;
-  });
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const currentProduct = orderPickProducts[barcodeScanSuccess as keyof typeof orderPickProducts] as Product;
 
   const productName = currentProduct?.name || '';
 
   useEffect(() => {
     if (isShowAmountInput) {
-      inputBottomSheetRef.current.present();
-    } else {
-      // inputBottomSheetRef.current.dismiss();
+      inputBottomSheetRef?.current?.present();
     }
   }, [isShowAmountInput]);
 
@@ -71,19 +50,28 @@ const InputAmountPopup = ({}) => {
     >
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
         <Formik
-          initialValues={{ number: 0 }}
+          initialValues={{
+            pickedQuantity: (currentProduct as any)?.pickedQuantity || 0, 
+            pickedError: (currentProduct as any)?.pickedError || '', 
+            pickedNote: (currentProduct as any)?.pickedNote || ''
+          }}
           onSubmit={(values, { resetForm }) => {
             if (!productName) return;
             setOrderPickProducts({
+              ...currentProduct,
               barcode: barcodeScanSuccess,
-              number: values.number,
+              pickedQuantity: values.pickedQuantity,
+              pickedError: values.pickedError,
+              pickedNote: values.pickedNote,
             });
 
+            Keyboard.dismiss();
+            inputBottomSheetRef?.current?.present()
+
             setTimeout(() => {
-              Keyboard.dismiss();
               toggleShowAmountInput(false);
-              dismiss();
               resetForm();
+
             }, 100);
           }}
         >
@@ -97,17 +85,17 @@ const InputAmountPopup = ({}) => {
                 inputClasses="text-center"
                 keyboardType="numeric"
                 onChangeText={(value: string) => {
-                  setFieldValue('number', value);
+                  setFieldValue('pickedQuantity', value);
                 }}
-                name="number"
-                value={values?.number.toString()}
-                onBlur={handleBlur('number')}
+                name="pickedQuantity"
+                value={values?.pickedQuantity.toString()}
+                onBlur={handleBlur('pickedQuantity')}
                 defaultValue="0"
                 prefix={
                   <TouchableOpacity
                     onPress={() => {
-                      if (values.number == 0) return;
-                      setFieldValue('number', Number(values.number || 0) - 1);
+                      if (values.pickedQuantity == 0) return;
+                      setFieldValue('pickedQuantity', Number(values.pickedQuantity || 0) - 1);
                     }}
                   >
                     <View className="size-8 rounded-full bg-gray-200">
@@ -122,7 +110,7 @@ const InputAmountPopup = ({}) => {
                 suffix={
                   <TouchableOpacity
                     onPress={() => {
-                      setFieldValue('number', Number(values.number || 0) + 1);
+                      setFieldValue('pickedQuantity', Number(values.pickedQuantity || 0) + 1);
                     }}
                   >
                     <View className="size-8 rounded-full bg-gray-200">
@@ -136,12 +124,32 @@ const InputAmountPopup = ({}) => {
                 }
               />
               <SDropdown
-                data={dataEx}
-                label="Chọn loại"
+                data={productPickedErrors}
+                label="Chọn lý do"
                 labelClasses="font-medium"
                 dropdownPosition="top"
                 placeholder="Vui lòng chọn"
+                // onBlur={handleBlur('pickedError')}
+                value={values.pickedError}
+                onSelect={(value: string) => {
+                  setFieldValue('pickedError', value);
+                }}
               />
+
+              <Input
+                label="Mô tả"
+                labelClasses="font-medium"
+                value={values.pickedNote}
+                placeholder="Nhập mô tả"
+                multiline
+                numberOfLines={3}
+                keyboardType="default"
+                handleBlur={handleBlur('pickedNote')}
+                onChangeText={(value: string) => {
+                  setFieldValue('pickedNote', value);
+                }}
+              />  
+
               <Button onPress={handleSubmit as any} label={'Xác nhận'} />
             </>
           )}
