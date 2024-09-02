@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useRef } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
@@ -29,22 +29,14 @@ const InputAmountPopup = ({}) => {
 
   const productName = currentProduct?.name || '';
 
-  useEffect(() => {
-    if (isShowAmountInput) {
-      inputBottomSheetRef?.current?.present();
-    }
-  }, [isShowAmountInput]);
-
-  if(!isShowAmountInput) return <></>
-
   return (
     <SBottomSheet
       title={productName}
       snapPoints={snapPoints}
       ref={inputBottomSheetRef}
-      enableDismissOnClose={false}
+      visible={isShowAmountInput}
       onClose={() => {
-      toggleShowAmountInput(false);
+        toggleShowAmountInput(false);
       }}
     >
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
@@ -56,6 +48,7 @@ const InputAmountPopup = ({}) => {
           }}
           onSubmit={(values, { resetForm }) => {
             if (!productName) return;
+            toggleShowAmountInput(false);
             setOrderPickProducts({
               ...currentProduct,
               barcode: barcodeScanSuccess,
@@ -63,15 +56,7 @@ const InputAmountPopup = ({}) => {
               pickedError: values.pickedError,
               pickedNote: values.pickedNote,
             });
-
-            Keyboard.dismiss();
-            inputBottomSheetRef?.current?.present()
-
-            setTimeout(() => {
-              toggleShowAmountInput(false);
-              resetForm();
-
-            }, 100);
+            resetForm();
           }}
         >
           {({ values, handleBlur, setFieldValue, handleSubmit }) => (
@@ -128,7 +113,6 @@ const InputAmountPopup = ({}) => {
                 labelClasses="font-medium"
                 dropdownPosition="top"
                 placeholder="Vui lòng chọn"
-                // onBlur={handleBlur('pickedError')}
                 value={values.pickedError}
                 onSelect={(value: string) => {
                   setFieldValue('pickedError', value);

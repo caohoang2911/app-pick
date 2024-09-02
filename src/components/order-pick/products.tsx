@@ -55,7 +55,7 @@ const OrderPickProducts = () => {
           viewPosition: 0.5,
         });
         setBarcodeScrollTo('');
-      }, 200);
+      }, 500);
     }
   }, [indexCurrentProduct]);
 

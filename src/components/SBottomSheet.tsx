@@ -21,6 +21,7 @@ type Props = {
   title?: string;
   children: React.ReactNode;
   titleAlign: 'left' | 'center';
+  visible: boolean;
   onClose: () => void;
   [key: string]: any;
 };
@@ -32,6 +33,7 @@ const SBottomSheet = forwardRef<any, Props>(
       title = 'Title',
       children,
       titleAlign = 'left',
+      visible,
       onClose,
       ...rests
     },
@@ -40,10 +42,25 @@ const SBottomSheet = forwardRef<any, Props>(
     const bottomSheetModalRef = useRef<any>(null);
     const isKeyboardVisible = useKeyboardVisible();
 
+    useEffect(() => {
+      if (visible) {
+        bottomSheetModalRef.current?.present();
+      }
+      else {
+        bottomSheetModalRef.current?.dismiss();
+        setTimeout(() => {
+          if (isKeyboardVisible) {
+            Keyboard.dismiss();
+          }
+        }, 300);
+      }
+      
+    }, [visible]);
+
     const handleSheetChanges = useCallback(
       (index: number) => {
-        if (index == -1 && !isKeyboardVisible) {
-          onClose?.();
+        if (index == -1) {
+         
         }
       },
       [onClose]
@@ -53,7 +70,9 @@ const SBottomSheet = forwardRef<any, Props>(
       ref,
       () => {
         return {
-          present: () => bottomSheetModalRef.current?.present(),
+          present: () => {
+            bottomSheetModalRef.current?.present();
+          },
           dismiss: () => {
             onClose?.();
             bottomSheetModalRef.current?.dismiss();
@@ -86,6 +105,7 @@ const SBottomSheet = forwardRef<any, Props>(
           enablePanDownToClose
           enableHandlePanningGesture
           keyboardBehavior="interactive"
+          onDismiss={onClose}
           //@ts-ignore
           keyboardBlurBehavior="restore"
           android_keyboardInputMode="adjustResize"
@@ -104,7 +124,7 @@ const SBottomSheet = forwardRef<any, Props>(
                 setTimeout(() => {
                   onClose?.();
                   bottomSheetModalRef.current?.dismiss();
-                }, 200);
+                });
               }}
             >
               <CloseLine />
@@ -124,4 +144,4 @@ const SBottomSheet = forwardRef<any, Props>(
   }
 );
 
-export default SBottomSheet;
+export default React.memo(SBottomSheet);

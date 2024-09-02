@@ -32,6 +32,7 @@ const OrderPickProduct = ({
 }: Partial<Product | any>) => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
+  const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const config = useConfig.use.config();
   const productPickedErrors = config?.productPickedErrors || [];
@@ -100,7 +101,7 @@ const OrderPickProduct = ({
         {shouldDisplayEdit && <View style={styles.edit}>
           <Pressable
             onPress={() => {
-              toggleShowAmountInput(true);
+              toggleShowAmountInput(!isShowAmountInput);
               setSuccessForBarcodeScan(barcode);
             }}
           >
