@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
+import SaveOutLine from '@/core/svgs/SaveOutline';
+import { CloseLine } from '../core/svgs';
+import ArrowDown from '../core/svgs/ArrowDown';
 
 export interface SDropdownProps {
   label?: string;
@@ -13,7 +16,9 @@ export interface SDropdownProps {
   data?: Array<{ [key: string]: string }>;
   labelField?: string;
   valueField?: string;
+  allowClear?: boolean;
   onSelect?: (value: string) => void;
+  onClear?: () => void;
   [key: string]: any;
 }
 
@@ -27,7 +32,9 @@ const SDropdown = ({
   labelField = 'name',
   valueField = 'id',
   value,
+  allowClear,
   onSelect,
+  onClear,
   ...rests
 }: SDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
@@ -54,6 +61,18 @@ const SDropdown = ({
         value={value}
         containerStyle={styles.containerStyle}
         onFocus={() => setIsFocus(true)}
+        renderRightIcon={() => 
+          <View className='flex items-center justify-center gap-1 flex-row'>
+            {allowClear && value && <Pressable className='bg-gray-50 rounded-full p-1' onPress={() => {
+              setIsFocus(false);
+              onClear?.();
+            }}>
+              <CloseLine width={18} height={18} color="#999999" />
+            </Pressable>
+            }
+            <ArrowDown width={20} height={20} color="#999999"  />
+          </View>
+        }
         onBlur={() => setIsFocus(false)}
         onChange={(item: any) => {
           onSelect?.(item?.[valueField]);

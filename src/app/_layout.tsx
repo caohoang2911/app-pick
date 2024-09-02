@@ -28,13 +28,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLoading } from '../core/store/loading';
 import { useCodepush } from '../core/hooks/useCodePush';
 
-const VERSION = '1.0.23';
+const VERSION = '1.0.24';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
 
-  // const { isDoneCodepush } = useCodepush();
+  const { isDoneCodepush } = useCodepush();
 
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
@@ -45,9 +45,9 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   }, [token, status]);
 
-  // if(!isDoneCodepush) {
-  //   return <></>
-  // }
+  if(!isDoneCodepush) {
+    return <></>
+  }
 
   return (
     <>

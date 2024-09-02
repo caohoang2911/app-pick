@@ -113,9 +113,13 @@ const InputAmountPopup = ({}) => {
                 labelClasses="font-medium"
                 dropdownPosition="top"
                 placeholder="Vui lòng chọn"
+                allowClear={true}
                 value={values.pickedError}
                 onSelect={(value: string) => {
                   setFieldValue('pickedError', value);
+                }}
+                onClear={() => {
+                  setFieldValue('pickedError', '');
                 }}
               />
 
