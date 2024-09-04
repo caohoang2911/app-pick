@@ -52,7 +52,7 @@ const OrderPickProduct = ({
     <>
       <View className={clsx(`bg-white shadow`)} style={styles.box}>
         <View className="p-4">
-          {orderPickProducts?.[barcode]?.picked && (
+          {orderPickProducts?.[barcode]?.pickedTime && (
             <View className="absolute z-10 left-2 top-2">
               <CheckCircleFill color={'green'} />
             </View>

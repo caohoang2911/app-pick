@@ -8,8 +8,9 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary border bg-blue-50 border-blue-200 px-3 py-1',
+        default: 'bg-blue-50',
         secondary: 'bg-secondary',
+        danger: 'bg-red-50',
         destructive: 'bg-destructive',
         success: 'bg-green-500 dark:bg-green-700',
         // 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED';
@@ -32,6 +33,7 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
       default: 'blue text-blue-600',
       secondary: 'text-secondary-foreground',
       destructive: 'text-destructive-foreground',
+      danger: 'text-red-600',
       success: 'text-green-100',
       confirmed: 'text-blue-600',
       store_picking: 'text-orange-600',
@@ -48,23 +50,26 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
 export interface BadgeProps
   extends React.ComponentPropsWithoutRef<typeof View>,
     VariantProps<typeof badgeVariants> {
+  extraLabel?: string | React.ReactNode;
   label: string;
   labelClasses?: string;
 }
 function Badge({
   label,
+  extraLabel,
   labelClasses,
   className,
   variant,
+  children,
   ...props
 }: BadgeProps) {
   return (
     <View
-      className={cn(badgeVariants({ variant }), className, 'rounded-full')}
+      className={cn(badgeVariants({ variant }), 'rounded-full', className)}
       {...props}
     >
       <Text className={cn(badgeTextVariants({ variant }), labelClasses)}>
-        {label}
+        {label} {extraLabel}
       </Text>
     </View>
   );

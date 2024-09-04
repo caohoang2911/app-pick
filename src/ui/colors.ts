@@ -3,6 +3,7 @@ export const colors = {
   black: '#000000',
   bgPrimary: '#E2E8F0',
   colorPrimary: '#3280F6',
+  contentPrimary: '#2D3748',
   gray: {
     300: '#4A5568',
     500: '#718096',

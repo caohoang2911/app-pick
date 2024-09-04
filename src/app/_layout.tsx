@@ -27,8 +27,9 @@ import { StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLoading } from '../core/store/loading';
 import { useCodepush } from '../core/hooks/useCodePush';
+import { initConfigDate } from '../core/utils/moment';
 
-const VERSION = '1.0.24';
+const VERSION = '1.0.25';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -62,6 +63,7 @@ export const unstable_settings = {
 
 hydrateAuth();
 hydrateConfig();
+initConfigDate();
 
 SplashScreen.preventAutoHideAsync();
 
@@ -91,8 +93,6 @@ function RootLayoutNav() {
         }}
       >
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Stack.Screen name="orders/index" options={{ headerShown: false }} />
-        <Stack.Screen name="orders/[code]" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
       </Stack>

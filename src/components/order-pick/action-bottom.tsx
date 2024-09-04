@@ -30,7 +30,7 @@ const ActionBottom = () => {
 
   const canCompletePick =
     Object.keys(orderPickProducts).filter((key) => {
-      return orderPickProducts[key].picked;
+      return orderPickProducts[key].pickedTime;
     })?.length === productItems?.length;
 
   const disbleButton = () => {

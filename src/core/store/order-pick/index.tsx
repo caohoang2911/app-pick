@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
+import moment from 'moment';
 
 interface OrdersState {
   orderDetail: OrderDetail;
@@ -81,7 +82,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       barcodeScrollTo: barcode,
       orderPickProducts: {
         ...orderPickProducts,
-        [barcode]: { pickedQuantity, picked: true, pickedError, pickedNote, barcode, ...rests },
+        [barcode]: { pickedQuantity, pickedTime: moment().valueOf(), pickedError, pickedNote, barcode, ...rests },
       },
     });
   },

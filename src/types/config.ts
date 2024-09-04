@@ -8,4 +8,5 @@ export type Config = {
   shippingMethods: [],
   stores: [],
   productPickedErrors: [],
+  orderTags: [],
 }

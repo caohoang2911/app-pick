@@ -15,7 +15,7 @@ const Orders = () => {
 
   const config = useConfig.use.config();
 
-  console.log(config?.productPickedErrors, "my-config");
+  console.log(config?.orderTags, "my-config");
 
   useEffect(() => {
     navigation.setOptions({

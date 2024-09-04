@@ -13,6 +13,9 @@ import { useOrders } from '~/src/core/store/orders';
 import { toLower } from 'lodash';
 import { SectionAlert } from '../SectionAlert';
 import { queryClient } from '~/src/api/shared';
+import { formatCurrency } from '~/src/core/utils/number';
+import { getConfigNameById } from '~/src/core/utils/config';
+import { useConfig } from '~/src/core/store/config';
 
 const ItemProduct = ({
   statusName,
@@ -22,6 +25,9 @@ const ItemProduct = ({
   customer,
   selectedOrderCounter,
   expectedDeliveryTimeRange,
+  amount,
+  tags,
+  note,
 }: {
   statusName: string;
   orderTime: string;
@@ -30,8 +36,16 @@ const ItemProduct = ({
   customer: any;
   selectedOrderCounter?: OrderStatus;
   expectedDeliveryTimeRange?: any;
+  createdDate: string;
+  amount: number;
+  tags: Array<any>;
+  note: string;
 }) => {
   const router = useRouter();
+
+  const config = useConfig.use.config();
+  const orderTags = config?.orderTags || [];
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -43,26 +57,38 @@ const ItemProduct = ({
           <Text className="font-semibold text-base text-colorPrimary">
             # {code}
           </Text>
-          {selectedOrderCounter === 'ALL' && (
-            <Badge label={statusName} variant={toLower(status) as any} />
-          )}
+          <Badge label={selectedOrderCounter === 'ALL' ? statusName : ''} extraLabel={<Text className="text-xs text-contentPrimary">{selectedOrderCounter === 'ALL' && ` | `}{moment(orderTime).fromNow()}</Text>} variant={toLower(status) as any} />
         </View>
         <View className="p-4 pt-2 gap-1">
           <Text className="font-semibold">Khách hàng: {customer?.name}</Text>
           <Text>
-            Ngày tạo:{' '}
+            Giá trị đơn:{' '}
             <Text className="font-semibold">
-              &nbsp;{moment(orderTime).format('DD/MM/YYYY HH:mm')}
+              &nbsp;{formatCurrency(amount, {unit: true})}
             </Text>
           </Text>
           <Text>
-            Ngày giao hàng:
+            Giao hàng:
             <Text className="font-semibold">
               &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} -{' '}
               {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
             </Text>
           </Text>
+          {tags?.length > 0 && 
+            <View className="pt-1 flex flex-row gap-2">
+              {tags?.map((tag: string) => {
+                const tagName = getConfigNameById(orderTags, tag)
+                return <>
+                  <Badge label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+                </>
+              })}
+            </View>
+          }
+          {note && (
+            <Text className="text-sm text-gray-500" numberOfLines={1}>{note}</Text>
+          )}
         </View>
+        
       </View>
     </TouchableOpacity>
   );
@@ -118,6 +144,7 @@ const OrderList = () => {
       };
     }, [])
   );
+  
 
   const renderFooterList = useMemo(() => {
     if (isFetchingNextPage) return <ActivityIndicator color={"blue"} />;
@@ -143,7 +170,6 @@ const OrderList = () => {
       </View>
     );
   }
-
 
   return (
     <View className="flex-grow mb-4">
