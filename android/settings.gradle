@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'seedcom-app-pick'
+rootProject.name = 'App Pick'
 
 dependencyResolutionManagement {
   versionCatalogs {

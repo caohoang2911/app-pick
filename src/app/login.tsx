@@ -27,6 +27,7 @@ export default function Login() {
   const handleLogin = () => {
     login();
   };
+
   return (
     <View className="h-full items-center justify-center">
       <View className="flex flex-col items-center gap-8">

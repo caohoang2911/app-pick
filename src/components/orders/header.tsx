@@ -1,4 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useNavigation } from 'expo-router';
 import { debounce, set, toUpper } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
@@ -6,6 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import { TabsStatus } from '~/src/components/orders/tab-status';
+import { DrawerActions } from "@react-navigation/native"
 import { signOut, useAuth } from '~/src/core';
 import {
   setKeyWord,
@@ -34,11 +36,14 @@ const Header = () => {
 
   const userInfo = useAuth.use.userInfo();
 
+  const navigation = useNavigation()
+  const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer())
+
   return (
     <View className="px-4 py-4 bg-blue-100">
       <View className="flex flex-row justify-between items-center mb-4">
         <View className="flex flex-row gap-2 items-center">
-          <TouchableOpacity onPress={signOut}>
+          <TouchableOpacity onPress={toggleMenu}>
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
             </Avatar>

@@ -15,11 +15,11 @@ export function useProtectedRoute() {
     if (inAuthGroup) return;
 
     if (status === 'signOut') {
-      router.replace('/login');
+      router.navigate('/login');
     } else if ('signIn' && firstTime.current) {
       firstTime.current = false;
       // Redirect away from the sign-in page.
-      router.navigate('/');
+      router.navigate('/orders');
     }
   }, [segments, router, status]);
 }

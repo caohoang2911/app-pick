@@ -7,7 +7,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
-import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
+import { Slot, SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -90,7 +90,7 @@ function RootLayoutNav() {
           },
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="orders/index" options={{ headerShown: false }} />
         <Stack.Screen name="orders/[code]" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />

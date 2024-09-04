@@ -29,7 +29,7 @@ export const useCodepush = () => {
                   setIsDoneCodepush(true);
                 } catch (error) {
                   setIsDoneCodepush(true);
-                  alert(`Error fetching latest update: ${error}`);
+                  // alert(`Error fetching latest update: ${error}`);
                 }
               },
               style: 'cancel',
@@ -43,7 +43,8 @@ export const useCodepush = () => {
       }
     } catch (error) {
       // You can also add an alert() to see the error message in case of an error when fetching updates.
-      alert(`Error fetching latest update: ${error}`);
+      setIsDoneCodepush(true);
+      // alert(`Error fetching latest update: ${error}`);
     }
   }
 
