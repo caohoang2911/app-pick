@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { router } from 'expo-router';
-import { Alert } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
+import { signOut } from '~/src/core';
 import { getENV, getToken } from '~/src/core/store/auth/utils';
 
 export const axiosClient = axios.create({
@@ -15,9 +15,6 @@ export const axiosClient = axios.create({
 axiosClient.interceptors.response.use(function (
   response: AxiosResponse & { error?: string }
 ): AxiosResponse & { error?: string } {
-  const { url } = response.config;
-
-  console.log(response?.data, "response?.data")
   if (
     response &&
     [
@@ -30,11 +27,9 @@ axiosClient.interceptors.response.use(function (
       message: 'Vui lòng đăng nhập để tiếp tục',
       type: 'danger',
     });
-    router.replace('login');
-  }
 
-  if (response?.data?.error) {
-    console.log('response?.data?.error', response?.data?.error);
+    signOut();
+  } else if (response?.data?.error) {
     showMessage({
       message: response?.data?.error,
       type: 'danger',

@@ -1,13 +1,12 @@
+import { useLogin } from '@/api/auth';
+import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
+import { setEnv, setRedirectUrl, useAuth } from '@/core';
 import { useAssets } from 'expo-asset';
 import { Image } from 'expo-image';
-import React, { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
-import { useLogin } from '@/api/auth';
-import { setEnv, setRedirectUrl, useAuth } from '@/core';
 import { router } from 'expo-router';
-import { showMessage } from 'react-native-flash-message';
-import { Badge } from '@/components/Badge';
+import React, { useEffect } from 'react';
+import { Pressable, View } from 'react-native';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';

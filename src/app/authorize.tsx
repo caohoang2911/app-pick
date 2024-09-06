@@ -95,7 +95,7 @@ const Authorize = () => {
       useSharedProcessPool
       startInLoadingState={false}
       allowsBackForwardNavigationGestures={false}
-      incognito={true}
+      // incognito={true}
     />
   );
 };

@@ -100,6 +100,11 @@ const OrderList = () => {
 
   const firtTime = useRef<boolean>(true);
 
+  const params = useMemo(() => ({
+    keyword,
+    status: selectedOrderCounter
+  }), [keyword, selectedOrderCounter])
+
   const {
     data: ordersResponse,
     fetchNextPage,
@@ -109,18 +114,14 @@ const OrderList = () => {
     refetch,
     isRefetching,
     hasPreviousPage
-  } = useSearchOrders({
-    keyword,
-    status: selectedOrderCounter === 'ALL' ? undefined : selectedOrderCounter,
-  });
-
+  } = useSearchOrders({...params});
 
 
   const withoutRefresh = useRef(false);
   const orderList = ordersResponse?.pages || []
 
   const goFirstPage = async () => {
-    await queryClient.setQueryData(['searchOrders'], (data: any) => ({
+    await queryClient.setQueryData(['searchOrders', params], (data: any) => ({
       pages: [],
       pageParams: data.pageParams,
     }))
@@ -148,9 +149,9 @@ const OrderList = () => {
 
   const renderFooterList = useMemo(() => {
     if (isFetchingNextPage) return <ActivityIndicator color={"blue"} />;
-    if (!hasNextPage && !isFetchingNextPage && !isFetching) return <Text className="text-center text-xs text-gray-500">Danh sách đã hết</Text>;
+    if (!hasNextPage && !isFetchingNextPage && !isFetching && orderList.length) return <Text className="text-center text-xs text-gray-500">Danh sách đã hết</Text>;
     return <View />;
-  }, [isFetchingNextPage, hasNextPage, isFetching]);
+  }, [isFetchingNextPage, hasNextPage, isFetching, orderList]);
 
   if (!hasPreviousPage && isFetching && withoutRefresh.current) {
     return (
