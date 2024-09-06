@@ -1,6 +1,6 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import clsx from 'clsx';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
@@ -39,9 +39,9 @@ export function TabsStatus() {
     }
   );
 
-  useEffect(() => {
+  const goTabSelected = useCallback((id?: string) => {
     const index = dataStatusCounters.findIndex(
-      (status) => status.id === (selectedOrderCounter as any)
+      (status) => status.id === (selectedOrderCounter as any) || status.id === id
     );
     if (index === -1) return;
 
@@ -52,6 +52,10 @@ export function TabsStatus() {
         viewPosition: 0.5,
       });
     }, 200);
+  }, [])
+
+  useEffect(() => {
+    goTabSelected(selectedOrderCounter);
   }, [selectedOrderCounter]);
 
   if (error) return <></>;
@@ -70,7 +74,10 @@ export function TabsStatus() {
         return (
           <TouchableOpacity
             key={item.id}
-            onPress={() => setSelectedOrderCounter(item.id)}
+            onPress={() => {
+              goTabSelected(item.id);
+              setSelectedOrderCounter(item.id)
+            }}
           >
             <View
               className={clsx('py-1 rounded', {

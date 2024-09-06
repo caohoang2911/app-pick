@@ -11,6 +11,7 @@ import {
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import clsx from 'clsx';
+import { stringUtils } from '~/src/core/utils/string';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{
@@ -18,6 +19,8 @@ const OrderPickProducts = () => {
     status: OrderStatus;
   }>();
   const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
+  const keyword = useOrderPick.use.keyword();
+
 
   const ref: any = useRef<FlatList>();
 
@@ -28,6 +31,12 @@ const OrderPickProducts = () => {
   const orderDetail = data?.data || {};
   const { error } = data || {};
   const { productItems } = orderDetail?.deliveries?.[0] || {};
+
+  const filterProductItems = useMemo(() => {
+    return productItems?.filter((productItem: Product) => {
+      return stringUtils.removeAccents(productItem.name?.toLowerCase()).includes(stringUtils.removeAccents(keyword.toLowerCase()));
+    });
+  }, [productItems, keyword]);
 
   useEffect(() => {
     const obj: any = {};
@@ -86,7 +95,7 @@ const OrderPickProducts = () => {
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refetch} />
         }
-        data={productItems as Array<any>}
+        data={filterProductItems as Array<any>}
         ListEmptyComponent={
           !isFetching ? (
             <View className="mt-3">

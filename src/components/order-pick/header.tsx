@@ -1,11 +1,11 @@
 import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { toLower } from 'lodash';
-import React, { useState } from 'react';
+import { debounce, toLower } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
+import { setKeyword, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Badge } from '../Badge';
@@ -18,8 +18,21 @@ type Props = {
 
 const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
+  const keyword = useOrderPick.use.keyword();
   const { code } = useGlobalSearchParams<{ code: string }>();
-  const [keyword, setKeyWord] = useState('');
+  const [value, setValue] = useState<string>();
+
+  useEffect(() => {
+    setValue(keyword);
+  }, [keyword]);
+
+  const handleSearch = useCallback(
+    debounce((value: string) => {
+      setKeyword(value);
+    }, 400),
+    []
+  );
+
 
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
@@ -49,10 +62,14 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           className="flex-grow"
           placeholder="SKU, tên sản phẩm"
           prefix={<SearchLine width={20} height={20} />}
-          onChangeText={setKeyWord}
-          value={keyword}
+          onChangeText={(value: string) => {
+            setValue(value);
+            handleSearch(value)
+          }}
+          value={value}
           onClear={() => {
-            setKeyWord('');
+            setValue("");
+            setKeyword('');
           }}
           allowClear
         />

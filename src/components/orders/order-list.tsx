@@ -76,10 +76,10 @@ const ItemProduct = ({
           </Text>
           {tags?.length > 0 && 
             <View className="pt-1 flex flex-row gap-2">
-              {tags?.map((tag: string) => {
+              {tags?.map((tag: string, index: number) => {
                 const tagName = getConfigNameById(orderTags, tag)
                 return <>
-                  <Badge label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+                  <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
                 </>
               })}
             </View>
@@ -123,7 +123,7 @@ const OrderList = () => {
   const goFirstPage = async () => {
     await queryClient.setQueryData(['searchOrders', params], (data: any) => ({
       pages: [],
-      pageParams: data.pageParams,
+      pageParams: data?.pageParams,
     }))
     refetch();
   }
@@ -206,9 +206,9 @@ const OrderList = () => {
           }
         }}
         ListFooterComponent={renderFooterList}
-        keyExtractor={(item, idx) => idx + item.id}
+        keyExtractor={(item: any, index: number) => index + item.code}
         renderItem={({ item }: { item: any }) => (
-          <View key={item.id} className="my-3">
+          <View className="my-3">
             <ItemProduct
               {...item}
               selectedOrderCounter={selectedOrderCounter}

@@ -16,6 +16,7 @@ interface OrdersState {
         barcode?: Product;
       }
     | {};
+  setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean) => void;
@@ -43,6 +44,9 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   barcodeScrollTo: '',
   orderPickProducts: {},
   barcodeScanSuccess: '',
+  setKeyword: (keyword: string) => {
+    set({ keyword });
+  },
   setOrderDetail: (orderDetail: OrderDetail) => {
     set({ orderDetail });
   },
@@ -103,8 +107,11 @@ export const setInitOrderPickProducts = (
   data: Array<{ [barcode: string]: number }>
 ) => _useOrderPick.getState().setInitOrderPickProducts(data);
 
-export const setBarcodeScrollTo = (barcode: string) =>
+export const setBarcodeScrollTo = (barcode: string) =>  
   _useOrderPick.getState().setBarcodeScrollTo(barcode);
+
+export const setKeyword = (keyword: string) =>
+  _useOrderPick.getState().setKeyword(keyword);
 
 export const setOrderPickProducts = ({
   barcode,
