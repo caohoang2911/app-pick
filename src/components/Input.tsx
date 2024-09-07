@@ -12,6 +12,7 @@ export interface InputProps
   inputClasses?: string;
   suffix?: React.ReactNode;
   prefix?: React.ReactNode;
+  error?: string;
   allowClear?: boolean;
   onClear: () => void;
   [key: string]: any;
@@ -27,6 +28,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
       inputClasses,
       allowClear,
       onClear,
+      error,
       ...props
     },
     ref
@@ -66,6 +68,8 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             </Pressable>
           )}
         </View>
+        {/* error */}
+        {error && <Text className="text-red-500 text-sm">{error}</Text>}
       </View>
     );
   }

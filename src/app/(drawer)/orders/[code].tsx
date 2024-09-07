@@ -23,7 +23,6 @@ import { OrderDetail } from '~/src/types/order-detail';
 
 const OrderPick = () => {
   const navigation = useNavigation();
-  const { dismiss } = useBottomSheetModal();
 
   const [currentQr, setCurrentQr] = useState('');
 
@@ -57,10 +56,6 @@ const OrderPick = () => {
 
   const openHeaderAction = () => {
     headerAcrtionRef.current?.present();
-  };
-
-  const handleClickAction = (key: string) => {
-    dismiss();
   };
 
   let timeout: any = useRef(null);
@@ -97,9 +92,10 @@ const OrderPick = () => {
   return (
     <>
       <View className="flex-1 bg-gray-50 pt-2">
-        {!isScanQrCodeProduct && shouldDisplayQrScan && (
+        {/* TODO */}
+        {/* {!isScanQrCodeProduct && shouldDisplayQrScan && (
           <ScanOnView onSuccessBarcodeScanned={handleSuccessBarCode} />
-        )}
+        )} */}
         <OrderPickProducts />
       </View>
       <ActionBottom />
@@ -116,7 +112,6 @@ const OrderPick = () => {
       )}
       <OrderPickHeadeActionBottomSheet
         ref={headerAcrtionRef}
-        onClickAction={handleClickAction}
       />
       <InputAmountPopup />
     </>

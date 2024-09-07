@@ -6,7 +6,7 @@ import useCarmera from '~/src/core/hooks/useCarmera';
 
 const deviceWidth = Dimensions.get('window').width;
 
-const CAMERA_HEIGHT = 150;
+const CAMERA_HEIGHT = 200;
 const CAMERA_WIDTH = deviceWidth - 32;
 
 const PADDING_HORIZONTAL = 20;
@@ -15,6 +15,7 @@ const PADDING_VERTICAL = 20;
 const BORDER_RADIUS_CORNER = 0;
 const CORNER_SIZE = 20;
 const CORNER_HEIGHT = 1;
+const STROKE_WIDTH = 1.5;
 
 const Corner = () => (
   <>
@@ -27,7 +28,7 @@ const Corner = () => (
       width={1}
       height={CORNER_SIZE}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
     <Rect
@@ -38,7 +39,7 @@ const Corner = () => (
       width={CORNER_SIZE}
       height={CORNER_HEIGHT}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
 
@@ -51,7 +52,7 @@ const Corner = () => (
       width={CORNER_HEIGHT}
       height={CORNER_SIZE}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
     <Rect
@@ -62,7 +63,7 @@ const Corner = () => (
       width={CORNER_SIZE}
       height={CORNER_HEIGHT}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
 
@@ -75,7 +76,7 @@ const Corner = () => (
       width={CORNER_SIZE}
       height={CORNER_HEIGHT}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
     <Rect
@@ -86,7 +87,7 @@ const Corner = () => (
       width={CORNER_HEIGHT}
       height={CORNER_SIZE}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
 
@@ -99,7 +100,7 @@ const Corner = () => (
       width={CORNER_HEIGHT}
       height={CORNER_SIZE}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
     <Rect
@@ -110,7 +111,7 @@ const Corner = () => (
       width={CORNER_SIZE}
       height={CORNER_HEIGHT}
       stroke="white"
-      strokeWidth="2.5"
+      strokeWidth={STROKE_WIDTH}
       fill-opacity="0"
     />
   </>

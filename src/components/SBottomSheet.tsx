@@ -19,6 +19,7 @@ import { useKeyboardVisible } from '../core/hooks/useKeyboardVisible';
 type Props = {
   snapPoints?: any;
   title?: string;
+  renderTitle?: React.ReactNode;
   children: React.ReactNode;
   titleAlign: 'left' | 'center';
   visible: boolean;
@@ -31,6 +32,7 @@ const SBottomSheet = forwardRef<any, Props>(
     {
       snapPoints = ['25%', '50%'],
       title = 'Title',
+      renderTitle,
       children,
       titleAlign = 'left',
       visible,
@@ -113,9 +115,10 @@ const SBottomSheet = forwardRef<any, Props>(
         >
           <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
             {titleAlign == 'center' && <View />}
-            <Text className={`text-${titleAlign} font-semibold text-lg`}>
+            {!renderTitle && <Text className={`text-${titleAlign} font-semibold text-lg`}>
               {title}
-            </Text>
+            </Text>}
+            {renderTitle && renderTitle}
             <Pressable
               onPress={async () => {
                 if (isKeyboardVisible) {

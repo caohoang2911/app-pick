@@ -74,6 +74,7 @@
     "react-query-kit": "^3.3.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "yup": "^1.4.0",
     "zustand": "^4.5.4"
   },
   "devDependencies": {

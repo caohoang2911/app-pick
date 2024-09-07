@@ -11,6 +11,7 @@ import { OrderDetail } from '~/src/types/order-detail';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { useGlobalSearchParams } from 'expo-router';
+import moment from 'moment';
 
 type Props = {
   onClickHeaderAction?: () => void;
@@ -36,12 +37,12 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
-  const { status, statusName } = header || {};
+  const { status, statusName, orderTime } = header || {};
 
   const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
 
   return (
-    <View className="px-4 py-3 pb-3 bg-white">
+    <View className="px-4 py-2 pb-3 bg-white">
       <View className="pt-4  flex-row justify-between">
         <View className="flex flex-row gap-2 items-center">
           <ButtonBack />
@@ -50,6 +51,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             <Badge
               label={statusName as string}
               variant={toLower(status as string) as any}
+              extraLabel={<Text className="text-xs text-contentPrimary"> | {moment(orderTime).fromNow()}</Text>}
             />
           )}
         </View>

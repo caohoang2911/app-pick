@@ -34,7 +34,12 @@ const OrderPickProducts = () => {
 
   const filterProductItems = useMemo(() => {
     return productItems?.filter((productItem: Product) => {
-      return stringUtils.removeAccents(productItem.name?.toLowerCase()).includes(stringUtils.removeAccents(keyword.toLowerCase()));
+
+      if (!keyword) return true;
+      const byProductName = stringUtils.removeAccents(productItem.name?.toLowerCase()).includes(stringUtils.removeAccents(keyword.toLowerCase()));
+      const byProductBarcode = productItem.barcode?.toLowerCase().includes(keyword.toLowerCase());
+
+      return byProductBarcode || byProductName;
     });
   }, [productItems, keyword]);
 

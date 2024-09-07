@@ -17,7 +17,7 @@ import { formatCurrency } from '~/src/core/utils/number';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { useConfig } from '~/src/core/store/config';
 
-const ItemProduct = ({
+const OrderItem = ({
   statusName,
   orderTime,
   code,
@@ -28,6 +28,7 @@ const ItemProduct = ({
   amount,
   tags,
   note,
+  payment,
 }: {
   statusName: string;
   orderTime: string;
@@ -40,6 +41,7 @@ const ItemProduct = ({
   amount: number;
   tags: Array<any>;
   note: string;
+  payment: any
 }) => {
   const router = useRouter();
 
@@ -60,20 +62,35 @@ const ItemProduct = ({
           <Badge label={selectedOrderCounter === 'ALL' ? statusName : ''} extraLabel={<Text className="text-xs text-contentPrimary">{selectedOrderCounter === 'ALL' && ` | `}{moment(orderTime).fromNow()}</Text>} variant={toLower(status) as any} />
         </View>
         <View className="p-4 pt-2 gap-1">
-          <Text className="font-semibold">Khách hàng: {customer?.name}</Text>
-          <Text>
-            Giá trị đơn:{' '}
+          <View className="flex flex-row">
+            <View style={{width: 85}}>
+              <Text>Khách hàng</Text>
+            </View>
+            <Text className="font-semibold">{customer?.name}</Text>
+          </View>
+          <View className="flex flex-row items-center">
+            <View style={{width: 85}}>
+              <Text className="">Giá trị đơn</Text>
+            </View>
+            <View className="flex flex-row items-center gap-2">
+              <Text>
+                <Text className="font-semibold">
+                {formatCurrency(amount, {unit: true})}
+                </Text>
+              </Text>
+              <Badge label={payment.methodName} />
+            </View>
+          </View>
+          <View className="flex flex-row items-center">
+            <View style={{width: 85}}>
+              <Text>Giao hàng</Text>
+            </View>
             <Text className="font-semibold">
-              &nbsp;{formatCurrency(amount, {unit: true})}
-            </Text>
-          </Text>
-          <Text>
-            Giao hàng:
-            <Text className="font-semibold">
-              &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} -{' '}
               {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
+              - {' '}
+              &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
             </Text>
-          </Text>
+          </View>
           {tags?.length > 0 && 
             <View className="pt-1 flex flex-row gap-2">
               {tags?.map((tag: string, index: number) => {
@@ -209,7 +226,7 @@ const OrderList = () => {
         keyExtractor={(item: any, index: number) => index + item.code}
         renderItem={({ item }: { item: any }) => (
           <View className="my-3">
-            <ItemProduct
+            <OrderItem
               {...item}
               selectedOrderCounter={selectedOrderCounter}
             />

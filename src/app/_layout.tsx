@@ -29,7 +29,7 @@ import { useLoading } from '../core/store/loading';
 import { useCodepush } from '../core/hooks/useCodePush';
 import { initConfigDate } from '../core/utils/moment';
 
-const VERSION = '1.0.25';
+const VERSION = '1.0.26';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -58,7 +58,7 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const unstable_settings = {
-  initialRouteName: 'orders',
+  initialRouteName: 'orders/index',
 };
 
 hydrateAuth();

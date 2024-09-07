@@ -52,7 +52,7 @@ export function TabsStatus() {
         viewPosition: 0.5,
       });
     }, 200);
-  }, [])
+  }, [selectedOrderCounter])
 
   useEffect(() => {
     goTabSelected(selectedOrderCounter);

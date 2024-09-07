@@ -53,13 +53,13 @@ const OrderPickProduct = ({
       <View className={clsx(`bg-white shadow`)} style={styles.box}>
         <View className="p-4">
           {orderPickProducts?.[barcode]?.pickedTime && (
-            <View className="absolute z-10 left-2 top-2">
-              <CheckCircleFill color={'green'} />
+            <View className="absolute z-10 rounded-full bg-white left-2 top-2">
+              <CheckCircleFill color={'green'}/>
             </View>
           )}
           <View className="flex-row justify-between gap-4">
             <Image
-              style={{ width: 100, height: 100 }}
+              style={{ width: 80, height: 80 }}
               source={image}
               placeholder={{ blurhash }}
               contentFit="cover"
@@ -67,13 +67,18 @@ const OrderPickProduct = ({
             />
             <View className="flex-grow flex-row justify-between">
               <View className="flex gap-2">
-                <Text className="font-semibold">Số lượng đặt: {quantity}</Text>
-                <Text className="">
-                  Thực pick: {pickedQuantity || 0}
-                </Text>
-                <Text className="text-gray-500">
-                  Tồn kho: {formatNumber(stockAvailable)}
-                </Text>
+                <View style={{width: 150}} className='flex flex-row'>
+                  <View style={{width: 100}}><Text>Số lượng đặt</Text></View>
+                  <Text className='font-medium'>{quantity} {unit}</Text>
+                </View>
+                <View style={{width: 150}} className='flex flex-row'>
+                  <View style={{width: 100}}><Text>Thực pick</Text></View>
+                    <Text className='font-medium'>{pickedQuantity || "--"} {unit}</Text>
+                </View>
+                <View style={{width: 150}} className='flex flex-row'>
+                  <View style={{width: 100}}><Text>Tồn kho</Text></View>
+                  <Text className='font-medium'>{formatNumber(stockAvailable)} {unit}</Text>
+                </View>
                 <View className="flex flex-row gap-2">
                   <Badge label={'Chill'} />
                   <Badge label={'Dry'} />
@@ -90,8 +95,8 @@ const OrderPickProduct = ({
               <Text className="text-gray-500">
                 Giá: {formatCurrency(sellPrice)}
               </Text>
-              <View className="size-1.5 rounded-full bg-gray-200" />
-              <Text className="text-gray-500">Unit: {unit}</Text>
+              {/* <View className="size-1.5 rounded-full bg-gray-200" /> */}
+              {/* <Text className="text-gray-500">Unit: {unit}</Text> */}
             </View>
           </View>
           {pickedErrorName && <View className="flex gap-1 mt-2">
