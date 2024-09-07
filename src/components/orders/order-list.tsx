@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import moment from 'moment';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import {
   FlatList,
   RefreshControl,
@@ -63,13 +63,13 @@ const OrderItem = ({
         </View>
         <View className="p-4 pt-2 gap-1">
           <View className="flex flex-row">
-            <View style={{width: 85}}>
+            <View style={{width: 87}}>
               <Text>Khách hàng</Text>
             </View>
             <Text className="font-semibold">{customer?.name}</Text>
           </View>
           <View className="flex flex-row items-center">
-            <View style={{width: 85}}>
+            <View style={{width: 87}}>
               <Text className="">Giá trị đơn</Text>
             </View>
             <View className="flex flex-row items-center gap-2">
@@ -82,7 +82,7 @@ const OrderItem = ({
             </View>
           </View>
           <View className="flex flex-row items-center">
-            <View style={{width: 85}}>
+            <View style={{width: 87}}>
               <Text>Giao hàng</Text>
             </View>
             <Text className="font-semibold">

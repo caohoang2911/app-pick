@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
 } from 'react';
 import { Keyboard, Pressable, Text, View } from 'react-native';
 
@@ -23,6 +24,8 @@ type Props = {
   children: React.ReactNode;
   titleAlign: 'left' | 'center';
   visible: boolean;
+  extraHeight?: number;
+  maxSnapPoint?: string;
   onClose: () => void;
   [key: string]: any;
 };
@@ -30,12 +33,14 @@ type Props = {
 const SBottomSheet = forwardRef<any, Props>(
   (
     {
-      snapPoints = ['25%', '50%'],
+      snapPoints,
       title = 'Title',
       renderTitle,
       children,
       titleAlign = 'left',
       visible,
+      extraHeight = 20,
+      maxSnapPoint,
       onClose,
       ...rests
     },
@@ -43,6 +48,15 @@ const SBottomSheet = forwardRef<any, Props>(
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
     const isKeyboardVisible = useKeyboardVisible();
+    const [headerHeight, setHeaderHeight] = useState(0);
+    const [height, setHeight] = useState(0);
+    const [snapPointsLocal, setSnapPointsLocal] = useState([230, "70%"]);
+
+    useEffect(() => {
+      if(!snapPoints && visible && height > 0) {
+        setSnapPointsLocal(maxSnapPoint ? [height + headerHeight + extraHeight, maxSnapPoint] : [height + headerHeight + extraHeight])
+      }
+    }, [height, visible]);
 
     useEffect(() => {
       if (visible) {
@@ -99,7 +113,7 @@ const SBottomSheet = forwardRef<any, Props>(
       <>
         <BottomSheetModal
           ref={bottomSheetModalRef}
-          snapPoints={snapPoints}
+          snapPoints={snapPointsLocal}
           onChange={handleSheetChanges}
           handleIndicatorStyle={{ display: 'none', padding: 0 }}
           key={'order-pick-action'}
@@ -113,7 +127,12 @@ const SBottomSheet = forwardRef<any, Props>(
           android_keyboardInputMode="adjustResize"
           {...rests}
         >
-          <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
+          <View 
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout
+              setHeaderHeight(height);
+            }}
+          className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
             {titleAlign == 'center' && <View />}
             {!renderTitle && <Text className={`text-${titleAlign} font-semibold text-lg`}>
               {title}
@@ -139,7 +158,12 @@ const SBottomSheet = forwardRef<any, Props>(
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <BottomSheetView>{children}</BottomSheetView>
+            <BottomSheetView 
+               onLayout={(event) => {
+                const { height } = event.nativeEvent.layout
+                setHeight(height);
+              }}
+            >{children}</BottomSheetView>
           </BottomSheetScrollView>
         </BottomSheetModal>
       </>

@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
 import {
@@ -67,6 +67,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const { code } = useGlobalSearchParams<{ code: string }>();
     const snapPoints = useMemo(() => [500], []);
 
+    const [visible, setVisible] = useState(false);
+
     const orderPickProducts = useOrderPick.use.orderPickProducts();
     
     const actionRef = useRef<any>();
@@ -77,7 +79,10 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       ref,
       () => {
         return {
-          present: () => actionRef.current?.present(),
+          present: () => {
+            actionRef.current?.present();
+            setVisible(!visible);
+          },
         };
       },
       []
@@ -127,7 +132,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     };
 
     return (
-      <SBottomSheet title="Thao tác" snapPoints={snapPoints} ref={actionRef}>
+      <SBottomSheet
+      visible={visible}
+      title="Thao tác" ref={actionRef}>
         {actions.map((action) => renderItem({ ...action, onClickAction: handleClickAction }))}
       </SBottomSheet>
     );

@@ -18,7 +18,7 @@ import SDropdown from '../SDropdown';
 import { Badge } from '../Badge';
 
 const InputAmountPopup = ({}) => {
-  const snapPoints = useMemo(() => [450], []);
+  const snapPoints = useMemo(() => ['55%', '70%'], []);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -46,7 +46,7 @@ const InputAmountPopup = ({}) => {
   return (
     <SBottomSheet
       renderTitle={renderTitle}
-      snapPoints={snapPoints}
+      // snapPoints={snapPoints}
       ref={inputBottomSheetRef}
       visible={isShowAmountInput}
       onClose={() => {
