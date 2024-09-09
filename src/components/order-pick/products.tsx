@@ -20,7 +20,7 @@ const OrderPickProducts = () => {
   }>();
   const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
   const keyword = useOrderPick.use.keyword();
-
+  
 
   const ref: any = useRef<FlatList>();
 
@@ -30,7 +30,7 @@ const OrderPickProducts = () => {
 
   const orderDetail = data?.data || {};
   const { error } = data || {};
-  const { productItems } = orderDetail?.deliveries?.[0] || {};
+  const { productItems } = orderDetail?.delivery || {};
 
   const filterProductItems = useMemo(() => {
     return productItems?.filter((productItem: Product) => {
@@ -63,11 +63,11 @@ const OrderPickProducts = () => {
   useEffect(() => {
     if (indexCurrentProduct !== -1) {
       setTimeout(() => {
-        ref.current?.scrollToIndex({
-          animated: true,
-          index: indexCurrentProduct || 0,
-          viewPosition: 0.5,
-        });
+        // ref.current?.scrollToIndex({
+        //   animated: true,
+        //   index: indexCurrentProduct || 0,
+        //   viewPosition: 0.5,
+        // });
         setBarcodeScrollTo('');
       }, 500);
     }

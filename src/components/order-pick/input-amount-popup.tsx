@@ -18,7 +18,6 @@ import SDropdown from '../SDropdown';
 import { Badge } from '../Badge';
 
 const InputAmountPopup = ({}) => {
-  const snapPoints = useMemo(() => ['55%', '70%'], []);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -77,7 +76,7 @@ const InputAmountPopup = ({}) => {
             pickedQuantity: Yup.string()
               .test('is less than picked quantify', 'Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do', (value: any) => {
                 console.log('value', value);
-                return Number(value) >= displayPickedQuantity;
+                return Number(value) >= quantity;
               })
           })}
         >

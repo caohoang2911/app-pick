@@ -173,7 +173,7 @@ export interface OrderDetailHeader {
 
 export interface OrderDetail {
   header?: OrderDetailHeader;
-  deliveries?: OrderDelivery[];
+  delivery?: OrderDelivery;
 }
 
 export interface VAT {

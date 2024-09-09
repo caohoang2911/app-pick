@@ -35,7 +35,6 @@ export const useSearchOrders = (params?: Variables) =>
       return searchOrders({ ...params, pageIndex: pageParam });
     },
     getNextPageParam: (lastPage, allPages) => {
-      console.log(lastPage, "lastPage")
       const nextPageIndex = lastPage.data?.pageIndex + 1;
       return nextPageIndex < (lastPage.data?.total || 0) ? nextPageIndex : undefined;
     },

@@ -68,7 +68,7 @@ const SBottomSheet = forwardRef<any, Props>(
           if (isKeyboardVisible) {
             Keyboard.dismiss();
           }
-        }, 300);
+        }, 500);
       }
       
     }, [visible]);

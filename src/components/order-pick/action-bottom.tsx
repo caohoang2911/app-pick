@@ -47,7 +47,7 @@ const ActionBottom = () => {
         : 'Xác nhận đã pick hàng xong',
       status !== 'STORE_PICKING'
         ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng'
-        : 'Xác nhận hoàn tất',
+        : undefined,
       [
         {
           text: 'Quay lại',

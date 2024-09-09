@@ -51,7 +51,7 @@ export function TabsStatus() {
         index: index || 0,
         viewPosition: 0.5,
       });
-    }, 200);
+    }, 500);
   }, [selectedOrderCounter])
 
   useEffect(() => {

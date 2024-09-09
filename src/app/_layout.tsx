@@ -7,7 +7,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
-import { Slot, SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
+import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -25,9 +25,10 @@ import '@/ui/global.css';
 import React, { useCallback, useEffect } from 'react';
 import { StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLoading } from '../core/store/loading';
-import { useCodepush } from '../core/hooks/useCodePush';
-import { initConfigDate } from '../core/utils/moment';
+import { useCodepush } from '@/core/hooks/useCodePush';
+import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
+import { useLoading } from '@/core/store/loading';
+import { initConfigDate } from '@/core/utils/moment';
 
 const VERSION = '1.0.26';
 
@@ -69,6 +70,7 @@ SplashScreen.preventAutoHideAsync();
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
+  useHandleDeepLink();
   return <>{children}</>;
 };
 
@@ -148,6 +150,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   </View>
                   {children}
                 </SafeAreaView>
+                {/* <AlertDialog /> */}
                 <FlashMessage
                   position="top"
                   statusBarHeight={StatusBar.currentHeight}
