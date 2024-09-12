@@ -20,3 +20,19 @@ export const initConfigDate = () => {
     },
   });
 }
+
+export const expectedDeliveryTime = (expectedDeliveryTimeRange: Array<any>): any => {
+  const startTime = expectedDeliveryTimeRange?.[0];
+  const endTime = expectedDeliveryTimeRange?.[1];
+
+  if (!startTime || !endTime) return '-';
+  if (moment(startTime).valueOf() === moment(endTime).valueOf())
+    return moment(startTime).format('HH:mm') + ' - ';
+  return {
+    day: moment(startTime).format('DD/MM/YYYY'),
+    hh:
+      moment(startTime).format('HH:mm') +
+      ' - ' +
+      moment(endTime).format('HH:mm'),
+  };
+};

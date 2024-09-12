@@ -1,7 +1,7 @@
 import { Button } from '@/components/Button';
 import { useGlobalSearchParams } from 'expo-router';
 import React from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
@@ -45,7 +45,7 @@ const ActionBottom = () => {
   const message = status !== 'STORE_PICKING' ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng' : '';
 
   const handlePick = () => {
-    showAlert(title, message, () => {
+    showAlert({title, message, onConfirm: () => {
       status === 'STORE_PICKING'
         ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProducts).map((item: any) => ({
           ...item,
@@ -58,7 +58,7 @@ const ActionBottom = () => {
         })), orderCode: code})
         : setOrderStatusPicking({ orderCode: code });
         hideAlert();
-    });
+    }});
   };
 
   if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;

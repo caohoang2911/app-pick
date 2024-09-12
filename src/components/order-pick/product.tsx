@@ -52,11 +52,14 @@ const OrderPickProduct = ({
     <>
       <View className={clsx(`bg-white shadow`)} style={styles.box}>
         <View className="p-4">
-          {orderPickProducts?.[barcode]?.pickedTime && (
-            <View className="absolute z-10 rounded-full bg-white left-2 top-2">
-              <CheckCircleFill color={'green'}/>
-            </View>
-          )}
+          <View className='flex flex-row gap-2 items-center mb-3'>
+            {orderPickProducts?.[barcode]?.pickedTime && (
+              <View className="rounded-full bg-white ">
+                <CheckCircleFill color={'green'}/>
+              </View>
+            )}
+            <Text className="text-lg font-semibold">{name}</Text>
+          </View>
           <View className="flex-row justify-between gap-4">
             <Image
               style={{ width: 80, height: 80 }}
@@ -88,15 +91,12 @@ const OrderPickProduct = ({
           </View>
           <View className="border my-3 border-gray-100" />
           <View className="flex gap-3">
-            <Text className="text-lg font-semibold">{name}</Text>
             <View className="flex-row gap-3 items-center">
               <Text className="text-gray-500">SKU: {barcode}</Text>
               <View className="size-1.5 rounded-full bg-gray-200" />
               <Text className="text-gray-500">
                 Giá: {formatCurrency(sellPrice)}
               </Text>
-              {/* <View className="size-1.5 rounded-full bg-gray-200" /> */}
-              {/* <Text className="text-gray-500">Unit: {unit}</Text> */}
             </View>
           </View>
           {pickedErrorName && <View className="flex gap-1 mt-2">

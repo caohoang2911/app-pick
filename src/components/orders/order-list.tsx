@@ -1,117 +1,15 @@
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import moment from 'moment';
 import { ActivityIndicator, Text, View } from 'react-native';
 import {
   FlatList,
-  RefreshControl,
-  TouchableOpacity,
+  RefreshControl
 } from 'react-native-gesture-handler';
-import { Badge } from '~/src/components/Badge';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
-import { useOrders } from '~/src/core/store/orders';
-import { toLower } from 'lodash';
-import { SectionAlert } from '../SectionAlert';
 import { queryClient } from '~/src/api/shared';
-import { formatCurrency } from '~/src/core/utils/number';
-import { getConfigNameById } from '~/src/core/utils/config';
-import { useConfig } from '~/src/core/store/config';
-import { Button } from '../Button';
-import { showAlert } from '~/src/core/store/alert-dialog';
-
-const OrderItem = ({
-  statusName,
-  orderTime,
-  code,
-  status,
-  customer,
-  selectedOrderCounter,
-  expectedDeliveryTimeRange,
-  amount,
-  tags,
-  note,
-  payment,
-}: {
-  statusName: string;
-  orderTime: string;
-  code: string;
-  status: OrderStatus;
-  customer: any;
-  selectedOrderCounter?: OrderStatus;
-  expectedDeliveryTimeRange?: any;
-  createdDate: string;
-  amount: number;
-  tags: Array<any>;
-  note: string;
-  payment: any
-}) => {
-  const router = useRouter();
-
-  const config = useConfig.use.config();
-  const orderTags = config?.orderTags || [];
-
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        router.push({ pathname: `orders/${code}`, params: { status } });
-      }}
-    >
-      <View className="rounded-md border-bgPrimary border">
-        <View className="bg-bgPrimary p-4 flex flex-row justify-between items-center">
-          <Text className="font-semibold text-base text-colorPrimary">
-            # {code}
-          </Text>
-          <Badge label={selectedOrderCounter === 'ALL' ? statusName : ''} extraLabel={<Text className="text-xs text-contentPrimary">{selectedOrderCounter === 'ALL' && ` | `}{moment(orderTime).fromNow()}</Text>} variant={toLower(status) as any} />
-        </View>
-        <View className="p-4 pt-2 gap-1">
-          <View className="flex flex-row">
-            <View style={{width: 87}}>
-              <Text>Khách hàng</Text>
-            </View>
-            <Text className="font-semibold">{customer?.name}</Text>
-          </View>
-          <View className="flex flex-row items-center">
-            <View style={{width: 87}}>
-              <Text className="">Giá trị đơn</Text>
-            </View>
-            <View className="flex flex-row items-center gap-2">
-              <Text>
-                <Text className="font-semibold">
-                {formatCurrency(amount, {unit: true})}
-                </Text>
-              </Text>
-              {payment?.methodName && <Badge label={payment?.methodName} />}
-            </View>
-          </View>
-          <View className="flex flex-row items-center">
-            <View style={{width: 87}}>
-              <Text>Giao hàng</Text>
-            </View>
-            <Text className="font-semibold">
-              {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
-              - {' '}
-              &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
-            </Text>
-          </View>
-          {tags?.length > 0 && 
-            <View className="pt-1 flex flex-row gap-2">
-              {tags?.map((tag: string, index: number) => {
-                const tagName = getConfigNameById(orderTags, tag)
-                return <>
-                  <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
-                </>
-              })}
-            </View>
-          }
-          {note && (
-            <Text className="text-sm text-gray-500" numberOfLines={1}>{note}</Text>
-          )}
-        </View>
-        
-      </View>
-    </TouchableOpacity>
-  );
-};
+import { useOrders } from '~/src/core/store/orders';
+import { SectionAlert } from '../SectionAlert';
+import OrderItem from './order-item';
 
 const OrderList = () => {
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
@@ -240,19 +138,3 @@ const OrderList = () => {
 };
 
 export default OrderList;
-
-const expectedDeliveryTime = (expectedDeliveryTimeRange: Array<any>): any => {
-  const startTime = expectedDeliveryTimeRange?.[0];
-  const endTime = expectedDeliveryTimeRange?.[1];
-
-  if (!startTime || !endTime) return '-';
-  if (moment(startTime).valueOf() === moment(endTime).valueOf())
-    return moment(startTime).format('HH:mm') + ' - ';
-  return {
-    day: moment(startTime).format('DD/MM/YYYY'),
-    hh:
-      moment(startTime).format('HH:mm') +
-      ' - ' +
-      moment(endTime).format('HH:mm'),
-  };
-};

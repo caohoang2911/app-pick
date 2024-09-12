@@ -46,14 +46,19 @@ const Authorize = () => {
           router.replace('/orders');
         } else {
           router.back();
-          showAlert('Chưa thể đăng nhập', 'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền', () => {
-            hideAlert();
-            showMessage({
-              message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
-              type: 'success',
-            });
-          }, () => {
-            console.log('Cancel');
+          showAlert({
+            title: 'Chưa thể đăng nhập',
+            message: 'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
+            onConfirm: () => {
+              hideAlert();
+              showMessage({
+                message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
+                type: 'success',
+              });
+            },
+            onCancel: () => {
+              console.log('Cancel');
+            }
           });
         }
         break;

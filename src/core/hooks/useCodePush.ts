@@ -1,6 +1,6 @@
 import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { hideAlert, showAlert } from '../store/alert-dialog';
 
 export const useCodepush = () => {
   const [isDoneCodepush, setIsDoneCodepush] = useState(false);
@@ -9,34 +9,27 @@ export const useCodepush = () => {
     try {
       const update = await Updates.checkForUpdateAsync();
       if (update.isAvailable) {
-        Alert.alert(
-          'Đã có bản cập nhật mới',
-          'Bạn có muốn cập nhật không?',
-          [
-            {
-              text: 'Lần sau',
-              style: 'cancel',
-              onPress: () => {
-                setIsDoneCodepush(true);
-              },
-            },
-            {
-              text: 'Cập nhật',
-              onPress: async () => {
-                try {
-                  await Updates.fetchUpdateAsync();
-                  await Updates.reloadAsync();
-                  setIsDoneCodepush(true);
-                } catch (error) {
-                  setIsDoneCodepush(true);
-                  // alert(`Error fetching latest update: ${error}`);
-                }
-              },
-              style: 'cancel',
-            },
-          ],
-          { cancelable: false }
-        );
+        showAlert({
+          title: 'Đã có bản cập nhật mới',
+          message: 'Bạn có muốn cập nhật không?',
+          confirmText: 'Cập nhật',
+          cancelText: 'Lần sau',
+          onConfirm: async () => {
+            try {
+              await Updates.fetchUpdateAsync();
+              await Updates.reloadAsync();
+              setIsDoneCodepush(true);
+            } catch (error) {
+              setIsDoneCodepush(true);
+              // alert(`Error fetching latest update: ${error}`);
+            }
+            hideAlert();
+          },
+          onCancel: () => {
+            setIsDoneCodepush(true);
+            hideAlert();
+          }
+        });
       }
       else {
         setIsDoneCodepush(true);

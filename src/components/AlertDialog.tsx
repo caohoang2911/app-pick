@@ -1,6 +1,5 @@
-import React from 'react';  
-import { Modal, View, Text, StyleSheet } from 'react-native';  
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { hideAlert, useAlertStore } from '../core/store/alert-dialog';
 
 const AlertDialog = () => {  
@@ -24,12 +23,12 @@ const AlertDialog = () => {
             </View>
             <View className="flex flex-row w-full border-t border-gray-200">
               <View className='flex-1 py-3 border-r border-gray-200'>
-                <TouchableOpacity className='flex-1' onPress={onCancel || hideAlert}>
+                <TouchableOpacity onPress={onCancel || hideAlert}>
                   <Text className='text-center text-blue-500 text-lg'>Trở lại</Text>
                 </TouchableOpacity>
               </View>
               <View className='flex-1 py-3'>
-                <TouchableOpacity className='flex-1' onPress={onConfirm}>
+                <TouchableOpacity onPress={onConfirm}>
                   <Text className='text-center text-blue-500 text-lg font-semibold'>Xác nhận</Text>
                 </TouchableOpacity>
               </View>

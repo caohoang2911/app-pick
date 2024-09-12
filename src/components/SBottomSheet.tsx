@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Keyboard, Pressable, Text, View } from 'react-native';
+import { Keyboard, Platform, Pressable, Text, View } from 'react-native';
 
 import {
   BottomSheetBackdrop,
@@ -39,7 +39,7 @@ const SBottomSheet = forwardRef<any, Props>(
       children,
       titleAlign = 'left',
       visible,
-      extraHeight = 20,
+      extraHeight = Platform.OS === 'ios' ? 50 : 20,
       maxSnapPoint,
       onClose,
       ...rests
