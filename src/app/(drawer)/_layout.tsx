@@ -5,6 +5,7 @@ import { useAuth } from "~/src/core";
 import { setConfig, useConfig } from "~/src/core/store/config";
 import { ConfigResponse, useGetConfig } from "~/src/api/config/useGetConfig";
 import Loading from "~/src/components/Loading";
+import { Stack } from "expo-router";
 
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -42,9 +43,9 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
 export default function DrawerLayout() {
   return (
     <ConfigWrapper>
-    <Drawer
-      screenOptions={{ headerShown: false, drawerStyle: { width: "75%" } }}
-      drawerContent={(props) => <DrawerContent {...props} />}
+      <Drawer
+        screenOptions={{ headerShown: false, drawerStyle: { width: "75%" } }}
+        drawerContent={(props) => <DrawerContent {...props} />}
       />
     </ConfigWrapper>
   )

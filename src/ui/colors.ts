@@ -5,6 +5,7 @@ export const colors = {
   colorPrimary: '#3280F6',
   contentPrimary: '#2D3748',
   gray: {
+    200: '#EDF2F7',
     300: '#4A5568',
     500: '#718096',
   },

@@ -8,6 +8,7 @@ import { formatCurrency } from "~/src/core/utils/number";
 import { getConfigNameById } from "~/src/core/utils/config";
 import { expectedDeliveryTime } from "~/src/core/utils/moment";
 import { toLower } from "lodash";
+import MoreActionsBtn from "./more-actions-btn";
 
 const OrderItem = ({
   statusName,
@@ -61,51 +62,55 @@ const OrderItem = ({
             variant={toLower(status) as any}
           />
         </View>
-        <View className="p-4 pt-2 gap-1">
-          <View className="flex flex-row">
-            <View style={{width: 87}}>
-              <Text>Khách hàng</Text>
+        <View className="flex flex-row justify-between">
+          <View className="p-4 pt-2 gap-1">
+            <View className="flex flex-row">
+              <View style={{width: 87}}>
+                <Text>Khách hàng</Text>
+              </View>
+              <Text className="font-semibold">{customer?.name}</Text>
             </View>
-            <Text className="font-semibold">{customer?.name}</Text>
-          </View>
-          <View className="flex flex-row items-center">
-            <View style={{width: 87}}>
-              <Text className="">Giá trị đơn</Text>
-            </View>
-            <View className="flex flex-row items-center gap-2">
-              <Text>
-                <Text className="font-semibold">
-                {formatCurrency(amount, {unit: true})}
+            <View className="flex flex-row items-center">
+              <View style={{width: 87}}>
+                <Text className="">Giá trị đơn</Text>
+              </View>
+              <View className="flex flex-row items-center gap-2">
+                <Text>
+                  <Text className="font-semibold">
+                  {formatCurrency(amount, {unit: true})}
+                  </Text>
                 </Text>
+                {payment?.methodName && <Badge label={payment?.methodName} />}
+              </View>
+            </View>
+            <View className="flex flex-row items-center">
+              <View style={{width: 87}}>
+                <Text>Giao hàng</Text>
+              </View>
+              <Text className="font-semibold">
+                {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
+                - {' '}
+                &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
               </Text>
-              {payment?.methodName && <Badge label={payment?.methodName} />}
             </View>
+            {tags?.length > 0 && 
+              <View className="pt-1 flex flex-row gap-2">
+                {tags?.map((tag: string, index: number) => {
+                  const tagName = getConfigNameById(orderTags, tag)
+                  return <>
+                    <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+                  </>
+                })}
+              </View>
+            }
+            {note && (
+              <Text className="text-sm text-gray-500" numberOfLines={1}>{note}</Text>
+            )}
           </View>
-          <View className="flex flex-row items-center">
-            <View style={{width: 87}}>
-              <Text>Giao hàng</Text>
-            </View>
-            <Text className="font-semibold">
-              {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
-              - {' '}
-              &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
-            </Text>
+          <View className="mt-3 mr-1">
+            <MoreActionsBtn code={code} />
           </View>
-          {tags?.length > 0 && 
-            <View className="pt-1 flex flex-row gap-2">
-              {tags?.map((tag: string, index: number) => {
-                const tagName = getConfigNameById(orderTags, tag)
-                return <>
-                  <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
-                </>
-              })}
-            </View>
-          }
-          {note && (
-            <Text className="text-sm text-gray-500" numberOfLines={1}>{note}</Text>
-          )}
         </View>
-        
       </View>
     </TouchableOpacity>
   );
