@@ -4,6 +4,7 @@ import React from 'react';
 import { Alert, View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-detail';
 
@@ -23,7 +24,7 @@ const ActionBottom = () => {
 
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
-  const { productItems } = orderDetail?.deliveries?.[0] || {};
+  const { productItems } = orderDetail?.delivery || {};
 
   const { header } = orderDetail || {};
   const { status } = header || {};
@@ -40,36 +41,24 @@ const ActionBottom = () => {
     return true;
   };
 
+  const title = status !== 'STORE_PICKING' ? 'Xác nhận bắt đầu pick hàng' : 'Xác nhận đã pick hàng xong';
+  const message = status !== 'STORE_PICKING' ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng' : '';
+
   const handlePick = () => {
-    Alert.alert(
-      status !== 'STORE_PICKING'
-        ? 'Xác nhận bắt đầu pick hàng'
-        : 'Xác nhận đã pick hàng xong',
-      status !== 'STORE_PICKING'
-        ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng'
-        : undefined,
-      [
-        {
-          text: 'Quay lại',
-          onPress: () => console.log('Cancel Pressed'),
-        },
-        {
-          text: 'Xác nhận',
-          onPress: () =>
-            status === 'STORE_PICKING'
-              ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProducts).map((item: any) => ({
-                ...item,
-                name: item.name || '',
-                quantity: item.quantity || 0,
-                barcode: item.barcode || '',
-                pickedQuantity: item.pickedQuantity || 0,
-                pickedError: item.pickedError || '',
-                pickedNote: item.pickedNote || '',
-              })), orderCode: code})
-              : setOrderStatusPicking({ orderCode: code }),
-        },
-      ]
-    );
+    showAlert(title, message, () => {
+      status === 'STORE_PICKING'
+        ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProducts).map((item: any) => ({
+          ...item,
+          name: item.name || '',
+          quantity: item.quantity || 0,
+          barcode: item.barcode || '',
+          pickedQuantity: item.pickedQuantity || 0,
+          pickedError: item.pickedError || '',
+          pickedNote: item.pickedNote || '',
+        })), orderCode: code})
+        : setOrderStatusPicking({ orderCode: code });
+        hideAlert();
+    });
   };
 
   if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;

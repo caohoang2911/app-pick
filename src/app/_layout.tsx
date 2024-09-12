@@ -29,6 +29,7 @@ import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useLoading } from '@/core/store/loading';
 import { initConfigDate } from '@/core/utils/moment';
+import AlertDialog from '../components/AlertDialog';
 
 const VERSION = '1.0.26';
 
@@ -150,7 +151,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   </View>
                   {children}
                 </SafeAreaView>
-                {/* <AlertDialog /> */}
+                <AlertDialog />
                 <FlashMessage
                   position="top"
                   statusBarHeight={StatusBar.currentHeight}

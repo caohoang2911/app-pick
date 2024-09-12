@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { WebView } from 'react-native-webview';
-import { Alert, StyleSheet } from 'react-native';
-import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { INJECTED_SCRIPT, parseEventData, signIn, useAuth } from '@/core';
+import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { router } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
+import { WebView } from 'react-native-webview';
+import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
@@ -45,27 +46,15 @@ const Authorize = () => {
           router.replace('/orders');
         } else {
           router.back();
-          Alert.alert(
-            'Chưa thể đăng nhập',
-            'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
-            [
-              {
-                text: 'Quay lại',
-                style: 'cancel',
-              },
-              {
-                text: 'Yêu cầu mở quyền',
-                onPress: () => {
-                  showMessage({
-                    message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
-                    type: 'success',
-                  });
-                },
-                style: 'cancel',
-              },
-            ],
-            { cancelable: false }
-          );
+          showAlert('Chưa thể đăng nhập', 'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền', () => {
+            hideAlert();
+            showMessage({
+              message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
+              type: 'success',
+            });
+          }, () => {
+            console.log('Cancel');
+          });
         }
         break;
       default:

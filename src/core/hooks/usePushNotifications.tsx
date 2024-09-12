@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router, usePathname } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();

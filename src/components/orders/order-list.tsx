@@ -16,6 +16,8 @@ import { queryClient } from '~/src/api/shared';
 import { formatCurrency } from '~/src/core/utils/number';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { useConfig } from '~/src/core/store/config';
+import { Button } from '../Button';
+import { showAlert } from '~/src/core/store/alert-dialog';
 
 const OrderItem = ({
   statusName,
@@ -78,7 +80,7 @@ const OrderItem = ({
                 {formatCurrency(amount, {unit: true})}
                 </Text>
               </Text>
-              <Badge label={payment.methodName} />
+              {payment?.methodName && <Badge label={payment?.methodName} />}
             </View>
           </View>
           <View className="flex flex-row items-center">
