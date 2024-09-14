@@ -34,9 +34,12 @@ install! 'cocoapods',
 
 prepare_react_native_project!
 
-target 'seedcomapppick' do
+project 'AppPick.xcodeproj'
+
+target 'AppPick' do
   use_expo_modules!
   config = use_native_modules!
+
 
   pod 'Firebase', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
