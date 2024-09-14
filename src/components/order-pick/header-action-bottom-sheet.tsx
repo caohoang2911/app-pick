@@ -1,6 +1,10 @@
 import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
+import { useGlobalSearchParams } from 'expo-router';
+import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
+import { setLoading } from '~/src/core/store/loading';
+import { useOrderPick } from '~/src/core/store/order-pick';
 import {
   BillLine,
   CloseLine,
@@ -9,14 +13,8 @@ import {
   QRScanLine,
   TruckLine,
 } from '~/src/core/svgs';
-import SBottomSheet from '../SBottomSheet';
 import SaveOutLine from '~/src/core/svgs/SaveOutline';
-import { setLoading } from '~/src/core/store/loading';
-import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
-import { useOrderPick } from '~/src/core/store/order-pick';
-import { Product } from '~/src/types/product';
-import { useGlobalSearchParams } from 'expo-router';
-
+import SBottomSheet from '../SBottomSheet';
 const actions = [
   {
     key: 'view-order',
@@ -65,7 +63,6 @@ type Props = {};
 const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
   ({ }, ref) => {
     const { code } = useGlobalSearchParams<{ code: string }>();
-    const snapPoints = useMemo(() => [500], []);
 
     const [visible, setVisible] = useState(false);
 
@@ -87,7 +84,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       },
       []
     );
-
 
     const renderItem = ({
       onClickAction,
@@ -133,8 +129,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     return (
       <SBottomSheet
-      visible={visible}
-      title="Thao tác" ref={actionRef}>
+        visible={visible}
+        title="Thao tác" ref={actionRef}>
         {actions.map((action) => renderItem({ ...action, onClickAction: handleClickAction }))}
       </SBottomSheet>
     );

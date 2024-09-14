@@ -31,7 +31,7 @@ import { useLoading } from '@/core/store/loading';
 import { initConfigDate } from '@/core/utils/moment';
 import AlertDialog from '../components/AlertDialog';
 
-const VERSION = '1.0.27';
+const VERSION = '1.0.28';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -157,7 +157,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                   position="top"
                   statusBarHeight={StatusBar.currentHeight}
                 />
-
               </BottomSheetModalProvider>
             </AuthWrapper>
           </NotificationWrapper>

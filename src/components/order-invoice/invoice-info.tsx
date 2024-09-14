@@ -1,41 +1,64 @@
+import { useLocalSearchParams } from 'expo-router'
+import { toLower } from 'lodash'
 import React from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import { Badge } from '../Badge'
+import { useOrderInvoice } from '~/src/core/store/order-invoice'
+import { expectedDeliveryTime } from '~/src/core/utils/moment'
 import { formatCurrency } from '~/src/core/utils/number'
-import moment from 'moment'
-import { useLocalSearchParams } from 'expo-router'
+import { Badge } from '../Badge'
+import { useConfig } from '~/src/core/store/config'
+import { getConfigNameById } from '~/src/core/utils/config'
 
 const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{
     code: string;
   }>();
 
+  const orderInvoice = useOrderInvoice.use.orderInvoice();
+  const { header, delivery } = orderInvoice || {};
+  const { status, deliveryAddress, statusName, amount, customer, expectedDeliveryTimeRange, tags } = header || {};
+
+
+  const config = useConfig.use.config();
+  const orderTags = config?.orderTags || [];
+
   return (
-    <View className='bg-white mx-4 px-4 py-2' style={styles.box}>
-      <View className='flex flex-row items-center gap-2'>
+    <View className='bg-white mx-4 px-4 py-3' style={styles.box}>
+      <View className='flex flex-row items-center gap-2 flex-wrap'>
         <Text className='text-lg font-medium'>{code}</Text>
-        <Badge label={'Home delivery'} variant={'secondary'} />
+        <View className='flex flex-row gap-1 flex-wrap'>
+          {tags?.map((tag: string, index: number) => {
+            const tagName = getConfigNameById(orderTags, tag)
+            return <>
+              <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+            </>
+          })}
+        </View>
       </View>
       <View className='flex gap-2 mt-3'>
-        <Text>
+        <View className='flex flex-row gap-2 items-center'>
           <Text className='text-gray-500'>Trạng thái: </Text>
-          <Text>Hoàn thành</Text>
-        </Text>
+          <Badge className="self-start" label={statusName as string} variant={toLower(status as string) as any} />
+        </View>
         <Text>
           <Text className='text-gray-500'>COD: </Text>
-          <Text>{formatCurrency(100000, { unit: true })}</Text>
+          <Text>{formatCurrency(amount, { unit: true })}</Text>
         </Text>
         <Text>
           <Text className='text-gray-500'>Khách hàng: </Text>
-          <Text>Cao Hoàng</Text>
+          <Text>{customer?.name}</Text>
         </Text>
         <Text>
           <Text className='text-gray-500'>Giờ giao: </Text>
-          <Text>{moment(new Date()).format('DD/MM/YYYY HH:mm')}</Text>
+          <Text>
+            {expectedDeliveryTimeRange && expectedDeliveryTime(expectedDeliveryTimeRange).hh}
+            {expectedDeliveryTimeRange && ' - '}
+            {expectedDeliveryTimeRange && expectedDeliveryTime(expectedDeliveryTimeRange).day}
+          </Text>
         </Text>
         <Text>
           <Text className='text-gray-500'>Địa chỉ giao hàng: </Text>
-          <Text>The 678 Building, 67 Hoàng Văn Thái, Tân Phú, Quận 7, Hồ Chí Minh</Text>
+          <Text>{deliveryAddress?.fullAddress}</Text>
         </Text>
       </View>
     </View>

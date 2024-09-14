@@ -4283,6 +4283,11 @@ expo-notifications@~0.28.15:
     expo-constants "~16.0.0"
     fs-extra "^9.1.0"
 
+expo-radio-button@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/expo-radio-button/-/expo-radio-button-1.0.8.tgz#5f5c411ae0a2da633ae4b56d87a59dfa23a47bae"
+  integrity sha512-sE+aCtq5/lL1Y24oVYMyGug0IPt0R3dXS6rSK2S+A+EFm6HYBj0ZKGA35ywSekS+/8lE9UwKS+ORwQlWsfXoUQ==
+
 expo-router@^3.5.18:
   version "3.5.18"
   resolved "https://registry.npmjs.org/expo-router/-/expo-router-3.5.18.tgz"

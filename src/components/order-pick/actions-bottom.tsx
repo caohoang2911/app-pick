@@ -8,7 +8,7 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-detail';
 
-const ActionBottom = () => {
+const ActionsBottom = () => {
 
   const {
     mutate: setOrderStatusPicking,
@@ -17,7 +17,7 @@ const ActionBottom = () => {
 
   const {
     mutate: setOrderStatusPacked,
-    isPending: isLoadingOrderStatusPicked,
+    isPending: isLoadingOrderStatusPacked,
   } = useSetOrderStatusPacked();
 
   const { code } = useGlobalSearchParams<{ code: string }>();
@@ -34,7 +34,7 @@ const ActionBottom = () => {
       return orderPickProducts[key].pickedTime;
     })?.length === productItems?.length;
 
-  const disbleButton = () => {
+  const disableButton = () => {
     if (status === 'CONFIRMED') return false;
     if (canCompletePick && status === 'STORE_PICKING') return false;
 
@@ -66,9 +66,9 @@ const ActionBottom = () => {
     <View className="border-t border-gray-200 pb-4">
       <View className="px-4 py-3 bg-white ">
         <Button
-          loading={isLoadingOrderStatusPicked || isLoadingOrderStatusPicking}
+          loading={isLoadingOrderStatusPacked || isLoadingOrderStatusPicking}
           onPress={handlePick}
-          disabled={disbleButton()}
+          disabled={disableButton()}
           label={status === 'STORE_PICKING' ? 'Đã pick xong' : 'Bắt đầu pick'}
         />
       </View>
@@ -76,4 +76,4 @@ const ActionBottom = () => {
   );
 };
 
-export default ActionBottom;
+export default ActionsBottom;

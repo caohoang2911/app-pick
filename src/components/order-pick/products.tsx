@@ -8,6 +8,7 @@ import { Product } from '~/src/types/product';
 import {
   setBarcodeScrollTo,
   setInitOrderPickProducts,
+  setOrderDetail,
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import clsx from 'clsx';
@@ -27,6 +28,10 @@ const OrderPickProducts = () => {
   const { data, refetch, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
+
+  useEffect(() => {
+    setOrderDetail(data?.data || {});
+  }, [data]);
 
   const orderDetail = data?.data || {};
   const { error } = data || {};
@@ -63,11 +68,11 @@ const OrderPickProducts = () => {
   useEffect(() => {
     if (indexCurrentProduct !== -1) {
       setTimeout(() => {
-        // ref.current?.scrollToIndex({
-        //   animated: true,
-        //   index: indexCurrentProduct || 0,
-        //   viewPosition: 0.5,
-        // });
+        ref.current?.scrollToIndex({
+          animated: true,
+          index: indexCurrentProduct || 0,
+          viewPosition: 0.5,
+        });
         setBarcodeScrollTo('');
       }, 500);
     }

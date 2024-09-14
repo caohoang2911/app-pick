@@ -1,25 +1,20 @@
-import { useBottomSheetModal } from '@gorhom/bottom-sheet';
-import { useQuery } from '@tanstack/react-query';
 import { BarcodeScanningResult } from 'expo-camera';
-import { useGlobalSearchParams, useNavigation } from 'expo-router';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigation } from 'expo-router';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
-import ActionBottom from '~/src/components/order-pick/action-bottom';
+import ActionsBottom from '~/src/components/order-pick/actions-bottom';
 import Header from '~/src/components/order-pick/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
 import OrderPickProducts from '~/src/components/order-pick/products';
-import ScanOnView from '~/src/components/order-pick/scan-on-view';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import {
-  setOrderDetail,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
-  useOrderPick,
+  useOrderPick
 } from '~/src/core/store/order-pick';
-import { OrderDetail } from '~/src/types/order-detail';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -31,19 +26,6 @@ const OrderPick = () => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const headerAcrtionRef = useRef<any>();
-
-  const { code } = useGlobalSearchParams<{ code: string }>();
-  const data: any = useQuery({ queryKey: ['orderDetail', code] });
-
-  const orderDetail: OrderDetail = data?.data?.data || {};
-  const { header } = orderDetail;
-  const { status } = header || {};
-
-  useEffect(() => {
-    setOrderDetail(data?.data?.data || {});
-  }, [data]);
-
-  const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -98,7 +80,7 @@ const OrderPick = () => {
         )} */}
         <OrderPickProducts />
       </View>
-      <ActionBottom />
+      <ActionsBottom />
       {/* bottomshet */}
       {isScanQrCodeProduct && (
         <ScannerBox

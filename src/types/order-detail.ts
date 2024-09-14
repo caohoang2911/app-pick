@@ -117,6 +117,7 @@ export interface OrderDetailHeader {
   type?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'HOME_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
+  tags?: Array<string>;
   vouchers?: Array<Voucher>;
   groupBuyOrderCodes?: Array<string>;
   overdueTimeUpdateStatus?: number;

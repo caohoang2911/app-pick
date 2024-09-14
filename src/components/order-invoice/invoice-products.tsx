@@ -1,39 +1,52 @@
 import { Image } from 'expo-image';
 import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
+import { useOrderInvoice } from '~/src/core/store/order-invoice';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-const ProductItem = () => {
+const ProductItem = ({ image, name, quantity, unit, barcode }: { image: string, name: string, quantity: number, unit: string, barcode: string }) => {
   return (
-    <View className='flex flex-row justify-between items-center py-2 px-2'>
-     <View className='flex flex-row gap-1'>
+    <View className='flex flex-row justify-between items-center py-3 px-4'>
+     <View className='flex flex-row gap-2'>
         <Image
           style={{ width: 64, height: 64 }}
-          source={"https://bizweb.dktcdn.net/thumb/1024x1024/100/416/540/products/co-duong-220ml-1.jpg?v=1694770148113"}
+          source={image}
           placeholder={{ blurhash }}
           contentFit="cover"
           transition={1000}
         />
-        <View className='flex flex-col gap-3'>
-          <Text>8938503131995</Text>
-          <Text>Lê Nâu Singo </Text>
+        <View className='flex flex-col gap-2'>
+          <Text>{barcode}</Text>
+          <Text>{name}</Text>
         </View>
      </View>
-     <Text>0.5kg</Text>
+     <Text>{quantity} {unit}</Text>
     </View>
   )
 }
 
 const InvoiceProducts = () => {
+  const orderInvoice = useOrderInvoice.use.orderInvoice();
+  const { delivery } = orderInvoice || {};
+
+  const { productItems } = delivery || {};
+
   return (
     <View className='bg-white mx-4 mb-4' style={styles.box}>
-      <ProductItem />
-      <View className='border-b border-gray-200' />
-      <ProductItem />
-      <View className='border-b border-gray-200' />
-      <ProductItem />
+      {productItems?.map((item, index) => (
+        <React.Fragment key={index}>
+          <ProductItem 
+            image={item.image || ''}
+            name={item.name || ''}
+            quantity={item.quantity}
+            unit={item.unit || ''}
+            barcode={item.barcode || ''}
+          />
+          {index < productItems.length - 1 && <View className='border-b border-gray-200' />}
+        </React.Fragment>
+      ))}
     </View>
   )
 }

@@ -18,8 +18,8 @@ const AlertDialog = () => {
         <View style={styles.modalBackground}>  
           <View className=' bg-white rounded-lg' style={{ width: 270 }}>  
             <View className='px-4 py-5'>
-              <Text className='text-center text-lg font-semibold'>{}</Text> 
-              <Text className='text-center text-sm mt-2' style={{lineHeight: 20}}>Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng</Text> 
+              {title && <Text className='text-center text-lg font-semibold'>{title}</Text>}
+              {message && <Text className='text-center text-sm mt-2' style={{lineHeight: 20}}>{message}</Text>}
             </View>
             <View className="flex flex-row w-full border-t border-gray-200">
               <View className='flex-1 py-3 border-r border-gray-200'>
