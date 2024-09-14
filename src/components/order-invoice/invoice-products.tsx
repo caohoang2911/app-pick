@@ -36,7 +36,7 @@ const InvoiceProducts = () => {
   return (
     <View className='bg-white mx-4 mb-4' style={styles.box}>
       {productItems?.map((item, index) => (
-        <React.Fragment key={index}>
+        <React.Fragment key={item.barcode}>
           <ProductItem 
             image={item.image || ''}
             name={item.name || ''}

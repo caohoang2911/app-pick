@@ -1,9 +1,9 @@
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { hideAlert, useAlertStore } from '../core/store/alert-dialog';
 
 const AlertDialog = () => {  
-  const { isVisible, message, title, onConfirm, onCancel } = useAlertStore();
+  const { isVisible, message, title, loading, onConfirm, onCancel } = useAlertStore();
 
   if(!isVisible) return null;
 
@@ -28,8 +28,11 @@ const AlertDialog = () => {
                 </TouchableOpacity>
               </View>
               <View className='flex-1 py-3'>
-                <TouchableOpacity onPress={onConfirm}>
-                  <Text className='text-center text-blue-500 text-lg font-semibold'>Xác nhận</Text>
+                <TouchableOpacity onPress={onConfirm} disabled={loading}>
+                  <View className='flex flex-row justify-center items-center gap-2'>
+                    {loading && <ActivityIndicator size="small" color="blue" />}
+                    <Text className='text-center text-blue-500 text-lg font-semibold'>Xác nhận</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
             </View> 

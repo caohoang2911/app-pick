@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
-import ActionsButton from '~/src/components/order-invoice/actions-button';
+import ActionsBottom from '~/src/components/order-invoice/actions-bottom';
 import InvoiceInfo from '~/src/components/order-invoice/invoice-info';
 import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
 import { setLoading } from '~/src/core/store/loading';
@@ -32,7 +32,7 @@ const OrderInvoice = () => {
           <InvoiceProducts />
         </View>
       </ScrollView>
-      <ActionsButton />
+      <ActionsBottom />
     </>
   )
 }

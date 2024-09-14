@@ -15,9 +15,10 @@ const InvoiceInfo = () => {
   }>();
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
-  const { header, delivery } = orderInvoice || {};
+  const { header } = orderInvoice || {};
   const { status, deliveryAddress, statusName, amount, customer, expectedDeliveryTimeRange, tags } = header || {};
 
+  console.log('header', header);
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];

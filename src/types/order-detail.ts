@@ -1,3 +1,4 @@
+import { OrderStatus } from './order';
 import { Product } from './product';
 
 export type Customer = {

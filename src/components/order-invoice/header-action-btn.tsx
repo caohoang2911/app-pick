@@ -3,7 +3,10 @@ import { Pressable, Text } from 'react-native';
 import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
-import { showAlert } from '~/src/core/store/alert-dialog';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
+import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
+import { useLocalSearchParams } from 'expo-router';
+import { setLoading } from '~/src/core/store/loading';
 
 const actions = [
   {
@@ -21,6 +24,11 @@ const actions = [
 const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
+  const { code } = useLocalSearchParams<{ code: string }>();
+
+  const { isPending: isLoadingSelfShipping, mutate: selfShipping } = useSelfShipping(() => {
+    hideAlert();
+  });
 
   const renderItem = ({
     onClickAction,
@@ -45,13 +53,24 @@ const HeaderActionBtn = () => {
   };
 
   const handleClickAction = (key: string) => {
-    console.log('key', key);
+    setVisible(false);
     switch (key) {
       case 'book-ahamove':
         bookAhamoveActionsBottomsheetRef.current?.present();
         break;
       case 'store-delivery':
-        showAlert
+        showAlert({
+          title: 'Xác nhận store giao hàng',
+          loading: isLoadingSelfShipping,
+          onConfirm: () => {
+            if(code) {
+              setLoading(true);
+              selfShipping({
+                orderCode: code,
+              });
+            }
+          },
+        });
         break;
       default:
         break;

@@ -8,9 +8,10 @@ export interface AlertState {
   title: string;
   cancelText: string;
   confirmText: string;
+  loading: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  showAlert: ({ title, message, cancelText, confirmText, onConfirm, onCancel }: { title: string, message: string, cancelText?: string, confirmText?: string, onConfirm: () => void, onCancel?: () => void }) => void;
+  showAlert: ({ title, message, cancelText, confirmText, onConfirm, onCancel, loading }: { title?: string, message?: string, cancelText?: string, confirmText?: string, onConfirm: () => void, onCancel?: () => void, loading?: boolean }) => void;
   hideAlert: () => void;
 }
 
@@ -20,18 +21,19 @@ const _useAlertStore = create<AlertState>((set) => ({
   title: '',
   cancelText: 'Trở lại',
   confirmText: 'Xác nhận',
+  loading: false,
   onConfirm: () => {
   },
   onCancel: () => {
   },
-  showAlert: ({ title, message, cancelText, confirmText, onConfirm, onCancel }: { title: string, message: string, cancelText?: string, confirmText?: string, onConfirm: () => void, onCancel?: () => void }) => set({ isVisible: true, title, message, cancelText, confirmText, onConfirm, onCancel }),
+  showAlert: ({ title, message, cancelText, confirmText, onConfirm, onCancel, loading }: { title?: string, message?: string, cancelText?: string, confirmText?: string, onConfirm: () => void, onCancel?: () => void, loading?: boolean }) => set({ isVisible: true, title, message, cancelText, confirmText, onConfirm, onCancel, loading }),
   hideAlert: () => set({ isVisible: false }),
 }));
 
 export const useAlertStore = createSelectors(_useAlertStore);
 
-export const showAlert = ({ title, message, cancelText, confirmText, onConfirm, onCancel }: { title: string; message: string; cancelText?: string; confirmText?: string; onConfirm: () => void; onCancel?: () => void; }) => {
-  useAlertStore.getState().showAlert({ title, message, cancelText, confirmText, onConfirm, onCancel });
+export const showAlert = ({ title, message, cancelText, confirmText, onConfirm, onCancel, loading }: { title?: string; message?: string; cancelText?: string; confirmText?: string; onConfirm: () => void; onCancel?: () => void; loading?: boolean; }) => {
+  useAlertStore.getState().showAlert({ title, message, cancelText, confirmText, onConfirm, onCancel, loading });
 };
 
 export const hideAlert = () => {

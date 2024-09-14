@@ -7,12 +7,14 @@ import React, {
   useState,
 } from 'react';
 import { Keyboard, Platform, Pressable, Text, View } from 'react-native';
+import { Easing } from 'react-native-reanimated';
 
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
   BottomSheetView,
+  useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 import { CloseLine } from '~/src/core/svgs';
 import { useKeyboardVisible } from '../core/hooks/useKeyboardVisible';
@@ -51,6 +53,11 @@ const SBottomSheet = forwardRef<any, Props>(
     const [headerHeight, setHeaderHeight] = useState(0);
     const [height, setHeight] = useState(0);
     const [snapPointsLocal, setSnapPointsLocal] = useState([230, "70%"]);
+
+    const animationConfigs = useBottomSheetTimingConfigs({
+      duration: 250,
+      easing: Easing.exp,
+    });
 
     useEffect(() => {
       if(!snapPoints && visible && height > 0) {
