@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
 import { createSelectors } from '../../utils/browser';
+import { OrderStatus } from '~/src/types/order';
 
 interface OrdersState {
   orderInvoice: OrderDetail;

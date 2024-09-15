@@ -1,33 +1,30 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
 import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   orderCode: string;
-  packageSize: string;
-  serviceId: string;
-  scheduleType: string;
 };
 
-type Response = { error: string };
+type Response = { error: string } & AxiosResponse;
 
-const bookShipper = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/bookShipper', params);
+const cancelBookShipper = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/cancelBookShipper', params);
 };
 
-export const useBookShipper = (cb?: () => void) => {
+export const useCancelBookShipper = (cb?: () => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => bookShipper(params),
+    mutationFn: (params: Variables) => cancelBookShipper(params),
     onSuccess: (data: Response) => {
       cb?.();
       if (!data.error) {
         showMessage({
-          message: 'Book shipper thành công',
+          message: 'Huỷ book shipper thành công',
           type: 'success',
         });
       }
-      setLoading(false);
     },
   });
 };

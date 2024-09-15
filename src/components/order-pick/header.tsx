@@ -12,6 +12,7 @@ import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
+import { OrderStatus } from '~/src/types/order';
 
 type Props = {
   onClickHeaderAction?: () => void;

@@ -13,6 +13,7 @@ import {
 } from '~/src/core/store/order-pick';
 import clsx from 'clsx';
 import { stringUtils } from '~/src/core/utils/string';
+import { OrderStatus } from '~/src/types/order';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{

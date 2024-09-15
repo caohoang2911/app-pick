@@ -25,7 +25,6 @@ export const useSelfShipping = (cb?: () => void) => {
           type: 'success',
         });
       }
-      setLoading(false);
     },
   });
 };

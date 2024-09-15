@@ -1,12 +1,14 @@
+import { useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
+import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
+import { setLoading } from '~/src/core/store/loading';
 import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
-import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
-import { useLocalSearchParams } from 'expo-router';
-import { setLoading } from '~/src/core/store/loading';
+import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
+import { useCancelBookShipper } from '~/src/api/app-pick/use-cancel-book-shipper';
 
 const actions = [
   {
@@ -19,6 +21,16 @@ const actions = [
     title: 'Book AhaMove',
     icon: <EBikeLine />,
   },
+  {
+    key: 'cancel-book-shipper',
+    title: 'Cancel Book Shipper',
+    icon: <TruckLine />,
+  },
+  {
+    key: 'complete-order',
+    title: 'Hoàn tất đơn hàng',
+    icon: <EBikeLine />,
+  },
 ];
 
 const HeaderActionBtn = () => {
@@ -26,8 +38,22 @@ const HeaderActionBtn = () => {
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const { code } = useLocalSearchParams<{ code: string }>();
 
+  // Store giao hàng
   const { isPending: isLoadingSelfShipping, mutate: selfShipping } = useSelfShipping(() => {
     hideAlert();
+    setLoading(false)
+  });
+
+  // Hoàn thành đơn hàng
+  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
+    hideAlert();
+    setLoading(false);
+  });
+
+  // Huỷ đơn hàng
+  const { isPending: isLoadingCancelBookShipper, mutate: cancelBookShipper } = useCancelBookShipper(() => {
+    hideAlert();
+    setLoading(false);
   });
 
   const renderItem = ({
@@ -72,6 +98,30 @@ const HeaderActionBtn = () => {
           },
         });
         break;
+      case "cancel-book-shipper":
+        if (!code) return;
+
+        showAlert({
+          title: 'Xác nhận huỷ book shipper',
+          loading: isLoadingCancelBookShipper,
+          onConfirm: () => {
+            setLoading(true);
+            cancelBookShipper({ orderCode: code });
+          },
+        });
+        break;
+      case "complete-order":
+        if (!code) return;
+
+        showAlert({
+          title: 'Xác nhận đã giao hàng',
+          loading: isLoadingCompleteOrder,
+          onConfirm: () => {
+            setLoading(true);
+            completeOrder({ orderCode: code });
+          },
+        });
+       break;
       default:
         break;
     }

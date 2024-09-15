@@ -9,7 +9,7 @@ const blurhash =
 const ProductItem = ({ image, name, quantity, unit, barcode }: { image: string, name: string, quantity: number, unit: string, barcode: string }) => {
   return (
     <View className='flex flex-row justify-between items-center py-3 px-4'>
-     <View className='flex flex-row gap-2'>
+     <View className='flex flex-row gap-3 items-center'>
         <Image
           style={{ width: 64, height: 64 }}
           source={image}
@@ -17,12 +17,15 @@ const ProductItem = ({ image, name, quantity, unit, barcode }: { image: string, 
           contentFit="cover"
           transition={1000}
         />
-        <View className='flex flex-col gap-2'>
-          <Text>{barcode}</Text>
-          <Text>{name}</Text>
+        <View className='flex flex-col gap-1 flex-1'>
+          <Text numberOfLines={2}>{name}</Text>
+          <View className='flex flex-row justify-between items-center'>
+            <Text className='text-gray-700'>{barcode}</Text>
+            <Text className='self-center'>{quantity} {unit}</Text>
+          </View>
         </View>
      </View>
-     <Text>{quantity} {unit}</Text>
+     {/* <Text>{quantity} {unit}</Text> */}
     </View>
   )
 }

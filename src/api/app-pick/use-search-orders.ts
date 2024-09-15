@@ -1,5 +1,6 @@
 import { axiosClient } from '@/api/shared';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { OrderStatus } from '~/src/types/order';
 
 type Variables = {
   status?: OrderStatus;
@@ -21,9 +22,17 @@ type Response = { error: string } & {
 } | any;
 
 const searchOrders = async (filter?: Variables): Promise<Response> => {
+  const filterCopy = {...filter};
+
+  if(filter?.status === "ALL") {
+    delete filterCopy.status;
+  }
+
   const params = {
-    filter: JSON.stringify({ ...filter }),
+    filter: JSON.stringify({ ...filterCopy }),
   };
+
+  console.log(params, "params")
 
   return await axiosClient.get('app-pick/searchOrders', { params });
 };

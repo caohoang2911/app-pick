@@ -8,6 +8,7 @@ import { formatCurrency } from '~/src/core/utils/number'
 import { Badge } from '../Badge'
 import { useConfig } from '~/src/core/store/config'
 import { getConfigNameById } from '~/src/core/utils/config'
+import moment from 'moment'
 
 const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{
@@ -16,9 +17,7 @@ const InvoiceInfo = () => {
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { status, deliveryAddress, statusName, amount, customer, expectedDeliveryTimeRange, tags } = header || {};
-
-  console.log('header', header);
+  const { status, orderTime, deliveryAddress, statusName, amount, customer, expectedDeliveryTimeRange, tags } = header || {};
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
@@ -37,30 +36,44 @@ const InvoiceInfo = () => {
         </View>
       </View>
       <View className='flex gap-2 mt-3'>
-        <View className='flex flex-row gap-2 items-center'>
-          <Text className='text-gray-500'>Trạng thái: </Text>
-          <Badge className="self-start" label={statusName as string} variant={toLower(status as string) as any} />
+        <View className='flex flex-row items-center'>
+          <View className='w-28'><Text className='text-gray-500'>Trạng thái</Text></View>
+          <Badge
+            label={statusName as string}
+            extraLabel={
+              <Text className="text-xs text-contentPrimary"> | &nbsp;
+                {moment(orderTime).fromNow()}
+              </Text>
+            } 
+            variant={toLower(status) as any}
+          />
         </View>
-        <Text>
-          <Text className='text-gray-500'>COD: </Text>
+        <View className='flex flex-row items-center'>
+          <View className='w-28'><Text className='text-gray-500'>COD</Text></View>
           <Text>{formatCurrency(amount, { unit: true })}</Text>
-        </Text>
-        <Text>
-          <Text className='text-gray-500'>Khách hàng: </Text>
+        </View>
+        <View className='flex flex-row items-center'>
+          <View className='w-28'><Text className='text-gray-500'>Khách hàng</Text></View> 
           <Text>{customer?.name}</Text>
-        </Text>
-        <Text>
-          <Text className='text-gray-500'>Giờ giao: </Text>
+        </View>
+        <View className='flex flex-row items-center'>
+          <View className='w-28'>
+            <Text className='text-gray-500'>Giờ giao</Text>
+          </View>
           <Text>
             {expectedDeliveryTimeRange && expectedDeliveryTime(expectedDeliveryTimeRange).hh}
             {expectedDeliveryTimeRange && ' - '}
             {expectedDeliveryTimeRange && expectedDeliveryTime(expectedDeliveryTimeRange).day}
           </Text>
-        </Text>
-        <Text>
-          <Text className='text-gray-500'>Địa chỉ giao hàng: </Text>
-          <Text>{deliveryAddress?.fullAddress}</Text>
-        </Text>
+        </View>
+        <View className='flex flex-row'>
+          <View className='w-28'>
+            <Text className='text-gray-500'>ĐC giao hàng</Text>
+          </View>
+          <View className='flex-1'>
+            <Text>{deliveryAddress?.fullAddress}</Text>
+          </View>
+        </View>
       </View>
     </View>
   )

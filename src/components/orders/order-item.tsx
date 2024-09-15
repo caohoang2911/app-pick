@@ -9,6 +9,7 @@ import { getConfigNameById } from "~/src/core/utils/config";
 import { expectedDeliveryTime } from "~/src/core/utils/moment";
 import { toLower } from "lodash";
 import MoreActionsBtn from "./more-actions-btn";
+import { OrderStatus } from "~/src/types/order";
 
 const OrderItem = ({
   statusName,
@@ -22,6 +23,7 @@ const OrderItem = ({
   tags,
   note,
   payment,
+  type,
 }: {
   statusName: string;
   orderTime: string;
@@ -34,7 +36,8 @@ const OrderItem = ({
   amount: number;
   tags: Array<any>;
   note: string;
-  payment: any
+  payment: any;
+  type: string;
 }) => {
   const router = useRouter();
 
@@ -44,7 +47,11 @@ const OrderItem = ({
   return (
     <TouchableOpacity
       onPress={() => {
-        router.push({ pathname: `orders/${code}`, params: { status } });
+        if(type === 'HOME_DELIVERY') {
+          router.push(`/order-invoice/${code}`);
+        } else {
+          router.push({ pathname: `orders/${code}`, params: { status } });
+        }
       }}
     >
       <View className="rounded-md border-bgPrimary border">
