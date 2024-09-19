@@ -18,12 +18,21 @@ export const usePushNotifications: any = () => {
 
   const pathname = usePathname();
 
-  const goOrderDetail = (orderCode: string) => {
+  const goOrderDetail = (remoteMessage: any) => {
+    const { orderCode, targetScr} = remoteMessage?.data || {};
     if (orderCode !== null) {
       if(pathname.includes('/orders/')){
-        router.replace(`orders/${orderCode}`)
+        if(targetScr === 'ORDER-PICK') {
+          router.replace(`orders/${orderCode}`)  
+        } else {
+          router.replace(`order-invoice/${orderCode}`)  
+        }
       } else {
-        router.push(`orders/${orderCode}`)
+        if(targetScr === 'ORDER-PICK') {
+          router.push(`orders/${orderCode}`)  
+        } else {
+          router.push(`order-invoice/${orderCode}`)  
+        }
       }
     }
   }
@@ -53,7 +62,7 @@ export const usePushNotifications: any = () => {
         const orderCode = extraDataRef.current.orderCode
 
         if (orderCode !== null) {
-          goOrderDetail(orderCode)
+          goOrderDetail({data: { orderCode }})
         }
       } catch {
 
@@ -62,7 +71,7 @@ export const usePushNotifications: any = () => {
     };
 
     const notificationClickSubscription =
-      Notifications.addNotificationResponseReceivedListener(async (data) => {
+      Notifications.addNotificationResponseReceivedListener(async (data: any) => {
         handleNotificationClick(data);
       });
 
@@ -75,7 +84,7 @@ export const usePushNotifications: any = () => {
       );
       const orderCode = remoteMessage?.data?.orderCode
       if (orderCode !== null) {
-        goOrderDetail(orderCode)
+        goOrderDetail(remoteMessage)
       }
     });
 
@@ -91,7 +100,7 @@ export const usePushNotifications: any = () => {
 
           const orderCode = remoteMessage?.data?.orderCode;
           if (orderCode !== null) {
-            goOrderDetail(orderCode as string)
+            goOrderDetail(remoteMessage)
           }
         }
       });

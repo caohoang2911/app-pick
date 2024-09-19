@@ -12,6 +12,7 @@ export type UserInfo = {
   role?: string;
   storeCode: string;
   storeName: string;
+  zas?: string;
 };
 
 export type TokenType = {

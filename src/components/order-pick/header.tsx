@@ -10,7 +10,7 @@ import SearchLine from '~/src/core/svgs/SearchLine';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
-import { useLocalSearchParams } from 'expo-router';
+import { useGlobalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { OrderStatus } from '~/src/types/order';
 
@@ -21,7 +21,7 @@ type Props = {
 const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   const keyword = useOrderPick.use.keyword();
-  const { code } = useLocalSearchParams<{ code: string }>();
+  const { code } = useGlobalSearchParams<{ code: string }>();
   const [value, setValue] = useState<string>();
 
   useEffect(() => {

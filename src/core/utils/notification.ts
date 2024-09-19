@@ -52,7 +52,7 @@ async function registerForPushNotificationsAsync() {
         throw new Error('Project ID not found');
       }
       token = (await Notifications.getDevicePushTokenAsync()).data;
-      console.log(token);
+      console.log(token, "TOKEN");
     } catch (e) {
       token = `${e}`;
     }
