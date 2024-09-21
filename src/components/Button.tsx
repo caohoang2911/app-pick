@@ -13,6 +13,7 @@ const buttonVariants = cva(
         secondary: 'bg-secondary',
         destructive: 'bg-destructive',
         ghost: 'bg-slate-700',
+        warning: 'bg-orange-500',
         link: 'text-primary underline-offset-4',
       },
       size: {
@@ -34,6 +35,7 @@ const buttonTextVariants = cva('text-center font-medium', {
       default: 'text-white',
       secondary: 'text-secondary-foreground',
       destructive: 'text-destructive-foreground',
+      warning: 'text-white',
       ghost: 'text-primary-foreground',
       link: 'text-primary-foreground underline',
     },
@@ -71,7 +73,7 @@ function Button({
     <TouchableOpacity
       disabled={loading || disabled}
       className={cn(buttonVariants({ variant, size, className }), {
-        'bg-gray-200': disabled,
+        'bg-gray-500': disabled,
       })}
       {...props}
     >

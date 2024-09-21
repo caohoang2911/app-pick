@@ -4,7 +4,7 @@
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
     "entryPoint": "./screens/Home/Home.js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,8 @@
       "associatedDomains": [
         "applinks:expo.dev"
       ],
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {
