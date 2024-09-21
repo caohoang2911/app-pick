@@ -17,7 +17,8 @@
     "build-ios": "eas build -p ios --profile preview",
     "build-android": "eas build:run -p android --lastest",
     "build-android-local": "eas build --platform android --local",
-    "codepush-preview": "eas update --channel=preview"
+    "codepush-preview": "eas update --channel=preview",
+    "list_build": "eas build --list"
   },
   "dependencies": {
     "@dev-plugins/react-navigation": "^0.0.6",

@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.caohoang2911.seedcomapppick",
+      "package": "com.caohoang2911.AppPick",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
