@@ -10,13 +10,13 @@ PODS:
   - EXJSONUtils (0.13.1)
   - EXManifests (0.14.3):
     - ExpoModulesCore
-  - EXNotifications (0.28.15):
+  - EXNotifications (0.28.17):
     - ExpoModulesCore
-  - Expo (51.0.22):
+  - Expo (51.0.32):
     - ExpoModulesCore
   - ExpoAsset (10.0.10):
     - ExpoModulesCore
-  - ExpoCamera (15.0.14):
+  - ExpoCamera (15.0.16):
     - ExpoModulesCore
     - ZXingObjC/OneD
     - ZXingObjC/PDF417
@@ -24,11 +24,11 @@ PODS:
     - ExpoModulesCore
   - ExpoFileSystem (17.0.1):
     - ExpoModulesCore
-  - ExpoFont (12.0.9):
+  - ExpoFont (12.0.10):
     - ExpoModulesCore
-  - ExpoHead (3.5.18):
+  - ExpoHead (3.5.23):
     - ExpoModulesCore
-  - ExpoImage (1.12.13):
+  - ExpoImage (1.12.15):
     - ExpoModulesCore
     - libavif/libdav1d
     - SDWebImage (~> 5.19.1)
@@ -37,7 +37,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.14.6)
   - ExpoKeepAwake (13.0.2):
     - ExpoModulesCore
-  - ExpoModulesCore (1.12.19):
+  - ExpoModulesCore (1.12.24):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -85,7 +85,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - EXStructuredHeaders (3.8.0)
-  - EXUpdates (0.25.22):
+  - EXUpdates (0.25.25):
     - DoubleConversion
     - EASClient
     - EXManifests
@@ -1497,7 +1497,7 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.17.1):
+  - RNGestureHandler (2.16.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1518,7 +1518,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.14.0):
+  - RNReanimated (3.10.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1539,7 +1539,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.32.0):
+  - RNScreens (3.31.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1561,7 +1561,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.4.0):
+  - RNSVG (15.2.0):
     - React-Core
   - SDWebImage (5.19.7):
     - SDWebImage/Core (= 5.19.7)
@@ -1887,21 +1887,21 @@ SPEC CHECKSUMS:
   EXConstants: 409690fbfd5afea964e5e9d6c4eb2c2b59222c59
   EXJSONUtils: 30c17fd9cc364d722c0946a550dfbf1be92ef6a4
   EXManifests: c1fab4c3237675e7b0299ea8df0bcb14baca4f42
-  EXNotifications: 7d691d3688bd055afd9de36fdf2cffc4d8be3b24
-  Expo: 8b7948e45627e848c2d7b6be7cf5851a505aef19
+  EXNotifications: 1177f1f3acba90ac409ac70d011dc00c75049635
+  Expo: 33132a667698a3259a4e6c0af1b4936388e5fa33
   ExpoAsset: 323700f291684f110fb55f0d4022a3362ea9f875
-  ExpoCamera: a5d000b22cd7dfd2c5904ed960e549de42c96da0
+  ExpoCamera: 929be541d1c1319fcf32f9f5d9df8b97804346b5
   ExpoDevice: fc94f0e42ecdfd897e7590f2874fc64dfa7e9b1c
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51
-  ExpoFont: e7f2275c10ca8573c991e007329ad6bf98086485
-  ExpoHead: 7880300d9c1519420530cf591d333d3f96ff9f6e
-  ExpoImage: cbe7617b4e0e7ba064cc4caa51bfc96262e51ef3
+  ExpoFont: 00756e6c796d8f7ee8d211e29c8b619e75cbf238
+  ExpoHead: fcb28a68ed4ba28f177394d2dfb8a0a8824cd103
+  ExpoImage: f77df382153d716f332f974438a803c4527f60b0
   ExpoKeepAwake: 3b8815d9dd1d419ee474df004021c69fdd316d08
-  ExpoModulesCore: 734c1802786b23c9598f4d15273753a779969368
+  ExpoModulesCore: f30a203ff1863bab3dd9f4421e7fc1564797f18a
   ExpoNetwork: 0d2c2504d56096fe8be3930d5c70cb3390dac5bf
   EXSplashScreen: fbf0ec78e9cee911df188bf17b4fe51d15a84b87
   EXStructuredHeaders: cb8d1f698e144f4c5547b4c4963e1552f5d2b457
-  EXUpdates: 707fb704efadd8323a136209da30ca0ff68bc904
+  EXUpdates: c62c0a529da22a3f20754cae33cef91595d206c2
   EXUpdatesInterface: 996527fd7d1a5d271eb523258d603f8f92038f24
   FBLazyVector: ac12dc084d1c8ec4cc4d7b3cf1b0ebda6dab85af
   Firebase: cec914dab6fd7b1bd8ab56ea07ce4e03dd251c2d
@@ -1978,10 +1978,10 @@ SPEC CHECKSUMS:
   ReactNativeAvoidSoftinput: 681c06aa418705e95fa1d29913401f14dbdb9fad
   RNFBApp: 2f83756f4d8be2859af5e2cf54130c20e380119d
   RNFBMessaging: 91592ea949854c66697757af648a2c07bcb583b9
-  RNGestureHandler: 8dbcccada4a7e702e7dec9338c251b1cf393c960
-  RNReanimated: f4ff116e33e0afc3d127f70efe928847c7c66355
-  RNScreens: 5aeecbb09aa7285379b6e9f3c8a3c859bb16401c
-  RNSVG: cb24fb322de8c1ebf59904e7aca0447bb8dbed5a
+  RNGestureHandler: 2282cfbcf86c360d29f44ace393203afd5c6cff7
+  RNReanimated: 35f9ac9c3ac42d0497ebd1cce5c39d7687a8493e
+  RNScreens: b32a9ff15bea7fcdbe5dff6477bc503f792b1208
+  RNSVG: 43b64ed39c14ce830d840903774154ca0c1f27ec
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c

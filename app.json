@@ -19,8 +19,11 @@
       "associatedDomains": [
         "applinks:expo.dev"
       ],
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "1.0.1"
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +35,8 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "buildNumber": "3"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -59,21 +63,23 @@
       ],
       [
         "expo-asset",
-  
         {
-          "assets": ["./assets/logo.png"]
+          "assets": [
+            "./assets/logo.png"
+          ]
         }
       ],
       [
         "@react-native-firebase/app"
-      ]
+      ],
+      "expo-router"
     ],
     "extra": {
       "eas": {
         "projectId": "58d442de-186f-4ce5-a7b4-664b666f2ac0"
       }
     },
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "1.0.1",
     "updates": {
       "fallbackToCacheTimeout": 0,
       "checkAutomatically": "NEVER",

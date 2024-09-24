@@ -15,6 +15,7 @@
     "serve": "npx serve -s dist",
     "build-preview": "eas build -p android --profile preview",
     "build-ios": "eas build -p ios --profile preview",
+    "build-prod": "eas build --profile production --platform ios --auto-submit",
     "build-android": "eas build:run -p android --lastest",
     "build-android-local": "eas build --platform android --local",
     "codepush-preview": "eas update --channel=preview",
