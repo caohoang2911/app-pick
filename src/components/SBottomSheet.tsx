@@ -56,7 +56,7 @@ const SBottomSheet = forwardRef<any, Props>(
 
     const animationConfigs = useBottomSheetTimingConfigs({
       duration: 250,
-      easing: Easing.exp,
+      easing: Easing.linear,
     });
 
     useEffect(() => {
@@ -132,6 +132,7 @@ const SBottomSheet = forwardRef<any, Props>(
           //@ts-ignore
           keyboardBlurBehavior="restore"
           android_keyboardInputMode="adjustResize"
+          animationConfigs={animationConfigs}
           {...rests}
         >
           <View 

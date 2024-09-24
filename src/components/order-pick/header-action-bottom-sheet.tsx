@@ -1,7 +1,7 @@
-import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
-import { useGlobalSearchParams } from 'expo-router';
+import { router, useGlobalSearchParams } from 'expo-router';
 import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderPick } from '~/src/core/store/order-pick';
@@ -110,6 +110,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const handleClickAction = (key: string) => {
       switch (key) {
         case 'save-draft':
+          setLoading(true);
           saveOrderPickingAsDraft({ pickedItems: Object.values(orderPickProducts).map((item) => ({
             ...item,
             name: item.name || '',
@@ -120,11 +121,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
             pickedNote: item.pickedNote || '',
           })), orderCode: code,});
           break;
+        case 'view-order':
+          router.push(`/order-invoice/${code}`);
+          break;
         default:
           break;
       }
       actionRef.current?.dismiss();
-      setLoading(true);
+
     };
 
     return (

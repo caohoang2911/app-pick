@@ -16,6 +16,7 @@ import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import { Badge } from '../Badge';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 const InputAmountPopup = ({}) => {
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
@@ -45,13 +46,12 @@ const InputAmountPopup = ({}) => {
   return (
     <SBottomSheet
       renderTitle={renderTitle}
-      // snapPoints={snapPoints}
       ref={inputBottomSheetRef}
       visible={isShowAmountInput}
       onClose={() => {
         toggleShowAmountInput(false);
       }}
-    >
+    > 
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
         <Formik
           initialValues={{
@@ -95,6 +95,7 @@ const InputAmountPopup = ({}) => {
                   onChangeText={(value: string) => {
                     setFieldValue('pickedQuantity', value);
                   }}
+                  useBottomSheetTextInput
                   error={!values.pickedError && errors.pickedQuantity}
                   name="pickedQuantity"
                   value={values?.pickedQuantity.toString()}
@@ -151,6 +152,7 @@ const InputAmountPopup = ({}) => {
                 <Input
                   label="Mô tả"
                   labelClasses="font-medium"
+                  useBottomSheetTextInput
                   value={values.pickedNote}
                   placeholder="Nhập mô tả"
                   multiline
@@ -161,7 +163,6 @@ const InputAmountPopup = ({}) => {
                     setFieldValue('pickedNote', value);
                   }}
                 />  
-
                 <Button onPress={handleSubmit as any} label={'Xác nhận'} disabled={isError} />
               </>
           )}}
@@ -172,24 +173,3 @@ const InputAmountPopup = ({}) => {
 };
 
 export default InputAmountPopup;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: 'grey',
-  },
-  contentContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  input: {
-    marginTop: 8,
-    marginBottom: 10,
-    borderRadius: 10,
-    fontSize: 16,
-    lineHeight: 20,
-    padding: 8,
-    backgroundColor: 'rgba(151, 151, 151, 0.25)',
-  },
-});

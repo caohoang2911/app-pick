@@ -1,6 +1,5 @@
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraType, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
 
 export default function useCarmera() {
   const [facing, setFacing] = useState<CameraType>('back');

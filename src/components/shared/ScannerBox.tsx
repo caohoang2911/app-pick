@@ -1,8 +1,8 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Portal } from '@gorhom/portal';
 import { BarcodeScanningResult, CameraView } from 'expo-camera';
-import React, { useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Dimensions, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
 import { Button } from '../Button';
@@ -66,6 +66,14 @@ const ScannerBox = ({
 
   const isQRScanner = type === 'qr';
 
+  const handleRequestPermission = useCallback(() => {
+    if(Platform.OS=='ios'){
+      Linking.openURL('app-settings:')
+    } else {
+      requestPermission();
+    }
+  }, []);
+
   if (!visible) return <></>;
 
   if (!permission) {
@@ -80,7 +88,7 @@ const ScannerBox = ({
           Bạn không có quyền truy cập vào camera
         </Text>
         <View className="self-center mt-2">
-          <Button onPress={requestPermission} label="Yêu cầu truy cập" />
+          <Button onPress={handleRequestPermission} label="Yêu cầu truy cập" />
         </View>
       </View>
     );
