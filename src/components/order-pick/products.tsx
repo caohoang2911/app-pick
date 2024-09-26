@@ -35,7 +35,6 @@ const OrderPickProducts = () => {
   }, [data]);
 
   const orderDetail = data?.data || {};
-  const { error } = data || {};
   const { productItems } = orderDetail?.delivery || {};
 
   const filterProductItems = useMemo(() => {
@@ -78,14 +77,6 @@ const OrderPickProducts = () => {
       }, 500);
     }
   }, [indexCurrentProduct]);
-
-  if (error) {
-    return (
-      <View className="text-center mt-2">
-        <Text>Error: {error}</Text>
-      </View>
-    );
-  }
 
   if (isPending) {
     return (

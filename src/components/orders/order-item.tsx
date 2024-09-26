@@ -48,9 +48,9 @@ const OrderItem = ({
     <TouchableOpacity
       onPress={() => {
         if(type === 'HOME_DELIVERY') {
-          router.push(`/order-invoice/${code}`);
+          router.push(`orders/order-invoice/${code}`);
         } else {
-          router.push({ pathname: `orders/${code}`, params: { status } });
+          router.push({ pathname: `orders/order-detail/${code}`, params: { status } });
         }
       }}
     >

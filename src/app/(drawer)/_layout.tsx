@@ -44,7 +44,7 @@ export default function DrawerLayout() {
   return (
     <ConfigWrapper>
       <Drawer
-        screenOptions={{ headerShown: false, drawerStyle: { width: "75%" } }}
+        screenOptions={{ headerShown: false, drawerStyle: { width: "75%" }, swipeEdgeWidth: 0 }}
         drawerContent={(props) => <DrawerContent {...props} />}
       />
     </ConfigWrapper>

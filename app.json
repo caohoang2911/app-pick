@@ -4,7 +4,7 @@
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
     "entryPoint": "./screens/Home/Home.js",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -79,7 +79,7 @@
         "projectId": "58d442de-186f-4ce5-a7b4-664b666f2ac0"
       }
     },
-    "runtimeVersion": "1.0.1",
+    "runtimeVersion": "1.0.2",
     "updates": {
       "fallbackToCacheTimeout": 0,
       "checkAutomatically": "NEVER",

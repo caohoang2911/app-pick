@@ -23,15 +23,15 @@ export const usePushNotifications: any = () => {
     if (orderCode !== null) {
       if(pathname.includes('/orders/')){
         if(targetScr === 'ORDER-PICK') {
-          router.replace(`orders/${orderCode}`)  
+          router.replace(`orders/order-detail/${orderCode}`)  
         } else {
-          router.replace(`order-invoice/${orderCode}`)  
+          router.replace(`orders/order-invoice/${orderCode}`)  
         }
       } else {
         if(targetScr === 'ORDER-PICK') {
-          router.push(`orders/${orderCode}`)  
+          router.push(`orders/order-detail/${orderCode}`)  
         } else {
-          router.push(`order-invoice/${orderCode}`)  
+          router.push(`orders/order-invoice/${orderCode}`)  
         }
       }
     }

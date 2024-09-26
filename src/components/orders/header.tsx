@@ -50,7 +50,7 @@ const Header = () => {
           </TouchableOpacity>
           <View className="gap-1">
             <Text className="font-semibold text-lg">
-              {userInfo?.name} - {toUpper(userInfo?.email)}
+              {userInfo?.name} - {toUpper(userInfo?.username)}
             </Text>
             <Text
               className="text-sm"

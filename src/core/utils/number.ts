@@ -14,5 +14,15 @@ export const formatCurrency = (
 };
 
 export const formatNumber = (num: number | undefined) => {
+  if(!num) return 0;
+
+  if(isFloat(num)) {
+    return num.toFixed(2);
+  }
+
   return formatterNumber(num || 0)?.replace('₫', '') || 0;
 };
+
+export const isFloat = (n: number) => {
+  return Number(n) === n && n % 1 !== 0;
+}

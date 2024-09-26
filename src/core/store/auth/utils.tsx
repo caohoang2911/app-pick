@@ -7,7 +7,7 @@ export type UserInfo = {
   id?: string;
   name?: string;
   expired?: number;
-  email?: string;
+  username?: string;
   company?: string;
   role?: string;
   storeCode: string;

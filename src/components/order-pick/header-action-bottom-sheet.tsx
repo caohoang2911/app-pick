@@ -36,16 +36,16 @@ const actions = [
     title: 'Scan túi - Giao cho shipper',
     icon: <QRScanLine />,
   },
-  {
-    key: 'store-shipping',
-    title: 'Store giao hàng',
-    icon: <TruckLine />,
-  },
-  {
-    key: 'book-ahamove',
-    title: 'Book Ahamove',
-    icon: <EBikeLine />,
-  },
+  // {
+  //   key: 'store-shipping',
+  //   title: 'Store giao hàng',
+  //   icon: <TruckLine />,
+  // },
+  // {
+  //   key: 'book-ahamove',
+  //   title: 'Book Ahamove',
+  //   icon: <EBikeLine />,
+  // },
   {
     key: 'save-draft',
     title: 'Lưu tạm',
@@ -122,7 +122,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           })), orderCode: code,});
           break;
         case 'view-order':
-          router.push(`/order-invoice/${code}`);
+          router.push(`orders/order-invoice/${code}`);
           break;
         default:
           break;

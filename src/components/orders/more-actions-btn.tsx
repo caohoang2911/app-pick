@@ -46,7 +46,7 @@ const MoreActionsBtn = ({
   const handleClickAction = useCallback((key: string) => {
     switch (key) {
       case 'view-invoice':
-        router.push(`/order-invoice/${code}`);
+        router.push(`orders/order-invoice/${code}`);
         break;
       default:
         break;

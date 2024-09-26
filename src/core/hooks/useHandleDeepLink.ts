@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import * as Linking from "expo-linking";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 
 const useHandleDeepLink = () => {
   const [data, setData] = useState(null);
+
+  const pathname = usePathname();
 
   function handleDeepLink(event: any) {
     let data: any = Linking.parse(event.url);
@@ -12,10 +14,13 @@ const useHandleDeepLink = () => {
     const { orderCode } = queryParams || {};
     console.log('path', path)
     console.log('orderCode', orderCode)
-    if(path === 'orders' && orderCode) {
-      router.navigate(`orders/${orderCode}`)
-    } else if(path === 'orders'){
-      router.replace('orders')
+
+    if(path.includes('order-detail') && orderCode) {
+      router.replace(`orders/order-detail/${orderCode}`)
+    } else if(path.includes('order-invoice') && orderCode) {
+      router.replace(`orders/order-invoice/${orderCode}`)  
+    } else {
+      router.navigate('orders')
     }
   }
     

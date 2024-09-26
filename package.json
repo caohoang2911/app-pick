@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "android": "expo run:android --no-build-cache --device",
     "ios": "expo run:ios --no-build-cache --device",
     "web": "expo start --web",
@@ -19,6 +19,7 @@
     "build-android": "eas build:run -p android --lastest",
     "build-android-local": "eas build --platform android --local",
     "codepush-preview": "eas update --channel=preview",
+    "codepush-prod": "eas update --channel=production",
     "list_build": "eas build --list"
   },
   "dependencies": {

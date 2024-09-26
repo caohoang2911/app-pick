@@ -19,7 +19,6 @@ export default function Login() {
   const env = useAuth.use.env();
 
   const { mutate: loginRegular, isPending: isPendingRegular } = useAuthorizeUserPassword((data) => {
-    console.log('data', data);
     if (!data.error) {
       const userInfo = data.data || {};
       const { zas } = userInfo;

@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary bg-blue-500',
-        secondary: 'bg-secondary',
+        secondary: 'bg-secondary border border-gray-400',
         destructive: 'bg-destructive',
         ghost: 'bg-slate-700',
         warning: 'bg-orange-500',
