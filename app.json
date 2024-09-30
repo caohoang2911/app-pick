@@ -4,7 +4,7 @@
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
     "entryPoint": "./screens/Home/Home.js",
-    "version": "1.0.3",
+    "version": "1.0.11",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -69,8 +69,16 @@
           ]
         }
       ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
       [
-        "@react-native-firebase/app"
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
       ],
       "expo-router"
     ],
