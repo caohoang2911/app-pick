@@ -31,7 +31,7 @@ import { useLoading } from '@/core/store/loading';
 import { initConfigDate } from '@/core/utils/moment';
 import AlertDialog from '../components/AlertDialog';
 
-const VERSION = '1.0.32';
+const VERSION = '1.0.35';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -44,6 +44,7 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (token && status === 'signIn') {
+
       setFCMRegistrationToken({ token: token });
     }
   }, [token, status]);

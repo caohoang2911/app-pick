@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { registerForPushNotificationsAsync } from '@/core/utils/notification';
 import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
@@ -6,6 +7,11 @@ import { router, usePathname } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
+export enum TargetScreen {
+  ORDER_PICK = 'ORDER-PICK',
+  ORDER_INVOICE = 'ORDER-INVOICE',
+}
+
 export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();
   const [token, setToken] = useState('');
@@ -13,34 +19,26 @@ export const usePushNotifications: any = () => {
     []
   );
 
-  const [notification1, setNotification] = useState<any>(undefined);
-  const extraDataRef: any = useRef<{orderCode: string}>();
+  const goOrderDetail = useCallback((remoteMessage: any) => {
+    const { orderCode, targetScr} = remoteMessage || {};
 
-  const pathname = usePathname();
-
-  const goOrderDetail = (remoteMessage: any) => {
-    const { orderCode, targetScr} = remoteMessage?.data || {};
-    if (orderCode !== null) {
-      if(pathname.includes('/orders/')){
-        if(targetScr === 'ORDER-PICK') {
-          router.replace(`orders/order-detail/${orderCode}`)  
-        } else {
-          router.replace(`orders/order-invoice/${orderCode}`)  
-        }
+    if (orderCode) {
+      if(targetScr === TargetScreen.ORDER_PICK) {
+        router.push(`orders/order-detail/${orderCode}`)  
       } else {
-        if(targetScr === 'ORDER-PICK') {
-          router.push(`orders/order-detail/${orderCode}`)  
-        } else {
-          router.push(`orders/order-invoice/${orderCode}`)  
-        }
+        router.push(`orders/order-invoice/${orderCode}`)  
       }
     }
-  }
+  }, [router])
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(
-      (token) => token && setToken(token)
-    );
+    const fetchToken = async () => {
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        setToken(token);
+      }
+    };
+    fetchToken();
 
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
@@ -58,16 +56,13 @@ export const usePushNotifications: any = () => {
 
     // Handle user clicking on a notification and open the screen
     const handleNotificationClick = async (response: any) => {
+      console.log(response, "handleNotificationClick")
+      const data  = response?.notification?.request?.content?.data || {};
       try {
-        const orderCode = extraDataRef.current.orderCode
-
-        if (orderCode !== null) {
-          goOrderDetail({data: { orderCode }})
-        }
+        goOrderDetail(data)
       } catch {
 
       }
-     
     };
 
     const notificationClickSubscription =
@@ -77,15 +72,14 @@ export const usePushNotifications: any = () => {
 
     // Handle user opening the app from a notification (when the app is in the background)
     messaging().onNotificationOpenedApp((remoteMessage: any) => {
+      console.log(remoteMessage, "remoteMessageOnNotificationOpenedApp")
       console.log(
         'Notification caused app to open from background state:',
-        remoteMessage.data.screen
+        remoteMessage.data
         // navigation
       );
-      const orderCode = remoteMessage?.data?.orderCode
-      if (orderCode !== null) {
-        goOrderDetail(remoteMessage)
-      }
+
+      goOrderDetail(remoteMessage?.data)
     });
 
     // Check if the app was opened from a notification (when the app was completely quit)
@@ -97,11 +91,7 @@ export const usePushNotifications: any = () => {
             'Notification caused app to open from quit state:',
             remoteMessage
           );
-
-          const orderCode = remoteMessage?.data?.orderCode;
-          if (orderCode !== null) {
-            goOrderDetail(remoteMessage)
-          }
+          goOrderDetail(remoteMessage?.data)
         }
       });
 
@@ -112,10 +102,7 @@ export const usePushNotifications: any = () => {
         body: remoteMessage.notification.body,
         data: remoteMessage.data, // optional data payload
       };
-      setNotification(notification);
       // Schedule the notification with a null trigger to show immediately
-
-      extraDataRef.current = remoteMessage.data
 
       await Notifications.scheduleNotificationAsync({
         content: notification,
@@ -126,15 +113,12 @@ export const usePushNotifications: any = () => {
 
     // Handle push notifications when the app is in the foreground
     const handlePushNotification = async (remoteMessage: any) => {
+
       const notification = {
         title: remoteMessage.notification.title,
         body: remoteMessage.notification.body,
         data: remoteMessage.data, // optional data payload
       };
-
-      extraDataRef.current = remoteMessage.data
-
-      setNotification(notification);
 
       queryClient.resetQueries({ queryKey: ['searchOrders'] });
       queryClient.resetQueries({ queryKey: ['getOrderStatusCounters'] });
@@ -154,11 +138,10 @@ export const usePushNotifications: any = () => {
       unsubscribe();
       notificationClickSubscription.remove();
     };
-  }, [pathname]);
+  }, []);
 
   return {
     token,
     channels,
-    notification: notification1,
   };
 };
