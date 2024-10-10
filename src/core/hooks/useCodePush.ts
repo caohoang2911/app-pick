@@ -1,6 +1,7 @@
 import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
+import { removeConfigLocalStore, removeVersionLocalStore } from '../store/config/utils';
 
 export const useCodepush = () => {
   const [isDoneCodepush, setIsDoneCodepush] = useState(false);
@@ -24,6 +25,8 @@ export const useCodepush = () => {
               text: 'Cập nhật',
               onPress: async () => {
                 try {
+                  removeConfigLocalStore();
+                  removeVersionLocalStore();
                   await Updates.fetchUpdateAsync();
                   await Updates.reloadAsync();
                   setIsDoneCodepush(true);

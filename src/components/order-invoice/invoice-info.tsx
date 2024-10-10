@@ -10,6 +10,8 @@ import { useConfig } from '~/src/core/store/config'
 import { getConfigNameById } from '~/src/core/utils/config'
 import moment from 'moment'
 
+const COL_LEFT_WIDTH = 105;
+
 const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{
     code: string;
@@ -24,8 +26,8 @@ const InvoiceInfo = () => {
 
   return (
     <View className='bg-white mx-4 px-4 py-3' style={styles.box}>
-      <View className='flex flex-row items-center gap-2 flex-wrap'>
-        <Text className='text-lg font-medium'>{code}</Text>
+      <View className='flex flex-row items-center flex-wrap'>
+        <View style={{ minWidth: COL_LEFT_WIDTH }}><Text className='text-base font-medium'>{code}</Text></View>
         <View className='flex flex-row gap-1 flex-wrap'>
           {tags?.map((tag: string, index: number) => {
             const tagName = getConfigNameById(orderTags, tag)
@@ -37,7 +39,7 @@ const InvoiceInfo = () => {
       </View>
       <View className='flex gap-2 mt-3'>
         <View className='flex flex-row items-center'>
-          <View className='w-28'><Text className='text-gray-500'>Trạng thái</Text></View>
+          <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Trạng thái</Text></View>
           <Badge
             label={statusName as string}
             extraLabel={
@@ -49,15 +51,15 @@ const InvoiceInfo = () => {
           />
         </View>
         <View className='flex flex-row items-center'>
-          <View className='w-28'><Text className='text-gray-500'>COD</Text></View>
+          <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>COD</Text></View>
           <Text>{formatCurrency(amount, { unit: true })}</Text>
         </View>
         <View className='flex flex-row items-center'>
-          <View className='w-28'><Text className='text-gray-500'>Khách hàng</Text></View> 
+          <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Khách hàng</Text></View> 
           <Text>{customer?.name}</Text>
         </View>
         <View className='flex flex-row items-center'>
-          <View className='w-28'>
+          <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className='text-gray-500'>Giờ giao</Text>
           </View>
           <Text>
@@ -67,11 +69,11 @@ const InvoiceInfo = () => {
           </Text>
         </View>
         <View className='flex flex-row'>
-          <View className='w-28'>
+          <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className='text-gray-500'>ĐC giao hàng</Text>
           </View>
           <View className='flex-1'>
-            <Text>{deliveryAddress?.fullAddress}</Text>
+            <Text numberOfLines={2} ellipsizeMode='tail'>{deliveryAddress?.fullAddress}</Text>
           </View>
         </View>
       </View>

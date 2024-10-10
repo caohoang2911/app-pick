@@ -1,4 +1,5 @@
 import { getItem, removeItem, setItem } from '@/core/storage';
+import { removeConfigLocalStore, removeVersionLocalStore } from '../config/utils';
 
 const TOKEN = 'token';
 const USER_INFO = 'user_info';
@@ -32,3 +33,11 @@ export const setUserInfo = (value: TokenType['userInfo']) =>
 
 export const setENV = (value: string) => setItem<string>('env', value);
 export const getENV = () => getItem<string>('env');
+
+export const removeStore = () => {
+  removeItem(TOKEN);
+  removeItem(USER_INFO);
+  removeItem('env');
+  removeVersionLocalStore();
+  removeConfigLocalStore();
+};

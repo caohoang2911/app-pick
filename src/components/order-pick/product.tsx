@@ -27,6 +27,7 @@ const OrderPickProduct = ({
   unit,
   quantity,
   stockAvailable,
+  tags,
 }: Partial<Product | any>) => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
@@ -58,31 +59,32 @@ const OrderPickProduct = ({
             )}
             <Text className="text-lg font-semibold">{name}</Text>
           </View>
-          <View className="flex-row justify-between gap-4">
-            <Image
-              style={{ width: 80, height: 80 }}
-              source={image}
-              placeholder={{ blurhash }}
-              contentFit="cover"
-              transition={1000}
-            />
-            <View className="flex-grow flex-row justify-between">
-              <View className="flex gap-2">
-                <View style={{width: 150}} className='flex flex-row'>
+          <View className="flex flex-row justify-between gap-4 flex-grow ">
+            <View className="">
+              <Image
+                style={{ width: 80, height: 80 }}
+                source={image}
+                placeholder={{ blurhash }}
+                contentFit="cover"
+                transition={1000}
+              />
+            </View>
+            <View className="flex-row justify-between flex-grow h-full" >
+              <View className="flex gap-2 flex-1">
+                <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Số lượng đặt</Text></View>
                   <Text className='font-medium'>{quantity} {unit}</Text>
                 </View>
-                <View style={{width: 150}} className='flex flex-row'>
+                <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Thực pick</Text></View>
                     <Text className='font-medium'>{pickedQuantity || "--"} {unit}</Text>
                 </View>
-                <View style={{width: 150}} className='flex flex-row'>
+                <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Tồn kho</Text></View>
                   <Text className='font-medium'>{formatNumber(stockAvailable)} {unit}</Text>
                 </View>
-                <View className="flex flex-row gap-2">
-                  <Badge label={'Chill'} />
-                  <Badge label={'Dry'} />
+                <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
+                  {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
                 </View>
               </View>
             </View>

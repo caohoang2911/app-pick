@@ -12,9 +12,8 @@
     }
   },
   "submit": {
-    "production": {
-
-    }
+    "production": {},
+    "development": {}
   },
   "cli": {
     "promptToConfigurePushNotifications": false,

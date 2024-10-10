@@ -8,5 +8,6 @@ export const removeConfigLocalStore = () => removeItem(CONFIG);
 export const setConfigLocalStore = (value: string) => setItem<string>(CONFIG, value);
 
 export const getVersionLocalStore = () => getItem<string>(VERSION);
+export const removeVersionLocalStore = () => removeItem(CONFIG);
 export const setVersionLocalStore = (value: string) => setItem<string>(VERSION, value);
 

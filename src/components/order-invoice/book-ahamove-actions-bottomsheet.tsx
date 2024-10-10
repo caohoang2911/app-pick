@@ -4,12 +4,11 @@ import { Formik } from 'formik';
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useBookShipper } from '~/src/api/app-pick/use-book-shipper';
+import { hideAlert } from "~/src/core/store/alert-dialog";
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { PackageSize, scheduleType } from '~/src/types/order';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
-import { hideAlert, showAlert } from "~/src/core/store/alert-dialog";
 
 type Props = {};
 
@@ -20,7 +19,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
 
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { isPending: isLoadingBookShipper, mutate: bookShipper } = useBookShipper(() => {
+  const { mutate: bookShipper } = useBookShipper(() => {
     hideAlert();
   });
 
@@ -39,17 +38,11 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
 
   const handleBookShipper = (values: any) => {
     setVisible(false);
-    showAlert({
-      title: 'Xác nhận book AhaMove',
-      loading: isLoadingBookShipper,
-      onConfirm: () => {
-        setLoading(true);
-        bookShipper({
-          ...values,
-          orderCode: code,
-        });
-      }
-    })
+    setLoading(true);
+    bookShipper({
+      ...values,
+      orderCode: code,
+    });
   }
 
   return (

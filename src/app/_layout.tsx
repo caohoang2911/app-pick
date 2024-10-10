@@ -30,14 +30,19 @@ import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useLoading } from '@/core/store/loading';
 import { initConfigDate } from '@/core/utils/moment';
 import AlertDialog from '../components/AlertDialog';
+import * as Updates from 'expo-updates';
 
-const VERSION = '1.0.35';
+const VERSION = '1.0.38';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
 
-  const { isDoneCodepush } = useCodepush();
+  const {
+    isUpdateAvailable,
+  } = Updates.useUpdates();
+
+  const { isDoneCodepush} = useCodepush();
 
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
@@ -49,8 +54,8 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   }, [token, status]);
 
-  if(!isDoneCodepush) {
-    return <></>
+  if(!isDoneCodepush && isUpdateAvailable) {
+    return <Loading description="Đang cập nhật..." />
   }
 
   return (
@@ -156,6 +161,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <AlertDialog />
                 <FlashMessage
                   position="top"
+                  duration={5000}
                   statusBarHeight={StatusBar.currentHeight}
                 />
               </BottomSheetModalProvider>

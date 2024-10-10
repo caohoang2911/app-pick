@@ -67,7 +67,7 @@ const ScannerBox = ({
   const isQRScanner = type === 'qr';
 
   const handleRequestPermission = useCallback(() => {
-    if(Platform.OS=='ios'){
+    if(Platform.OS=='ios' && permission?.granted){
       Linking.openURL('app-settings:')
     } else {
       requestPermission();

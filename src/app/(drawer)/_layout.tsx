@@ -6,6 +6,7 @@ import { setConfig, useConfig } from "~/src/core/store/config";
 import { ConfigResponse, useGetConfig } from "~/src/api/config/useGetConfig";
 import Loading from "~/src/components/Loading";
 import { Stack } from "expo-router";
+import { Text } from "react-native";
 
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -25,9 +26,7 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
     if (data?.error) return;
     if (data?.data) {
       setConfig(data.data as ConfigResponse);
-    }
-
-    if(typeof data === 'object'){
+    } else {
       setIsDone(true);
     }
 

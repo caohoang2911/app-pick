@@ -1,15 +1,22 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { View } from 'react-native';
 
-const Loading = () => {
+const Loading = ({
+  description
+}: {
+  description?: string
+}) => {
   return (
     <>
       <View style={styles.loading}>
       </View>
       <View className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10'>
-        <View style={styles.box} className='w-12 h-12 rounded-lg'>
-          <ActivityIndicator color="white" />
+        <View className='flex gap-2 items-center'>
+          <View style={styles.box} className='w-12 h-12 rounded-lg'>
+            <ActivityIndicator color="white" />
+          </View>
+          {description && <Text>{description}</Text>}
         </View>
       </View>
     </>

@@ -5,6 +5,8 @@ export const ORDER_COUNTER_STATUS: any = {
   STORE_PACKED: 'Soạn hàng xong',
   COMPLETED: 'Đã hoàn thành',
   CANCELLED: 'Đã huỷ',
+  BOOKED_SHIPPER: "Đã book shipper",
+  SHIPPING: "Đang giao hàng"
 };
 
 export const ORDER_COUNTER_STATUS_PRIORITY: any = {
@@ -12,6 +14,8 @@ export const ORDER_COUNTER_STATUS_PRIORITY: any = {
   CONFIRMED: 2,
   STORE_PICKING: 3,
   STORE_PACKED: 4,
-  COMPLETED: 5,
-  CANCELLED: 6,
+  BOOKED_SHIPPER: 5,
+  SHIPPING: 6,
+  COMPLETED: 7,
+  CANCELLED: 8,
 };

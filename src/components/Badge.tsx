@@ -68,7 +68,7 @@ function Badge({
       className={cn(badgeVariants({ variant }), 'rounded-full', className)}
       {...props}
     >
-      <Text className={cn(badgeTextVariants({ variant }), labelClasses)}>
+      <Text numberOfLines={1} ellipsizeMode='tail' className={cn(badgeTextVariants({ variant }), labelClasses)}>
         {label} {extraLabel}
       </Text>
     </View>

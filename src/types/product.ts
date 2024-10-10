@@ -14,6 +14,7 @@ export type Product = {
   unitType?: string;
   quantity: number;
   image?: string;
+  tags?: Array<any>;
   name?: string;
   afterTaxPrice?: number;
   stockAvailable?: number;

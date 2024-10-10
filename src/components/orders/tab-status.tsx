@@ -28,6 +28,8 @@ export function TabsStatus() {
     isFirtTime.current = false;
   });
 
+  console.log(orderStatusCounters, "orderStatusCounters")
+
   const dataStatusCounters = Object.keys(orderStatusCounters)?.map(
     (key: string) => {
       return {

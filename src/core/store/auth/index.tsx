@@ -6,6 +6,7 @@ import {
   getENV,
   getToken,
   getUserInfo,
+  removeStore,
   removeToken,
   setENV,
   setToken,
@@ -47,7 +48,7 @@ const _useAuth = create<AuthState>((set, get) => ({
     set({ status: 'signIn', token, userInfo });
   },
   signOut: () => {
-    removeToken();
+    removeStore();
     set({ status: 'signOut', token: null });
   },
   setEnv: () => {

@@ -3,8 +3,7 @@
     "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "entryPoint": "./screens/Home/Home.js",
-    "version": "1.0.11",
+    "version": "1.0.13",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,9 +18,6 @@
       "associatedDomains": [
         "applinks:expo.dev"
       ],
-      "permissions": [
-        "android.permission.CAMERA"
-      ],
       "googleServicesFile": "./GoogleService-Info.plist",
       "buildNumber": "3"
     },
@@ -35,8 +31,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "googleServicesFile": "./google-services.json",
-      "buildNumber": "3"
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
