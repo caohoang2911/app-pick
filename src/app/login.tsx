@@ -1,7 +1,7 @@
 import { useLogin } from '@/api/auth';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
-import { setEnv, setRedirectUrl, signIn, useAuth } from '@/core';
+import { setRedirectUrl, signIn, useAuth } from '@/core';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Formik } from 'formik';
@@ -127,22 +127,6 @@ export default function Login() {
             className="w-full"
             label={'Đăng nhập bằng Harawork '}
           />
-        </View>
-        <View className="w-full flex flex-row gap-2 justify-center">
-          <Pressable onPress={() => setEnv()}>
-            <Badge
-              label="Dev"
-              variant={env === 'dev' ? 'default' : 'secondary'}
-              className="self-start"
-            />
-          </Pressable>
-          <Pressable onPress={() => setEnv()}>
-            <Badge
-              label="Prod"
-              variant={env === 'prod' ? 'default' : 'secondary'}
-              className="self-start"
-            />
-          </Pressable>
         </View>
       </View>
     </KeyboardAvoidingView>

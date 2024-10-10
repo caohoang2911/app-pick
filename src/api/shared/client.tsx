@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { router } from 'expo-router';
 import { showMessage } from 'react-native-flash-message';
 import { signOut } from '~/src/core';
-import { getENV, getToken } from '~/src/core/store/auth/utils';
+import { getToken } from '~/src/core/store/auth/utils';
 
 export const axiosClient = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -52,16 +52,12 @@ axiosClient.interceptors.response.use(function (
 
 axiosClient.interceptors.request.use(function (config: any) {
   const token = getToken();
-  const env = getENV();
-
+  
   if (token) {
     config.headers.zas = token;
   }
 
-  config.baseURL =
-    env === 'dev'
-      ? process.env.EXPO_PUBLIC_DEV_API_URL
-      : process.env.EXPO_PUBLIC_API_URL;
+  config.baseURL = process.env.EXPO_PUBLIC_API_URL
 
   if (config.data instanceof FormData) {
     config.headers['Content-Type'] = 'multipart/form-data';

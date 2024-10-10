@@ -3,12 +3,9 @@ import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
 import type { TokenType, UserInfo } from './utils';
 import {
-  getENV,
   getToken,
   getUserInfo,
   removeStore,
-  removeToken,
-  setENV,
   setToken,
   setUserInfo,
 } from './utils';
@@ -24,7 +21,6 @@ interface AuthState {
   setUser: (userInfo: UserInfo) => void;
   signOut: () => void;
   hydrate: () => void;
-  setEnv: () => void;
 }
 
 const _useAuth = create<AuthState>((set, get) => ({
@@ -51,22 +47,11 @@ const _useAuth = create<AuthState>((set, get) => ({
     removeStore();
     set({ status: 'signOut', token: null });
   },
-  setEnv: () => {
-    const currentEnv = get().env;
-    const nextEnv = currentEnv == 'dev' ? 'prod' : 'dev';
-    setENV(nextEnv);
-    set({ env: nextEnv });
-  },
   hydrate: () => {
     try {
       const userToken = getToken();
       const userInfo = getUserInfo();
-      const env = getENV();
-
-      if (env) {
-        set({ env: env });
-      }
-
+      
       if (userToken !== null) {
         get().signIn({
           token: userToken,
@@ -90,5 +75,3 @@ export const signIn = (token: TokenType) => _useAuth.getState().signIn(token);
 export const setRedirectUrl = (url: string) =>
   _useAuth.getState().setRedirectUrl(url);
 export const hydrateAuth = () => _useAuth.getState().hydrate();
-
-export const setEnv = () => _useAuth.getState().setEnv();
