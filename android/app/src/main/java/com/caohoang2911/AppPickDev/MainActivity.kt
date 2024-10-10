@@ -1,4 +1,4 @@
-package com.caohoang2911.AppPick
+package com.caohoang2911.AppPickDevDev
 
 import android.os.Build
 import android.os.Bundle

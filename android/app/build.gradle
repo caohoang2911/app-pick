@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.caohoang2911.AppPick'
+    namespace 'com.caohoang2911.AppPickDev'
     defaultConfig {
-        applicationId 'com.caohoang2911.AppPick'
+        applicationId 'com.caohoang2911.AppPickDev'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
