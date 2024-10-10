@@ -34,7 +34,6 @@ export const setUserInfo = (value: TokenType['userInfo']) =>
 export const removeStore = () => {
   removeItem(TOKEN);
   removeItem(USER_INFO);
-  removeItem('env');
   removeVersionLocalStore();
   removeConfigLocalStore();
 };

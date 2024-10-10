@@ -16,7 +16,6 @@ const blurhash =
 
 export default function Login() {
   const { mutate: login, data, isPending } = useLogin();
-  const env = useAuth.use.env();
 
   const { mutate: loginRegular, isPending: isPendingRegular } = useAuthorizeUserPassword((data) => {
     if (!data.error) {

@@ -149,7 +149,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   {loading && <Loading />}
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
-                      {`Production ${VERSION}`}
+                      {`Development ${VERSION}`}
                     </Text>
                   </View>
                   {children}
