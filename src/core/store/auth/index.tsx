@@ -12,7 +12,6 @@ import {
 
 interface AuthState {
   token: string | null;
-  env: string;
   status: 'idle' | 'signOut' | 'signIn';
   urlRedirect: string;
   userInfo: UserInfo;
@@ -26,7 +25,6 @@ interface AuthState {
 const _useAuth = create<AuthState>((set, get) => ({
   status: 'idle',
   token: null,
-  env: 'prod',
   urlRedirect: '',
   userInfo: {
     storeCode: '',

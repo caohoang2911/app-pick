@@ -16,10 +16,12 @@
     "build-preview": "eas build -p android --profile preview",
     "build-ios": "eas build -p ios --profile preview",
     "build-prod": "eas build --profile production --platform ios --auto-submit",
+    "build-dev": "eas build --profile development --platform ios --auto-submit",
     "build-android": "eas build:run -p android --lastest",
     "build-android-local": "eas build --platform android --local",
-    "codepush-preview": "eas update --channel=preview",
-    "codepush-prod": "eas update --channel=production",
+    "codepush-preview": "eas update --profile=preview",
+    "codepush-dev": "eas update --profile=development",
+    "codepush-prod": "eas update --profile=production",
     "list_build": "eas build --list"
   },
   "dependencies": {

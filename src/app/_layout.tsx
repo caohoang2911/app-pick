@@ -111,8 +111,7 @@ function RootLayoutNav() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
-  const env = useAuth.use.env();
-
+  
   const loading = useLoading.use.loading();
 
   const hideSplash = useCallback(async () => {
@@ -150,9 +149,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   {loading && <Loading />}
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
-                      {env === 'prod'
-                        ? `Production ${VERSION}`
-                        : `Development ${VERSION}`}
+                      {`Production ${VERSION}`}
                     </Text>
                   </View>
                   {children}
