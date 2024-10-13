@@ -32,7 +32,7 @@ import { initConfigDate } from '@/core/utils/moment';
 import AlertDialog from '../components/AlertDialog';
 import * as Updates from 'expo-updates';
 
-const VERSION = '1.0.38';
+const VERSION = '1.0.39';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
