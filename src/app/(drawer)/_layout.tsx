@@ -1,13 +1,10 @@
-import { Drawer } from "expo-router/drawer"
-import { DrawerContent } from "@/components/DrawerContent"
+import { DrawerContent } from "@/components/DrawerContent";
+import { Drawer } from "expo-router/drawer";
 import { useEffect, useState } from "react";
-import { useAuth } from "~/src/core";
-import { setConfig, useConfig } from "~/src/core/store/config";
 import { ConfigResponse, useGetConfig } from "~/src/api/config/useGetConfig";
 import Loading from "~/src/components/Loading";
-import { Stack } from "expo-router";
-import { Text } from "react-native";
-
+import { useAuth } from "~/src/core";
+import { setConfig, useConfig } from "~/src/core/store/config";
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isDone, setIsDone] = useState(false)

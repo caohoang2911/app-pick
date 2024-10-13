@@ -50,7 +50,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <Text className="font-semibold text-xl">{code}</Text>
           {status && (
             <Badge
-              label={statusName as string}
+              label={statusName as string || tag}
               variant={toLower(status as string) as any}
               extraLabel={<Text className="text-xs text-contentPrimary"> | {moment(orderTime).fromNow()}</Text>}
             />

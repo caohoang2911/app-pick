@@ -109,13 +109,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.caohoang2911.AppPickDev'
+    namespace 'com.caohoang2911.AppPick'
     defaultConfig {
-        applicationId 'com.caohoang2911.AppPickDev'
+        applicationId 'com.caohoang2911.AppPick'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0.14"
+        versionName "1.0.13"
     }
     signingConfigs {
         debug {

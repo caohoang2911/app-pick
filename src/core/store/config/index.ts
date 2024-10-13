@@ -24,6 +24,7 @@ const _useConfig = create<ConfigState>((set, get) => ({
     cities: [],
     shippingMethods: [],
     stores: [],
+    orderTags: [],
   },
   version: '',
   setConfig: (config: ConfigResponse) => {

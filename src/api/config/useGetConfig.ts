@@ -8,7 +8,7 @@ type Variables = {
 
 export type ConfigResponse = {
   allConfig: Config;
-  version: string;
+  version?: string;
 }
 
 type Response = { error: string } & {

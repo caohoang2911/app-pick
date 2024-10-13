@@ -30,6 +30,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="apppick"/>
         <data android:scheme="com.caohoang2911.AppPickDev"/>
+        <data android:scheme="com.caohoang2911.AppPick"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

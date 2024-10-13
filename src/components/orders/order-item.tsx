@@ -105,7 +105,7 @@ const OrderItem = ({
                 {tags?.map((tag: string, index: number) => {
                   const tagName = getConfigNameById(orderTags, tag)
                   return <>
-                    <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+                    <Badge key={index} label={tagName as string || tag} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
                   </>
                 })}
               </View>
