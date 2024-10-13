@@ -47,9 +47,10 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
 
+  console.log(data, 'TOKEN-data');
+
   useEffect(() => {
     if (token && status === 'signIn') {
-
       setFCMRegistrationToken({ token: token });
     }
   }, [token, status]);
