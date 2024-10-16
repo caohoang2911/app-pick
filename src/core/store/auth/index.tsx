@@ -5,7 +5,8 @@ import type { TokenType, UserInfo } from './utils';
 import {
   getToken,
   getUserInfo,
-  removeStore,
+  removeToken,
+  removeUserInfo,
   setToken,
   setUserInfo,
 } from './utils';
@@ -42,7 +43,8 @@ const _useAuth = create<AuthState>((set, get) => ({
     set({ status: 'signIn', token, userInfo });
   },
   signOut: () => {
-    removeStore();
+    removeToken();
+    removeUserInfo();
     set({ status: 'signOut', token: null });
   },
   hydrate: () => {

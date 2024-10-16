@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { createSelectors } from '../../utils/browser';
 import { Config } from '~/src/types/config';
-import { getConfigLocalStore, getVersionLocalStore, removeConfigLocalStore, setConfigLocalStore, setVersionLocalStore } from './utils';
+import { getConfigLocalStore, getVersionLocalStore, setConfigLocalStore, setVersionLocalStore } from './utils';
 import { ConfigResponse } from '~/src/api/config/useGetConfig';
 
 
@@ -48,7 +48,7 @@ const _useConfig = create<ConfigState>((set, get) => ({
       }
 
     } catch (error) {
-      removeConfigLocalStore();
+      
     }
   },
 }));

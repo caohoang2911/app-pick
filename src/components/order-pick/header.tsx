@@ -35,10 +35,9 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
     []
   );
 
-
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
-  const { status, statusName, orderTime } = header || {};
+  const { status, statusName,  orderTime } = header || {};
 
   const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
 
@@ -50,7 +49,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <Text className="font-semibold text-xl">{code}</Text>
           {status && (
             <Badge
-              label={statusName as string || tag}
+              label={statusName as string || status}
               variant={toLower(status as string) as any}
               extraLabel={<Text className="text-xs text-contentPrimary"> | {moment(orderTime).fromNow()}</Text>}
             />

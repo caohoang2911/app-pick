@@ -1,5 +1,6 @@
 import { DrawerContent } from "@/components/DrawerContent";
 import { Drawer } from "expo-router/drawer";
+import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import { ConfigResponse, useGetConfig } from "~/src/api/config/useGetConfig";
 import Loading from "~/src/components/Loading";
@@ -10,8 +11,11 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isDone, setIsDone] = useState(false)
   const status = useAuth.use.status();
   const version = useConfig.use.version();
+  const config = useConfig.use.config();
 
-  const { data, refetch, isFetching } = useGetConfig({ version });
+  console.log(config, "configconfigconfig");
+
+  const { data, refetch, isFetching } = useGetConfig({ version: !isEmpty(config) ? version : "" });
   
   useEffect(() => { 
     if(status === 'signIn'){
@@ -22,10 +26,10 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (data?.error) return;
     if (data?.data) {
+      alert(3);
       setConfig(data.data as ConfigResponse);
-    } else {
-      setIsDone(true);
-    }
+    } 
+    setIsDone(true);
 
   }, [data]);
 

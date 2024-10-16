@@ -1,5 +1,4 @@
 import { getItem, removeItem, setItem } from '@/core/storage';
-import { removeConfigLocalStore, removeVersionLocalStore } from '../config/utils';
 
 const TOKEN = 'token';
 const USER_INFO = 'user_info';
@@ -31,9 +30,4 @@ export const setToken = (value: string) => setItem<string>(TOKEN, value);
 export const setUserInfo = (value: TokenType['userInfo']) =>
   setItem<TokenType['userInfo']>(USER_INFO, value);
 
-export const removeStore = () => {
-  removeItem(TOKEN);
-  removeItem(USER_INFO);
-  removeVersionLocalStore();
-  removeConfigLocalStore();
-};
+export const removeUserInfo = () => removeItem(USER_INFO);
