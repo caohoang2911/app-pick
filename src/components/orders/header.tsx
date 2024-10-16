@@ -61,9 +61,9 @@ const Header = () => {
             </Text>
           </View>
         </View>
-        <Pressable>
+        {/* <Pressable>
           <NotificationOutline />
-        </Pressable>
+        </Pressable> */}
       </View>
       <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
       <View className="flex flex-row mt-4 justify-between items-center gap-3">

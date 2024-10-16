@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { cn } from '@/lib/utils';
-import SaveOutLine from '@/core/svgs/SaveOutline';
 import { CloseLine } from '../core/svgs';
 import ArrowDown from '../core/svgs/ArrowDown';
 
@@ -35,6 +34,7 @@ const SDropdown = ({
   allowClear,
   onSelect,
   onClear,
+  disabled,
   ...rests
 }: SDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
@@ -46,6 +46,7 @@ const SDropdown = ({
         style={[
           styles.dropdown,
           isFocus && { borderColor: '	border-color: rgb(203 213 225)' },
+          disabled && { backgroundColor: 'rgb(243 244 246)' }
         ]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
@@ -78,6 +79,7 @@ const SDropdown = ({
           onSelect?.(item?.[valueField]);
           setIsFocus(false);
         }}
+        disable={disabled}
         {...rests}
       />
     </View>

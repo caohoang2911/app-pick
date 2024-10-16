@@ -1,7 +1,7 @@
 import { Formik } from 'formik';
 import React, { useMemo, useRef } from 'react';
 import * as Yup from 'yup';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
@@ -16,7 +16,7 @@ import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import { Badge } from '../Badge';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+
 
 const InputAmountPopup = ({}) => {
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
@@ -67,22 +67,23 @@ const InputAmountPopup = ({}) => {
               ...currentProduct,
               barcode: barcodeScanSuccess,
               pickedQuantity: values.pickedQuantity,
-              pickedError: values.pickedError,
+              pickedError: quantity === values.pickedQuantity ? '' : values.pickedError,
               pickedNote: values.pickedNote,
             });
             resetForm();
           }}
           validationSchema={Yup.object({
             pickedQuantity: Yup.string()
-              .test('is less than picked quantify', 'Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do', (value: any) => {
-                console.log('value', value);
-                return Number(value) >= quantity;
+              .test('is less than picked quantify', 'Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do', (value: any) => { 
+                return Number(value) >= quantity || true;
               })
+              .nullable()
+              .optional()
           })}
         >
-          {({ values, errors, handleBlur, setFieldValue, handleSubmit }) => {
+          {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
 
-            const isError = Boolean(!values.pickedError && errors.pickedQuantity);
+            const isError = values.pickedQuantity < quantity && !values.pickedError;
             return (
               <>
                 <Input
@@ -140,15 +141,16 @@ const InputAmountPopup = ({}) => {
                   dropdownPosition="top"
                   placeholder="Vui lòng chọn"
                   allowClear={true}
+                  disabled={Number(values.pickedQuantity) === Number(quantity)}
                   value={values.pickedError}
                   onSelect={(value: string) => {
                     setFieldValue('pickedError', value);
+                    setErrors({})
                   }}
                   onClear={() => {
                     setFieldValue('pickedError', '');
                   }}
                 />
-
                 <Input
                   label="Mô tả"
                   labelClasses="font-medium"

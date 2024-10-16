@@ -95,13 +95,11 @@ const OrderItem = ({
                 <Text>Giao hàng</Text>
               </View>
               <Text className="font-semibold">
-                {expectedDeliveryTime(expectedDeliveryTimeRange).hh}
-                - {' '}
-                &nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
+                {expectedDeliveryTime(expectedDeliveryTimeRange).hh}&nbsp;-&nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
               </Text>
             </View>
             {tags?.length > 0 && 
-              <View className="pt-1 flex flex-row gap-2">
+              <View className="pt-1 flex flex-row gap-2 flex-wrap">
                 {tags?.map((tag: string, index: number) => {
                   const tagName = getConfigNameById(orderTags, tag)
                   return <>
