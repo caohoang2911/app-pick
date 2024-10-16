@@ -22,10 +22,10 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "60134511875-lbu5ikc0kjpvhfg9a357sl6mgp298f88.apps.googleusercontent.com",
+              "client_id": "60134511875-b9oudetp8ke6qhi0lrsj4gaagk9v7oo6.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.caohoang2911.seedcom-app-pick"
+                "bundle_id": "com.caohoang2911.seedcom-app-pick-dev"
               }
             }
           ]
@@ -34,9 +34,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:60134511875:android:96177fe436406d3fabc536",
+        "mobilesdk_app_id": "1:60134511875:android:6bd5a23a0475505cabc536",
         "android_client_info": {
-          "package_name": "sce.oms.apppick"
+          "package_name": "com.caohoang2911.AppPickDev"
         }
       },
       "oauth_client": [],
@@ -49,10 +49,10 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "60134511875-lbu5ikc0kjpvhfg9a357sl6mgp298f88.apps.googleusercontent.com",
+              "client_id": "60134511875-b9oudetp8ke6qhi0lrsj4gaagk9v7oo6.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.caohoang2911.seedcom-app-pick"
+                "bundle_id": "com.caohoang2911.seedcom-app-pick-dev"
               }
             }
           ]

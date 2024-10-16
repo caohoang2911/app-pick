@@ -7,12 +7,10 @@
     //   "channel": "preview"
     // },
     "production": {
-      "autoIncrement": true,
-      "channel": "production"
+      "autoIncrement": true
     },
     "development": {
-      "autoIncrement": true,
-      "channel": "development"
+      "autoIncrement": true
     }
   },
   "submit": {
