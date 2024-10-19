@@ -31,8 +31,9 @@ import { useLoading } from '@/core/store/loading';
 import { initConfigDate } from '@/core/utils/moment';
 import AlertDialog from '../components/AlertDialog';
 import * as Updates from 'expo-updates';
+import NetworkStatus from '../components/NetWorkStatus';
 
-const VERSION = '1.0.39';
+const VERSION = '1.0.40';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -147,6 +148,7 @@ function Providers({ children }: { children: React.ReactNode }) {
             <AuthWrapper>
               <BottomSheetModalProvider>
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                  <NetworkStatus />
                   {loading && <Loading />}
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">

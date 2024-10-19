@@ -72,14 +72,6 @@ const InputAmountPopup = ({}) => {
             });
             resetForm();
           }}
-          validationSchema={Yup.object({
-            pickedQuantity: Yup.string()
-              .test('is less than picked quantify', 'Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do', (value: any) => { 
-                return Number(value) >= quantity || true;
-              })
-              .nullable()
-              .optional()
-          })}
         >
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
 
@@ -97,7 +89,7 @@ const InputAmountPopup = ({}) => {
                     setFieldValue('pickedQuantity', value);
                   }}
                   useBottomSheetTextInput
-                  error={!values.pickedError && errors.pickedQuantity}
+                  error={(Number(values.pickedQuantity) < quantity && !values.pickedError) && "Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do"}
                   name="pickedQuantity"
                   value={values?.pickedQuantity.toString()}
                   onBlur={handleBlur('pickedQuantity')}

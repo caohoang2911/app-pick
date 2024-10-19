@@ -42,10 +42,10 @@ axiosClient.interceptors.response.use(function (
 
   return response;
 }, (error: AxiosError) => {
-   showMessage({
-      message: error?.message,
-      type: 'danger',
-    });
+  //  showMessage({
+  //     message: error?.message,
+  //     type: 'danger',
+  //   });
   // reject with error if response status is not 403
   return Promise.reject(error);
 });
