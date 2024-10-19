@@ -26,7 +26,6 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (data?.error) return;
     if (data?.data) {
-      alert(3);
       setConfig(data.data as ConfigResponse);
     } 
     setIsDone(true);

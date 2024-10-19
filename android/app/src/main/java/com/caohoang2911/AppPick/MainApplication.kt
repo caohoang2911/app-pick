@@ -1,4 +1,4 @@
-package com.caohoang2911.AppPickDevDev
+package com.caohoang2911.AppPickDev
 
 import android.app.Application
 import android.content.res.Configuration

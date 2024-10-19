@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "App Pick Dev",
+    "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "version": "1.0.14",
+    "version": "1.0.13",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.caohoang2911.seedcom-app-pick-dev",
+      "bundleIdentifier": "com.caohoang2911.seedcom-app-pick",
       "associatedDomains": [
         "applinks:expo.dev"
       ],
@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.caohoang2911.AppPickDev",
+      "package": "com.caohoang2911.AppPick",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
