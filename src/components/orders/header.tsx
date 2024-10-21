@@ -117,7 +117,7 @@ const Header = () => {
       </View>
       <TabsStatus />
       
-      <StoreSelection onSelect={handleSelectedStore} ref={storeRef} selectedId={currentStore?.id?.toString() || userInfo?.storeCode} />
+      <StoreSelection onSelect={handleSelectedStore} ref={storeRef} selectedId={userInfo?.storeCode} />
     </View>
   );
 };

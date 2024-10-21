@@ -59,7 +59,7 @@ const StoreSelection = forwardRef<any, Props>(
           visible={visible}
           title="Chọn cửa hàng"
           ref={actionRef}
-          snapPoints={[400, "50%"]}
+          snapPoints={[600, "70%"]}
           onClose={() => setVisible(false)}
         >
           <View className="px-4 pt-3">
