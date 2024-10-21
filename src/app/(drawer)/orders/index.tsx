@@ -13,11 +13,7 @@ import { useConfig } from '~/src/core/store/config';
 const Orders = () => {
   const navigation = useNavigation();
   const isScanQrCode = useOrders.use.isScanQrCode();
-
-  const config = useConfig.use.config();
-
-  console.log(config?.orderTags, "my-config");
-
+  
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,

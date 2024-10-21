@@ -106,6 +106,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
     </Providers>
   );
@@ -152,7 +153,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   {loading && <Loading />}
                   <View className="absolute bottom-3 right-5 z-10">
                     <Text className="text-gray-500 text-xs">
-                      {`Development ${VERSION}`}
+                      {`Production ${VERSION}`}
                     </Text>
                   </View>
                   {children}

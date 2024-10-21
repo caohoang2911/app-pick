@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
+import { queryClient } from '~/src/api/shared';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 
@@ -12,6 +13,7 @@ const ActionsBottom = () => {
   const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
     hideAlert();
     setLoading(false);
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   });
 
   const handleCompleteOrder = () => {

@@ -1,7 +1,7 @@
-import { MaterialIcons } from "@expo/vector-icons"
+import { MaterialIcons, AntDesign } from "@expo/vector-icons"
 import { DrawerContentComponentProps } from "@react-navigation/drawer"
 import { DrawerActions } from "@react-navigation/native"
-import { useNavigation } from "expo-router"
+import { router, useNavigation } from "expo-router"
 import { toUpper } from "lodash"
 import { Pressable, ScrollView, Text, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -43,6 +43,12 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
           <View className="flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3">
             <MaterialIcons name="logout" size={20} color={colors.black} />
             <Text className="text-md font-body">Logout</Text>
+          </View>
+        </Pressable>
+        <Pressable onPress={() => router.push('/settings')}>
+          <View className="flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3">
+            <AntDesign name="setting" size={20} color="black" />
+            <Text className="text-md font-body">Cài đặt</Text>
           </View>
         </Pressable>
       </ScrollView>

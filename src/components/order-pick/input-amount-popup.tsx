@@ -67,7 +67,7 @@ const InputAmountPopup = ({}) => {
               ...currentProduct,
               barcode: barcodeScanSuccess,
               pickedQuantity: values.pickedQuantity,
-              pickedError: quantity === values.pickedQuantity ? '' : values.pickedError,
+              pickedError: quantity >= values.pickedQuantity ? '' : values.pickedError,
               pickedNote: values.pickedNote,
             });
             resetForm();
@@ -133,7 +133,7 @@ const InputAmountPopup = ({}) => {
                   dropdownPosition="top"
                   placeholder="Vui lòng chọn"
                   allowClear={true}
-                  disabled={Number(values.pickedQuantity) === Number(quantity)}
+                  disabled={Number(values.pickedQuantity) >= Number(quantity)}
                   value={values.pickedError}
                   onSelect={(value: string) => {
                     setFieldValue('pickedError', value);
