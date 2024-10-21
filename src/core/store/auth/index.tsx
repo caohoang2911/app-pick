@@ -75,3 +75,4 @@ export const signIn = (token: TokenType) => _useAuth.getState().signIn(token);
 export const setRedirectUrl = (url: string) =>
   _useAuth.getState().setRedirectUrl(url);
 export const hydrateAuth = () => _useAuth.getState().hydrate();
+export const setUser = (userInfo: UserInfo) => _useAuth.getState().setUser(userInfo);

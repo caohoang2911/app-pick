@@ -56,7 +56,6 @@ export const usePushNotifications: any = () => {
 
     // Handle user clicking on a notification and open the screen
     const handleNotificationClick = async (response: any) => {
-      console.log(response, "handleNotificationClick")
       const data  = response?.notification?.request?.content?.data || {};
       try {
         goOrderDetail(data)
@@ -72,7 +71,6 @@ export const usePushNotifications: any = () => {
 
     // Handle user opening the app from a notification (when the app is in the background)
     messaging().onNotificationOpenedApp((remoteMessage: any) => {
-      console.log(remoteMessage, "remoteMessageOnNotificationOpenedApp")
       console.log(
         'Notification caused app to open from background state:',
         remoteMessage.data

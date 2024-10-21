@@ -13,8 +13,6 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   const version = useConfig.use.version();
   const config = useConfig.use.config();
 
-  console.log(config, "configconfigconfig");
-
   const { data, refetch, isFetching } = useGetConfig({ version: !isEmpty(config) ? version : "" });
   
   useEffect(() => { 
