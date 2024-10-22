@@ -19,7 +19,6 @@ type Props = {
 };
 
 const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
-
   const keyword = useOrderPick.use.keyword();
   const { code } = useGlobalSearchParams<{ code: string }>();
   const [value, setValue] = useState<string>();

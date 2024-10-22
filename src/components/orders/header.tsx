@@ -21,6 +21,8 @@ import ArrowDown from '~/src/core/svgs/ArrowDown';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { Option } from '~/src/types/commons';
 import StoreSelection from '../shared/StoreSelection';
+import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
+import { setToken } from '~/src/core/store/auth/utils';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -34,11 +36,18 @@ const Header = () => {
 
   const { mutate: setStorePicking } = useSetStorePicking(() => {
     queryClient.resetQueries();
+  });
+
+  const { mutate: refreshToken } = useRefreshToken((data) => {
+    console.log('refreshToken', data);
+    setLoading(true);
+    setStorePicking({ storeCode: currentStore?.id });
+    setCurrentStore(currentStore);
     setUser({
       ...userInfo,
-      storeCode: currentStore?.id ? String(currentStore.id) : '',
-      storeName: currentStore?.name || '',
+      ...data?.data
     });
+    setToken(data?.data?.zas);
   });
 
   useEffect(() => {
@@ -59,7 +68,7 @@ const Header = () => {
 
   const handleSelectedStore = (store: Option & { address: string }) => {
     setLoading(true);
-    setStorePicking({ storeCode: store.id });
+    refreshToken();
     setCurrentStore(store);
   }
 
