@@ -10,6 +10,16 @@ import { expectedDeliveryTime } from "~/src/core/utils/moment";
 import { toLower } from "lodash";
 import MoreActionsBtn from "./more-actions-btn";
 import { OrderStatus } from "~/src/types/order";
+import { Ionicons } from "@expo/vector-icons";
+
+const RowWithLabel = ({label, value}: {label: string, value: string}) => {
+  return (
+    <View className="flex flex-row">
+      <View style={{width: 87}}><Text>{label}</Text></View>
+      <Text className="font-semibold">{value}</Text>
+    </View>
+  )
+}
 
 const OrderItem = ({
   statusName,
@@ -24,6 +34,7 @@ const OrderItem = ({
   note,
   payment,
   type,
+  createdDate,
 }: {
   statusName: string;
   orderTime: string;
@@ -44,16 +55,16 @@ const OrderItem = ({
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
 
+  const handlePress = () => {
+    if(type === 'HOME_DELIVERY') {
+      router.push(`orders/order-invoice/${code}`);
+    } else {
+      router.push({ pathname: `orders/order-detail/${code}`, params: { status } });
+    }
+  };
+
   return (
-    <TouchableOpacity
-      onPress={() => {
-        if(type === 'HOME_DELIVERY') {
-          router.push(`orders/order-invoice/${code}`);
-        } else {
-          router.push({ pathname: `orders/order-detail/${code}`, params: { status } });
-        }
-      }}
-    >
+    <TouchableOpacity onPress={handlePress}>
       <View className="rounded-md border-bgPrimary border">
         <View className="bg-bgPrimary p-4 flex flex-row justify-between items-center">
           <Text className="font-semibold text-base text-colorPrimary">
@@ -71,33 +82,10 @@ const OrderItem = ({
         </View>
         <View className="flex flex-row justify-between">
           <View className="p-4 pt-2 gap-1">
-            <View className="flex flex-row">
-              <View style={{width: 87}}>
-                <Text>Khách hàng</Text>
-              </View>
-              <Text className="font-semibold">{customer?.name}</Text>
-            </View>
-            <View className="flex flex-row items-center">
-              <View style={{width: 87}}>
-                <Text className="">Giá trị đơn</Text>
-              </View>
-              <View className="flex flex-row items-center gap-2">
-                <Text>
-                  <Text className="font-semibold">
-                  {formatCurrency(amount, {unit: true})}
-                  </Text>
-                </Text>
-                {payment?.methodName && <Badge label={payment?.methodName} />}
-              </View>
-            </View>
-            <View className="flex flex-row items-center">
-              <View style={{width: 87}}>
-                <Text>Giao hàng</Text>
-              </View>
-              <Text className="font-semibold">
-                {expectedDeliveryTime(expectedDeliveryTimeRange).hh}&nbsp;-&nbsp;{expectedDeliveryTime(expectedDeliveryTimeRange).day} 
-              </Text>
-            </View>
+            <RowWithLabel label="Khách hàng" value={customer?.name} />
+            <RowWithLabel label="Giá trị đơn" value={formatCurrency(amount, {unit: true})} />
+            <RowWithLabel label="Giao hàng" value={`${expectedDeliveryTime(expectedDeliveryTimeRange).hh} - ${expectedDeliveryTime(expectedDeliveryTimeRange).day}`} />
+            <RowWithLabel label="Ngày đặt" value={moment(createdDate).format('DD/MM/YYYY')} />
             {tags?.length > 0 && 
               <View className="pt-1 flex flex-row gap-2 flex-wrap">
                 {tags?.map((tag: string, index: number) => {
@@ -109,7 +97,10 @@ const OrderItem = ({
               </View>
             }
             {note && (
-              <Text className="text-sm text-gray-500" numberOfLines={1}>{note}</Text>
+              <View className="flex flex-row items-center gap-1 mt-1">
+                <Ionicons name="information-circle-outline" size={15} color="#f97316" />
+                <Text className="text-sm text-orange-500 italic">{note}</Text>
+              </View>
             )}
           </View>
           <View className="mt-3 mr-1">

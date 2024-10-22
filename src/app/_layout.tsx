@@ -33,7 +33,7 @@ import AlertDialog from '../components/AlertDialog';
 import * as Updates from 'expo-updates';
 import NetworkStatus from '../components/NetWorkStatus';
 
-const VERSION = '1.0.40';
+const VERSION = '1.0.41';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
