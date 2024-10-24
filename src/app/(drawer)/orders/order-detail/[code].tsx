@@ -1,7 +1,7 @@
 import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import ActionsBottom from '~/src/components/order-pick/actions-bottom';
 import Header from '~/src/components/order-pick/header';
@@ -45,30 +45,26 @@ const OrderPick = () => {
   const handleSuccessBarCode = useCallback(
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
+      setCurrentQr(codeScanned);
 
-      if (currentQr != codeScanned) {
-        setCurrentQr(codeScanned);
+      if (timeout.current) clearTimeout(timeout.current);
 
-        if (timeout.current) clearTimeout(timeout.current);
+      timeout.current = setTimeout(() => {
+        setCurrentQr('');
+      }, 1000);
 
-        timeout.current = setTimeout(() => {
-          setCurrentQr('');
-        }, 1000);
-
-        if (!orderPickProducts[codeScanned]) {
-          showMessage({
-            message: 'Mã vừa quét không nằm trong đơn hàng',
-            type: 'warning',
-          });
-          return;
-        }
-        setSuccessForBarcodeScan(result?.data);
-        if (!isShowAmountInput) {
-          toggleShowAmountInput(true);
-        }
+      if (!orderPickProducts[codeScanned]) {
+        showMessage({
+          message: 'Mã vừa quét không nằm trong đơn hàng',
+          type: 'warning',
+        });
+        return;
       }
+      setSuccessForBarcodeScan(result?.data);
+      toggleShowAmountInput(true);
+      
     },
-    [orderPickProducts, currentQr]
+    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan]
   );
 
   return (

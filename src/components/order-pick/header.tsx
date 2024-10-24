@@ -5,7 +5,7 @@ import { debounce, toLower } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { setKeyword, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
+import { setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Badge } from '../Badge';
@@ -22,6 +22,15 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const keyword = useOrderPick.use.keyword();
   const { code } = useGlobalSearchParams<{ code: string }>();
   const [value, setValue] = useState<string>();
+
+  const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
+
+  useEffect(() => {
+    if (barcodeScanSuccess) {
+      setValue(barcodeScanSuccess);
+      setKeyword(barcodeScanSuccess);
+    }
+  }, [barcodeScanSuccess]);
 
   useEffect(() => {
     setValue(keyword);
@@ -75,7 +84,10 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           allowClear
         />
         {shouldDisplayQrScan && (
-          <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
+          <TouchableOpacity onPress={() => {
+            toggleScanQrCodeProduct(true);
+            setSuccessForBarcodeScan('');
+          }}>
             <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
               <FontAwesome name="qrcode" size={24} color="white" />
             </View>
