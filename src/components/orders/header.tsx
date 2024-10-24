@@ -30,24 +30,22 @@ const Header = () => {
   const [value, setValue] = useState<string>();
   const keyword = useOrders.use.keyword();
 
-  const [currentStore, setCurrentStore] = useState<Option & { address: string }>();
-
   const storeRef = useRef<any>(null);
 
   const { mutate: setStorePicking } = useSetStorePicking(() => {
-    queryClient.resetQueries();
+    refreshToken();
+
   });
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
     console.log('refreshToken', data);
     setLoading(true);
-    setStorePicking({ storeCode: currentStore?.id });
-    setCurrentStore(currentStore);
     setUser({
       ...userInfo,
       ...data?.data
     });
     setToken(data?.data?.zas);
+    queryClient.resetQueries();
   });
 
   useEffect(() => {
@@ -68,8 +66,7 @@ const Header = () => {
 
   const handleSelectedStore = (store: Option & { address: string }) => {
     setLoading(true);
-    refreshToken();
-    setCurrentStore(store);
+    setStorePicking({ storeCode: store?.id });
   }
 
   return (
