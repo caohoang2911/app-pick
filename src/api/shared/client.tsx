@@ -5,7 +5,7 @@ import { signOut } from '~/src/core';
 import { getToken } from '~/src/core/store/auth/utils';
 
 export const axiosClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: "https://oms-api.seedcom.vn/",
   headers: {
     accept: 'application/json',
   },
