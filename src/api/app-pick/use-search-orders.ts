@@ -1,11 +1,14 @@
 import { axiosClient } from '@/api/shared';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import moment from 'moment';
 import { OrderStatus } from '~/src/types/order';
 
 type Variables = {
   status?: OrderStatus;
   keyword?: string;
   pageIndex?: number;
+  expectedDeliveryTime?: string;
+  deliveryType?: string;
 };
 
 export type SearchOrdersResponse = {
@@ -27,6 +30,8 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
   if(filter?.status === "ALL") {
     delete filterCopy.status;
   }
+
+  console.log(filter, "filter")
 
   const params = {
     filter: JSON.stringify({ ...filterCopy }),

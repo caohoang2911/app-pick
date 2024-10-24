@@ -13,8 +13,10 @@ import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 
 export function TabsStatus() {
   const ref = useRef<any>();
+  const deliveryType = useOrders.use.deliveryType();
+  const operationType = useOrders.use.operationType();
 
-  const { data, refetch } = useGetOrderStatusCounters();
+  const { data, refetch } = useGetOrderStatusCounters({ deliveryType, operationType });
   const orderStatusCounters = data?.data || {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
@@ -64,7 +66,7 @@ export function TabsStatus() {
 
   return (
     <FlatList
-      className="mt-6"
+      className="mt-4"
       ref={ref}
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}

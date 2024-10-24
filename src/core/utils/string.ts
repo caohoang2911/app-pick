@@ -7,6 +7,12 @@ const removeAccents = (str?: string) => {
     .replace(/Đ/g, 'D');
 }
 
+const uppercaseFirstCharacter = (str?: string) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 export const stringUtils = {
   removeAccents,
+  uppercaseFirstCharacter,
 }

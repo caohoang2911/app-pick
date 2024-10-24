@@ -68,12 +68,15 @@ const OrderPickProducts = () => {
   useEffect(() => {
     if (indexCurrentProduct !== -1) {
       setTimeout(() => {
-        ref.current?.scrollToIndex({
-          animated: true,
-          index: indexCurrentProduct || 0,
-          viewPosition: 0.5,
-        });
-        setBarcodeScrollTo('');
+        try {
+          ref.current?.scrollToIndex({
+            animated: true,
+            index: indexCurrentProduct || 0,
+            viewPosition: 0.5,
+          });
+        } catch (error) {
+          console.log('error', error);
+        }
       }, 500);
     }
   }, [indexCurrentProduct]);
