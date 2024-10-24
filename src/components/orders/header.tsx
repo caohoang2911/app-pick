@@ -23,6 +23,8 @@ import { Option } from '~/src/types/commons';
 import StoreSelection from '../shared/StoreSelection';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { setToken } from '~/src/core/store/auth/utils';
+import { useConfig } from '~/src/core/store/config';
+import { getConfigNameById } from '~/src/core/utils/config';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -30,11 +32,17 @@ const Header = () => {
   const [value, setValue] = useState<string>();
   const keyword = useOrders.use.keyword();
 
+  const userInfo = useAuth.use.userInfo();
+
+  const config = useConfig.use.config();
+  const stores = config?.stores || [];
+
   const storeRef = useRef<any>(null);
+
+  const storeName = getConfigNameById(stores, userInfo?.storeCode);
 
   const { mutate: setStorePicking } = useSetStorePicking(() => {
     refreshToken();
-
   });
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
@@ -59,8 +67,6 @@ const Header = () => {
     []
   );
 
-  const userInfo = useAuth.use.userInfo();
-
   const navigation = useNavigation()
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer())
 
@@ -82,13 +88,15 @@ const Header = () => {
             <Text className="font-semibold text-lg">
               {userInfo?.name} - {toUpper(userInfo?.username)}
             </Text>
-            <Pressable onPress={() => storeRef.current?.present()} className="flex flex-row items-center gap-1">
+            <Pressable
+              onPress={() => storeRef.current?.present()}
+              className="flex flex-row items-center gap-1">
               <Text
                 className="text-sm"
                 style={{ maxWidth: windowWidth - 120 }}
                 numberOfLines={1}
               >
-                {userInfo?.storeCode} - {userInfo?.storeName}
+                {userInfo?.storeCode} - {storeName}
               </Text>
               <ArrowDown />
             </Pressable>
