@@ -8,6 +8,7 @@ import {
   ORDER_COUNTER_STATUS,
   ORDER_COUNTER_STATUS_PRIORITY,
 } from '~/src/contants/order';
+import { useAuth } from '~/src/core';
 import { useRefreshOnFocus } from '~/src/core/hooks/useRefreshOnFocus';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 
@@ -16,7 +17,9 @@ export function TabsStatus() {
   const deliveryType = useOrders.use.deliveryType();
   const operationType = useOrders.use.operationType();
 
-  const { data, refetch } = useGetOrderStatusCounters({ deliveryType, operationType });
+  const { storeCode } = useAuth.use.userInfo();
+
+  const { data, refetch } = useGetOrderStatusCounters({ deliveryType, operationType, storeCode });
   const orderStatusCounters = data?.data || {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();

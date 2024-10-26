@@ -35,6 +35,7 @@ const OrderItem = ({
   payment,
   type,
   createdDate,
+  groupShippingCode
 }: {
   statusName: string;
   orderTime: string;
@@ -49,6 +50,7 @@ const OrderItem = ({
   note: string;
   payment: any;
   type: string;
+  groupShippingCode: string;
 }) => {
   const router = useRouter();
 
@@ -67,9 +69,12 @@ const OrderItem = ({
     <TouchableOpacity onPress={handlePress}>
       <View className="rounded-md border-bgPrimary border">
         <View className="bg-bgPrimary p-4 flex flex-row justify-between items-center">
-          <Text className="font-semibold text-base text-colorPrimary">
-            # {code}
-          </Text>
+          <View className="flex flex-row items-center gap-2">
+            <Text className="font-semibold text-base text-colorPrimary">
+              {code}
+            </Text>
+            <Badge label={groupShippingCode} variant="warning" />
+          </View>
           <Badge
             label={selectedOrderCounter === 'ALL' ? statusName : ''}
             extraLabel={

@@ -13,6 +13,7 @@ import { Input } from '../Input';
 import { useGlobalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { OrderStatus } from '~/src/types/order';
+import { GroupShippingInfo } from './group-shipping-info';
 
 type Props = {
   onClickHeaderAction?: () => void;
@@ -35,6 +36,10 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   useEffect(() => {
     setValue(keyword);
   }, [keyword]);
+
+  useEffect(() => {
+    setKeyword('');
+  }, [code])
 
   const handleSearch = useCallback(
     debounce((value: string) => {
@@ -67,6 +72,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <More2Fill />
         </Pressable>
       </View>
+      <GroupShippingInfo />
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input
           className="flex-grow"

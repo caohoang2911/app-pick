@@ -1,12 +1,14 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import InvoiceInfo from '~/src/components/order-invoice/invoice-info';
 import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
+import { SectionAlert } from '~/src/components/SectionAlert';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
+import { setKeyword } from '~/src/core/store/order-pick';
 
 const OrderInvoice = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -21,6 +23,10 @@ const OrderInvoice = () => {
   useEffect(() => {
     setOrderInvoice(data?.data || {});
   }, [data]);
+
+  if(data?.error) {
+    return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
+  }
 
   return (
     <>

@@ -1,49 +1,27 @@
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import Feather from '@expo/vector-icons/Feather';
-import clsx from 'clsx';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { useGetOrderStatusCounters } from '~/src/api/app-pick';
-import { useRefreshOnFocus } from '~/src/core/hooks/useRefreshOnFocus';
-import { setExpectedDeliveryTimeRange, useOrders } from '~/src/core/store/orders';
+import { setExpectedDeliveryTimeRange } from '~/src/core/store/orders';
+import { cn } from '~/src/lib/utils';
 import { colors } from '~/src/ui/colors';
 
 export function TimeRange() {
   const ref = useRef<any>();
-  const deliveryType = useOrders.use.deliveryType();
-
-  const { data, refetch } = useGetOrderStatusCounters({ deliveryType });
-  const orderStatusCounters = data?.data || {};
-  const { error } = data || {};
-  const expectedDeliveryTimeRange = useOrders.use.expectedDeliveryTimeRange();
-
-  const isFirtTime = useRef(true);
-
-  useRefreshOnFocus(async () => {
-    if (!isFirtTime.current) {
-      refetch();
-    }
-    isFirtTime.current = false;
-  });
-
-  console.log(orderStatusCounters, "orderStatusCounters")
+  const [timeRange, setTimeRange] = useState(-1);
 
   const dataTimeRanges = useMemo(() => {
-    return Array.from({ length: 12 }, (_, i) => (
+    return Array.from({ length: 6 }, (_, i) => (
       {
-        id: `${i + 8 < 10 ? `0${i + 8}` : i + 8}-${i + 9 < 10 ? `0${i + 9}` : i + 9}`,
-        label: `${i + 8}:00 - ${i + 9}:00`,
+        id: `${i * 2 + 8 < 10 ? `0${i * 2 + 8}` : i * 2 + 8}-${i * 2 + 10 < 10 ? `0${i * 2 + 10}` : i * 2 + 10}`,
+        label: `${i * 2 + 8}:00 - ${i * 2 + 10}:00`,
       }
     ))
   }, [])
 
-  const goTabSelected = useCallback((expectedDeliveryTimeRange?: string) => {
-    const index = dataTimeRanges.findIndex(
-      (status) => status.id === (expectedDeliveryTimeRange as any) || status.id === expectedDeliveryTimeRange
-    );
-    if (index === -1) return;
-    
+  const goTabSelected = useCallback((index: number) => {
+
     setTimeout(() => {
       ref.current?.scrollToIndex({
         animated: true,
@@ -51,13 +29,7 @@ export function TimeRange() {
         viewPosition: 0.5,
       });
     }, 200);
-  }, [expectedDeliveryTimeRange])
-
-  useEffect(() => {
-    goTabSelected(expectedDeliveryTimeRange);
-  }, [expectedDeliveryTimeRange]);
-
-  if (error) return <></>;
+  }, [])
 
   return (
     <FlatList
@@ -67,32 +39,37 @@ export function TimeRange() {
       showsHorizontalScrollIndicator={false}
       data={dataTimeRanges || []}
       renderItem={({ item, index }: { item: any; index: number }) => {
-        const isTimeSeleted = item.id === expectedDeliveryTimeRange;
+        const isTimeSeleted = index === timeRange;
         const isFirst = index === 0;
         const isLast = index === dataTimeRanges?.length - 1;
         return (
           <TouchableOpacity
             key={item.id}
             onPress={() => {
-              goTabSelected(item.id);
-              setExpectedDeliveryTimeRange(item.id)
+              goTabSelected(index);
+              if(!isTimeSeleted) {
+                setTimeRange(index);
+                setExpectedDeliveryTimeRange(item.id)
+              } else {
+                setExpectedDeliveryTimeRange("")
+                setTimeRange(-1);
+              }
             }}
           >
             <View
-              className={clsx('py-1 border border-gray-200 rounded-md', {
-                'pr-4': isFirst,
-                'px-3': !isFirst,
-                'mx-1': !isFirst && !isLast,
-                'px-0 pl-3': isLast,
-                'bg-blue-50': isTimeSeleted,
-              })}
+              className={'mx-1 py-1 border border-gray-200 rounded-md'}
+               style={{
+                marginLeft: isFirst ? 0 : 4,
+                marginRight: isLast ? 0 : 4,
+                backgroundColor: isTimeSeleted ? colors.blue[50] : 'transparent',
+              }}
             >
-              <View className="flex flex-row items-center gap-2">
+              <View className="flex flex-row items-center px-2 gap-1">
                 {isTimeSeleted && (
                   <Feather name="check" size={16} color={colors.colorPrimary} />
                 )}
                 <Text
-                  className={clsx({
+                  className={cn('text-center',{
                     'color-colorPrimary font-semibold': isTimeSeleted,
                     'color-gray-500': !isTimeSeleted,
                   })}

@@ -52,7 +52,7 @@ const OrderPickProduct = ({
 
   return (
     <>
-      <View className={cn(`bg-white shadow`)} style={{paddingRight: shouldDisplayEdit ? 30 : 0, ...styles.box}}>
+      <View className={cn(`bg-white shadow`)} style={{paddingRight: shouldDisplayEdit ? 50 : 20, ...styles.box}}>
         <View className="p-4">
           <View className='flex flex-row gap-2 items-center mb-3'>
             {orderPickProducts?.[barcode]?.pickedTime && (
@@ -71,7 +71,7 @@ const OrderPickProduct = ({
                 contentFit="cover"
                 transition={1000}
               />
-              <Text numberOfLines={1} className='text-xs text-gray-500 text-center'>{barcode}</Text>
+              <Text numberOfLines={1} className='text-xs text-gray-500 text-center mt-2'>{barcode}</Text>
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   edit: {
     position: 'absolute',
     top: 16,
-    right: 16,
+    right: 10,
   },
   box: {
     borderRadius: 10,
