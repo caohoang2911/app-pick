@@ -15,6 +15,7 @@ interface OrdersState {
   setOperationType: (operationType: string | null) => void;
   setDeliveryType: (deliveryType: string) => void;
   setExpectedDeliveryTimeRange: (time: string) => void;
+  reset: () => void;
 }
 
 const _useOrders = create<OrdersState>((set, get) => ({
@@ -42,6 +43,16 @@ const _useOrders = create<OrdersState>((set, get) => ({
   setExpectedDeliveryTimeRange: (expectedDeliveryTimeRange: string) => {
     set({ expectedDeliveryTimeRange });
   },
+  reset: () => {
+    set({
+      isScanQrCode: false,
+      selectedOrderCounter: 'ALL',
+      keyword: '',
+      operationType: 'CAMPAIGN',
+      deliveryType: 'ONLINE_DELIVERY',
+      expectedDeliveryTimeRange: '',
+    });
+  },
 }));
 
 export const useOrders = createSelectors(_useOrders);
@@ -63,3 +74,5 @@ export const setExpectedDeliveryTimeRange = (expectedDeliveryTimeRange: string) 
 
 export const setOperationType = (operationType: string | null) =>
   _useOrders.getState().setOperationType(operationType);
+
+export const reset = () => _useOrders.getState().reset();

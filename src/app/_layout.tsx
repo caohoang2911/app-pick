@@ -151,11 +151,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                   <NetworkStatus />
                   {loading && <Loading />}
-                  <View className="absolute bottom-3 right-5 z-10">
-                    <Text className="text-gray-500 text-xs">
-                      {`${process.env.EXPO_PUBLIC_API_URL}`}
-                    </Text>
-                  </View>
                   {children}
                   <AlertDialog />
                 </SafeAreaView>
