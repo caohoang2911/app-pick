@@ -43,16 +43,19 @@ export const useSearchOrders = (params?: Variables) =>
   useInfiniteQuery({
     queryKey: ['searchOrders', params],
     queryFn: ({ pageParam = 0 }) => {
+      console.log('pageParam', pageParam);
       return searchOrders({ ...params, pageIndex: pageParam });
     },
     getNextPageParam: (lastPage, allPages) => {
-      const nextPageIndex = lastPage.data?.pageIndex + 1;
-      return nextPageIndex < (lastPage.data?.total || 0) ? nextPageIndex : undefined;
+      const pageIndex = lastPage.data?.pageIndex;
+      return pageIndex < Math.ceil(lastPage.data?.total / lastPage.data?.maxItemDisplay) ? pageIndex + 1 : undefined;
     },
-    select: (data) => ({
-      pages: data.pages.flatMap(page => page.data?.list || []),
-      pageParams: [...data.pageParams],
-    }),
+    select: (data) => {
+      return ({
+        pages: data.pages.flatMap(page => page.data?.list || []),
+        pageParams: [...data.pageParams],
+      })
+    },
     enabled: !!params,
-    initialPageParam: 0,
+    initialPageParam: 1,
   });
