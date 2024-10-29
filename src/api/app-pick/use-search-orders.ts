@@ -32,13 +32,9 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
     delete filterCopy.status;
   }
 
-  console.log(filter, "filter")
-
   const params = {
     filter: JSON.stringify({ ...filterCopy }),
   };
-
-  console.log(params, "params")
 
   return await axiosClient.get('app-pick/searchOrders', { params });
 };
