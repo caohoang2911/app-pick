@@ -10,6 +10,7 @@ import {
   setToken,
   setUserInfo,
 } from './utils';
+import { reset as resetOrdersState } from '../orders';
 
 interface AuthState {
   token: string | null;
@@ -46,6 +47,7 @@ const _useAuth = create<AuthState>((set, get) => ({
     removeToken();
     removeUserInfo();
     set({ status: 'signOut', token: null });
+    resetOrdersState();
   },
   hydrate: () => {
     try {
