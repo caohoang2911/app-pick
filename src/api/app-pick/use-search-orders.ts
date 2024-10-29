@@ -9,6 +9,7 @@ type Variables = {
   pageIndex?: number;
   expectedDeliveryTime?: string;
   deliveryType?: string;
+  storeCode?: string;
 };
 
 export type SearchOrdersResponse = {

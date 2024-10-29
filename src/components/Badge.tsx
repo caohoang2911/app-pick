@@ -10,6 +10,7 @@ const badgeVariants = cva(
       variant: {
         default: 'bg-blue-50',
         secondary: 'bg-gray-50',
+        warning: 'bg-orange-50',
         danger: 'bg-red-50',
         destructive: 'bg-destructive',
         success: 'bg-green-500 dark:bg-green-700',
@@ -35,6 +36,7 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
       destructive: 'text-destructive-foreground',
       danger: 'text-red-600',
       success: 'text-green-100',
+      warning: 'text-orange-600',
       confirmed: 'text-blue-600',
       store_picking: 'text-orange-600',
       store_packed: 'text-purple-600',

@@ -11,8 +11,11 @@ import { useOrders } from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
 import OrderItem from './order-item';
 import moment from 'moment';
+import { useAuth } from '~/src/core';
+import Empty from '../shared/Empty';
 
 const getExpectedDeliveryTime = (expectedDeliveryTimeRange: string) => {
+  if(!expectedDeliveryTimeRange) return "";
   const expectedDeliveryDate = [moment(new Date()).format('DD/MM/YYYY')];
   const expectedDeliveryTimeStart = expectedDeliveryTimeRange ? expectedDeliveryTimeRange.split('-')[0] : '';
   const expectedDeliveryTimeEnd = expectedDeliveryTimeRange ? expectedDeliveryTimeRange.split('-')[1] : '';
@@ -24,10 +27,10 @@ const getExpectedDeliveryTime = (expectedDeliveryTimeRange: string) => {
     moment(
       expectedDeliveryDate + ' ' + expectedDeliveryTimeEnd,
       'DD/MM/YYYY HH:mm:ss'
-    ).valueOf(),
+    ).valueOf() - 1000,
   ];
 
-  return expectedDelivery;
+  return expectedDelivery.join('-');
 }
 
 const OrderList = () => {
@@ -37,15 +40,18 @@ const OrderList = () => {
   const expectedDeliveryTimeRange = useOrders.use.expectedDeliveryTimeRange();
   const operationType = useOrders.use.operationType();
 
+  const { storeCode } = useAuth.use.userInfo();
+
   const firtTime = useRef<boolean>(true);
 
   const params = useMemo(() => ({
     keyword,
     status: selectedOrderCounter,
     deliveryType,
-    // expectedDeliveryTimeRange: getExpectedDeliveryTime(expectedDeliveryTimeRange),
+    expectedDeliveryTimeRange: getExpectedDeliveryTime(expectedDeliveryTimeRange),
     operationType,
-  }), [keyword, selectedOrderCounter, deliveryType, expectedDeliveryTimeRange, operationType])
+    storeCode,
+  }), [keyword, selectedOrderCounter, deliveryType, expectedDeliveryTimeRange, operationType, storeCode])
 
   const {
     data: ordersResponse,
@@ -131,7 +137,7 @@ const OrderList = () => {
         ListEmptyComponent={
           !isFetching ? (
             <View className="mt-3">
-              <Text className="text-center">Không có dữ liệu</Text>
+              <Empty />
             </View>
           ) : (
             <></>

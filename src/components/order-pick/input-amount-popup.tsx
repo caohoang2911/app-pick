@@ -21,6 +21,14 @@ import { Badge } from '../Badge';
 const InputAmountPopup = ({}) => {
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
+  const orderDetail = useOrderPick.use.orderDetail();
+
+  const { header } = orderDetail || {};
+  const { groupShippingCode } = header || {};
+
+  console.log("orderDetail", orderDetail);
+
+  const isCampaign = groupShippingCode;
 
   const config = useConfig.use.config();
   const productPickedErrors = config?.productPickedErrors || [];
@@ -66,16 +74,16 @@ const InputAmountPopup = ({}) => {
             setOrderPickProducts({
               ...currentProduct,
               barcode: barcodeScanSuccess,
-              pickedQuantity: values.pickedQuantity,
-              pickedError: quantity >= values.pickedQuantity ? '' : values.pickedError,
-              pickedNote: values.pickedNote,
+              pickedQuantity: values?.pickedQuantity,
+              pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
+              pickedNote: values?.pickedNote,
             });
             resetForm();
           }}
         >
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
 
-            const isError = values.pickedQuantity < quantity && !values.pickedError;
+            const isError = values?.pickedQuantity < quantity && !values?.pickedError;
             return (
               <>
                 <Input
@@ -88,17 +96,19 @@ const InputAmountPopup = ({}) => {
                   onChangeText={(value: string) => {
                     setFieldValue('pickedQuantity', value);
                   }}
+                  editable={!isCampaign}
                   useBottomSheetTextInput
-                  error={(Number(values.pickedQuantity) < quantity && !values.pickedError) && "Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do"}
+                  error={(Number(values?.pickedQuantity) < quantity && !values?.pickedError) && "Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do"}
                   name="pickedQuantity"
                   value={values?.pickedQuantity.toString()}
                   onBlur={handleBlur('pickedQuantity')}
                   defaultValue="0"
                   prefix={
                     <TouchableOpacity
+                      disabled={isCampaign}
                       onPress={() => {
-                        if (values.pickedQuantity == 0) return;
-                        setFieldValue('pickedQuantity', Number(values.pickedQuantity || 0) - 1);
+                        if (values?.pickedQuantity == 0) return;
+                        setFieldValue('pickedQuantity', Number(values?.pickedQuantity || 0) - 1);
                       }}
                     >
                       <View className="size-8 rounded-full bg-gray-200">
@@ -112,8 +122,9 @@ const InputAmountPopup = ({}) => {
                   }
                   suffix={
                     <TouchableOpacity
+                      disabled={isCampaign}
                       onPress={() => {
-                        setFieldValue('pickedQuantity', Number(values.pickedQuantity || 0) + 1);
+                        setFieldValue('pickedQuantity', Number(values?.pickedQuantity || 0) + 1);
                       }}
                     >
                       <View className="size-8 rounded-full bg-gray-200">
@@ -133,8 +144,8 @@ const InputAmountPopup = ({}) => {
                   dropdownPosition="top"
                   placeholder="Vui lòng chọn"
                   allowClear={true}
-                  disabled={Number(values.pickedQuantity) >= Number(quantity)}
-                  value={values.pickedError}
+                  disabled={Number(values?.pickedQuantity) >= Number(quantity)}
+                  value={values?.pickedError}
                   onSelect={(value: string) => {
                     setFieldValue('pickedError', value);
                     setErrors({})
@@ -147,7 +158,7 @@ const InputAmountPopup = ({}) => {
                   label="Mô tả"
                   labelClasses="font-medium"
                   useBottomSheetTextInput
-                  value={values.pickedNote}
+                  value={values?.pickedNote}
                   placeholder="Nhập mô tả"
                   multiline
                   numberOfLines={3}
@@ -156,7 +167,7 @@ const InputAmountPopup = ({}) => {
                   onChangeText={(value: string) => {
                     setFieldValue('pickedNote', value);
                   }}
-                />  
+                /> 
                 <Button onPress={handleSubmit as any} label={'Xác nhận'} disabled={isError} />
               </>
           )}}

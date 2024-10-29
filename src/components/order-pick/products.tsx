@@ -1,12 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import OrderPickProduct from './product';
 import { useLocalSearchParams } from 'expo-router';
 import { Product } from '~/src/types/product';
 import {
-  setBarcodeScrollTo,
   setInitOrderPickProducts,
   setOrderDetail,
   useOrderPick,
@@ -14,6 +13,7 @@ import {
 import clsx from 'clsx';
 import { stringUtils } from '~/src/core/utils/string';
 import { OrderStatus } from '~/src/types/order';
+import Empty from '../shared/Empty';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{
@@ -22,7 +22,6 @@ const OrderPickProducts = () => {
   }>();
   const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
   const keyword = useOrderPick.use.keyword();
-  
 
   const ref: any = useRef<FlatList>();
 
@@ -81,7 +80,7 @@ const OrderPickProducts = () => {
     }
   }, [indexCurrentProduct]);
 
-  if (isPending) {
+  if (isPending || isFetching) {
     return (
       <View className="text-center py-3">
         <ActivityIndicator className="text-gray-300" />
@@ -104,7 +103,7 @@ const OrderPickProducts = () => {
         ListEmptyComponent={
           !isFetching ? (
             <View className="mt-3">
-              <Text className="text-center">Không có dữ liệu</Text>
+              <Empty />
             </View>
           ) : (
             <></>

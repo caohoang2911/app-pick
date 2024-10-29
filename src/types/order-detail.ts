@@ -115,6 +115,11 @@ interface TemplateOrderRefund {
 
 export interface OrderDetailHeader {
   id?: number;
+  groupShippingCode?: string;
+  operationType?: string;
+  groupShippingTotalCODAmount?: number;
+  groupShippingOrderCodes?: Array<string>;
+  groupShippingPickedStatues?: {[key: string]: boolean};
   type?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'HOME_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;

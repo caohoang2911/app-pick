@@ -22,8 +22,8 @@ const _useOrders = create<OrdersState>((set, get) => ({
   selectedOrderCounter: 'ALL',
   keyword: '',
   deliveryType: 'ONLINE_DELIVERY',
-  expectedDeliveryTimeRange: '08-09',
-  operationType: '',
+  expectedDeliveryTimeRange: '',
+  operationType: 'CAMPAIGN',
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });
   },

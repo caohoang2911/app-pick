@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 type Variables = {
   deliveryType: string;
   operationType: string;
+  storeCode: string;
 };
 
 export type OrderCounterResponse = {
@@ -20,19 +21,20 @@ type Response = { error: string } & {
   data: OrderCounterResponse;
 };
 
-const getCounter = async (deliveryType: string, operationType: string): Promise<Response> => {
+const getCounter = async (deliveryType: string, operationType: string, storeCode: string): Promise<Response> => {
 
   const params = {
     deliveryType,
     operationType,
+    storeCode,
   };
 
   return await axiosClient.get('app-pick/getOrderStatusCounters', { params });
 };
-export const useGetOrderStatusCounters = ({ deliveryType, operationType }: Variables) =>
+export const useGetOrderStatusCounters = ({ deliveryType, operationType, storeCode }: Variables) =>
   useQuery({
-    queryKey: ['getOrderStatusCounters', deliveryType, operationType],
+    queryKey: ['getOrderStatusCounters', deliveryType, operationType, storeCode],
     queryFn: () => {
-      return getCounter(deliveryType, operationType);
+      return getCounter(deliveryType, operationType, storeCode);
     },
   });
