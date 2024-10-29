@@ -41,6 +41,8 @@ const OrderPickProduct = ({
   const pickedQuantity = orderPickProducts?.[barcode]?.pickedQuantity;
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
+  console.log("orderPickProducts", orderPickProducts);
+
 
   const { header } = orderDetail || {};
   const { status } = header || {};
@@ -52,9 +54,9 @@ const OrderPickProduct = ({
 
   return (
     <>
-      <View className={cn(`bg-white shadow`)} style={{paddingRight: shouldDisplayEdit ? 50 : 20, ...styles.box}}>
+      <View className={cn(`bg-white shadow`)} style={styles.box}>
         <View className="p-4">
-          <View className='flex flex-row gap-2 items-center mb-3'>
+          <View className='flex flex-row gap-2 items-center mb-3' style={[{paddingRight: shouldDisplayEdit ? 53 : 28}]}>
             {orderPickProducts?.[barcode]?.pickedTime && (
               <View className="rounded-full bg-white ">
                 <CheckCircleFill color={'green'}/>
@@ -103,8 +105,8 @@ const OrderPickProduct = ({
             </View>
           </View>
           <View className="border my-3 border-gray-100" />
-          <View className="flex gap-3">
-            <View className="flex-row gap-3 items-center">
+          <View className="flex">
+            <View className="flex-row justify-end">
               <Text className="text-gray-500">
                 Giá: {formatCurrency(sellPrice, {unit: true})}
               </Text>

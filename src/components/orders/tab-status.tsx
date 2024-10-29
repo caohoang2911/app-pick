@@ -33,9 +33,7 @@ export function TabsStatus() {
     isFirtTime.current = false;
   });
 
-  console.log(orderStatusCounters, "orderStatusCounters")
-
-  const dataStatusCounters = Object.keys(orderStatusCounters)?.map(
+  const dataStatusCounters = Object.keys(orderStatusCounters)?.filter(key => ORDER_COUNTER_STATUS_PRIORITY[key] !== undefined)?.map(
     (key: string) => {
       return {
         id: key,

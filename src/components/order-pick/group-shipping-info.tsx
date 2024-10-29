@@ -105,8 +105,8 @@ export function GroupShippingInfo() {
   return (
     <View className="mt-3 p-2 px-3 bg-white" style={styles.box}>
       <View className="flex flex-row items-center gap-2 mb-2 justify-between">
-        <View className="flex flex-row items-center gap-1">
-          <Text style={{marginRight: 4}}>{groupShippingCode}</Text>
+        <View className="flex flex-row items-center gap-2">
+          <Badge label={groupShippingCode} variant="warning" />
           <Badge label={`COD ${formatCurrency(groupShippingTotalCODAmount || 0, {unit: true})}`} variant="default" />
         </View>
         <Text className={cn({

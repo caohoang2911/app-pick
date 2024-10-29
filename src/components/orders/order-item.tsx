@@ -73,7 +73,7 @@ const OrderItem = ({
             <Text className="font-semibold text-base text-colorPrimary">
               {code}
             </Text>
-            <Badge label={groupShippingCode} variant="warning" />
+            {groupShippingCode && <Badge label={groupShippingCode} variant="warning" />}
           </View>
           <Badge
             label={selectedOrderCounter === 'ALL' ? statusName : ''}

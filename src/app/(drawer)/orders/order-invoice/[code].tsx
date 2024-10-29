@@ -8,7 +8,6 @@ import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
-import { setKeyword } from '~/src/core/store/order-pick';
 
 const OrderInvoice = () => {
   const { code } = useLocalSearchParams<{ code: string }>();

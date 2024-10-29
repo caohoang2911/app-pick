@@ -1168,7 +1168,7 @@ PODS:
     - ExpoModulesCore
   - ExpoAsset (10.0.10):
     - ExpoModulesCore
-  - ExpoCamera (15.0.14):
+  - ExpoCamera (15.0.16):
     - ExpoModulesCore
     - ZXingObjC/OneD
     - ZXingObjC/PDF417
@@ -2758,12 +2758,12 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNFBMessaging (20.5.0):
+  - RNFBMessaging (20.4.0):
     - Firebase/Messaging (= 11.2.0)
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.20.2):
+  - RNGestureHandler (2.17.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2827,7 +2827,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.4.0):
+  - RNSVG (15.7.1):
     - React-Core
   - SDWebImage (5.19.7):
     - SDWebImage/Core (= 5.19.7)
@@ -3186,7 +3186,7 @@ SPEC CHECKSUMS:
   EXNotifications: 1177f1f3acba90ac409ac70d011dc00c75049635
   Expo: 963ef4ae102e4f4ac114a8510d70127c44adffbf
   ExpoAsset: 323700f291684f110fb55f0d4022a3362ea9f875
-  ExpoCamera: a5d000b22cd7dfd2c5904ed960e549de42c96da0
+  ExpoCamera: 929be541d1c1319fcf32f9f5d9df8b97804346b5
   ExpoDevice: fc94f0e42ecdfd897e7590f2874fc64dfa7e9b1c
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51
   ExpoFont: 00756e6c796d8f7ee8d211e29c8b619e75cbf238
@@ -3289,11 +3289,11 @@ SPEC CHECKSUMS:
   RNFBApp: c1337749fc4a372b515ba0eb82058efbd064e10b
   RNFBAuth: 64c5559b2f984a11ba4d360621224a15708912c0
   RNFBCrashlytics: 638e59c1669a3f6e95ae9047893b7775771150ec
-  RNFBMessaging: 3d6a5d355bb877b1e9cb4b3c73cdc1b4da040ef6
-  RNGestureHandler: 89fffd8ca7eb9519546b9361a229bb6186629af4
+  RNFBMessaging: 2a7d0dfc9a8ca4a0672e52601601b6cf191323e0
+  RNGestureHandler: 5538c370587d7e757667b9283ca867dd7635f154
   RNReanimated: f6b214732ff303cb815ac81b26bbfd2070b69f43
   RNScreens: db442e7b8c7bc8befec2ce057927305ff8598cc8
-  RNSVG: cb24fb322de8c1ebf59904e7aca0447bb8dbed5a
+  RNSVG: 4590aa95758149fa27c5c83e54a6a466349a1688
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c

@@ -4,7 +4,7 @@ export const initConfigDate = () => {
   moment.updateLocale('en', {
     relativeTime: {
       future: 'cách đây %s',
-      past: '%s trước',
+      past: '%s',
       s: 'vài giây',
       ss: '%d giây',
       m: '1 phút',

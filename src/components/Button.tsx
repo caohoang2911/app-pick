@@ -72,9 +72,8 @@ function Button({
   return (
     <TouchableOpacity
       disabled={loading || disabled}
-      className={cn(buttonVariants({ variant, size, className }), {
-        'bg-gray-500': disabled,
-      })}
+      className={cn(buttonVariants({ variant, size, className }))}
+      style={[{opacity: disabled ? 0.2 : 1}]}
       {...props}
     >
       <Text
