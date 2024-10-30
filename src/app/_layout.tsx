@@ -28,7 +28,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useLoading } from '@/core/store/loading';
-import { initConfigDate } from '@/core/utils/moment';
+import { initConfigDate, setDefaultTimeZone } from '@/core/utils/moment';
 import AlertDialog from '../components/AlertDialog';
 import * as Updates from 'expo-updates';
 import NetworkStatus from '../components/NetWorkStatus';
@@ -74,6 +74,7 @@ export const unstable_settings = {
 hydrateAuth();
 hydrateConfig();
 initConfigDate();
+setDefaultTimeZone();
 
 SplashScreen.preventAutoHideAsync();
 

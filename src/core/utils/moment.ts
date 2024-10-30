@@ -1,5 +1,5 @@
 import moment from 'moment';
-
+import momentTimezone from 'moment-timezone';
 export const initConfigDate = () => {
   moment.updateLocale('en', {
     relativeTime: {
@@ -19,6 +19,10 @@ export const initConfigDate = () => {
       yy: '%d năm',
     },
   });
+}
+
+export const setDefaultTimeZone = () => {
+  return momentTimezone.tz.setDefault('Asia/Ho_Chi_Minh');
 }
 
 export const expectedDeliveryTime = (expectedDeliveryTimeRange: Array<any>): any => {
