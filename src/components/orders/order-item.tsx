@@ -92,7 +92,7 @@ const OrderItem = ({
             <RowWithLabel label="Khách hàng" value={customer?.name} />
             <RowWithLabel label="Giá trị đơn" value={formatCurrency(amount, {unit: true})} />
             <RowWithLabel label="Giao hàng" value={`${expectedDeliveryTime(expectedDeliveryTimeRange).hh} - ${expectedDeliveryTime(expectedDeliveryTimeRange).day}`} />
-            <RowWithLabel label="Ngày đặt" value={moment(createdDate).format('DD/MM/YYYY')} />
+            <RowWithLabel label="Ngày đặt" value={moment(orderTime).format('DD/MM/YYYY')} />
             {tags?.length > 0 && 
               <View className="pt-1 flex flex-row gap-2 flex-wrap">
                 {tags?.map((tag: string, index: number) => {
