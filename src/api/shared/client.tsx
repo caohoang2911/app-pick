@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { router } from 'expo-router';
 import { showMessage } from 'react-native-flash-message';
 import { signOut } from '~/src/core';
 import { getToken } from '~/src/core/store/auth/utils';

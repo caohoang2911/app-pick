@@ -24,11 +24,9 @@ const InputAmountPopup = ({}) => {
   const orderDetail = useOrderPick.use.orderDetail();
 
   const { header } = orderDetail || {};
-  const { groupShippingCode } = header || {};
+  const { operationType } = header || {};
 
-  console.log("orderDetail", orderDetail);
-
-  const isCampaign = groupShippingCode;
+  const isCampaign = operationType === 'CAMPAIGN';
 
   const config = useConfig.use.config();
   const productPickedErrors = config?.productPickedErrors || [];

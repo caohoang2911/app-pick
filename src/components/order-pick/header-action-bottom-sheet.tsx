@@ -26,6 +26,11 @@ type Action = {
 
 const actions: Array<Action> = [
   {
+    key: 'complete-order',
+    title: 'Hoàn tất đơn hàng',
+    icon: <MaterialIcons name="done" size={24} color="black" />,
+  },
+  {
     key: 'view-order',
     title: 'Xem thông tin đơn hàng',
     disabled: true,
@@ -56,12 +61,8 @@ const actions: Array<Action> = [
     icon: <SaveOutLine />,
   },
   {
-    key: 'complete-order',
-    title: 'Hoàn tất đơn hàng',
-    icon: <MaterialIcons name="done" size={24} color="black" />,
-  },
-  {
     key: 'cancel-order',
+    disabled: true,
     title: <Text className="text-red-500">Huỷ đơn</Text>,
     icon: <CloseLine color={'#E53E3E'} />,
   },
@@ -128,7 +129,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           style={{ opacity: disabled ? 0.5 : 1 }}
         >
           {icon}
-          <Text className="text-gray-300">{title}</Text>
+          <Text className="text-gray-300 font-medium">{title}</Text>
         </Pressable>
       );
     };
