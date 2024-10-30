@@ -66,6 +66,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.414.0",
     "moment": "^2.30.1",
+    "moment-timezone": "^0.5.46",
     "nativewind": "^4.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",

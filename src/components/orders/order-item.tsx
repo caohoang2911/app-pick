@@ -35,7 +35,8 @@ const OrderItem = ({
   payment,
   type,
   createdDate,
-  groupShippingCode
+  groupShippingCode,
+  lastTimeUpdateStatus
 }: {
   statusName: string;
   orderTime: string;
@@ -51,6 +52,7 @@ const OrderItem = ({
   payment: any;
   type: string;
   groupShippingCode: string;
+  lastTimeUpdateStatus: string;
 }) => {
   const router = useRouter();
 
@@ -79,7 +81,7 @@ const OrderItem = ({
             label={selectedOrderCounter === 'ALL' ? statusName : ''}
             extraLabel={
               <Text className="text-xs text-contentPrimary">{selectedOrderCounter === 'ALL' && ` | `}
-                {moment(orderTime).fromNow()}
+                {moment(lastTimeUpdateStatus).fromNow()}
               </Text>
             } 
             variant={toLower(status) as any}

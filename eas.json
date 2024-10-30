@@ -7,10 +7,18 @@
     //   "channel": "preview"
     // },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "production"
     },
     "development": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "development"
     }
   },
   "submit": {
