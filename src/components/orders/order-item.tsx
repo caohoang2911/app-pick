@@ -32,9 +32,8 @@ const OrderItem = ({
   amount,
   tags,
   note,
-  payment,
   type,
-  createdDate,
+  fulfillError,
   groupShippingCode,
   lastTimeUpdateStatus
 }: {
@@ -45,19 +44,21 @@ const OrderItem = ({
   customer: any;
   selectedOrderCounter?: OrderStatus;
   expectedDeliveryTimeRange?: any;
-  createdDate: string;
   amount: number;
   tags: Array<any>;
   note: string;
-  payment: any;
   type: string;
   groupShippingCode: string;
+  fulfillError: any;
   lastTimeUpdateStatus: string;
 }) => {
   const router = useRouter();
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
+
+  const fulfillErrorTypes = config?.fulfillErrorTypes || [];
+  const fulfillErrorTypeDisplay = getConfigNameById(fulfillErrorTypes, fulfillError?.type);
 
   const handlePress = () => {
     if(type === 'HOME_DELIVERY') {
@@ -107,6 +108,12 @@ const OrderItem = ({
               <View className="flex flex-row items-center gap-1 mt-1">
                 <Ionicons name="information-circle-outline" size={15} color="#f97316" />
                 <Text className="text-sm text-orange-500 italic">{note}</Text>
+              </View>
+            )}
+            {fulfillError?.type && (
+              <View className="flex flex-row items-center gap-1">
+                <Ionicons name="information-circle-outline" size={15} color="red" />
+                <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
               </View>
             )}
           </View>
