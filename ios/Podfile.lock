@@ -2746,21 +2746,21 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - RecaptchaInterop (100.0.0)
-  - RNFBApp (21.0.0):
-    - Firebase/CoreOnly (= 11.2.0)
+  - RNFBApp (21.2.0):
+    - Firebase/CoreOnly (<= 11.4.0)
     - React-Core
-  - RNFBAuth (21.0.0):
-    - Firebase/Auth (= 11.2.0)
-    - React-Core
-    - RNFBApp
-  - RNFBCrashlytics (21.0.0):
-    - Firebase/Crashlytics (= 11.2.0)
-    - FirebaseCoreExtension
+  - RNFBAuth (21.2.0):
+    - Firebase/Auth (<= 11.4.0)
     - React-Core
     - RNFBApp
-  - RNFBMessaging (20.4.0):
-    - Firebase/Messaging (= 11.2.0)
-    - FirebaseCoreExtension
+  - RNFBCrashlytics (21.2.0):
+    - Firebase/Crashlytics (<= 11.4.0)
+    - FirebaseCoreExtension (<= 11.4.0)
+    - React-Core
+    - RNFBApp
+  - RNFBMessaging (21.2.0):
+    - Firebase/Messaging (<= 11.4.0)
+    - FirebaseCoreExtension (<= 11.4.0)
     - React-Core
     - RNFBApp
   - RNGestureHandler (2.17.1):
@@ -3286,10 +3286,10 @@ SPEC CHECKSUMS:
   ReactCommon: f79ae672224dc1e6c2d932062176883c98eebd57
   ReactNativeAvoidSoftinput: b48788354d2221b7a4e74971dc570e1594faa7cd
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
-  RNFBApp: c1337749fc4a372b515ba0eb82058efbd064e10b
-  RNFBAuth: 64c5559b2f984a11ba4d360621224a15708912c0
-  RNFBCrashlytics: 638e59c1669a3f6e95ae9047893b7775771150ec
-  RNFBMessaging: 2a7d0dfc9a8ca4a0672e52601601b6cf191323e0
+  RNFBApp: 5d3d1b9d563857c68d161a3226d9dd6d6be1a846
+  RNFBAuth: 7af4d3571e58aa38b7de2ebc2704fe703120ee72
+  RNFBCrashlytics: 335b08979fa09bd44eb851d54dca346171f2529d
+  RNFBMessaging: 2895d9dfa1cfea663c26a1b5dfb5faf17ad096f8
   RNGestureHandler: 5538c370587d7e757667b9283ca867dd7635f154
   RNReanimated: f6b214732ff303cb815ac81b26bbfd2070b69f43
   RNScreens: db442e7b8c7bc8befec2ce057927305ff8598cc8
