@@ -34,6 +34,7 @@ const getExpectedDeliveryTime = (expectedDeliveryTimeRange: string) => {
 }
 
 const OrderList = () => {
+  const flatListRef = useRef<FlatList>(null);
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const keyword = useOrders.use.keyword();
   const deliveryType = useOrders.use.deliveryType();
@@ -85,6 +86,9 @@ const OrderList = () => {
       console.log('Hello, I am focused!');
       if (!firtTime.current) {
         refetch();
+      if (flatListRef.current) {
+        flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+      }
       }
       return () => {
         firtTime.current = false;
@@ -125,6 +129,7 @@ const OrderList = () => {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
+        ref={flatListRef}
         refreshControl={
           <RefreshControl
             refreshing={false}
