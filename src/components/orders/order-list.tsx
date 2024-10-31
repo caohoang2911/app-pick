@@ -85,10 +85,7 @@ const OrderList = () => {
     useCallback(() => {
       console.log('Hello, I am focused!');
       if (!firtTime.current) {
-        goFirstPage();
-        if (flatListRef.current) {
-          flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-        }
+        refetch();
       }
       return () => {
         firtTime.current = false;
