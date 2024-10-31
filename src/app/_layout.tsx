@@ -15,15 +15,15 @@ export { ErrorBoundary } from 'expo-router';
 
 // Import  global CSS file
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
-import { APIProvider } from '@/api/shared';
+import { APIProvider, queryClient } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { hydrateAuth, useAuth } from '@/core';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import '@/ui/global.css';
-import React, { useCallback, useEffect } from 'react';
-import { StatusBar, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AppState, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
@@ -91,6 +91,23 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const [appState, setAppState] = useState(AppState.currentState);
+
+  useEffect(() => {  
+    const subscription = AppState.addEventListener('change', nextAppState => {  
+      // Check for the current state of the app  
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {  
+        queryClient.resetQueries();
+      }  
+      setAppState(nextAppState);  
+    });  
+
+    // Cleanup the subscription on unmount  
+    return () => {  
+      subscription.remove();  
+    };  
+  }, [appState]);  
+
   return (
     <Providers>
       <Stack
@@ -115,7 +132,6 @@ function RootLayoutNav() {
 
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
-  
   const loading = useLoading.use.loading();
 
   const hideSplash = useCallback(async () => {
