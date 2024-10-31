@@ -26,6 +26,7 @@ const _useConfig = create<ConfigState>((set, get) => ({
     stores: [],
     orderTags: [],
     orderOperationTypes: [],
+    fulfillErrorTypes: [],
   },
   version: '',
   setConfig: (config: ConfigResponse) => {
