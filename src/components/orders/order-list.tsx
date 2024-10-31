@@ -71,7 +71,7 @@ const OrderList = () => {
   const goFirstPage = async () => {
     await queryClient.setQueryData(['searchOrders', params], (data: any) => ({
       pages: [],
-      pageParams: data?.pageParams,
+      pageParams: 1,
     }))
     refetch();
   }
@@ -85,10 +85,10 @@ const OrderList = () => {
     useCallback(() => {
       console.log('Hello, I am focused!');
       if (!firtTime.current) {
-        refetch();
-      if (flatListRef.current) {
-        flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-      }
+        goFirstPage();
+        if (flatListRef.current) {
+          flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+        }
       }
       return () => {
         firtTime.current = false;
