@@ -44,7 +44,7 @@ const InputAmountPopup = ({}) => {
     return (
       <View className="flex justify-between gap-1">
         <Text className="font-semibold">{productName}</Text>
-        <Badge className="self-start" label={`SL đặt: ${currentProduct?.quantity} ${currentProduct?.unit}`}></Badge>
+        <Badge className="self-start" label={`SL đặt: ${currentProduct?.quantity} ${currentProduct?.unit || ""}`}></Badge>
       </View>
     )
   }, [productName, displayPickedQuantity])
