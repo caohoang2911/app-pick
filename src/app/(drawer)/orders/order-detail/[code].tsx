@@ -26,9 +26,9 @@ const OrderPick = () => {
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
-  const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const orderDetail = useOrderPick.use.orderDetail();
+  const { productItems } = orderDetail?.delivery || {};
 
   const headerAcrtionRef = useRef<any>();
 
@@ -58,16 +58,20 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      if (!orderPickProducts[codeScanned]) {
+      const indexOfCodeScanned = Object.keys(orderPickProducts || {})?.findIndex(key => codeScanned?.startsWith(key));
+
+      if (indexOfCodeScanned === -1) {
         showMessage({
           message: 'Mã vừa quét không nằm trong đơn hàng',
           type: 'warning',
         });
-        return;
+      } else {
+        const currentBarcode: string | undefined = productItems?.[indexOfCodeScanned]?.barcode;
+        if (currentBarcode) {
+          setSuccessForBarcodeScan(currentBarcode);
+          toggleShowAmountInput(true);
+        }
       }
-      setSuccessForBarcodeScan(result?.data);
-      toggleShowAmountInput(true);
-      
     },
     [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan]
   );
