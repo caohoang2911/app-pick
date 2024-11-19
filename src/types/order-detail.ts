@@ -120,7 +120,7 @@ export interface OrderDetailHeader {
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
   groupShippingPickedStatues?: {[key: string]: boolean};
-  type?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'HOME_DELIVERY';
+  deliveryType: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'HOME_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   tags?: Array<string>;
@@ -165,7 +165,7 @@ export interface OrderDetailHeader {
   note?: string;
   orderTime?: number;
   isOverdueSLA?: boolean;
-  expectedDeliveryTimeRange?: Array<number>;
+  deliveryTimeRange: Array<number>;
   deliveryAddress?: DeliveryAddress;
   statusLogs?: {
     action?: string;

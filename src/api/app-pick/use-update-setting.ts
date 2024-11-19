@@ -6,10 +6,10 @@ import { setLoading } from '~/src/core/store/loading';
 type Variables = {
   data: {
     noti: {
-      isEnableOnline: false,
-      isEnableHomedeli: true,
-    }
-  }
+      isEnableOnline: boolean;
+      isEnableHomedeli: boolean;
+    };
+  };
 };
 
 type Response = { error: string } & {

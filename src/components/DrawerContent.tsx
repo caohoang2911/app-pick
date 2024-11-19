@@ -8,12 +8,19 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { signOut, useAuth } from "../core"
 import { colors } from "../ui/colors"
 import { Avatar, AvatarImage } from "./Avatar"
+import { useConfig } from "../core/store/config"
+import { getConfigNameById } from "../core/utils/config"
 
 export function DrawerContent(drawerProps: DrawerContentComponentProps) {
 
   const userInfo = useAuth.use.userInfo();
   const navigation = useNavigation()
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer())
+
+  const config = useConfig.use.config();
+  const stores = config?.stores || [];
+
+  const storeName = getConfigNameById(stores, userInfo?.storeCode);
 
   return (
     <View className="flex-1 overflow-hidden py-4">
@@ -29,10 +36,10 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
           </Text>
           <Text
             className="text-sm"
-            style={{ maxWidth: 200 }}
+            style={{ maxWidth: 210 }}
             numberOfLines={1}
           >
-            {userInfo?.storeCode} - {userInfo?.storeName}
+            {userInfo?.storeCode} - {storeName}
           </Text>
         </View>
       </View>

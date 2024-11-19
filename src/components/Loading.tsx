@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { View } from 'react-native';
+import { useLoading } from '../core/store/loading';
 
 const Loading = ({
   description
 }: {
   description?: string
 }) => {
+  const descriptionStore = useLoading.use.description();
+
+  const shouldShowDescription = Boolean(descriptionStore) || Boolean(description);
   return (
     <>
       <View style={styles.loading}>
@@ -16,7 +20,7 @@ const Loading = ({
           <View style={styles.box} className='w-12 h-12 rounded-lg'>
             <ActivityIndicator color="white" />
           </View>
-          {description && <Text>{description}</Text>}
+          {Boolean(shouldShowDescription) && <Text>{descriptionStore || description}</Text>}
         </View>
       </View>
     </>

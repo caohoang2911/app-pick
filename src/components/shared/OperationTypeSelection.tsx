@@ -46,7 +46,7 @@ const OperationTypeSelection = forwardRef<any, Props>(
           onClose={() => setVisible(false)}
         >
           <View>
-            {[{id: null, name: "Tất cả"}, ...orderOperationTypes]?.map((operationType: any, index: number) => (
+            {[{id: "", name: "Tất cả"}, ...orderOperationTypes]?.map((operationType: any, index: number) => (
               <TouchableOpacity 
                 disabled={selectedId === operationType.id}
                 key={index} 
