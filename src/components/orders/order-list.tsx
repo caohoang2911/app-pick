@@ -14,11 +14,11 @@ import moment from 'moment';
 import { useAuth } from '~/src/core';
 import Empty from '../shared/Empty';
 
-const getExpectedDeliveryTime = (expectedDeliveryTimeRange: string) => {
-  if(!expectedDeliveryTimeRange) return "";
+const getExpectedDeliveryTime = (deliveryTimeRange: string) => {
+  if(!deliveryTimeRange) return "";
   const expectedDeliveryDate = [moment(new Date()).format('DD/MM/YYYY')];
-  const expectedDeliveryTimeStart = expectedDeliveryTimeRange ? expectedDeliveryTimeRange.split('-')[0] : '';
-  const expectedDeliveryTimeEnd = expectedDeliveryTimeRange ? expectedDeliveryTimeRange.split('-')[1] : '';
+  const expectedDeliveryTimeStart = deliveryTimeRange ? deliveryTimeRange.split('-')[0] : '';
+  const expectedDeliveryTimeEnd = deliveryTimeRange ? deliveryTimeRange.split('-')[1] : '';
   const expectedDelivery = [
     moment(
       expectedDeliveryDate + ' ' + expectedDeliveryTimeStart,
@@ -38,7 +38,7 @@ const OrderList = () => {
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const keyword = useOrders.use.keyword();
   const deliveryType = useOrders.use.deliveryType();
-  const expectedDeliveryTimeRange = useOrders.use.expectedDeliveryTimeRange();
+  const deliveryTimeRange = useOrders.use.deliveryTimeRange();
   const operationType = useOrders.use.operationType();
 
   const { storeCode } = useAuth.use.userInfo();
@@ -49,10 +49,10 @@ const OrderList = () => {
     keyword,
     status: selectedOrderCounter,
     deliveryType,
-    expectedDeliveryTimeRange: getExpectedDeliveryTime(expectedDeliveryTimeRange),
+    deliveryTimeRange: getExpectedDeliveryTime(deliveryTimeRange),
     operationType,
     storeCode,
-  }), [keyword, selectedOrderCounter, deliveryType, expectedDeliveryTimeRange, operationType, storeCode])
+  }), [keyword, selectedOrderCounter, deliveryType, deliveryTimeRange, operationType, storeCode])
 
   const {
     data: ordersResponse,
@@ -79,7 +79,7 @@ const OrderList = () => {
   useEffect(() => {
     withoutRefresh.current = true;
     goFirstPage();
-  }, [selectedOrderCounter, keyword, expectedDeliveryTimeRange, deliveryType, operationType]);
+  }, [selectedOrderCounter, keyword, deliveryTimeRange, deliveryType, operationType]);
 
   useFocusEffect(
     useCallback(() => {

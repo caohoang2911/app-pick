@@ -28,7 +28,7 @@ const OrderItem = ({
   status,
   customer,
   selectedOrderCounter,
-  expectedDeliveryTimeRange,
+  deliveryTimeRange,
   amount,
   tags,
   note,
@@ -43,7 +43,7 @@ const OrderItem = ({
   status: OrderStatus;
   customer: any;
   selectedOrderCounter?: OrderStatus;
-  expectedDeliveryTimeRange?: any;
+  deliveryTimeRange?: any;
   amount: number;
   tags: Array<any>;
   note: string;
@@ -92,8 +92,8 @@ const OrderItem = ({
           <View className="p-4 pt-2 gap-1">
             <RowWithLabel label="Khách hàng" value={customer?.name} />
             <RowWithLabel label="Giá trị đơn" value={formatCurrency(amount, {unit: true})} />
-            <RowWithLabel label="Giao hàng" value={`${expectedDeliveryTime(expectedDeliveryTimeRange).hh} - ${expectedDeliveryTime(expectedDeliveryTimeRange).day}`} />
             <RowWithLabel label="Ngày đặt" value={moment(orderTime).format('DD/MM/YYYY')} />
+            <RowWithLabel label="Giao hàng" value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} - ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'} />
             {tags?.length > 0 && 
               <View className="pt-1 flex flex-row gap-2 flex-wrap">
                 {tags?.map((tag: string, index: number) => {

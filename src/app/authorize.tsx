@@ -6,6 +6,8 @@ import { StyleSheet } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
+import { setLoading } from '../core/store/loading';
+import Loading from '../components/Loading';
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
@@ -18,6 +20,12 @@ const Authorize = () => {
   useEffect(() => {
     setCurrentUrl(urlRedirect);
   }, [urlRedirect]);
+
+  useEffect(() => {
+    return () => {
+      setLoading(false);
+    };
+  }, []);
 
   const handleNavigationStateChange = (data: any) => {
     if (data?.url?.startsWith?.('seedcom.vn') && flag.current) {
@@ -57,7 +65,8 @@ const Authorize = () => {
               });
             },
             onCancel: () => {
-              console.log('Cancel');
+              console.log('Cance3l');
+              hideAlert();
             }
           });
         }
@@ -75,6 +84,8 @@ const Authorize = () => {
       source={{
         uri: currentUrl || '',
       }}
+      onLoadStart={() => setLoading(true, 'Đang tải trang...')}
+      onLoadEnd={() => setLoading(false, 'Vui lòng đợi...')}
       onNavigationStateChange={handleNavigationStateChange}
       injectedJavaScript={INJECTED_SCRIPT}
       onMessage={onMessage}

@@ -25,9 +25,9 @@ export const setDefaultTimeZone = () => {
   return momentTimezone.tz.setDefault('Asia/Ho_Chi_Minh');
 }
 
-export const expectedDeliveryTime = (expectedDeliveryTimeRange: Array<any>): any => {
-  const startTime = expectedDeliveryTimeRange?.[0];
-  const endTime = expectedDeliveryTimeRange?.[1];
+export const expectedDeliveryTime = (deliveryTimeRange: Array<any>): any => {
+  const startTime = deliveryTimeRange?.[0];
+  const endTime = deliveryTimeRange?.[1];
 
   if (!startTime || !endTime) return '-';
   if (moment(startTime).valueOf() === moment(endTime).valueOf())

@@ -5,20 +5,26 @@ import { createSelectors } from '@/core/utils/browser';
 
 interface LoadingState {
   loading: boolean;
-  setLoading: (loading: boolean) => void;
+  description: string;
+  setLoading: (loading: boolean, description?: string) => void;
 }
 
 const _useLoading = create<LoadingState>((set, get) => ({
   loading: false,
-  setLoading: (loading: boolean) => {
-    set({ loading })
+  description: '',
+  setLoading: (loading: boolean, description?: string) => {
+    if(loading) {
+      set({ loading, description })
+    } else {
+      set({ loading: false, description: '' })
+    }
   },
 }));
 
 export const useLoading = createSelectors(_useLoading);
 
-export const setLoading = (loading: boolean) => {
-  useLoading.getState().setLoading(loading);
+export const setLoading = (loading: boolean, description?: string) => {
+  useLoading.getState().setLoading(loading, description);
 };
 
 

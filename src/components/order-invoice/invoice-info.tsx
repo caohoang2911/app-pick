@@ -19,7 +19,7 @@ const InvoiceInfo = () => {
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { status, orderTime, deliveryAddress, statusName, amount, customer, expectedDeliveryTimeRange, tags } = header || {};
+  const { status, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags } = header || {};
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
@@ -63,9 +63,9 @@ const InvoiceInfo = () => {
             <Text className='text-gray-500'>Giờ giao</Text>
           </View>
           <Text>
-            {expectedDeliveryTimeRange && expectedDeliveryTime(expectedDeliveryTimeRange).hh}
-            {expectedDeliveryTimeRange && ' - '}
-            {expectedDeliveryTimeRange && expectedDeliveryTime(expectedDeliveryTimeRange).day}
+            {deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).hh}
+            {deliveryTimeRange && ' - '}
+            {deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).day}
           </Text>
         </View>
         <View className='flex flex-row'>
