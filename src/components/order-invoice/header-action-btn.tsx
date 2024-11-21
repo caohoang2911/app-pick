@@ -8,7 +8,6 @@ import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
-import { useCancelBookShipper } from '~/src/api/app-pick/use-cancel-book-shipper';
 
 const actions = [
   {
@@ -46,12 +45,6 @@ const HeaderActionBtn = () => {
 
   // Hoàn thành đơn hàng
   const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
-    hideAlert();
-    setLoading(false);
-  });
-
-  // Huỷ đơn hàng
-  const { isPending: isLoadingCancelBookShipper, mutate: cancelBookShipper } = useCancelBookShipper(() => {
     hideAlert();
     setLoading(false);
   });
@@ -95,18 +88,6 @@ const HeaderActionBtn = () => {
                 orderCode: code,
               });
             }
-          },
-        });
-        break;
-      case "cancel-book-shipper":
-        if (!code) return;
-
-        showAlert({
-          title: 'Xác nhận huỷ book shipper',
-          loading: isLoadingCancelBookShipper,
-          onConfirm: () => {
-            setLoading(true);
-            cancelBookShipper({ orderCode: code });
           },
         });
         break;

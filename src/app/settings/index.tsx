@@ -4,7 +4,6 @@ import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { useUpdateSetting } from '~/src/api/app-pick/use-update-setting';
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
-import Container from '~/src/components/Container';
 import { Switch } from '~/src/components/Switch';
 import { setLoading } from '~/src/core/store/loading';
 
@@ -16,17 +15,19 @@ const Settings = () => {
     queryClient.invalidateQueries({ queryKey: ['getSetting'] });
   });
 
-  const [isEnableOnline, setIsEnableOnline] = useState<any>(false);
-  const [isEnableHomedeli, setIsEnableHomedeli] = useState<any>(false);
+  const [isSubcribeOrderStoreDelivery, setIsSubcribeOrderStoreDelivery] = useState<any>(false);
+  const [isSubcribeOrderCustomerPickup, setIsSubcribeOrderCustomerPickup] = useState<any>(false);
+  const [isSubcribeOrderShipperDelivery, setIsSubcribeOrderShipperDelivery] = useState<any>(false);
 
   useEffect(() => {
-    setIsEnableOnline(noti?.isEnableOnline);
-    setIsEnableHomedeli(noti?.isEnableHomedeli);
+    setIsSubcribeOrderStoreDelivery(noti?.isSubcribeOrderStoreDelivery);
+    setIsSubcribeOrderCustomerPickup(noti?.isSubcribeOrderCustomerPickup);
+    setIsSubcribeOrderShipperDelivery(noti?.isSubcribeOrderShipperDelivery);
   }, [noti]);
 
   const handleUpdateSetting = () => {
     setLoading(true);
-    updateSetting({ data: { noti: { isEnableOnline, isEnableHomedeli } } });
+    updateSetting({ data: { noti: { isSubcribeOrderStoreDelivery, isSubcribeOrderCustomerPickup, isSubcribeOrderShipperDelivery } } });
   };
 
   return (
@@ -36,12 +37,16 @@ const Settings = () => {
           <Text className="text-base font-bold">Thông báo</Text>
           <View className="flex flex-col gap-4 mt-3">
             <View className="flex flex-row items-center justify-between">
-              <Text className="text-base">Đơn Oneline</Text>
-              <Switch value={isEnableOnline as boolean} onValueChange={setIsEnableOnline} />
+              <Text className="text-base">Đơn Shipper giao hàng</Text>
+              <Switch value={isSubcribeOrderShipperDelivery as boolean} onValueChange={setIsSubcribeOrderShipperDelivery} />
             </View>
             <View className="flex flex-row items-center justify-between">
-              <Text className="text-base">Đơn Home Delivery</Text>
-              <Switch value={isEnableHomedeli as boolean} onValueChange={setIsEnableHomedeli} />
+              <Text className="text-base">Đơn Store giao hàng</Text>
+              <Switch value={isSubcribeOrderStoreDelivery as boolean} onValueChange={setIsSubcribeOrderStoreDelivery} />
+            </View>
+            <View className="flex flex-row items-center justify-between">
+              <Text className="text-base">Đơn khách hàng pickup</Text>
+              <Switch value={isSubcribeOrderCustomerPickup as boolean} onValueChange={setIsSubcribeOrderCustomerPickup} />
             </View>
           </View>
           </View>

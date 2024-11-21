@@ -8,7 +8,7 @@ type DeliveryTypeOption = {
 }
 
 const options: DeliveryTypeOption[] = [
-  { label: 'Delivery', value: 'ONLINE_DELIVERY' },
+  { label: 'Delivery', value: 'SHIPPER_DELIVERY' },
   { label: 'Pickup', value: 'CUSTOMER_PICKUP' },
 ];
 

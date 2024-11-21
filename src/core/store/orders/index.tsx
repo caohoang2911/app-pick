@@ -22,7 +22,7 @@ const _useOrders = create<OrdersState>((set, get) => ({
   isScanQrCode: false,
   selectedOrderCounter: 'ALL',
   keyword: '',
-  deliveryType: 'ONLINE_DELIVERY',
+  deliveryType: 'SHIPPER_DELIVERY',
   deliveryTimeRange: '',
   operationType: '',
   toggleScanQrCode: (isScanQrCode: boolean) => {
@@ -49,7 +49,7 @@ const _useOrders = create<OrdersState>((set, get) => ({
       selectedOrderCounter: 'ALL',
       keyword: '',
       operationType: 'CAMPAIGN',
-      deliveryType: 'ONLINE_DELIVERY',
+      deliveryType: 'SHIPPER_DELIVERY',
       deliveryTimeRange: '',
     });
   },

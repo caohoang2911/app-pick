@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useGlobalSearchParams } from 'expo-router';
@@ -24,57 +24,16 @@ type Action = {
   icon: React.ReactNode;
 };
 
-const actions: Array<Action> = [
-  {
-    key: 'complete-order',
-    title: 'Hoàn tất đơn hàng',
-    icon: <MaterialIcons name="done" size={24} color="black" />,
-  },
-  {
-    key: 'view-order',
-    title: 'Xem thông tin đơn hàng',
-    disabled: true,
-    icon: <BillLine />,
-  },
-  {
-    key: 'enter-bag-and-tem',
-    title: 'Nhập số lượng túi và in tem',
-    disabled: true,
-    icon: <PrintLine />,
-  },
-  {
-    key: 'scan-bag-customer',
-    title: 'Scan túi - Giao cho khách',
-    disabled: true,
-    icon: <QRScanLine />,
-  },
-  {
-    key: 'scan-bag-shipper',
-    title: 'Scan túi - Giao cho shipper',
-    disabled: true,
-    icon: <QRScanLine />,
-  },
-  {
-    key: 'save-draft',
-    title: 'Lưu tạm',
-    disabled: true,
-    icon: <SaveOutLine />,
-  },
-  {
-    key: 'cancel-order',
-    disabled: true,
-    title: <Text className="text-red-500">Huỷ đơn</Text>,
-    icon: <CloseLine color={'#E53E3E'} />,
-  },
-];
-
 type Props = {};
 
 const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
   ({ }, ref) => {
     const { code } = useGlobalSearchParams<{ code: string }>();
-
     const [visible, setVisible] = useState(false);
+
+    const orderDetail = useOrderPick.use.orderDetail();
+
+    const { deliveryType } = orderDetail?.header || {};
 
     const orderPickProducts = useOrderPick.use.orderPickProducts();
     
@@ -113,6 +72,45 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       },
       []
     );
+
+    const actions: Array<Action> = useMemo(() => [
+      {
+        key: 'complete-order',
+        title: 'Hoàn tất đơn hàng',
+        disabled: deliveryType === 'SHIPPER_DELIVERY',
+        icon: <MaterialIcons name="done" size={24} color="black" />,
+      },
+      {
+        key: 'view-order',
+        title: 'Xem thông tin đơn hàng',
+        disabled: true,
+        icon: <BillLine />,
+      },
+      {
+        key: 'enter-bag-and-tem',
+        title: 'Nhập số lượng túi và in tem',
+        disabled: true,
+        icon: <PrintLine />,
+      },
+      {
+        key: 'scan-bag-customer',
+        title: 'Scan túi - Giao cho khách',
+        disabled: true,
+        icon: <QRScanLine />,
+      },
+      {
+        key: 'scan-bag-shipper',
+        title: 'Scan túi - Giao cho shipper',
+        disabled: true,
+        icon: <QRScanLine />,
+      },
+      {
+        key: 'save-draft',
+        title: 'Lưu tạm',
+        disabled: true,
+        icon: <SaveOutLine />,
+      },
+    ], [code, deliveryType]);
 
     const renderItem = ({
       onClickAction,

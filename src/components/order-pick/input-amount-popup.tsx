@@ -105,8 +105,12 @@ const InputAmountPopup = ({}) => {
                     <TouchableOpacity
                       disabled={isCampaign}
                       onPress={() => {
-                        if (values?.pickedQuantity == 0) return;
-                        setFieldValue('pickedQuantity', Number(values?.pickedQuantity || 0) - 1);
+                        const valueChange = (Number(values?.pickedQuantity || 0) <= 1 ? Number(values?.pickedQuantity || 0) - 0.1 : Number(values?.pickedQuantity || 0) - 1).toFixed(3)
+                        if (Number(valueChange) < 0) {
+                          setFieldValue('pickedQuantity', 0);
+                          return;
+                        };
+                        setFieldValue('pickedQuantity', Number(valueChange));
                       }}
                     >
                       <View className="size-8 rounded-full bg-gray-200">
@@ -122,7 +126,12 @@ const InputAmountPopup = ({}) => {
                     <TouchableOpacity
                       disabled={isCampaign}
                       onPress={() => {
-                        setFieldValue('pickedQuantity', Number(values?.pickedQuantity || 0) + 1);
+                        const valueChange = (Number(values?.pickedQuantity || 0) <= 1 ? Number(values?.pickedQuantity || 0) + 0.1 : Number(values?.pickedQuantity || 0) + 1).toFixed(3)
+                        if (Number(valueChange) < 0) {
+                          setFieldValue('pickedQuantity', 0);
+                          return;
+                        };
+                        setFieldValue('pickedQuantity', Number(valueChange));
                       }}
                     >
                       <View className="size-8 rounded-full bg-gray-200">

@@ -61,7 +61,7 @@ const OrderItem = ({
   const fulfillErrorTypeDisplay = getConfigNameById(fulfillErrorTypes, fulfillError?.type);
 
   const handlePress = () => {
-    if(type === 'HOME_DELIVERY') {
+    if(type === 'STORE_DELIVERY') {
       router.push(`orders/order-invoice/${code}`);
     } else {
       router.push({ pathname: `orders/order-detail/${code}`, params: { status } });

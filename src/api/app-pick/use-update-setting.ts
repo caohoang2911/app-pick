@@ -6,8 +6,9 @@ import { setLoading } from '~/src/core/store/loading';
 type Variables = {
   data: {
     noti: {
-      isEnableOnline: boolean;
-      isEnableHomedeli: boolean;
+      isSubcribeOrderStoreDelivery: boolean;
+      isSubcribeOrderCustomerPickup: boolean;
+      isSubcribeOrderShipperDelivery: boolean;
     };
   };
 };

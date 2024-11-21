@@ -62,7 +62,7 @@ const OrderPick = () => {
 
       if (indexOfCodeScanned === -1) {
         showMessage({
-          message: 'Mã vừa quét không nằm trong đơn hàng',
+          message: `Mã ${codeScanned} vừa quét không nằm trong đơn hàng`,
           type: 'warning',
         });
       } else {
@@ -73,7 +73,7 @@ const OrderPick = () => {
         }
       }
     },
-    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan]
+    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, productItems]
   );
 
   if(!orderDetail) {
