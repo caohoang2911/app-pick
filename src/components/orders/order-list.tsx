@@ -7,12 +7,11 @@ import {
 } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { queryClient } from '~/src/api/shared';
-import { useOrders } from '~/src/core/store/orders';
-import { SectionAlert } from '../SectionAlert';
-import OrderItem from './order-item';
-import moment from 'moment';
 import { useAuth } from '~/src/core';
+import { setFromScanQrCode, useOrders } from '~/src/core/store/orders';
+import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
+import OrderItem from './order-item';
 
 const OrderList = () => {
   const flatListRef = useRef<FlatList>(null);
@@ -20,6 +19,7 @@ const OrderList = () => {
   const keyword = useOrders.use.keyword();
   const deliveryType = useOrders.use.deliveryType();
   const operationType = useOrders.use.operationType();
+  const fromScanQrCode = useOrders.use.fromScanQrCode();
 
   const { storeCode } = useAuth.use.userInfo();
 
@@ -27,11 +27,11 @@ const OrderList = () => {
 
   const params = useMemo(() => ({
     keyword,
-    status: selectedOrderCounter,
-    deliveryType,
-    operationType,
+    status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
+    deliveryType: fromScanQrCode ? null : deliveryType,
+    operationType: fromScanQrCode ? null : operationType,
     storeCode,
-  }), [keyword, selectedOrderCounter, deliveryType, operationType, storeCode])
+  }), [keyword, selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode])
 
   const {
     data: ordersResponse,
@@ -40,8 +40,16 @@ const OrderList = () => {
     isFetchingNextPage,
     hasNextPage,
     refetch,
-    hasPreviousPage
+    hasPreviousPage,
+    isSuccess
   } = useSearchOrders({...params});
+
+
+  useEffect(() => {
+    if (isSuccess && fromScanQrCode) {
+      setFromScanQrCode(false);
+    }
+  }, [isSuccess])
 
 
   const withoutRefresh = useRef(false);

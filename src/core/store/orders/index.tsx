@@ -8,9 +8,11 @@ interface OrdersState {
   keyword: string;
   deliveryType: string;
   operationType: string;
+  fromScanQrCode: boolean;
   toggleScanQrCode: (status: boolean) => void;
   setSelectedOrderCounter: (status: OrderStatus) => void;
   setKeyWord: (keyword?: string) => void;
+  setFromScanQrCode: (fromScanQrCode: boolean) => void;
   setOperationType: (operationType: string | null) => void;
   setDeliveryType: (deliveryType: string) => void;
   reset: () => void;
@@ -22,16 +24,20 @@ const _useOrders = create<OrdersState>((set, get) => ({
   keyword: '',
   deliveryType: 'SHIPPER_DELIVERY',
   operationType: '',
+  fromScanQrCode: false,
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });
   },
   setSelectedOrderCounter: (selectedOrderCounter: OrderStatus) => {
     set({ selectedOrderCounter });
   },
+  setFromScanQrCode: (fromScanQrCode: boolean) => {
+    set({ fromScanQrCode });
+  },
   setKeyWord: (keyword?: string) => {
     set({ keyword });
   },
-  setOperationType: (operationType?: string) => {
+  setOperationType: (operationType: string | any) => {
     set((state) => ({ ...state, operationType }));
   },
   setDeliveryType: (deliveryType: string) => {
@@ -64,5 +70,8 @@ export const setDeliveryType = (deliveryType: string) =>
 
 export const setOperationType = (operationType: string | null) =>
   _useOrders.getState().setOperationType(operationType);
+
+export const setFromScanQrCode = (fromScanQrCode: boolean) =>
+  _useOrders.getState().setFromScanQrCode(fromScanQrCode);
 
 export const reset = () => _useOrders.getState().reset();

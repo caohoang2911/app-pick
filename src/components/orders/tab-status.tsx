@@ -45,6 +45,10 @@ export function TabsStatus() {
     }, [])
   );
 
+  useEffect(() => {
+    refetch();
+  }, [orderStatusCounters])
+
   const dataStatusCounters = Object.keys(orderStatusCounters)?.filter(key => ORDER_COUNTER_STATUS_PRIORITY[key] !== undefined)?.map(
     (key: string) => {
       return {

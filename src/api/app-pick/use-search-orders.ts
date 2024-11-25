@@ -1,6 +1,7 @@
 import { axiosClient } from '@/api/shared';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import moment from 'moment';
+import { setDeliveryType, setFromScanQrCode, setOperationType, setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 import { OrderStatus } from '~/src/types/order';
 
 type Variables = {
@@ -8,7 +9,8 @@ type Variables = {
   keyword?: string;
   pageIndex?: number;
   expectedDeliveryTime?: string;
-  deliveryType?: string;
+  deliveryType?: string | null;
+  operationType?: string | null;
   storeCode?: string;
 };
 
