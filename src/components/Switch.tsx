@@ -1,4 +1,5 @@
 import { Switch as NativeSwitch } from 'react-native';
+import { Platform } from 'react-native';
 
 function Switch({
   ...props
@@ -10,11 +11,11 @@ function Switch({
 
   return (
     <NativeSwitch
-      trackColor={{ false: "red", true: "blue" }}
+      trackColor={{ false: "#dfdfdf", true: "#3280f6" }}
       thumbColor={thumbColor}
       ios_backgroundColor={ios_backgroundColor}
       {...props}
-      style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
+      style={{ transform: Platform.OS === 'ios' ? [{ scaleX: .8 }, { scaleY: .8 }] : [] }}
     />
   );
 }
