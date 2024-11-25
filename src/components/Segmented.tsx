@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Props = {
   options: Array<{
-    label: string,
+    label: React.ReactNode,
     value: string
   }>,
   selected: string,
@@ -33,10 +33,14 @@ const Segmented = (
                     ]}
                     onPress={() => handleSelect(option.value, index)}
                 >
-                    <Text style={[
-                      styles.buttonText,
-                      selected === option.value && styles.selectedButtonText
-                    ]}>{option.label}</Text>
+                    {typeof option.label === 'string' ? 
+                        <Text style={[
+                            styles.buttonText,
+                            selected === option.value && styles.selectedButtonText
+                        ]}>
+                            {option.label}
+                        </Text> 
+                        : option.label}
                 </TouchableOpacity>
             ))}
         </View>
@@ -52,10 +56,12 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         overflow: 'hidden',
         position: 'relative',
+        alignItems: 'center',
     },
     button: {
         flex: 1,
-        padding: 5,
+        paddingVertical: 5,
+        paddingHorizontal: 8,
         alignItems: 'center',
     },
     selectedButton: {

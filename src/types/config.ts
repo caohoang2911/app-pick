@@ -7,6 +7,7 @@ export type Config = {
   cities: [],
   shippingMethods: [],
   stores: [],
+  orderDeliveryTypes: [],
   productPickedErrors: [],
   orderTags: [],
   orderOperationTypes: [],

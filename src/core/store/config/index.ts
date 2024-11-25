@@ -25,6 +25,7 @@ const _useConfig = create<ConfigState>((set, get) => ({
     shippingMethods: [],
     stores: [],
     orderTags: [],
+    orderDeliveryTypes: [],
     orderOperationTypes: [],
     fulfillErrorTypes: [],
   },
