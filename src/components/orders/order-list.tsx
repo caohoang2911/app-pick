@@ -14,31 +14,11 @@ import moment from 'moment';
 import { useAuth } from '~/src/core';
 import Empty from '../shared/Empty';
 
-const getExpectedDeliveryTime = (deliveryTimeRange: string) => {
-  if(!deliveryTimeRange) return "";
-  const expectedDeliveryDate = [moment(new Date()).format('DD/MM/YYYY')];
-  const expectedDeliveryTimeStart = deliveryTimeRange ? deliveryTimeRange.split('-')[0] : '';
-  const expectedDeliveryTimeEnd = deliveryTimeRange ? deliveryTimeRange.split('-')[1] : '';
-  const expectedDelivery = [
-    moment(
-      expectedDeliveryDate + ' ' + expectedDeliveryTimeStart,
-      'DD/MM/YYYY HH:mm:ss'
-    ).valueOf(),
-    moment(
-      expectedDeliveryDate + ' ' + expectedDeliveryTimeEnd,
-      'DD/MM/YYYY HH:mm:ss'
-    ).valueOf() - 1000,
-  ];
-
-  return expectedDelivery.join('-');
-}
-
 const OrderList = () => {
   const flatListRef = useRef<FlatList>(null);
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const keyword = useOrders.use.keyword();
   const deliveryType = useOrders.use.deliveryType();
-  const deliveryTimeRange = useOrders.use.deliveryTimeRange();
   const operationType = useOrders.use.operationType();
 
   const { storeCode } = useAuth.use.userInfo();
@@ -49,10 +29,9 @@ const OrderList = () => {
     keyword,
     status: selectedOrderCounter,
     deliveryType,
-    deliveryTimeRange: getExpectedDeliveryTime(deliveryTimeRange),
     operationType,
     storeCode,
-  }), [keyword, selectedOrderCounter, deliveryType, deliveryTimeRange, operationType, storeCode])
+  }), [keyword, selectedOrderCounter, deliveryType, operationType, storeCode])
 
   const {
     data: ordersResponse,
@@ -79,7 +58,7 @@ const OrderList = () => {
   useEffect(() => {
     withoutRefresh.current = true;
     goFirstPage();
-  }, [selectedOrderCounter, keyword, deliveryTimeRange, deliveryType, operationType]);
+  }, [selectedOrderCounter, keyword, deliveryType, operationType]);
 
   useFocusEffect(
     useCallback(() => {

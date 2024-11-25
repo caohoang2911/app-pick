@@ -28,7 +28,6 @@ import { Option } from '~/src/types/commons';
 import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
-import { TimeRange } from './time-range';
 import { stringUtils } from '~/src/core/utils/string';
 
 const windowWidth = Dimensions.get('window').width;
@@ -149,7 +148,6 @@ const Header = () => {
         <DeliveryType />
       </View>
       <TabsStatus />
-      <TimeRange />
       {/* Bottom sheet */}
       <StoreSelection onSelect={handleSelectedStore} ref={storeRef} selectedId={userInfo?.storeCode} />
       <OperationTypeSelection onSelect={handleSelectedOperationType} ref={operationTypeRef} selectedId={operationType} />
