@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
                BuildableName = "AppPickDev.app"
-               BlueprintName = "AppPick"
-               ReferencedContainer = "container:AppPick.xcodeproj">
+               BlueprintName = "AppPickDev"
+               ReferencedContainer = "container:AppPickDev.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "AppPickTests.xctest"
-               BlueprintName = "AppPickTests"
-               ReferencedContainer = "container:AppPick.xcodeproj">
+               BuildableName = "AppPickDevTests.xctest"
+               BlueprintName = "AppPickDevTests"
+               ReferencedContainer = "container:AppPickDev.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -56,8 +56,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "AppPickDev.app"
-            BlueprintName = "AppPick"
-            ReferencedContainer = "container:AppPick.xcodeproj">
+            BlueprintName = "AppPickDev"
+            ReferencedContainer = "container:AppPickDev.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -73,8 +73,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "AppPickDev.app"
-            BlueprintName = "AppPick"
-            ReferencedContainer = "container:AppPick.xcodeproj">
+            BlueprintName = "AppPickDev"
+            ReferencedContainer = "container:AppPickDev.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
