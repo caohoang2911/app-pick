@@ -16,6 +16,7 @@ import moment from 'moment';
 import { OrderStatus } from '~/src/types/order';
 import { GroupShippingInfo } from './group-shipping-info';
 import { useConfig } from '~/src/core/store/config';
+import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -43,9 +44,9 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const [value, setValue] = useState<string>();
 
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
-
+  const fillInput = useOrderPick.use.fillInput();
   useEffect(() => {
-    if (barcodeScanSuccess) {
+    if (barcodeScanSuccess && fillInput) {
       setValue(barcodeScanSuccess);
       setKeyword(barcodeScanSuccess);
     }
@@ -70,7 +71,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { header } = orderDetail;
   const { status, statusName,  lastTimeUpdateStatus, tags } = header || {};
 
-  const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
+  const shouldDisplayQrScan = useCanEditOrderPick();
 
   return (
     <View className="px-4 py-2 pb-3 bg-white">

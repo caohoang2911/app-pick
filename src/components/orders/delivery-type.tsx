@@ -14,8 +14,8 @@ type DeliveryTypeOption = {
 
 const pickStatus = [
   "SHIPPER_DELIVERY",
-  "CUSTOMER_PICKUP",
   "STORE_DELIVERY",
+  "CUSTOMER_PICKUP",
 ]
 
 

@@ -75,14 +75,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const actions: Array<Action> = useMemo(() => [
       {
-        key: 'complete-order',
-        title: 'Hoàn tất đơn hàng',
-        disabled: deliveryType === 'SHIPPER_DELIVERY',
-        icon: <MaterialIcons name="done" size={24} color="black" />,
-      },
-      {
         key: 'view-order',
-        title: 'Xem thông tin đơn hàng',
+        title: 'Thông tin đơn hàng',
         disabled: true,
         icon: <BillLine />,
       },
@@ -93,14 +87,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         icon: <PrintLine />,
       },
       {
-        key: 'scan-bag-customer',
-        title: 'Scan túi - Giao cho khách',
-        disabled: true,
-        icon: <QRScanLine />,
-      },
-      {
-        key: 'scan-bag-shipper',
-        title: 'Scan túi - Giao cho shipper',
+        key: 'scan-bag',
+        title: 'Scan túi - Giao hàng',
         disabled: true,
         icon: <QRScanLine />,
       },
@@ -109,6 +97,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         title: 'Lưu tạm',
         disabled: true,
         icon: <SaveOutLine />,
+      },
+      {
+        key: 'complete-order',
+        title: 'Hoàn tất đơn hàng',
+        disabled: deliveryType === 'SHIPPER_DELIVERY',
+        icon: <MaterialIcons name="done" size={24} color="black" />,
       },
     ], [code, deliveryType]);
 

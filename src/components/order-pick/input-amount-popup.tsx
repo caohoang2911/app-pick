@@ -161,7 +161,7 @@ const InputAmountPopup = ({}) => {
                     setFieldValue('pickedError', '');
                   }}
                 />
-                <Input
+                {/* <Input
                   label="Mô tả"
                   labelClasses="font-medium"
                   useBottomSheetTextInput
@@ -174,7 +174,7 @@ const InputAmountPopup = ({}) => {
                   onChangeText={(value: string) => {
                     setFieldValue('pickedNote', value);
                   }}
-                /> 
+                />  */}
                 <Button onPress={handleSubmit as any} label={'Xác nhận'} disabled={isError} />
               </>
           )}}

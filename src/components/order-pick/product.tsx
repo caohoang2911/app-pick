@@ -1,7 +1,7 @@
-import clsx from 'clsx';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
   setSuccessForBarcodeScan,
@@ -12,10 +12,10 @@ import { CheckCircleFill } from '~/src/core/svgs';
 import EditOutLine from '~/src/core/svgs/EditOutLine';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency, formatNumber } from '~/src/core/utils/number';
+import { cn } from '~/src/lib/utils';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
-import { cn } from '~/src/lib/utils';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -41,14 +41,7 @@ const OrderPickProduct = ({
   const pickedQuantity = orderPickProducts?.[barcode]?.pickedQuantity;
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
-  console.log("orderPickProducts", orderPickProducts);
-
-
-  const { header } = orderDetail || {};
-  const { status } = header || {};
-
-
-  const shouldDisplayEdit = status === 'STORE_PICKING'
+  const shouldDisplayEdit = useCanEditOrderPick();
 
   const isOutOfStock = stockAvailable === 0;
 
@@ -120,7 +113,7 @@ const OrderPickProduct = ({
           <Pressable
             onPress={() => {
               toggleShowAmountInput(!isShowAmountInput);
-              setSuccessForBarcodeScan(barcode);
+              setSuccessForBarcodeScan(barcode, { fillInput: false });
             }}
           >
             <EditOutLine width={21} height={21} color={'gray'} />
