@@ -36,7 +36,7 @@ install! 'cocoapods',
 
 prepare_react_native_project!
 
-target 'AppPickDev' do
+target 'AppPick' do
   use_expo_modules!
   config = use_native_modules!
 

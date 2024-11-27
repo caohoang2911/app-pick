@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "AppPickDevTests.xctest"
-               BlueprintName = "AppPickDevTests"
-               ReferencedContainer = "container:AppPickDev.xcodeproj">
+               BuildableName = "AppPickTests.xctest"
+               BlueprintName = "AppPickTests"
+               ReferencedContainer = "container:AppPick.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
