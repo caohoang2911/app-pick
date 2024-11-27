@@ -11,6 +11,7 @@ interface OrdersState {
   barcodeScanSuccess: string;
   keyword: string;
   barcodeScrollTo: string;
+  fillInput: boolean;
   orderPickProducts:
     | {
         barcode?: Product;
@@ -20,7 +21,7 @@ interface OrdersState {
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean) => void;
-  setSuccessForBarcodeScan: (barcode: string) => void;
+  setSuccessForBarcodeScan: (barcode: string, { fillInput }: { fillInput?: boolean }) => void;
   setBarcodeScrollTo: (barcode: string) => void;
   setInitOrderPickProducts: (data: any) => void;
   setOrderPickProducts: ({
@@ -44,6 +45,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   barcodeScrollTo: '',
   orderPickProducts: {},
   barcodeScanSuccess: '',
+  fillInput: true,
   setKeyword: (keyword: string) => {
     set({ keyword });
   },
@@ -56,8 +58,8 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   toggleShowAmountInput: (isShowAmountInput: boolean) => {
     set({ isShowAmountInput });
   },
-  setSuccessForBarcodeScan: (barcode: string) => {
-    set({ barcodeScanSuccess: barcode });
+  setSuccessForBarcodeScan: (barcode: string, { fillInput = true }: { fillInput?: boolean } = {}) => {
+    set({ barcodeScanSuccess: barcode, fillInput });
   },
   setInitOrderPickProducts: (data: any) => {
     set({ orderPickProducts: { ...data } });
@@ -100,8 +102,8 @@ export const toggleScanQrCodeProduct = (status: boolean) =>
 export const toggleShowAmountInput = (isShowAmountInput: boolean) =>
   _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput);
 
-export const setSuccessForBarcodeScan = (barcode: string) =>
-  _useOrderPick.getState().setSuccessForBarcodeScan(barcode);
+export const setSuccessForBarcodeScan = (barcode: string, { fillInput = true }: { fillInput?: boolean } = {}) =>
+  _useOrderPick.getState().setSuccessForBarcodeScan(barcode, { fillInput });
 
 export const setInitOrderPickProducts = (
   data: Array<{ [barcode: string]: number }>

@@ -1,5 +1,6 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import clsx from 'clsx';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
@@ -14,24 +15,39 @@ import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 
 export function TabsStatus() {
   const ref = useRef<any>();
+  const cachingOrderStatusCounters = useRef<any>(null);
+
   const deliveryType = useOrders.use.deliveryType();
   const operationType = useOrders.use.operationType();
 
   const { storeCode } = useAuth.use.userInfo();
 
   const { data, refetch } = useGetOrderStatusCounters({ deliveryType, operationType, storeCode });
-  const orderStatusCounters = data?.data || {};
+  const orderStatusCounters = {...cachingOrderStatusCounters.current, ...(data as any)?.data} || {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
 
+  useEffect(() => {
+    cachingOrderStatusCounters.current = orderStatusCounters;
+  }, [orderStatusCounters])
+
+
   const isFirtTime = useRef(true);
 
-  useRefreshOnFocus(async () => {
-    if (!isFirtTime.current) {
-      refetch();
-    }
-    isFirtTime.current = false;
-  });
+  useFocusEffect(
+    useCallback(() => {
+      if (!isFirtTime.current) {
+        refetch();
+      }
+      return () => {
+        isFirtTime.current = false;
+      };
+    }, [])
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [orderStatusCounters])
 
   const dataStatusCounters = Object.keys(orderStatusCounters)?.filter(key => ORDER_COUNTER_STATUS_PRIORITY[key] !== undefined)?.map(
     (key: string) => {

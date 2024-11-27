@@ -7,39 +7,19 @@ import {
 } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { queryClient } from '~/src/api/shared';
-import { useOrders } from '~/src/core/store/orders';
-import { SectionAlert } from '../SectionAlert';
-import OrderItem from './order-item';
-import moment from 'moment';
 import { useAuth } from '~/src/core';
+import { setFromScanQrCode, useOrders } from '~/src/core/store/orders';
+import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
-
-const getExpectedDeliveryTime = (deliveryTimeRange: string) => {
-  if(!deliveryTimeRange) return "";
-  const expectedDeliveryDate = [moment(new Date()).format('DD/MM/YYYY')];
-  const expectedDeliveryTimeStart = deliveryTimeRange ? deliveryTimeRange.split('-')[0] : '';
-  const expectedDeliveryTimeEnd = deliveryTimeRange ? deliveryTimeRange.split('-')[1] : '';
-  const expectedDelivery = [
-    moment(
-      expectedDeliveryDate + ' ' + expectedDeliveryTimeStart,
-      'DD/MM/YYYY HH:mm:ss'
-    ).valueOf(),
-    moment(
-      expectedDeliveryDate + ' ' + expectedDeliveryTimeEnd,
-      'DD/MM/YYYY HH:mm:ss'
-    ).valueOf() - 1000,
-  ];
-
-  return expectedDelivery.join('-');
-}
+import OrderItem from './order-item';
 
 const OrderList = () => {
   const flatListRef = useRef<FlatList>(null);
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const keyword = useOrders.use.keyword();
   const deliveryType = useOrders.use.deliveryType();
-  const deliveryTimeRange = useOrders.use.deliveryTimeRange();
   const operationType = useOrders.use.operationType();
+  const fromScanQrCode = useOrders.use.fromScanQrCode();
 
   const { storeCode } = useAuth.use.userInfo();
 
@@ -47,12 +27,11 @@ const OrderList = () => {
 
   const params = useMemo(() => ({
     keyword,
-    status: selectedOrderCounter,
-    deliveryType,
-    deliveryTimeRange: getExpectedDeliveryTime(deliveryTimeRange),
-    operationType,
+    status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
+    deliveryType: fromScanQrCode ? null : deliveryType,
+    operationType: fromScanQrCode ? null : operationType,
     storeCode,
-  }), [keyword, selectedOrderCounter, deliveryType, deliveryTimeRange, operationType, storeCode])
+  }), [keyword, selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode])
 
   const {
     data: ordersResponse,
@@ -61,8 +40,16 @@ const OrderList = () => {
     isFetchingNextPage,
     hasNextPage,
     refetch,
-    hasPreviousPage
+    hasPreviousPage,
+    isSuccess
   } = useSearchOrders({...params});
+
+
+  useEffect(() => {
+    if (isSuccess && fromScanQrCode) {
+      setFromScanQrCode(false);
+    }
+  }, [isSuccess])
 
 
   const withoutRefresh = useRef(false);
@@ -79,7 +66,7 @@ const OrderList = () => {
   useEffect(() => {
     withoutRefresh.current = true;
     goFirstPage();
-  }, [selectedOrderCounter, keyword, deliveryTimeRange, deliveryType, operationType]);
+  }, [selectedOrderCounter, keyword, deliveryType, operationType]);
 
   useFocusEffect(
     useCallback(() => {

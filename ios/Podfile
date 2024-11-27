@@ -35,9 +35,8 @@ install! 'cocoapods',
   :deterministic_uuids => false
 
 prepare_react_native_project!
-project 'AppPick.xcodeproj'
 
-target 'AppPick' do
+target 'AppPickDev' do
   use_expo_modules!
   config = use_native_modules!
 
@@ -45,7 +44,7 @@ target 'AppPick' do
   # pod 'Firebase/Auth', '~> 11.2.0'  
   # pod 'Firebase/Messaging', '~> 11.2.0'  
   # pod 'Firebase/Crashlytics', '~> 11.2.0' 
-  
+
   pod 'FirebaseCore', :modular_headers => true
   pod 'FirebaseCrashlytics', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
@@ -57,7 +56,7 @@ target 'AppPick' do
   pod 'FirebaseMessagingInterop', :modular_headers => true
   pod 'FirebaseMessaging', :modular_headers => true
 
-  use_frameworks! :linkage => :static if podfile_properties['ios.useFrameworks'] == 'static'
+  use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
 
   use_react_native!(

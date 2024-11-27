@@ -7,14 +7,14 @@ interface OrdersState {
   selectedOrderCounter: OrderStatus;
   keyword: string;
   deliveryType: string;
-  deliveryTimeRange: string;
   operationType: string;
+  fromScanQrCode: boolean;
   toggleScanQrCode: (status: boolean) => void;
   setSelectedOrderCounter: (status: OrderStatus) => void;
   setKeyWord: (keyword?: string) => void;
+  setFromScanQrCode: (fromScanQrCode: boolean) => void;
   setOperationType: (operationType: string | null) => void;
   setDeliveryType: (deliveryType: string) => void;
-  setExpectedDeliveryTimeRange: (time: string) => void;
   reset: () => void;
 }
 
@@ -22,26 +22,26 @@ const _useOrders = create<OrdersState>((set, get) => ({
   isScanQrCode: false,
   selectedOrderCounter: 'ALL',
   keyword: '',
-  deliveryType: 'ONLINE_DELIVERY',
-  deliveryTimeRange: '',
+  deliveryType: 'SHIPPER_DELIVERY',
   operationType: '',
+  fromScanQrCode: false,
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });
   },
   setSelectedOrderCounter: (selectedOrderCounter: OrderStatus) => {
     set({ selectedOrderCounter });
   },
+  setFromScanQrCode: (fromScanQrCode: boolean) => {
+    set({ fromScanQrCode });
+  },
   setKeyWord: (keyword?: string) => {
     set({ keyword });
   },
-  setOperationType: (operationType?: string) => {
+  setOperationType: (operationType: string | any) => {
     set((state) => ({ ...state, operationType }));
   },
   setDeliveryType: (deliveryType: string) => {
     set((state) => ({ ...state, deliveryType }));
-  },
-  setExpectedDeliveryTimeRange: (deliveryTimeRange: string) => {
-    set({ deliveryTimeRange });
   },
   reset: () => {
     set({
@@ -49,8 +49,7 @@ const _useOrders = create<OrdersState>((set, get) => ({
       selectedOrderCounter: 'ALL',
       keyword: '',
       operationType: 'CAMPAIGN',
-      deliveryType: 'ONLINE_DELIVERY',
-      deliveryTimeRange: '',
+      deliveryType: 'SHIPPER_DELIVERY',
     });
   },
 }));
@@ -69,10 +68,10 @@ export const setKeyWord = (keyword?: string) =>
 export const setDeliveryType = (deliveryType: string) =>
   _useOrders.getState().setDeliveryType(deliveryType);
 
-export const setExpectedDeliveryTimeRange = (deliveryTimeRange: string) =>
-  _useOrders.getState().setExpectedDeliveryTimeRange(deliveryTimeRange);
-
 export const setOperationType = (operationType: string | null) =>
   _useOrders.getState().setOperationType(operationType);
+
+export const setFromScanQrCode = (fromScanQrCode: boolean) =>
+  _useOrders.getState().setFromScanQrCode(fromScanQrCode);
 
 export const reset = () => _useOrders.getState().reset();

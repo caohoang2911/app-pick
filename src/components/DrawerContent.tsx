@@ -46,12 +46,6 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
       <ScrollView
         showsVerticalScrollIndicator={false}
       >
-        <Pressable onPress={signOut}>
-          <View className="flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3">
-            <MaterialIcons name="logout" size={20} color={colors.black} />
-            <Text className="text-md font-body">Logout</Text>
-          </View>
-        </Pressable>
         <Pressable onPress={() => router.push('/settings')}>
           <View className="flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3">
             <AntDesign name="setting" size={20} color="black" />
@@ -59,6 +53,12 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
           </View>
         </Pressable>
       </ScrollView>
+      <Pressable onPress={signOut}>
+        <View className="flex flex-row gap-2 items-center border-t border-gray-200 py-3 px-3 ml-3">
+          <MaterialIcons name="logout" size={20} color={colors.black} />
+          <Text className="text-md font-body">Logout</Text>
+        </View>
+      </Pressable>
     </View>
   )
 }

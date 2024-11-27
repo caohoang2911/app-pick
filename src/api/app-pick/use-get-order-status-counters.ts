@@ -15,6 +15,9 @@ export type OrderCounterResponse = {
   STORE_PICKING?: number;
   CONFIRMED?: number;
   STORE_PACKED?: number;
+  SHIPPER_DELIVERY?: number;
+  CUSTOMER_PICKUP?: number;
+  STORE_DELIVERY?: number;
 };
 
 type Response = { error: string } & {

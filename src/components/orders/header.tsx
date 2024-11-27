@@ -19,17 +19,16 @@ import {
   setKeyWord,
   setOperationType,
   toggleScanQrCode,
-  useOrders,
+  useOrders
 } from '~/src/core/store/orders';
 import ArrowDown from '~/src/core/svgs/ArrowDown';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { getConfigNameById } from '~/src/core/utils/config';
+import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
 import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
-import { TimeRange } from './time-range';
-import { stringUtils } from '~/src/core/utils/string';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -80,11 +79,11 @@ const Header = () => {
     setStorePicking({ storeCode: store?.id });
   }
   const handleSelectedOperationType = (operationType: Option) => {
-    setOperationType(operationType?.id?.toString() || null);
+    setOperationType(operationType?.id?.toString() || "");
   }
 
   return (
-    <View className="px-4 py-4 bg-blue-100">
+    <View className="px-4 py-2 bg-blue-100">
       <View className="flex flex-row justify-between items-center mb-4">
         <View className="flex flex-row gap-2 items-center">
           <TouchableOpacity onPress={toggleMenu}>
@@ -149,7 +148,6 @@ const Header = () => {
         <DeliveryType />
       </View>
       <TabsStatus />
-      <TimeRange />
       {/* Bottom sheet */}
       <StoreSelection onSelect={handleSelectedStore} ref={storeRef} selectedId={userInfo?.storeCode} />
       <OperationTypeSelection onSelect={handleSelectedOperationType} ref={operationTypeRef} selectedId={operationType} />

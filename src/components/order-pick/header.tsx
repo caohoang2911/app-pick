@@ -8,12 +8,31 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { OrderDetail } from '~/src/types/order-detail';
+import { getConfigNameById } from "~/src/core/utils/config"
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { useGlobalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { OrderStatus } from '~/src/types/order';
 import { GroupShippingInfo } from './group-shipping-info';
+import { useConfig } from '~/src/core/store/config';
+import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
+
+const HeaderTags = ({tags}: {tags?: string[]}) => {
+  const configs = useConfig.use.config();
+  const orderTags = configs?.orderTags || [];
+
+  return (
+    <View className="flex flex-row gap-1 flex-wrap" style={{ marginTop: tags?.length ? 4 : 0 }}>
+      {tags?.map((tag) => {
+        const tagName = getConfigNameById(orderTags, tag);
+        return  (
+          <Badge className="self-start rounded-md" label={tagName as string} variant="default" />
+        )
+      })}
+    </View>
+  )
+}
 
 type Props = {
   onClickHeaderAction?: () => void;
@@ -25,9 +44,9 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const [value, setValue] = useState<string>();
 
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
-
+  const fillInput = useOrderPick.use.fillInput();
   useEffect(() => {
-    if (barcodeScanSuccess) {
+    if (barcodeScanSuccess && fillInput) {
       setValue(barcodeScanSuccess);
       setKeyword(barcodeScanSuccess);
     }
@@ -50,9 +69,9 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
-  const { status, statusName,  lastTimeUpdateStatus } = header || {};
+  const { status, statusName,  lastTimeUpdateStatus, tags } = header || {};
 
-  const shouldDisplayQrScan = ['STORE_PICKING'].includes(status as OrderStatus);
+  const shouldDisplayQrScan = useCanEditOrderPick();
 
   return (
     <View className="px-4 py-2 pb-3 bg-white">
@@ -72,6 +91,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <More2Fill />
         </Pressable>
       </View>
+      <HeaderTags tags={tags} />
       <GroupShippingInfo />
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input

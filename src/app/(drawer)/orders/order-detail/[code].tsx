@@ -18,6 +18,7 @@ import {
   toggleShowAmountInput,
   useOrderPick
 } from '~/src/core/store/order-pick';
+import { splitBarcode } from '~/src/core/utils/number';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -50,7 +51,9 @@ const OrderPick = () => {
   const handleSuccessBarCode = useCallback(
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
-      setCurrentQr(codeScanned);
+
+      const { barcode } = splitBarcode({ barcode: codeScanned });
+      setCurrentQr(barcode);
 
       if (timeout.current) clearTimeout(timeout.current);
 
@@ -58,11 +61,11 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      const indexOfCodeScanned = Object.keys(orderPickProducts || {})?.findIndex(key => codeScanned?.startsWith(key));
+      const indexOfCodeScanned = Object.keys(orderPickProducts || {})?.findIndex(key => barcode?.startsWith(key));
 
       if (indexOfCodeScanned === -1) {
         showMessage({
-          message: 'Mã vừa quét không nằm trong đơn hàng',
+          message: `Mã ${barcode} vừa quét không nằm trong đơn hàng`,
           type: 'warning',
         });
       } else {
@@ -73,7 +76,7 @@ const OrderPick = () => {
         }
       }
     },
-    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan]
+    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, productItems]
   );
 
   if(!orderDetail) {

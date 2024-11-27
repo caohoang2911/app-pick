@@ -5,8 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 type Response = { error: string } & {
   data: {
     noti?: {
-      isEnableOnline: true,
-      isEnableHomedeli: true
+      isSubcribeOrderStoreDelivery: boolean;
+      isSubcribeOrderCustomerPickup: boolean;
+      isSubcribeOrderShipperDelivery: boolean;
     }
   };
 };

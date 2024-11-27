@@ -120,7 +120,7 @@ export interface OrderDetailHeader {
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
   groupShippingPickedStatues?: {[key: string]: boolean};
-  deliveryType: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'HOME_DELIVERY';
+  deliveryType: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'ORDER_PICK' | 'SHIPPER_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   tags?: Array<string>;
