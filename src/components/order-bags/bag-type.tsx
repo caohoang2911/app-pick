@@ -30,7 +30,7 @@ const BagType = ({
           <BagItem key={code} code={code} type={type} />
         ))}
       </View>
-      <View className="flex-row justify-center bg-blue-200 mt-3">
+      <View className="flex-row justify-center bg-blue-50 mt-3">
         <Button 
           icon={
             <AntDesign name="pluscircleo"

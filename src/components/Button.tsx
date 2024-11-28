@@ -80,7 +80,7 @@ function Button({
       style={[{opacity: disabled ? 0.2 : 1}]}
       {...props}
     >
-      {icon && <View className="mr-2">{icon}</View>}
+      {icon && <View style={{ marginRight: 5 }}>{icon}</View>}
       <Text
         className={cn(
           buttonTextVariants({ variant, size, className: labelClasses })

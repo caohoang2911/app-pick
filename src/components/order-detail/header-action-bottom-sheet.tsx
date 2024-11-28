@@ -95,7 +95,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'save-draft',
         title: 'Lưu tạm',
-        disabled: true,
         icon: <SaveOutLine />,
       },
       {
