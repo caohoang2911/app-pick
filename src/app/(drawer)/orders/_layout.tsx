@@ -20,6 +20,7 @@ export default function DrawerLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="order-detail" options={{ headerShown: false }} />
       <Stack.Screen name="order-invoice" options={{ headerShown: false }} />
+      <Stack.Screen name="order-bags" options={{ headerShown: false }} />
     </Stack>
   )
 }

@@ -16,6 +16,7 @@ import SBottomSheet from '../SBottomSheet';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { queryClient } from '~/src/api/shared';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
+import { OrderStatusValue } from '~/src/types/order';
 
 type Action = {
   key: string;
@@ -33,7 +34,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const orderDetail = useOrderPick.use.orderDetail();
 
-    const { deliveryType } = orderDetail?.header || {};
+    const { deliveryType, status } = orderDetail?.header || {};
 
     const orderPickProducts = useOrderPick.use.orderPickProducts();
     
@@ -82,7 +83,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'enter-bag-and-tem',
         title: 'Nhập số lượng túi và in tem',
-        disabled: true,
+        disabled: status !== OrderStatusValue.STORE_PICKING,
         icon: <PrintLine />,
       },
       {
@@ -103,7 +104,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         disabled: deliveryType === 'SHIPPER_DELIVERY',
         icon: <MaterialIcons name="done" size={24} color="black" />,
       },
-    ], [code, deliveryType]);
+    ], [code, deliveryType, status]);
 
     const renderItem = ({
       onClickAction,
@@ -144,6 +145,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           break;
         case 'complete-order':
           handleCompleteOrder();
+          break;
+        case 'enter-bag-and-tem':
+          router.push(`orders/order-bags/${code}`);
           break;
         default:
           break;

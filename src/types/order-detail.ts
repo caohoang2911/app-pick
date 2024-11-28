@@ -1,4 +1,5 @@
 import { OrderStatus } from './order';
+import { OrderBagItem } from './order-bag';
 import { Product } from './product';
 
 export type Customer = {
@@ -156,6 +157,7 @@ export interface OrderDetailHeader {
     messages?: Array<string>;
     name?: string;
   };
+  bagLabels: OrderBagItem[],
   lastTimeUpdateStatus?: number;
   amount?: number;
   codAmount?: number;

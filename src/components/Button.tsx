@@ -1,5 +1,5 @@
 import { type VariantProps, cva } from 'class-variance-authority';
-import { ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 
 import { cn } from '../lib/utils';
 import Loading from './Loading';
@@ -15,6 +15,7 @@ const buttonVariants = cva(
         ghost: 'bg-slate-700',
         warning: 'bg-orange-500',
         link: 'text-primary underline-offset-4',
+        text: 'bg-transparent',
       },
       size: {
         default: 'h-10 px-4',
@@ -38,6 +39,7 @@ const buttonTextVariants = cva('text-center font-medium', {
       warning: 'text-white',
       ghost: 'text-primary-foreground',
       link: 'text-primary-foreground underline',
+      text: 'text-primary-foreground',
     },
     size: {
       default: 'text-base',
@@ -55,12 +57,14 @@ interface ButtonProps
   extends React.ComponentPropsWithoutRef<typeof TouchableOpacity>,
     VariantProps<typeof buttonVariants> {
   label: string;
+  icon?: React.ReactNode;
   labelClasses?: string;
   disabed?: boolean;
   loading?: boolean;
 }
 function Button({
   label,
+  icon,
   labelClasses,
   className,
   variant = 'default',
@@ -76,6 +80,7 @@ function Button({
       style={[{opacity: disabled ? 0.2 : 1}]}
       {...props}
     >
+      {icon && <View className="mr-2">{icon}</View>}
       <Text
         className={cn(
           buttonTextVariants({ variant, size, className: labelClasses })
