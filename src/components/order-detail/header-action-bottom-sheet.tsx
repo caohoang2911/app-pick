@@ -77,7 +77,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'view-order',
         title: 'Thông tin đơn hàng',
-        disabled: true,
         icon: <BillLine />,
       },
       {

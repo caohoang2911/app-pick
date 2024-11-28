@@ -1,19 +1,19 @@
+import clsx from 'clsx';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
-import OrderPickProduct from './product';
-import { useLocalSearchParams } from 'expo-router';
-import { Product } from '~/src/types/product';
 import {
   setInitOrderPickProducts,
   setOrderDetail,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import clsx from 'clsx';
 import { stringUtils } from '~/src/core/utils/string';
 import { OrderStatus } from '~/src/types/order';
+import { Product } from '~/src/types/product';
 import Empty from '../shared/Empty';
+import OrderPickProduct from './product';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{

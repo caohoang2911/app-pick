@@ -1,17 +1,15 @@
 import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
-import { isEmpty } from 'lodash';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
-import ActionsBottom from '~/src/components/order-pick/actions-bottom';
-import Header from '~/src/components/order-pick/header';
-import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/header-action-bottom-sheet';
-import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
-import OrderPickProducts from '~/src/components/order-pick/products';
+import ActionsBottom from '~/src/components/order-detail/actions-bottom';
+import Header from '~/src/components/order-detail/header';
+import OrderPickHeadeActionBottomSheet from '~/src/components/order-detail/header-action-bottom-sheet';
+import InputAmountPopup from '~/src/components/order-detail/input-amount-popup';
+import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import {
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
