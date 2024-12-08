@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { useUpdateSetting } from '~/src/api/app-pick/use-update-setting';
+import { router } from 'expo-router';
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
 import { Switch } from '~/src/components/Switch';
@@ -53,6 +54,8 @@ const Settings = () => {
       </View>
       <View className="px-4" style={{ paddingBottom: 30 }}>
         <Button label="Cập nhật" loading={isPending} onPress={handleUpdateSetting} />
+        <Button label="Prints" loading={isPending} onPress={() => router.push('/printers')} />
+        
       </View>
     </View>
   );
