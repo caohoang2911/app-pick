@@ -50,7 +50,10 @@ const OrderPickProducts = () => {
   useEffect(() => {
     const obj: any = {};
     productItems?.forEach((productItem: Product) => {
-      obj[productItem.barcode] = { ...productItem };
+      const barcode = productItem.barcode || productItem.baseBarcode;
+      if (barcode) {
+        obj[barcode] = { ...productItem };
+      }
     });
 
     setInitOrderPickProducts(obj);

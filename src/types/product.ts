@@ -22,7 +22,8 @@ export type Product = {
   sellPrice?: number;
   attributes?: any;
   originPrice?: number;
-  barcode: string;
+  barcode?: string;
+  baseBarcode?: string;
   unit?: string;
   gifts?: Array<{ name: string; image: string }>;
 };

@@ -84,10 +84,6 @@ const OrderPick = () => {
   return (
     <>
       <View className="flex-1 bg-gray-50 pt-2">
-        {/* TODO */}
-        {/* {!isScanQrCodeProduct && shouldDisplayQrScan && (
-          <ScanOnView onSuccessBarcodeScanned={handleSuccessBarCode} />
-        )} */}
         <OrderPickProducts />
       </View>
       <ActionsBottom />
