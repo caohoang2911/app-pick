@@ -1,20 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View } from 'react-native';
-import { OrderBagItem, OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
+import { useOrderBag } from '~/src/core/store/order-bag';
+import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 import BagType from './bag-type';
-import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
-import { useLocalSearchParams } from 'expo-router';
-import { setOrderBags, setOrderDetail, useOrderBag } from '~/src/core/store/order-bag';
-const bagLabels: OrderBagItem[] = [
-  {
-    "code": "OLE20FEBE1-DR01",
-    "type": "DRY" as OrderBagType
-  },
-  {
-    "code": "OLE20FEBE1-DR02",
-    "type": "DRY" as OrderBagType
-  }
-];
 
 const Bags = () => {
   const orderBags = useOrderBag.use.orderBags();

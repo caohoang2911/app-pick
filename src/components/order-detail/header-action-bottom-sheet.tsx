@@ -83,7 +83,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'enter-bag-and-tem',
         title: 'Nhập số lượng túi và in tem',
-        disabled: status !== OrderStatusValue.STORE_PICKING,
+        // disabled: status !== OrderStatusValue.STORE_PICKING,
         icon: <PrintLine />,
       },
       {

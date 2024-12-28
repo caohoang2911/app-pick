@@ -75,7 +75,8 @@
           }
         }
       ],
-      "expo-router"
+      "expo-router",
+      "with-react-native-tcp-socket"
     ],
     "extra": {
       "eas": {

@@ -1,4 +1,4 @@
-import { OrderBagCode, OrderBagItem, OrderBagType } from "~/src/types/order-bag";
+import { OrderBagCode, OrderBagItem, OrderBagLabel, OrderBagType } from "~/src/types/order-bag";
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -8,15 +8,26 @@ export const transformBagsData: any = (bags: OrderBagItem[]) => {
   const nonFood = bags.filter((bag) => bag.type === 'NON_FOOD');
 
   const bagsType = {
-    DRY: dry,
-    FROZEN: frozen,
-    FRESH: fresh,
-    NON_FOOD: nonFood,
+    DRY: dry.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.DRY, index + 1, dry.length) })),
+    FROZEN: frozen.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FROZEN, index + 1, frozen.length) })),
+    FRESH: fresh.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FRESH, index + 1, fresh.length) })),
+    NON_FOOD: nonFood.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.NON_FOOD, index + 1, nonFood.length) })),
   };
 
   return bagsType;
 }
 
-export const generateBagCode = (type: OrderBagType, orderCode: string, index: number) => {
+export const generateBagCode = (type: OrderBagType, orderCode: string, bagLabels: OrderBagItem[]) => {
+  const maxBugsCodeSuffixNumber = bagLabels.length > 0 ? Math.max(...bagLabels.map((bag) => {
+    const code = bag.code.split('-')[1];
+    const numberOnly = code.match(/\d+/); 
+    return Number(numberOnly);
+  })) : null;
+
+  const index =  Boolean(maxBugsCodeSuffixNumber !== null && Number(maxBugsCodeSuffixNumber) >= 0) ? Number(maxBugsCodeSuffixNumber || 0) + 1 : 0;
   return `${orderCode}-${OrderBagCode[type]}${index < 10 ? `0${index}` : index}`;
+}
+
+export const generateBagName = (type: OrderBagType, index: number, total: number) => {
+  return `${OrderBagLabel[type]} - ${index}/${total} - ${total} túi`;
 }

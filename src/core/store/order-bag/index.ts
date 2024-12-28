@@ -2,10 +2,11 @@ import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
 import { OrderBagItem, OrderBagType } from '~/src/types/order-bag';
 import { OrderDetail } from '~/src/types/order-detail';
-import { transformBagsData } from '~/src/core/utils/order-bag';
+import { generateBagName, transformBagsData } from '~/src/core/utils/order-bag';
 
 interface OrderBagState {
   orderDetail: OrderDetail;
+  hasUpdateOrderBagLabels: boolean;
   orderBags: {
     DRY: Array<any>;
     FROZEN: Array<any>;
@@ -22,6 +23,7 @@ interface OrderBagState {
 
 const _useOrderBag = create<OrderBagState>((set, get) => ({
   orderDetail: {},
+  hasUpdateOrderBagLabels: false,
   orderBags: {
     DRY: [],
     FROZEN: [],
@@ -30,16 +32,30 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
   },
   isLoadingDeliveryOrderDetail: false,
   setOrderDetail: (orderDetail: OrderDetail) => {
-    set({ orderDetail, orderBags: transformBagsData(orderDetail?.header?.bagLabels) });
+    set({ hasUpdateOrderBagLabels: false, orderDetail, orderBags: transformBagsData(orderDetail?.header?.bagLabels) });
   },
   setOrderBags: (values: any) => {
-    set({ orderBags: values });
+    set({ orderBags: values, });
   },
   addOrderBag: (values: OrderBagItem) => {
-    set({ orderBags: { ...get().orderBags, [values.type]: [...get().orderBags[values.type], values] } });
+    set({ 
+      hasUpdateOrderBagLabels: true,
+      orderBags: { 
+        ...get().orderBags,
+        [values.type]: [...get().orderBags[values.type], values]
+      }
+    });
   },
   removeOrderBag: (code: string, type: OrderBagType) => {
-    set({ orderBags: { ...get().orderBags, [type]: get().orderBags[type].filter((item: OrderBagItem) => item.code !== code) } });
+    set({ 
+      hasUpdateOrderBagLabels: true, 
+      orderBags: { 
+        ...get().orderBags, 
+        [type]: get().orderBags[type]
+          .filter((item: OrderBagItem) => item.code !== code)
+          .map((item: OrderBagItem, index: number) => ({ ...item, name: generateBagName(type, index + 1, get().orderBags[type].length - 1) }))
+      }
+    });
   },
 }));
 

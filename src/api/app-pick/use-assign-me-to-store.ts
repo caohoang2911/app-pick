@@ -8,13 +8,13 @@ type Variables = {
 
 type Response = { error: string } & {};
 
-const setStorePicking = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/setStorePicking', params);
+const assignMeToStore = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/assignMeToStore', params);
 };
 
-export const useSetStorePicking = (cb: () => void) => {
+export const useAssignMeToStore = (cb: () => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => setStorePicking(params),
+    mutationFn: (params: Variables) => assignMeToStore(params),
     onSuccess: (data: Response) => {
       if (!data.error) {
         cb?.();

@@ -22,4 +22,12 @@ export enum OrderBagLabel {
 export type OrderBagItem = {
   code: string;
   type: OrderBagType;
+  name: string;
+}
+
+export type OrderBag = {
+  DRY: Array<any>;
+  FROZEN: Array<any>;
+  FRESH: Array<any>;
+  NON_FOOD: Array<any>;
 }

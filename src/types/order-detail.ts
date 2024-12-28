@@ -157,7 +157,7 @@ export interface OrderDetailHeader {
     messages?: Array<string>;
     name?: string;
   };
-  bagLabels: OrderBagItem[],
+  bagLabels?: OrderBagItem[],
   lastTimeUpdateStatus?: number;
   amount?: number;
   codAmount?: number;

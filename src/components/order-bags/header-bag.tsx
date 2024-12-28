@@ -10,7 +10,8 @@ function HeaderBag() {
   const status = "STORE_PICKING";
 
   const orderBags = useOrderBag.use.orderBags();
-  const mergeOrderBags = [...orderBags?.DRY, ...orderBags?.FRESH, ...orderBags?.FROZEN];
+  const mergeOrderBags =  orderBags ? [...orderBags?.DRY || [], ...orderBags?.FRESH || [], ...orderBags?.FROZEN || [], ...orderBags?.NON_FOOD || []] : [];
+
 
   return (
     <View className="bg-white mx-4 px-4 py-3 flex flex-row justify-between rounded-md items-center gap-2">
@@ -21,7 +22,7 @@ function HeaderBag() {
           variant={toLower(status as string) as any}
         />
       </View>
-      <Text>Tổng SL tem: {mergeOrderBags?.length ? mergeOrderBags?.length + 1 : 0}</Text>
+      <Text>Tổng SL tem: {mergeOrderBags?.length ||  0}</Text>
     </View>
   )
 }
