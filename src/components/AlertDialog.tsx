@@ -3,7 +3,7 @@ import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } fr
 import { hideAlert, useAlertStore } from '../core/store/alert-dialog';
 
 const AlertDialog = () => {  
-  const { isVisible, message, title, loading, onConfirm, onCancel } = useAlertStore();
+  const { isVisible, cancelText, confirmText, isHideCancelButton, isHideConfirmButton, message, title, loading, onConfirm, onCancel } = useAlertStore();
 
   if(!isVisible) return null;
 
@@ -22,19 +22,19 @@ const AlertDialog = () => {
               {message && <Text className='text-center text-sm mt-2' style={{lineHeight: 20}}>{message}</Text>}
             </View>
             <View className="flex flex-row w-full border-t border-gray-200">
-              <View className='flex-1 py-3 border-r border-gray-200'>
+              {!isHideCancelButton && <View className='flex-1 py-3 border-r border-gray-200'>
                 <TouchableOpacity onPress={onCancel || hideAlert}>
-                  <Text className='text-center text-blue-500 text-lg'>Trở lại</Text>
+                  <Text className='text-center text-blue-500 text-lg'>{cancelText || 'Trở lại'}</Text>
                 </TouchableOpacity>
-              </View>
-              <View className='flex-1 py-3'>
+              </View>}
+              {!isHideConfirmButton && <View className='flex-1 py-3'>
                 <TouchableOpacity onPress={onConfirm} disabled={loading}>
                   <View className='flex flex-row justify-center items-center gap-2'>
                     {loading && <ActivityIndicator size="small" color="blue" />}
-                    <Text className='text-center text-blue-500 text-lg font-semibold'>Xác nhận</Text>
+                    <Text className='text-center text-blue-500 text-lg font-semibold'> {confirmText || 'Xác nhận'}</Text>
                   </View>
                 </TouchableOpacity>
-              </View>
+              </View>}
             </View> 
           </View>  
         </View>  

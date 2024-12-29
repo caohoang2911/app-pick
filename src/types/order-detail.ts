@@ -79,7 +79,10 @@ export type OrderDelivery = {
   lastTimeUpdateStatus?: number;
   cod?: number;
   discount?: number;
-  productItems?: Product[];
+  productItems?: Array<Product>;
+  productItemGroups?: {
+    [key: string]: Array<Product>;
+  };
   orderTime?: number;
   statusLogs?: Array<LogOrder>;
   note?: string;

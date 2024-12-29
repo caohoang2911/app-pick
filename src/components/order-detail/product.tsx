@@ -6,14 +6,13 @@ import { useConfig } from '~/src/core/store/config';
 import {
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
-  useOrderPick,
+  useOrderPick
 } from '~/src/core/store/order-pick';
 import { CheckCircleFill } from '~/src/core/svgs';
 import EditOutLine from '~/src/core/svgs/EditOutLine';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency, formatNumber } from '~/src/core/utils/number';
 import { cn } from '~/src/lib/utils';
-import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 
@@ -29,16 +28,14 @@ const OrderPickProduct = ({
   quantity,
   stockAvailable,
   tags,
+  pickedTime,
+  pickedError,
+  pickedQuantity,
 }: Partial<Product | any>) => {
-  const orderPickProducts: any = useOrderPick.use.orderPickProducts();
-  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const config = useConfig.use.config();
   const productPickedErrors = config?.productPickedErrors || [];
-
-  const pickedError = orderPickProducts?.[barcode]?.pickedError;
-  const pickedQuantity = orderPickProducts?.[barcode]?.pickedQuantity;
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
   const shouldDisplayEdit = useCanEditOrderPick();
@@ -50,7 +47,7 @@ const OrderPickProduct = ({
       <View className={cn(`bg-white shadow`)} style={styles.box}>
         <View className="p-4">
           <View className='flex flex-row gap-2 items-center mb-3' style={[{paddingRight: shouldDisplayEdit ? 53 : 28}]}>
-            {orderPickProducts?.[barcode]?.pickedTime && (
+            {pickedTime && (
               <View className="rounded-full bg-white ">
                 <CheckCircleFill color={'green'}/>
               </View>

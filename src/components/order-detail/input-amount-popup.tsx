@@ -6,6 +6,7 @@ import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
+  getOrderPickProductsFlat,
   setOrderPickProducts,
   toggleShowAmountInput,
   useOrderPick,
@@ -32,10 +33,13 @@ const InputAmountPopup = ({}) => {
   const productPickedErrors = config?.productPickedErrors || [];
 
   const inputBottomSheetRef = useRef<any>();
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const currentProduct = orderPickProducts[barcodeScanSuccess as keyof typeof orderPickProducts] as Product;
+  
+  const orderPickProductsFlat = getOrderPickProductsFlat();
 
-  const { pickedQuantity, quantity } = currentProduct || {};
+  const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess);
+
+  const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
+    
   const displayPickedQuantity = pickedQuantity || quantity || 0;
 
   const productName = currentProduct?.name || '';
@@ -75,7 +79,7 @@ const InputAmountPopup = ({}) => {
               pickedQuantity: values?.pickedQuantity,
               pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
               pickedNote: values?.pickedNote,
-            });
+            } as Product);
             resetForm();
           }}
         >

@@ -14,6 +14,7 @@ import { OrderStatus } from '~/src/types/order';
 import { Product } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
+import ProductCombo from './product-combo';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{
@@ -22,6 +23,8 @@ const OrderPickProducts = () => {
   }>();
   const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
   const keyword = useOrderPick.use.keyword();
+
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
 
   const ref: any = useRef<FlatList>();
 
@@ -34,37 +37,38 @@ const OrderPickProducts = () => {
   }, [data]);
 
   const orderDetail = data?.data || {};
-  const { productItems } = orderDetail?.delivery || {};
+  const { productItemGroups } = orderDetail?.delivery || {};
 
   const filterProductItems = useMemo(() => {
-    return productItems?.filter((productItem: Product) => {
 
+    console.log(orderPickProducts, "orderPickProducts");
+    return orderPickProducts?.filter((products: Array<Product>) => {
       if (!keyword) return true;
-      const byProductName = stringUtils.removeAccents(productItem.name?.toLowerCase()).includes(stringUtils.removeAccents(keyword.toLowerCase()));
-      const byProductBarcode = productItem.barcode?.toLowerCase().includes(keyword.toLowerCase());
 
-      return byProductBarcode || byProductName;
+      if(products.length === 1) {
+        const byProductName = stringUtils.removeAccents(products[0].name?.toLowerCase()).includes(stringUtils.removeAccents(keyword.toLowerCase()));
+        const byProductBarcode = products[0].barcode?.toLowerCase().includes(keyword.toLowerCase());
+        return byProductBarcode || byProductName;
+      }
+      
+      return true;
     });
-  }, [productItems, keyword]);
+  }, [keyword, orderPickProducts]);
 
   useEffect(() => {
-    const obj: any = {};
-    productItems?.forEach((productItem: Product) => {
-      const barcode = productItem.barcode || productItem.baseBarcode;
-      if (barcode) {
-        obj[barcode] = { ...productItem };
-      }
-    });
+    const tempArr = Object.values(productItemGroups || {}).map((item: any) => {
+      return item;
+    }) || [];
 
-    setInitOrderPickProducts(obj);
-  }, [productItems]);
+    setInitOrderPickProducts([...tempArr] as never[]);
+  }, [productItemGroups]);
 
   const indexCurrentProduct = useMemo(
     () =>
-      productItems?.findIndex((productItem: Product) => {
+      orderPickProducts.flat().findIndex((productItem: Product) => {
         return productItem.barcode === barcodeScrollTo;
       }),
-    [barcodeScrollTo, productItems]
+    [barcodeScrollTo, orderPickProducts]
   );
 
   useEffect(() => {
@@ -120,14 +124,17 @@ const OrderPickProducts = () => {
           index: number;
         }) => {
           const isLast = Boolean(
-            index === Number((productItems || []).length - 1)
+            index === Number((orderPickProducts || []).length - 1)
           );
+
+          console.log(item, "item");
+         
           return (
             <View
               key={index}
               className={clsx('px-4 mb-4', { 'mb-10': isLast })}
             >
-              <OrderPickProduct {...item} />
+              {item.length === 1 ? <OrderPickProduct {...item[0]} /> : <ProductCombo products={item} />}
             </View>
           );
         }}

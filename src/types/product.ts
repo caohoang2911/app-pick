@@ -8,11 +8,13 @@ export enum ProductLabelEnum {
 }
 
 export type Product = {
+  pId: number;
   pickedError?: string;
   pickedNote?: string;
   pickedQuantity?: number;
   unitType?: string;
   quantity: number;
+  pickedTime?: number;
   image?: string;
   tags?: Array<any>;
   name?: string;

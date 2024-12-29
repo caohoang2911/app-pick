@@ -62,15 +62,14 @@ function PrintPreview() {
         console.log('close');
         setLoading(false);
         setConnected(false);
-        showAlert({ title: 'Lỗi kết nối với máy in',
+        showAlert({ 
+          message: 'Không thể kết nối với máy in. Vui lòng kiểm tra lại.',
           onConfirm: () => {
             router.back();
             hideAlert();
           },
-          onCancel: () => {
-            hideAlert();
-            router.back();
-          }
+          confirmText: 'Trở lại',
+          isHideCancelButton: true,
         });
       });
     } catch (error) {
