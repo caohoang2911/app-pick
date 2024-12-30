@@ -20,7 +20,7 @@ const OrderBags = () => {
     orderCode: code,
   });
   const orderBags = useOrderBag.use.orderBags();
-
+  
   const { mutate: updateOrderBagLabels } = useUpdateOrderBagLabels((error) => {
     if(error) {
       queryClient.invalidateQueries({ queryKey: ['order-detail'] });

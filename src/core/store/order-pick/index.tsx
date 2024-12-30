@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { create } from 'zustand';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 
@@ -121,3 +121,5 @@ export const getOrderPickProductsFlat = () =>
 
 export const getCurrentProductPicked = (barcode: string) =>
   getOrderPickProductsFlat()?.find((product: Product) => product.barcode === barcode); 
+
+export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useOrderPick.getState().orderDetail?.header || {};

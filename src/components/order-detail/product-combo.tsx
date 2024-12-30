@@ -20,15 +20,17 @@ const ProductCombo = ({products}: {products: Array<Product>}) => {
 
   return (
     <>
-      <View className="bg-white border shadow-sm shadow-gray-200 border-gray-200 rounded-md">
-        <View className="bg-blue-300 rounded-t-md p-2 py-3">
-          <Text className="text-sm font-bold" numberOfLines={2}>COMBO {comboNameByProductName}</Text>
+      <View className="bg-white border border-blue-200 rounded-md">
+        <View className="bg-blue-50 rounded-t-md p-2 py-3">
+          <Text className="text-sm blue text-blue-600 font-bold" numberOfLines={2}>COMBO {comboNameByProductName}</Text>
         </View>
         <View className="gap-2">
           {products.map((product: Product) => (
             <Swipeable renderRightActions={() => 
-              <TouchableOpacity onPress={() => handleConfimationRemoveProductItem(product)} className="bg-red-300 px-5 justify-center items-center">
-                <SimpleLineIcons name="trash" size={24} color="red" />
+              <TouchableOpacity onPress={() => handleConfimationRemoveProductItem(product)}>
+                <View className="bg-red-200 p-5 h-full justify-center items-center">
+                  <SimpleLineIcons name="trash" size={24} color="red" />
+                </View>
               </TouchableOpacity>
             }>
               <OrderPickProduct {...product} />

@@ -131,6 +131,7 @@ export interface OrderDetailHeader {
   vouchers?: Array<Voucher>;
   groupBuyOrderCodes?: Array<string>;
   overdueTimeUpdateStatus?: number;
+  fulfillError?: string;
   code?: string;
   customer?: Customer;
   company?: number;

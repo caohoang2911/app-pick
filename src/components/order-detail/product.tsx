@@ -16,9 +16,6 @@ import { cn } from '~/src/lib/utils';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 
-const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-
 const OrderPickProduct = ({
   name,
   image,
@@ -59,7 +56,6 @@ const OrderPickProduct = ({
               <Image
                 style={{ width: 80, height: 80 }}
                 source={image}
-                placeholder={{ blurhash }}
                 contentFit="cover"
                 transition={1000}
               />

@@ -58,8 +58,8 @@ const Header = () => {
       ...data?.data
     });
     setToken(data?.data?.zas);
-    queryClient.resetQueries();
   });
+  
 
   useEffect(() => {
     setValue(keyword);

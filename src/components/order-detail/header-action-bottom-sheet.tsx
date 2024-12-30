@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router, useGlobalSearchParams } from 'expo-router';
 import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderPick } from '~/src/core/store/order-pick';
+import { getOrderPickProductsFlat, useOrderPick } from '~/src/core/store/order-pick';
 import {
   BillLine,
   CloseLine,
@@ -17,6 +17,7 @@ import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { queryClient } from '~/src/api/shared';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { OrderStatusValue } from '~/src/types/order';
+import { showMessage } from 'react-native-flash-message';
 
 type Action = {
   key: string;
@@ -34,9 +35,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const orderDetail = useOrderPick.use.orderDetail();
 
-    const { deliveryType, status } = orderDetail?.header || {};
+    const { deliveryType, status, fulfillError } = orderDetail?.header || {};
 
-    const orderPickProducts = useOrderPick.use.orderPickProducts();
+    const orderPickProductsFlat = getOrderPickProductsFlat();
     
     const actionRef = useRef<any>();
 
@@ -83,7 +84,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'enter-bag-and-tem',
         title: 'Nhập số lượng túi và in tem',
-        // disabled: status !== OrderStatusValue.STORE_PICKING,
+        disabled: status !== OrderStatusValue.STORE_PACKED || fulfillError != null,
         icon: <PrintLine />,
       },
       {
@@ -95,6 +96,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'save-draft',
         title: 'Lưu tạm',
+        disabled: status !== OrderStatusValue.STORE_PICKING,
         icon: <SaveOutLine />,
       },
       {
@@ -129,15 +131,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       switch (key) {
         case 'save-draft':
           setLoading(true);
-          saveOrderPickingAsDraft({ pickedItems: Object.values(orderPickProducts).map((item) => ({
-            ...item,
-            name: item.name || '',
-            quantity: item.quantity || 0,
-            barcode: item.barcode || '',
-            pickedQuantity: item.pickedQuantity || 0,
-            pickedError: item.pickedError || '',
-            pickedNote: item.pickedNote || '',
-          })), orderCode: code,});
+          saveOrderPickingAsDraft({ pickedItems: orderPickProductsFlat, orderCode: code,});
           break;
         case 'view-order':
           router.push(`orders/order-invoice/${code}`);
