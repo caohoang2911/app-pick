@@ -6,6 +6,7 @@ import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
+  getOrderPickProductsFlat,
   setOrderPickProducts,
   toggleShowAmountInput,
   useOrderPick,
@@ -32,10 +33,13 @@ const InputAmountPopup = ({}) => {
   const productPickedErrors = config?.productPickedErrors || [];
 
   const inputBottomSheetRef = useRef<any>();
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const currentProduct = orderPickProducts[barcodeScanSuccess as keyof typeof orderPickProducts] as Product;
+  
+  const orderPickProductsFlat = getOrderPickProductsFlat();
 
-  const { pickedQuantity, quantity } = currentProduct || {};
+  const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess);
+
+  const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
+    
   const displayPickedQuantity = pickedQuantity || quantity || 0;
 
   const productName = currentProduct?.name || '';
@@ -75,7 +79,7 @@ const InputAmountPopup = ({}) => {
               pickedQuantity: values?.pickedQuantity,
               pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
               pickedNote: values?.pickedNote,
-            });
+            } as Product);
             resetForm();
           }}
         >
@@ -105,12 +109,12 @@ const InputAmountPopup = ({}) => {
                     <TouchableOpacity
                       disabled={isCampaign}
                       onPress={() => {
-                        const valueChange = (Number(values?.pickedQuantity || 0) <= 1 ? Number(values?.pickedQuantity || 0) - 0.1 : Number(values?.pickedQuantity || 0) - 1).toFixed(3)
+                        const valueChange = Number(values?.pickedQuantity || 0) - 1
                         if (Number(valueChange) < 0) {
                           setFieldValue('pickedQuantity', 0);
                           return;
                         };
-                        setFieldValue('pickedQuantity', Number(valueChange));
+                        setFieldValue('pickedQuantity', Number(values?.pickedQuantity - 1));
                       }}
                     >
                       <View className="size-8 rounded-full bg-gray-200">
@@ -126,7 +130,7 @@ const InputAmountPopup = ({}) => {
                     <TouchableOpacity
                       disabled={isCampaign}
                       onPress={() => {
-                        const valueChange = (Number(values?.pickedQuantity || 0) <= 1 ? Number(values?.pickedQuantity || 0) + 0.1 : Number(values?.pickedQuantity || 0) + 1).toFixed(3)
+                        const valueChange = Number(values?.pickedQuantity || 0) + 1;
                         if (Number(valueChange) < 0) {
                           setFieldValue('pickedQuantity', 0);
                           return;

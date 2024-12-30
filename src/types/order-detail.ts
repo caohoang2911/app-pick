@@ -1,4 +1,5 @@
 import { OrderStatus } from './order';
+import { OrderBagItem } from './order-bag';
 import { Product } from './product';
 
 export type Customer = {
@@ -78,7 +79,10 @@ export type OrderDelivery = {
   lastTimeUpdateStatus?: number;
   cod?: number;
   discount?: number;
-  productItems?: Product[];
+  productItems?: Array<Product>;
+  productItemGroups?: {
+    [key: string]: Array<Product>;
+  };
   orderTime?: number;
   statusLogs?: Array<LogOrder>;
   note?: string;
@@ -127,6 +131,7 @@ export interface OrderDetailHeader {
   vouchers?: Array<Voucher>;
   groupBuyOrderCodes?: Array<string>;
   overdueTimeUpdateStatus?: number;
+  fulfillError?: string;
   code?: string;
   customer?: Customer;
   company?: number;
@@ -156,6 +161,7 @@ export interface OrderDetailHeader {
     messages?: Array<string>;
     name?: string;
   };
+  bagLabels?: OrderBagItem[],
   lastTimeUpdateStatus?: number;
   amount?: number;
   codAmount?: number;

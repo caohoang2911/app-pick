@@ -5,7 +5,7 @@ import { debounce, toUpper } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useSetStorePicking } from '~/src/api/app-pick/use-set-sore-picking';
+import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
@@ -29,6 +29,7 @@ import { Option } from '~/src/types/commons';
 import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
+import NotificationOutline from '~/src/core/svgs/NotificationOutline';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -46,7 +47,7 @@ const Header = () => {
   const operationTypeRef = useRef<any>(null);
   const storeName = getConfigNameById(stores, userInfo?.storeCode);
 
-  const { mutate: setStorePicking } = useSetStorePicking(() => {
+  const { mutate: assignMeToStore } = useAssignMeToStore(() => {
     refreshToken();
   });
 
@@ -57,8 +58,8 @@ const Header = () => {
       ...data?.data
     });
     setToken(data?.data?.zas);
-    queryClient.resetQueries();
   });
+  
 
   useEffect(() => {
     setValue(keyword);
@@ -76,7 +77,7 @@ const Header = () => {
 
   const handleSelectedStore = (store: Option & { address: string }) => {
     setLoading(true);
-    setStorePicking({ storeCode: store?.id });
+    assignMeToStore({ storeCode: store?.id });
   }
   const handleSelectedOperationType = (operationType: Option) => {
     setOperationType(operationType?.id?.toString() || "");
@@ -96,7 +97,7 @@ const Header = () => {
               {userInfo?.name} - {toUpper(userInfo?.username)}
             </Text>
             <Pressable
-              // onPress={() => storeRef.current?.present()}
+              onPress={() => storeRef.current?.present()}
               className="flex flex-row items-center gap-1">
               <Text
                 className="text-sm"
@@ -105,7 +106,7 @@ const Header = () => {
               >
                 {userInfo?.storeCode} - {storeName}
               </Text>
-              {/* <ArrowDown /> */}
+              <ArrowDown />
             </Pressable>
           </View>
         </View>

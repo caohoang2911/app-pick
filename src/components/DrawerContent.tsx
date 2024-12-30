@@ -11,6 +11,7 @@ import { Avatar, AvatarImage } from "./Avatar"
 import { useConfig } from "../core/store/config"
 import { getConfigNameById } from "../core/utils/config"
 
+
 export function DrawerContent(drawerProps: DrawerContentComponentProps) {
 
   const userInfo = useAuth.use.userInfo();

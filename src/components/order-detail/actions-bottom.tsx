@@ -2,10 +2,11 @@ import { Button } from '@/components/Button';
 import { useGlobalSearchParams } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
+import { G } from 'react-native-svg';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { useOrderPick } from '~/src/core/store/order-pick';
+import { getOrderPickProductsFlat, useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-detail';
 
 const ActionsBottom = () => {
@@ -22,7 +23,7 @@ const ActionsBottom = () => {
 
   const { code } = useGlobalSearchParams<{ code: string }>();
 
-  const orderPickProducts: any = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat : any = getOrderPickProductsFlat();
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { productItems } = orderDetail?.delivery || {};
 
@@ -30,8 +31,8 @@ const ActionsBottom = () => {
   const { status } = header || {};
 
   const canCompletePick =
-    Object.keys(orderPickProducts).filter((key) => {
-      return orderPickProducts[key].pickedTime;
+    Object.keys(orderPickProductsFlat).filter((key) => {
+      return orderPickProductsFlat[key].pickedTime;
     })?.length === productItems?.length;
 
   const disableButton = () => {
@@ -47,7 +48,7 @@ const ActionsBottom = () => {
   const handlePick = () => {
     showAlert({title, message, onConfirm: () => {
       status === 'STORE_PICKING'
-        ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProducts).map((item: any) => ({
+        ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProductsFlat).map((item: any) => ({
           ...item,
           name: item.name || '',
           quantity: item.quantity || 0,
