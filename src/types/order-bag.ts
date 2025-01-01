@@ -23,6 +23,7 @@ export type OrderBagItem = {
   code: string;
   type: OrderBagType;
   name: string;
+  isDone?: boolean;
 }
 
 export type OrderBag = {
