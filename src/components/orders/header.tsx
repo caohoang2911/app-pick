@@ -7,7 +7,6 @@ import { Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
-import { queryClient } from '~/src/api/shared';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import { TabsStatus } from '~/src/components/orders/tab-status';
@@ -29,7 +28,6 @@ import { Option } from '~/src/types/commons';
 import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
-import NotificationOutline from '~/src/core/svgs/NotificationOutline';
 
 const windowWidth = Dimensions.get('window').width;
 

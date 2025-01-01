@@ -77,7 +77,7 @@ function Button({
     <TouchableOpacity
       disabled={loading || disabled}
       className={cn(buttonVariants({ variant, size, className }))}
-      style={[{opacity: disabled ? 0.2 : 1}]}
+      style={[{opacity: disabled ? 0.6 : 1}]}
       {...props}
     >
       {icon && <View style={{ marginRight: 5 }}>{icon}</View>}

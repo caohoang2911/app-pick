@@ -31,3 +31,12 @@ export const generateBagCode = (type: OrderBagType, orderCode: string, bagLabels
 export const generateBagName = (type: OrderBagType, index: number, total: number) => {
   return `${OrderBagLabel[type]} - ${index}/${total} - ${total} túi`;
 }
+
+export const transformOrderBags = (orderBags: OrderBagItem[]) => {
+  const dry = orderBags.filter((bag) => bag.type === 'DRY');
+  const frozen = orderBags.filter((bag) => bag.type === 'FROZEN');
+  const fresh = orderBags.filter((bag) => bag.type === 'FRESH');
+  const nonFood = orderBags.filter((bag) => bag.type === 'NON_FOOD');
+
+  return { DRY: dry, FROZEN: frozen, FRESH: fresh, NON_FOOD: nonFood };
+}
