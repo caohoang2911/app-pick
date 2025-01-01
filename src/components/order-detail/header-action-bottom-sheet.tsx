@@ -90,7 +90,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'scan-bag',
         title: 'Scan túi - Giao hàng',
-        disabled: true,
+        // disabled: status !== OrderStatusValue.STORE_PACKED,
         icon: <QRScanLine />,
       },
       {
@@ -135,6 +135,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           break;
         case 'view-order':
           router.push(`orders/order-invoice/${code}`);
+          break;
+        case 'scan-bag':
+          router.push(`orders/order-scan-to-delivery/${code}`);
           break;
         case 'complete-order':
           handleCompleteOrder();
