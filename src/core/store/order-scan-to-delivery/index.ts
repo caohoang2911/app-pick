@@ -8,9 +8,9 @@ import { useOrderInvoice } from '../order-invoice';
 
 interface OrderScanToDeliveryState {
   isScanQrCodeProduct: boolean;
-  orderBags: (OrderBagItem & { isDone: boolean })[];
+  orderBags: (OrderBagItem)[];
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => void;
-  setOrderBags: (orderBags: (OrderBagItem & { isDone: boolean })[]) => void;
+  setOrderBags: (orderBags: (OrderBagItem)[]) => void;
   scanQrCodeSuccess: (result: BarcodeScanningResult) => void;
 }
 
@@ -20,7 +20,7 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => (
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => {
     set({ isScanQrCodeProduct });
   },
-  setOrderBags: (orderBags: (OrderBagItem & { isDone: boolean })[]) => {
+  setOrderBags: (orderBags: (OrderBagItem)[]) => {
     set({ orderBags });
   },
   scanQrCodeSuccess: (result: BarcodeScanningResult) => {
@@ -38,7 +38,7 @@ export const toggleScanQrCodeProduct   = (isScanQrCodeProduct: boolean) => {
   _useOrderScanToDelivery.getState().toggleScanQrCodeProduct(isScanQrCodeProduct);
 };
 
-export const setOrderBags = (orderBags: (OrderBagItem & { isDone: boolean })[]) => {
+export const setOrderBags = (orderBags: (OrderBagItem)[]) => {
   _useOrderScanToDelivery.getState().setOrderBags(orderBags);
 };
 

@@ -23,9 +23,9 @@ const BagType = ({
           <Text className="text-base font-semibold">{title}</Text>
           <Text className="text-base text-gray-500">SL: {bagLabels?.length}</Text>
         </View>
-        <View className="p-2 gap-2 border-blue-50 border">
-          {bagLabels?.map(({ code, type, name, isDone }) => (
-            <BagItem key={code} code={code} type={type} name={name} isDone={isDone} />
+        <View className="p-2 gap-2 border-blue-50">
+          {bagLabels?.map(({ code, type, name, isDone } : OrderBagItem) => (
+            <BagItem key={code} code={code} type={type} name={name} isDone={isDone || false} />
           ))}
         </View>
       </View>
