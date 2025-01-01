@@ -1,9 +1,8 @@
-import { create } from 'zustand';
-import { createSelectors } from '../../utils/browser';
-import { set } from 'lodash';
-import { OrderBagItem } from '~/src/types/order-bag';
 import { BarcodeScanningResult } from 'expo-camera';
-import { useOrderInvoice } from '../order-invoice';
+import { showMessage } from 'react-native-flash-message';
+import { create } from 'zustand';
+import { OrderBagItem } from '~/src/types/order-bag';
+import { createSelectors } from '../../utils/browser';
 
 
 interface OrderScanToDeliveryState {
@@ -25,9 +24,17 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => (
   },
   scanQrCodeSuccess: (result: BarcodeScanningResult) => {
     const orderBags = get().orderBags;
-    const orderBag = orderBags.find((bag) => bag.code === result.data);
-    if (orderBag) {
-      set({ orderBags: [...orderBags, {...orderBag, isDone: true}] });
+    const orderBagIndex = orderBags.findIndex((bag) => bag.code === result.data);
+
+    if (orderBagIndex !== -1) { 
+      const newOrderBags = [...orderBags];
+      newOrderBags[orderBagIndex].isDone = true;
+      set({ orderBags: newOrderBags });
+    } else {
+      showMessage({
+        message: `Không tìm thấy túi hàng ${result.data}`,
+        type: 'danger',
+      });
     }
   }
 }));
