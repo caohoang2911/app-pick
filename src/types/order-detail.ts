@@ -1,18 +1,6 @@
 import { OrderStatus } from './order';
-import { OrderBagItem } from './order-bag';
 import { Product } from './product';
-
-export type Customer = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  membership: any;
-  numberOrders: number;
-  spend: number;
-  points: number;
-};
-
+import { Customer, Employee } from './employee';
 export type DeliveryAddress = {
   city?: number;
   ward?: number;
@@ -25,6 +13,17 @@ export type DeliveryAddress = {
   fullAddress?: string;
 };
 
+
+export type Payment = {
+  isPaid?: boolean;
+  method?: string;
+  transactionId?: string;
+  provider?: string;
+  providerName?: string;
+  amount?: number;
+  methodName?: string;
+};
+
 export type Voucher = {
   discountAmount?: number;
   isRefundable?: boolean;
@@ -33,59 +32,11 @@ export type Voucher = {
 };
 
 export type OrderDelivery = {
-  originProductItems?: Array<any>;
-  orderCode: string;
-  invoice?: {
-    id: string;
-    code: string;
-  };
-  id?: number;
-  pId?: string;
   code?: string;
-  overdueTimeUpdateStatus?: number;
-  company?: number;
-  amount?: number;
-  status?: boolean;
-  shippingPrice?: number;
   shippingDiscount?: number;
-  warnings?: Array<string>;
-  shipper?: {
-    name?: string;
-    phone?: string;
-  };
-  storePicker?: {
-    company?: string;
-    name?: string;
-    phone?: string;
-  };
-  storePacker?: {
-    company?: string;
-    name?: string;
-    phone?: string;
-  };
-  shipping?: {
-    serviceId: string;
-    method: string;
-    provider?: string;
-    fee?: number;
-    distance: number;
-    duration: number;
-    trackingLink: string;
-    trackingNumber: string;
-    isOnWheel?: boolean;
-    packageSize?: string;
-  };
-  isOverdueSLA?: boolean;
-  lastTimeUpdateStatus?: number;
-  cod?: number;
-  discount?: number;
-  productItems?: Array<Product>;
-  productItemGroups?: {
-    [key: string]: Array<Product>;
-  };
-  orderTime?: number;
-  statusLogs?: Array<LogOrder>;
-  note?: string;
+  storeCode?: string;
+  storeAddress?: string;
+  productItems?: Product[];
 };
 
 export type LogOrder = {
@@ -120,26 +71,36 @@ interface TemplateOrderRefund {
 export interface OrderDetailHeader {
   id?: number;
   groupShippingCode?: string;
-  operationType?: "CAMPAIGN" | "EXPRESS" | null;
+  saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
-  groupShippingPickedStatues?: {[key: string]: boolean};
-  deliveryType: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'ORDER_PICK' | 'SHIPPER_DELIVERY';
+  deliveryType?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
-  tags?: Array<string>;
   vouchers?: Array<Voucher>;
+  invoiceCode?: string;
   groupBuyOrderCodes?: Array<string>;
   overdueTimeUpdateStatus?: number;
-  fulfillError?: string;
   code?: string;
   customer?: Customer;
-  company?: number;
-  status?: OrderStatus;
-  sourceSale?: number;
+  status?: number | string;
   refund?: TemplateOrderRefund;
   statusName?: string;
   isExistCallLog?: boolean;
+  shipping?: {
+    serviceId: string;
+    method: string;
+    provider?: string;
+    fee?: number;
+    distance: number;
+    duration: number;
+    trackingLink: string;
+    trackingNumber: string;
+    isOnWheel?: boolean;
+    packageSize?: string;
+    priceAmount?: number;
+    discountAmount?: number;
+  };
   codPenceExchange?: {
     penceAmount?: number;
     pointAmount?: number;
@@ -151,30 +112,37 @@ export interface OrderDetailHeader {
     provider?: string;
     amount?: number;
     methodName?: string;
-  };
+  };  
+  extraPayments: {
+    isPaid?: boolean;
+    method?: string;
+    transactionId?: string;
+    provider?: string;
+    amount?: number;
+    methodName?: string;
+  }[];
   incurredPayment?: {
     amount: number;
     type: 'REFUND' | 'COD';
   };
-  sourceSalePlatform?: 'APP' | 'WEB';
-  error?: {
+  fulfillError?: {
+    type?: string;
     messages?: Array<string>;
-    name?: string;
   };
-  bagLabels?: OrderBagItem[],
   lastTimeUpdateStatus?: number;
   amount?: number;
   codAmount?: number;
   discountAmount?: number;
   employeeId?: number;
+  assignee?: Employee;
   payStatus?: number;
   note?: string;
   orderTime?: number;
   isOverdueSLA?: boolean;
-  deliveryTimeRange: Array<number>;
+  deliveryTimeRange?: Array<number>;
   deliveryAddress?: DeliveryAddress;
   statusLogs?: {
-    action?: string;
+    activity?: string;
     time?: number;
   };
   genVATUrl?: string;

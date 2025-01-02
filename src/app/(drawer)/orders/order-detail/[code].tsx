@@ -10,6 +10,7 @@ import InputAmountPopup from '~/src/components/order-detail/input-amount-popup';
 import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import { PackageSizePicker } from '~/src/components/order-detail/package-size-picker';
 import {
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
@@ -27,6 +28,7 @@ const OrderPick = () => {
   const orderPickProducts: any = useOrderPick.use.orderPickProducts();
 
   const orderDetail = useOrderPick.use.orderDetail();
+  const { status } = orderDetail?.header || {};
   const { productItems } = orderDetail?.delivery || {};
 
   const headerAcrtionRef = useRef<any>();
@@ -84,6 +86,7 @@ const OrderPick = () => {
   return (
     <>
       <View className="flex-1 bg-gray-50 pt-2">
+        <PackageSizePicker />
         <OrderPickProducts />
       </View>
       <ActionsBottom />
