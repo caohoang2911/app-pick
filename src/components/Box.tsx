@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, Platform, StyleProp, ViewStyle } from 'react-native';
 
-function Box({ children, style }: { children: React.ReactNode, style?: StyleProp<ViewStyle> }) {
-  return <View className='bg-white mx-4 px-4 py-3' style={[styles.box, style]}>{children}</View>;
+function Box({ children, style, className }: { children: React.ReactNode, style?: StyleProp<ViewStyle>, className?: string }) {
+  return <View className={`bg-white mx-4 px-4 py-3 ${className}`} style={[styles.box, style]}>{children}</View>;
 }
 
 export default Box;

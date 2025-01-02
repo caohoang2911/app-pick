@@ -25,7 +25,11 @@ const ActionsBottom = () => {
 
   const orderPickProductsFlat : any = getOrderPickProductsFlat();
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
+
+  const { shipping } = orderDetail?.header || {};
+
   const { productItems } = orderDetail?.delivery || {};
+
 
   const { header } = orderDetail || {};
   const { status } = header || {};
@@ -38,6 +42,7 @@ const ActionsBottom = () => {
   const disableButton = () => {
     if (status === 'CONFIRMED') return false;
     if (canCompletePick && status === 'STORE_PICKING') return false;
+    if (status === 'STORE_PICKING' && shipping?.packageSize) return false;
 
     return true;
   };
