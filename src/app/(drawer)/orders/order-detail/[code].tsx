@@ -30,10 +30,11 @@ const OrderPick = () => {
 
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const isNewScan = useOrderPick.use.isNewScan();
 
   const orderDetail = useOrderPick.use.orderDetail();
-  const { status } = orderDetail?.header || {};
-  const { productItems } = orderDetail?.delivery || {};
+
+  const orderPickProductFlat = getOrderPickProductsFlat(orderPickProducts);
 
   const headerAcrtionRef = useRef<any>();
 
@@ -73,15 +74,18 @@ const OrderPick = () => {
           type: 'warning',
         });
       } else {
-        const currentBarcode: string | undefined = productItems?.[indexOfCodeScanned]?.barcode;
+        const currentBarcode: string | undefined = orderPickProductFlat?.[indexOfCodeScanned]?.barcode;
+        const currentAmount = orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity || 0;
         if (currentBarcode) {
+          const newAmount = isNewScan ? quantity : currentAmount + (quantity || 0);
+
           setSuccessForBarcodeScan(currentBarcode);
-          setQuantityFromBarcode(quantity || 0);
+          setQuantityFromBarcode(newAmount || 0);
           toggleShowAmountInput(true);
         }
       }
     },
-    [orderPickProductsFlat, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, productItems]
+    [orderPickProductsFlat, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
   );
 
   if(!orderDetail) {

@@ -16,9 +16,10 @@ interface OrdersState {
   productComboRemoveSelected: Product | null;
   orderPickProducts: Array<Product | ProductItemGroup>;
   quantityFromBarcode: number;
+  isNewScan: boolean;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
-  toggleScanQrCode: (status: boolean) => void;
+  toggleScanQrCode: (status: boolean, { isNewScan }: { isNewScan?: boolean }) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean) => void;
   setSuccessForBarcodeScan: (barcode: string, { fillInput }: { fillInput?: boolean }) => void;
   setBarcodeScrollTo: (barcode: string) => void;
@@ -40,14 +41,15 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   isShowConfirmationRemoveProductCombo: false,
   productComboRemoveSelected: null,
   quantityFromBarcode: 0,
+  isNewScan: true,
   setKeyword: (keyword: string) => {
     set({ keyword });
   },
   setOrderDetail: (orderDetail: OrderDetail) => {
     set({ orderDetail });
   },
-  toggleScanQrCode: (isScanQrCodeProduct: boolean) => {
-    set({ isScanQrCodeProduct });
+  toggleScanQrCode: (isScanQrCodeProduct: boolean, { isNewScan }: { isNewScan?: boolean } = {}) => {
+    set({ isScanQrCodeProduct, isNewScan });
   },
   toggleShowAmountInput: (isShowAmountInput: boolean) => {
     set({ isShowAmountInput });
@@ -97,8 +99,12 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
 
 export const useOrderPick = createSelectors(_useOrderPick);
 
-export const toggleScanQrCodeProduct = (status: boolean) =>
-  _useOrderPick.getState().toggleScanQrCode(status);
+export const toggleScanQrCodeProduct = (status: boolean, {
+  isNewScan = true
+}: {
+  isNewScan?: boolean
+} = {}) =>
+  _useOrderPick.getState().toggleScanQrCode(status, { isNewScan });
 
 export const toggleShowAmountInput = (isShowAmountInput: boolean) =>
   _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput);

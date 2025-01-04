@@ -1,22 +1,21 @@
 import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useGlobalSearchParams } from 'expo-router';
 import { debounce, toLower } from 'lodash';
+import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
+import { useConfig } from '~/src/core/store/config';
 import { setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
+import { getConfigNameById } from "~/src/core/utils/config";
 import { OrderDetail } from '~/src/types/order-detail';
-import { getConfigNameById } from "~/src/core/utils/config"
 import { Badge } from '../Badge';
 import { Input } from '../Input';
-import { useGlobalSearchParams } from 'expo-router';
-import moment from 'moment';
-import { OrderStatus } from '~/src/types/order';
 import { GroupShippingInfo } from './group-shipping-info';
-import { useConfig } from '~/src/core/store/config';
-import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
