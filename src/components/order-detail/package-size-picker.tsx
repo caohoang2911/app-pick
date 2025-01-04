@@ -13,6 +13,7 @@ import { OrderDetailHeader } from "~/src/types/order-detail";
 import Box from "../Box";
 import SBottomSheet from "../SBottomSheet";
 import { Colors } from "react-native/Libraries/NewAppScreen";
+import { CheckCircleFill } from "~/src/core/svgs";
 interface PackageSizePickerProps {
 }
 
@@ -39,32 +40,43 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
     {
       key: PackageSize.STANDARD,
       title: PackageSizeLabel.STANDARD,
+      active: shipping?.packageSize === PackageSize.STANDARD,
     },
     {
       key: PackageSize.SIZE_1,
       title: PackageSizeLabel.SIZE_1,
+      active: shipping?.packageSize === PackageSize.SIZE_1,
     },
     {
       key: PackageSize.SIZE_2,
       title: PackageSizeLabel.SIZE_2,
+      active: shipping?.packageSize === PackageSize.SIZE_2,
     },
     {
       key: PackageSize.SIZE_3,
       title: PackageSizeLabel.SIZE_3,
+      active: shipping?.packageSize === PackageSize.SIZE_3,
     },
-  ], []);
+  ], [shipping?.packageSize]);
 
   const renderItem = ({
     onClickAction,
     key,
     title,
-  }: Action & { onClickAction: (key: string) => void }) => {
+    active,
+  }: Action & { onClickAction: (key: string) => void, active: boolean }) => {
     return (
       <Pressable
-        onPress={() => onClickAction?.(key || '')}
-        className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
+        onPress={() => {
+          if(active) return;
+          onClickAction?.(key || '')
+        }}
+        className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-2"
       >
-        <Text className="font-medium">{title}</Text>
+        <View className="flex-row items-center gap-2">
+          <Text className="font-medium">{title}</Text>
+          {active && <CheckCircleFill width={15} height={15} color={"green"} />}
+        </View>
       </Pressable>
     );
   };
