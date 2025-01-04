@@ -108,7 +108,7 @@ const InputAmountPopup = ({}) => {
 
             return (
               <>
-                <View className="flex flex-row gap-2 items-center">
+                <View className="flex flex-row gap-2 items-center" style={{ position: 'relative' }}>
                   <View className="flex-1" style={{ marginRight: 75 }}>
                     <Input
                       selectTextOnFocus
@@ -171,7 +171,7 @@ const InputAmountPopup = ({}) => {
                       }
                     />
                   </View>
-                  <View className="absolute top-10 right-0">
+                  <View style={{ position: 'absolute', top: 32, right: 0 }}>
                     <View className="flex flex-row items-center gap-2">
                       <View className="bg-gray-200 rounded-lg p-2">
                         <Text className="text-gray-300 text-xs font-medium">{currentProduct?.unit}</Text>
