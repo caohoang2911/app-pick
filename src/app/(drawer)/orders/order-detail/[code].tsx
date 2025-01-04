@@ -19,6 +19,7 @@ import {
   useOrderPick
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -26,7 +27,9 @@ const OrderPick = () => {
   const [currentQr, setCurrentQr] = useState('');
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
-  const orderPickProducts: any = useOrderPick.use.orderPickProducts();
+
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
   const orderDetail = useOrderPick.use.orderDetail();
   const { status } = orderDetail?.header || {};
@@ -62,7 +65,7 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      const indexOfCodeScanned = Object.keys(orderPickProducts || {})?.findIndex(key => barcode?.startsWith(key));
+      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item => barcode?.startsWith(item?.barcode || '') || barcode?.startsWith(item?.baseBarcode || ''));
 
       if (indexOfCodeScanned === -1) {
         showMessage({
@@ -78,7 +81,7 @@ const OrderPick = () => {
         }
       }
     },
-    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, productItems]
+    [orderPickProductsFlat, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, productItems]
   );
 
   if(!orderDetail) {

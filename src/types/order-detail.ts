@@ -1,5 +1,5 @@
 import { OrderStatus } from './order';
-import { Product } from './product';
+import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
 export type DeliveryAddress = {
   city?: number;
@@ -37,6 +37,8 @@ export type OrderDelivery = {
   storeCode?: string;
   storeAddress?: string;
   productItems?: Product[];
+  productItemGroups?: Array<Product | ProductItemGroup>;
+  productItemsV2?: Array<Product | ProductItemGroup>
 };
 
 export type LogOrder = {

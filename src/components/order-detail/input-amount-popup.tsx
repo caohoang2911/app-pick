@@ -1,14 +1,14 @@
 import { Formik } from 'formik';
 import React, { useEffect, useMemo, useRef } from 'react';
+import moment from 'moment-timezone';
 import * as Yup from 'yup';
 import { Text, View } from 'react-native';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
-  getOrderPickProductsFlat,
   getQuantityFromBarcode,
-  setOrderPickProducts,
+  setOrderPickProduct,
   setQuantityFromBarcode,
   toggleShowAmountInput,
   useOrderPick,
@@ -20,6 +20,7 @@ import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import { Badge } from '../Badge';
 import { isEmpty } from 'lodash';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 
 
 const InputAmountPopup = ({}) => {
@@ -37,7 +38,8 @@ const InputAmountPopup = ({}) => {
 
   const inputBottomSheetRef = useRef<any>();
   
-  const orderPickProductsFlat = getOrderPickProductsFlat();
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
   const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess);
 
@@ -83,12 +85,13 @@ const InputAmountPopup = ({}) => {
           onSubmit={(values, { resetForm }) => {
             if (!productName) return;
             toggleShowAmountInput(false);
-            setOrderPickProducts({
+            setOrderPickProduct({
               ...currentProduct,
               barcode: barcodeScanSuccess,
               pickedQuantity: values?.pickedQuantity,
               pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
               pickedNote: values?.pickedNote,
+              pickedTime: moment().valueOf()
             } as Product);
             resetForm();
           }}
@@ -176,20 +179,6 @@ const InputAmountPopup = ({}) => {
                     setFieldValue('pickedError', '');
                   }}
                 />
-                {/* <Input
-                  label="Mô tả"
-                  labelClasses="font-medium"
-                  useBottomSheetTextInput
-                  value={values?.pickedNote}
-                  placeholder="Nhập mô tả"
-                  multiline
-                  numberOfLines={3}
-                  keyboardType="default"
-                  handleBlur={handleBlur('pickedNote')}
-                  onChangeText={(value: string) => {
-                    setFieldValue('pickedNote', value);
-                  }}
-                />  */}
                 <Button onPress={handleSubmit as any} label={'Xác nhận'} disabled={isError} />
               </>
           )}}

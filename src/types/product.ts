@@ -7,7 +7,18 @@ export enum ProductLabelEnum {
   FRESH = 'FRESH',
 }
 
+export type ProductItemGroup = {
+  type: string;
+  name: string;
+  quantity: number;
+  elementPerComboQuantities: {
+    [key: string]: number;
+  }  
+  elements?: Array<Product>;
+}
+
 export type Product = {
+  type?: "COMBO" | "PRODUCT";
   pId: number;
   pickedError?: string;
   pickedNote?: string;

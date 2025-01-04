@@ -11,7 +11,7 @@ import {
 } from '~/src/core/store/order-pick';
 import { stringUtils } from '~/src/core/utils/string';
 import { OrderStatus } from '~/src/types/order';
-import { Product } from '~/src/types/product';
+import { Product, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
@@ -37,11 +37,10 @@ const OrderPickProducts = () => {
   }, [data]);
 
   const orderDetail = data?.data || {};
-  const { productItemGroups } = orderDetail?.delivery || {};
+  const { productItemGroups, productItemsV2 } = orderDetail?.delivery || {};
 
   const filterProductItems = useMemo(() => {
 
-    console.log(orderPickProducts, "orderPickProducts");
     return orderPickProducts?.filter((products: Array<Product>) => {
       if (!keyword) return true;
 
@@ -56,12 +55,12 @@ const OrderPickProducts = () => {
   }, [keyword, orderPickProducts]);
 
   useEffect(() => {
-    const tempArr = Object.values(productItemGroups || {}).map((item: any) => {
+    const tempArr = Object.values(productItemsV2 || {}).map((item: any) => {
       return item;
     }) || [];
 
     setInitOrderPickProducts([...tempArr] as never[]);
-  }, [productItemGroups]);
+  }, [productItemsV2]);
 
   const indexCurrentProduct = useMemo(
     () =>
@@ -120,21 +119,19 @@ const OrderPickProducts = () => {
           item,
           index,
         }: {
-          item: Array<Product>;
+          item: Product | ProductItemGroup;
           index: number;
         }) => {
           const isLast = Boolean(
             index === Number((orderPickProducts || []).length - 1)
           );
-
-          console.log(item, "item");
          
           return (
             <View
               key={index}
               className={clsx('px-4 mb-4', { 'mb-10': isLast })}
             >
-              {item.length === 1 ? <OrderPickProduct {...item[0]} /> : <ProductCombo products={item} />}
+              {item.type === "COMBO" ? <ProductCombo combo={item as ProductItemGroup} /> : <OrderPickProduct {...(item as Product)} />}
             </View>
           );
         }}

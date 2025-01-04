@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
-import { Product } from '~/src/types/product';
+import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
@@ -14,7 +14,7 @@ interface OrdersState {
   fillInput: boolean;
   isShowConfirmationRemoveProductCombo: boolean;
   productComboRemoveSelected: Product | null;
-  orderPickProducts: Array<Array<Product>>;
+  orderPickProducts: Array<Product | ProductItemGroup>;
   quantityFromBarcode: number;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
@@ -22,8 +22,8 @@ interface OrdersState {
   toggleShowAmountInput: (isShowAmountInput: boolean) => void;
   setSuccessForBarcodeScan: (barcode: string, { fillInput }: { fillInput?: boolean }) => void;
   setBarcodeScrollTo: (barcode: string) => void;
-  setInitOrderPickProducts: (data: Array<Array<Product>>) => void;
-  setOrderPickProducts: (product: Product) => void;
+  setInitOrderPickProducts: (data: Array<Product | ProductItemGroup>) => void;
+  setOrderPickProduct: (product: Product) => void;
   toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => void;
   setQuantityFromBarcode: (quantity: number) => void;
 }
@@ -67,22 +67,27 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setQuantityFromBarcode: (quantity: number) => {
     set({ quantityFromBarcode: quantity });
   },
-  setOrderPickProducts: (product: Product) => {
+  setOrderPickProduct: (product: Product) => {
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
-    const newOrderPickProducts = orderPickProducts.map((products: Array<Product>) => {
-      return products.map((productRel: Product) => {
-        if (productRel.barcode === product.barcode) {
-          return { ...productRel, 
-            pickedQuantity: (productRel.pickedQuantity || 0) + (product.pickedQuantity || 0), 
-            pickedTime: moment().valueOf() 
-          };
+    
+    const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup) => {
+      if(productMap.type === 'COMBO' && 'elements' in productMap) {
+        return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
+          if (productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) {
+            return { ...productRel, ...product };
+          } else {
+            return productRel;
+          }
+        }) };
+      } else {
+        if((productMap as Product).barcode === product.barcode || (productMap as Product).baseBarcode === product.barcode) {
+          return { ...productMap, ...product };
         }
-
-        return productRel;
-      });
+        return productMap;
+      }
     });
-  
+
     set({
       barcodeScrollTo: product.barcode,
       orderPickProducts: [...newOrderPickProducts],
@@ -102,7 +107,7 @@ export const setSuccessForBarcodeScan = (barcode: string, { fillInput = true }: 
   _useOrderPick.getState().setSuccessForBarcodeScan(barcode, { fillInput });
 
 export const setInitOrderPickProducts = (
-  data: Array<Array<Product>>
+  data: Array<Product | ProductItemGroup>
 ) => _useOrderPick.getState().setInitOrderPickProducts(data);
 
 export const setBarcodeScrollTo = (barcode: string) =>  
@@ -111,7 +116,7 @@ export const setBarcodeScrollTo = (barcode: string) =>
 export const setKeyword = (keyword: string) =>
   _useOrderPick.getState().setKeyword(keyword);
 
-export const setOrderPickProducts = (product: Product) => _useOrderPick.getState().setOrderPickProducts(product);
+export const setOrderPickProduct = (product: Product) => _useOrderPick.getState().setOrderPickProduct(product);
 
 export const setOrderDetail = (orderDetail: OrderDetail) =>
   _useOrderPick.getState().setOrderDetail(orderDetail);
@@ -125,14 +130,8 @@ export const toggleConfirmationRemoveProductCombo = (isShowConfirmationRemovePro
 export const getProductComboRemoveSelected = () =>
   _useOrderPick.getState().productComboRemoveSelected;
 
-export const getOrderPickProductsFlat = () =>
-  _useOrderPick.getState().orderPickProducts.flat();
-
 export const getQuantityFromBarcode = () =>
   _useOrderPick.getState().quantityFromBarcode;
-
-export const getCurrentProductPicked = (barcode: string) =>
-  getOrderPickProductsFlat()?.find((product: Product) => product.barcode === barcode); 
 
 export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useOrderPick.getState().orderDetail?.header || {};
 
