@@ -64,7 +64,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
         onPress={() => onClickAction?.(key || '')}
         className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
       >
-        <Text className="text-gray-300 font-medium">{title}</Text>
+        <Text className="font-medium">{title}</Text>
       </Pressable>
     );
   };

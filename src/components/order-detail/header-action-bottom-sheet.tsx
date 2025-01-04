@@ -84,7 +84,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'enter-bag-and-tem',
         title: 'Nhập số lượng túi và in tem',
-        disabled: status !== OrderStatusValue.STORE_PACKED || fulfillError != null,
+        disabled: Boolean(status !== OrderStatusValue.STORE_PACKED || fulfillError != null),
         icon: <PrintLine />,
       },
       {
@@ -118,7 +118,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         <Pressable
           onPress={() => onClickAction?.(key)}
           className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
-          disabled={disabled}
+          disabled={false}
           style={{ opacity: disabled ? 0.5 : 1 }}
         >
           {icon}

@@ -16,6 +16,18 @@ import { cn } from '~/src/lib/utils';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 
+const Row = ({label, value, unit, extraConversionQuantity}: {label: string, value: string, unit: string, extraConversionQuantity?: number}) => {
+  return (
+    <View style={{width: 150}} className='flex flex-row w-100'>
+      <View style={{width: 100}}><Text>{label}</Text></View>
+      <View style={{width: 45}}>
+        <Text className='font-medium'>{value}</Text>
+      </View>
+      {extraConversionQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${extraConversionQuantity}`} /></View> : <Text className='font-medium'>{unit}</Text> }
+    </View>
+  )
+}
+
 const OrderPickProduct = ({
   name,
   image,
@@ -28,6 +40,7 @@ const OrderPickProduct = ({
   pickedTime,
   pickedError,
   pickedQuantity,
+  extraConversionQuantity
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -36,8 +49,6 @@ const OrderPickProduct = ({
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
   const shouldDisplayEdit = useCanEditOrderPick();
-
-  const isOutOfStock = stockAvailable === 0;
 
   return (
     <>
@@ -63,27 +74,9 @@ const OrderPickProduct = ({
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
-                <View style={{width: 150}} className='flex flex-row w-100'>
-                  <View style={{width: 100}}><Text>Số lượng đặt</Text></View>
-                  <View style={{width: 45}}>
-                    <Text className='font-medium'>{quantity}</Text>
-                  </View>
-                  <Text className='font-medium'>{unit}</Text> 
-                </View>
-                <View style={{width: 150}} className='flex flex-row w-100'>
-                  <View style={{width: 100}}><Text>Thực pick</Text></View>
-                  <View style={{width: 45}}>
-                    <Text className='font-medium'>{pickedQuantity || "--"}</Text>
-                  </View>
-                  <Text className='font-medium'>{unit}</Text>
-                </View>
-                <View style={{width: 150}} className='flex flex-row w-100'>
-                  <View style={{width: 100}} ><Text className={cn({ 'text-red-500': isOutOfStock })}>Tồn kho</Text></View>
-                  <View style={{width: 45}} >
-                    <Text className={cn('font-medium', { 'text-red-500': isOutOfStock })}>{formatNumber(stockAvailable) || "--"}</Text>
-                  </View>
-                  <Text className={cn('font-medium', { 'text-red-500': isOutOfStock })}>{unit}</Text>
-                </View>
+                <Row label="Số lượng đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
+                <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
+                <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
                 <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
                   {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
                 </View>

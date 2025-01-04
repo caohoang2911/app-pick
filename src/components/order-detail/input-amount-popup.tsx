@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import * as Yup from 'yup';
 import { Text, View } from 'react-native';
 
@@ -7,7 +7,9 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
   getOrderPickProductsFlat,
+  getQuantityFromBarcode,
   setOrderPickProducts,
+  setQuantityFromBarcode,
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
@@ -17,13 +19,14 @@ import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import { Badge } from '../Badge';
+import { isEmpty } from 'lodash';
 
 
 const InputAmountPopup = ({}) => {
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const orderDetail = useOrderPick.use.orderDetail();
-
+  const quantityFromBarcode = getQuantityFromBarcode();
   const { header } = orderDetail || {};
   const { operationType } = header || {};
 
@@ -40,7 +43,7 @@ const InputAmountPopup = ({}) => {
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
     
-  const displayPickedQuantity = pickedQuantity || quantity || 0;
+  const displayPickedQuantity = quantityFromBarcode || pickedQuantity || quantity || 0;
 
   const productName = currentProduct?.name || '';
 
@@ -52,6 +55,13 @@ const InputAmountPopup = ({}) => {
       </View>
     )
   }, [productName, displayPickedQuantity])
+
+  useEffect(() => {
+    return () => {
+      setQuantityFromBarcode(0);
+    }
+  }, []);
+
 
   return (
     <SBottomSheet
@@ -86,6 +96,7 @@ const InputAmountPopup = ({}) => {
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
 
             const isError = values?.pickedQuantity < quantity && !values?.pickedError;
+
             return (
               <>
                 <Input

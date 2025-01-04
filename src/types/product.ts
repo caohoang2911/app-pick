@@ -28,4 +28,5 @@ export type Product = {
   baseBarcode?: string;
   unit?: string;
   gifts?: Array<{ name: string; image: string }>;
+  extraConversionQuantity?: number;
 };

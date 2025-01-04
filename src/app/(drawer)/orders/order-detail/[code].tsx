@@ -12,6 +12,7 @@ import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import { PackageSizePicker } from '~/src/components/order-detail/package-size-picker';
 import {
+  setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
@@ -52,7 +53,7 @@ const OrderPick = () => {
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
 
-      const { barcode } = splitBarcode({ barcode: codeScanned });
+      const { barcode, quantity } = splitBarcode({ barcode: codeScanned });
       setCurrentQr(barcode);
 
       if (timeout.current) clearTimeout(timeout.current);
@@ -72,6 +73,7 @@ const OrderPick = () => {
         const currentBarcode: string | undefined = productItems?.[indexOfCodeScanned]?.barcode;
         if (currentBarcode) {
           setSuccessForBarcodeScan(currentBarcode);
+          setQuantityFromBarcode(quantity || 0);
           toggleShowAmountInput(true);
         }
       }

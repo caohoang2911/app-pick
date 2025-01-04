@@ -53,7 +53,7 @@ export interface BadgeProps
   extends React.ComponentPropsWithoutRef<typeof View>,
     VariantProps<typeof badgeVariants> {
   extraLabel?: string | React.ReactNode;
-  label: string;
+  label: string | React.ReactNode;
   labelClasses?: string;
 }
 function Badge({

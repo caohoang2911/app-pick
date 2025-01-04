@@ -15,6 +15,7 @@ interface OrdersState {
   isShowConfirmationRemoveProductCombo: boolean;
   productComboRemoveSelected: Product | null;
   orderPickProducts: Array<Array<Product>>;
+  quantityFromBarcode: number;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -24,6 +25,7 @@ interface OrdersState {
   setInitOrderPickProducts: (data: Array<Array<Product>>) => void;
   setOrderPickProducts: (product: Product) => void;
   toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => void;
+  setQuantityFromBarcode: (quantity: number) => void;
 }
 
 const _useOrderPick = create<OrdersState>((set, get) => ({
@@ -37,6 +39,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   fillInput: true,
   isShowConfirmationRemoveProductCombo: false,
   productComboRemoveSelected: null,
+  quantityFromBarcode: 0,
   setKeyword: (keyword: string) => {
     set({ keyword });
   },
@@ -60,6 +63,9 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   },
   toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => {
     set({ isShowConfirmationRemoveProductCombo, productComboRemoveSelected: product });
+  },
+  setQuantityFromBarcode: (quantity: number) => {
+    set({ quantityFromBarcode: quantity });
   },
   setOrderPickProducts: (product: Product) => {
     const orderPickProducts = get().orderPickProducts;
@@ -110,6 +116,9 @@ export const setOrderPickProducts = (product: Product) => _useOrderPick.getState
 export const setOrderDetail = (orderDetail: OrderDetail) =>
   _useOrderPick.getState().setOrderDetail(orderDetail);
 
+export const setQuantityFromBarcode = (quantity: number) =>
+  _useOrderPick.getState().setQuantityFromBarcode(quantity);
+
 export const toggleConfirmationRemoveProductCombo = (isShowConfirmationRemoveProductCombo: boolean, product?: Product) =>
   _useOrderPick.getState().toggleConfirmationRemoveProductCombo(isShowConfirmationRemoveProductCombo, product);
 
@@ -118,6 +127,9 @@ export const getProductComboRemoveSelected = () =>
 
 export const getOrderPickProductsFlat = () =>
   _useOrderPick.getState().orderPickProducts.flat();
+
+export const getQuantityFromBarcode = () =>
+  _useOrderPick.getState().quantityFromBarcode;
 
 export const getCurrentProductPicked = (barcode: string) =>
   getOrderPickProductsFlat()?.find((product: Product) => product.barcode === barcode); 
