@@ -12,12 +12,14 @@ import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import { PackageSizePicker } from '~/src/components/order-detail/package-size-picker';
 import {
+  setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   useOrderPick
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -25,11 +27,14 @@ const OrderPick = () => {
   const [currentQr, setCurrentQr] = useState('');
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
-  const orderPickProducts: any = useOrderPick.use.orderPickProducts();
+
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const isNewScan = useOrderPick.use.isNewScan();
 
   const orderDetail = useOrderPick.use.orderDetail();
-  const { status } = orderDetail?.header || {};
-  const { productItems } = orderDetail?.delivery || {};
+
+  const orderPickProductFlat = getOrderPickProductsFlat(orderPickProducts);
 
   const headerAcrtionRef = useRef<any>();
 
@@ -52,7 +57,7 @@ const OrderPick = () => {
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
 
-      const { barcode } = splitBarcode({ barcode: codeScanned });
+      const { barcode, quantity } = splitBarcode({ barcode: codeScanned });
       setCurrentQr(barcode);
 
       if (timeout.current) clearTimeout(timeout.current);
@@ -61,7 +66,7 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      const indexOfCodeScanned = Object.keys(orderPickProducts || {})?.findIndex(key => barcode?.startsWith(key));
+      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item => barcode?.startsWith(item?.barcode || '') || barcode?.startsWith(item?.baseBarcode || ''));
 
       if (indexOfCodeScanned === -1) {
         showMessage({
@@ -69,14 +74,18 @@ const OrderPick = () => {
           type: 'warning',
         });
       } else {
-        const currentBarcode: string | undefined = productItems?.[indexOfCodeScanned]?.barcode;
+        const currentBarcode: string | undefined = orderPickProductFlat?.[indexOfCodeScanned]?.barcode;
+        const currentAmount = orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity || 0;
         if (currentBarcode) {
+          const newAmount = isNewScan ? quantity : currentAmount + (quantity || 0);
+
           setSuccessForBarcodeScan(currentBarcode);
+          setQuantityFromBarcode(newAmount || 0);
           toggleShowAmountInput(true);
         }
       }
     },
-    [orderPickProducts, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, productItems]
+    [orderPickProductsFlat, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
   );
 
   if(!orderDetail) {

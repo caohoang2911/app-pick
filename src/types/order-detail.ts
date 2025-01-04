@@ -1,5 +1,5 @@
 import { OrderStatus } from './order';
-import { Product } from './product';
+import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
 export type DeliveryAddress = {
   city?: number;
@@ -37,6 +37,8 @@ export type OrderDelivery = {
   storeCode?: string;
   storeAddress?: string;
   productItems?: Product[];
+  productItemGroups?: Array<Array<Product>>;
+  productItemsV2?: Array<Product | ProductItemGroup>
 };
 
 export type LogOrder = {
@@ -71,10 +73,11 @@ interface TemplateOrderRefund {
 export interface OrderDetailHeader {
   id?: number;
   groupShippingCode?: string;
+  operationType?: string;
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
-  deliveryType?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY';
+  deliveryType?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'SHIPPER_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   vouchers?: Array<Voucher>;

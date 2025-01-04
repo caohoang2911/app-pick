@@ -35,11 +35,16 @@ export const splitBarcode = ({
 }) => {
   let newQuantity = quantity;
   let newBarcode = barcode;
-  if (barcode?.length === 13 && barcode?.startsWith("110")) {
-    newBarcode = barcode.substring(0, 7);
-    let strQuantity = barcode.substring(7, barcode.length - 1);
-    newQuantity = parseFloat(strQuantity) / 1000.0;
+
+  const barcodeString = barcode?.toString().trim();
+
+  if (barcodeString?.length >=12 && barcodeString?.startsWith("110")) {
+    newBarcode = barcodeString.substring(0, 7);
+    let strQuantity = Number(barcodeString.substring(7, barcodeString.length));
+    newQuantity = Number(strQuantity / 1000.0);
   }
+
+  console.log(newQuantity, newBarcode, "okayokayokay");
 
   return {
     quantity: newQuantity,

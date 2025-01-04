@@ -1,14 +1,13 @@
-import React, { useEffect, useMemo, useRef } from 'react'
-import { View, Text, TextStyle } from 'react-native';
-import Segmented from '../Segmented';
-import { setDeliveryType, useOrders } from '~/src/core/store/orders';
 import { useQuery } from '@tanstack/react-query';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Text, TextStyle, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
+import { setDeliveryType, useOrders } from '~/src/core/store/orders';
 import { getConfigNameById } from '~/src/core/utils/config';
 
 type DeliveryTypeOption = {
-  label: React.ReactNode;
+  label: React.ReactNode | string;
   value: string;
 }
 
@@ -27,6 +26,7 @@ function DeliveryType() {
 
   const config = useConfig.use.config();
   const orderDeliveryTypes = config?.orderDeliveryTypes || [];
+  const refCurrentStatus = useRef<string | null>(null);
 
 
   const { data } = useQuery({
@@ -35,41 +35,55 @@ function DeliveryType() {
 
   const counters = {...cachingShippingMethods.current, ...(data as any)?.data} || {};
 
+  console.log(counters, "counters");
+
   const options: DeliveryTypeOption[] = useMemo(() => {
     return Object.keys(counters).filter((status) => pickStatus.includes(status)).map((status) => {
       const shippingMethodName = getConfigNameById(orderDeliveryTypes, status)
 
       const textStyle: TextStyle = {
-        color: '#000',
+        color: '#999999',
         ...(deliveryType === status && {
           color: '#fff',
         })
       }
 
+      const backgroundColorClass = deliveryType === status ? 'bg-colorPrimary' : 'bg-gray-100';
+
+      const handleSelect = (value: string) => {
+        if(refCurrentStatus.current === value) {
+          setDeliveryType(null);
+          refCurrentStatus.current = null;
+        } else {
+          setDeliveryType(value);
+          refCurrentStatus.current = value;
+        }
+      };
+    
       return ({
-        label: <View className='flex flex-row items-center gap-1 mx-4'>
-          <Text numberOfLines={1} style={{...textStyle}}>{shippingMethodName || status}</Text>
-          <Text style={{...textStyle}}>({counters[status] || 0})</Text>
-        </View>,
+        label: <TouchableOpacity onPress={() => handleSelect(status)}>
+          <View className={`flex flex-row items-center gap-1 rounded-full py-1 px-2 ${backgroundColorClass}`}>
+            <Text numberOfLines={1} style={{...textStyle}}>{shippingMethodName || status}</Text>
+            <Text style={{...textStyle}}>({counters[status] || 0})</Text>
+          </View>
+        </TouchableOpacity>,
         value: status,
       })
     })
-  }, [counters, orderDeliveryTypes])
+  }, [counters, orderDeliveryTypes, deliveryType])
 
   useEffect(() => {
     cachingShippingMethods.current = counters;
   }, [counters])
 
-  const handleSelect = (value: string) => {
-    setDeliveryType(value);
-  };
-
   return (
-    <Segmented
-      options={options}
-      selected={deliveryType}
-      onSelect={handleSelect}
-    />
+    <View className='flex flex-row items-center justify-end gap-2 pb-1'>
+        {options.map((item, index) => (
+          <View key={index}>
+            {item.label}
+          </View>
+        ))}
+    </View>
   );
 }
 

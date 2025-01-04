@@ -12,7 +12,7 @@ const BagItem = ({
     <View className="flex-row justify-between items-center">
       <Text className="text-base text-gray-500">{code}</Text>
       <View className="flex-row items-center gap-3">
-        <Button variant="text" label={"In Tem"} size="sm" onPress={() => router.push(`/orders/print-preview?code=${code}&type=${type}`)} labelClasses="text-colorPrimary text-base"  className="px-0"/>
+        {/* <Button variant="text" label={"In Tem"} size="sm" onPress={() => router.push(`/orders/print-preview?code=${code}&type=${type}`)} labelClasses="text-colorPrimary text-base"  className="px-0"/> */}
         <Button
           variant="text"
           label={"Xoá"}

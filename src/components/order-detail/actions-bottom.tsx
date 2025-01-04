@@ -1,13 +1,14 @@
 import { Button } from '@/components/Button';
 import { useGlobalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View } from 'react-native';
-import { G } from 'react-native-svg';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { getOrderPickProductsFlat, useOrderPick } from '~/src/core/store/order-pick';
+import { useOrderPick } from '~/src/core/store/order-pick';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderDetail } from '~/src/types/order-detail';
+import { Product } from '~/src/types/product';
 
 const ActionsBottom = () => {
 
@@ -23,26 +24,24 @@ const ActionsBottom = () => {
 
   const { code } = useGlobalSearchParams<{ code: string }>();
 
-  const orderPickProductsFlat : any = getOrderPickProductsFlat();
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+
+  const orderPickProductsFlat  = getOrderPickProductsFlat(orderPickProducts) 
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
 
   const { shipping } = orderDetail?.header || {};
-
-  const { productItems } = orderDetail?.delivery || {};
-
-
   const { header } = orderDetail || {};
   const { status } = header || {};
 
-  const canCompletePick =
-    Object.keys(orderPickProductsFlat).filter((key) => {
-      return orderPickProductsFlat[key].pickedTime;
-    })?.length === productItems?.length;
+  const canCompletePick = useMemo(() => {
+    return orderPickProductsFlat.filter((product: Product) => {
+      return !product.pickedTime;
+    })?.length === 0;
+  }, [orderPickProductsFlat]);
 
   const disableButton = () => {
     if (status === 'CONFIRMED') return false;
-    if (canCompletePick && status === 'STORE_PICKING') return false;
-    if (status === 'STORE_PICKING' && shipping?.packageSize) return false;
+    if (canCompletePick && status === 'STORE_PICKING' &&  shipping?.packageSize) return false;
 
     return true;
   };

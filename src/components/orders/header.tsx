@@ -51,11 +51,13 @@ const Header = () => {
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setLoading(true);
-    setUser({
-      ...userInfo,
-      ...data?.data
-    });
     setToken(data?.data?.zas);
+    setTimeout(() => {
+      setUser({
+        ...userInfo,
+        ...data?.data
+      });
+    }, 1000);
   });
   
 
@@ -143,10 +145,10 @@ const Header = () => {
           </View>
         </TouchableOpacity>
       </View>
-      <View className="mt-4">
+      <TabsStatus />
+      <View className="mt-2">
         <DeliveryType />
       </View>
-      <TabsStatus />
       {/* Bottom sheet */}
       <StoreSelection onSelect={handleSelectedStore} ref={storeRef} selectedId={userInfo?.storeCode} />
       <OperationTypeSelection onSelect={handleSelectedOperationType} ref={operationTypeRef} selectedId={operationType} />
