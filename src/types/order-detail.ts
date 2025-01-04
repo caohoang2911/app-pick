@@ -37,7 +37,7 @@ export type OrderDelivery = {
   storeCode?: string;
   storeAddress?: string;
   productItems?: Product[];
-  productItemGroups?: Array<Product | ProductItemGroup>;
+  productItemGroups?: Array<Array<Product>>;
   productItemsV2?: Array<Product | ProductItemGroup>
 };
 
@@ -77,7 +77,7 @@ export interface OrderDetailHeader {
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
-  deliveryType?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY';
+  deliveryType?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'SHIPPER_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   vouchers?: Array<Voucher>;
