@@ -1,5 +1,5 @@
 import { SimpleLineIcons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { toggleConfirmationRemoveProductCombo } from '~/src/core/store/order-pick';
@@ -13,13 +13,26 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
     toggleConfirmationRemoveProductCombo(true, product);
   };
 
+  const { elementPerComboQuantities }  = combo || {};
+
+  const isPickDoneCombo = useMemo(() => {
+    return combo.elements?.every((product: Product) => product.pickedTime);
+  }, [combo.elements]);
+
+  const pickedQuantityCombo = useMemo(() => {
+    return Math.min(...combo.elements?.map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementPerComboQuantities[product.barcode as string] : 0) || [0]);
+  }, [combo.elements, elementPerComboQuantities]);
+
+  console.log(pickedQuantityCombo, "pickedQuantityCombo");
+  console.log(isPickDoneCombo, "isPickDoneCombo");
+
   return (
     <>
       <View className="bg-white border border-blue-200 rounded-md">
         <View className="bg-blue-50 rounded-t-md p-2 py-3">
-          <Text className="text-sm blue text-blue-600 font-bold" numberOfLines={2}>{combo.name}</Text>
-          <Text className="text-sm blue font-medium mt-2">Số lượng đặt {combo.quantity || 0}</Text>
-          <Text className="text-sm blue font-medium">Thự tế pick 0</Text>
+          <Text className="text-sm text-blue-600 font-bold" numberOfLines={2}>{combo.name}</Text>
+          <Text className="text-sm text-blue-500 font-medium mt-2">Số lượng đặt {combo.quantity || 0}</Text>
+          <Text className="text-sm text-blue-500 font-medium">Thực tế pick: {isPickDoneCombo ? Math.floor(pickedQuantityCombo) : 0}</Text>
         </View>
         <View className="gap-2">
           {combo.elements?.map((product: Product, index: number) => (

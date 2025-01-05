@@ -142,12 +142,12 @@ const SBottomSheet = forwardRef<any, Props>(
               const { height } = event.nativeEvent.layout
               setHeaderHeight(height);
             }}
-          className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row items-center justify-between px-4">
+          className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row  justify-between px-4">
             {titleAlign == 'center' && <View />}
             {!renderTitle && <Text className={`text-${titleAlign} font-semibold text-lg`}>
               {title}
             </Text>}
-            {renderTitle && renderTitle}
+            {renderTitle && <View className="mr-3">{renderTitle}</View>}
             <Pressable
               onPress={async () => {
                 if (isKeyboardVisible) {
@@ -158,8 +158,10 @@ const SBottomSheet = forwardRef<any, Props>(
                   bottomSheetModalRef.current?.dismiss();
                 });
               }}
-            >
-              <CloseLine />
+            > 
+              <View style={{ marginTop: -3 }}>
+                <CloseLine />
+              </View>
             </Pressable>
           </View>
           <BottomSheetScrollView
