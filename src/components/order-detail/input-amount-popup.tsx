@@ -41,7 +41,7 @@ const InputAmountPopup = ({}) => {
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
-  const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess);
+  const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess);
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
     
@@ -82,9 +82,8 @@ const InputAmountPopup = ({}) => {
             pickedNote: (currentProduct as any)?.pickedNote || ''
           }}
           validateOnChange
-          onSubmit={(values, { resetForm }) => {
+          onSubmit={(values, { resetForm, setFieldValue}) => {
             if (!productName) return;
-            toggleShowAmountInput(false);
             setOrderPickProduct({
               ...currentProduct,
               barcode: barcodeScanSuccess,
@@ -93,7 +92,6 @@ const InputAmountPopup = ({}) => {
               pickedNote: values?.pickedNote,
               pickedTime: moment().valueOf()
             } as Product);
-            resetForm();
           }}
         >
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
@@ -109,7 +107,7 @@ const InputAmountPopup = ({}) => {
             return (
               <>
                 <View className="flex flex-row gap-2 items-center" style={{ position: 'relative' }}>
-                  <View className="flex-1" style={{ marginRight: 75 }}>
+                  <View className="flex-1" style={{ marginRight: 85}}>
                     <Input
                       selectTextOnFocus
                       labelClasses="font-medium"

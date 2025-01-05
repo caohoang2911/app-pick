@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
+import { hideAlert, showAlert } from '../alert-dialog';
 
 interface OrdersState {
   orderDetail: OrderDetail;
@@ -58,6 +59,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     set({ barcodeScanSuccess: barcode, fillInput });
   },
   setInitOrderPickProducts: (data: any) => {
+    console.log(data, "myData");
     set({ orderPickProducts: [ ...data ] });
   },
   setBarcodeScrollTo: (barcode: string) => {
@@ -75,15 +77,66 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     
     const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup) => {
       if(productMap.type === 'COMBO' && 'elements' in productMap) {
+        let lowQuantity = false;
         return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
           if (productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) {
-            return { ...productRel, ...product };
+            const { elementPerComboQuantities, quantity: comboQuantity } = productMap || {};
+            const productInComboAmountByBarcode = elementPerComboQuantities?.[product.barcode?.toString() || ''] || 0;
+            const pickedQuantity = product.pickedQuantity || 0;
+
+            let comboAvailable = comboQuantity;
+
+            if(pickedQuantity && comboQuantity > 0) {
+              comboAvailable = Math.floor(pickedQuantity / comboQuantity);
+            }
+            
+            if(comboAvailable < comboQuantity) {
+              showAlert({
+                title: 'SP chưa đáp ứng đủ combo!',
+                message: `SP chỉ đáp ứng đủ ${comboQuantity - comboAvailable} combo. Sản phẩm trong combo sẽ bị xoá, bạn có muốn tiếp tục?`,
+                onConfirm: () => {
+                  toggleShowAmountInput(false);
+                  hideAlert();
+                  lowQuantity = true;
+                  return {
+                    ...productRel,
+                    ...product,
+                    quantity: comboAvailable,
+                    pickedQuantity: Math.floor(pickedQuantity / comboQuantity)
+                  };
+                },
+                onCancel: () => {
+                  hideAlert();
+                },
+                confirmText: 'Đồng ý',
+                cancelText: 'Pick thêm',
+              });
+              return { ...productRel, ...product, pickedQuantity };
+            } else if(pickedQuantity > productInComboAmountByBarcode * comboQuantity) {
+              showAlert({
+                title: 'SP vượt quá combo!',
+                message: `Bạn có muốn tiếp tục?`,
+                onConfirm: () => {
+                  toggleShowAmountInput(false);
+                  hideAlert();
+                },
+                onCancel: () => {
+                  hideAlert();
+                },
+                confirmText: 'Đồng ý',
+                cancelText: 'Sửa lại',
+              });
+              return { ...productRel, ...product, pickedQuantity };
+            }
+            toggleShowAmountInput(false);
+            return { ...productRel, ...product, pickedQuantity };
           } else {
             return productRel;
           }
-        }) };
+        })};
       } else {
         if((productMap as Product).barcode === product.barcode || (productMap as Product).baseBarcode === product.barcode) {
+          toggleShowAmountInput(false);
           return { ...productMap, ...product };
         }
         return productMap;
