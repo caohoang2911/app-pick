@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useMemo, useRef } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Text, TextStyle, TouchableOpacity, View } from 'react-native';
+import { useGetOrderDeliveryTypeCounters } from '~/src/api/app-pick/use-get-order-delivery-type-counters';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { setDeliveryType, useOrders } from '~/src/core/store/orders';
@@ -17,7 +19,6 @@ const pickStatus = [
   "CUSTOMER_PICKUP",
 ]
 
-
 function DeliveryType() {
   const cachingShippingMethods = useRef<any>(null);
 
@@ -28,27 +29,38 @@ function DeliveryType() {
   const orderDeliveryTypes = config?.orderDeliveryTypes || [];
   const refCurrentStatus = useRef<string | null>(null);
 
+  const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+  const operationType = useOrders.use.operationType();
+  const fromScanQrCode = useOrders.use.fromScanQrCode();
 
-  const { data } = useQuery({
-    queryKey: ['getOrderStatusCounters', deliveryType, useOrders.use.operationType(), storeCode]
-  });
+  const isFirtTime = useRef(true);
+
+  const { data, refetch } = useGetOrderDeliveryTypeCounters({ operationType, storeCode, status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
 
   const counters = {...cachingShippingMethods.current, ...(data as any)?.data} || {};
 
-  console.log(counters, "counters");
+  useFocusEffect(
+    useCallback(() => {
+      if (!isFirtTime.current) {
+        refetch();
+      }
+      return () => {
+        isFirtTime.current = false;
+      };
+    }, [])
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [fromScanQrCode, selectedOrderCounter, operationType, storeCode])
+
 
   const options: DeliveryTypeOption[] = useMemo(() => {
     return Object.keys(counters).filter((status) => pickStatus.includes(status)).map((status) => {
       const shippingMethodName = getConfigNameById(orderDeliveryTypes, status)
 
-      const textStyle: TextStyle = {
-        color: '#999999',
-        ...(deliveryType === status && {
-          color: '#fff',
-        })
-      }
-
-      const backgroundColorClass = deliveryType === status ? 'bg-colorPrimary' : 'bg-gray-100';
+      const textClasses = deliveryType === status ? 'text-blue-600' : 'text-gray-600';
+      const backgroundColorClass = deliveryType === status ? 'bg-blue-50' : 'bg-gray-100';
 
       const handleSelect = (value: string) => {
         if(refCurrentStatus.current === value) {
@@ -62,9 +74,9 @@ function DeliveryType() {
     
       return ({
         label: <TouchableOpacity onPress={() => handleSelect(status)}>
-          <View className={`flex flex-row items-center gap-1 rounded-full py-1 px-2 ${backgroundColorClass}`}>
-            <Text numberOfLines={1} style={{...textStyle}}>{shippingMethodName || status}</Text>
-            <Text style={{...textStyle}}>({counters[status] || 0})</Text>
+          <View className={`flex flex-row items-center gap-1 rounded-full py-1 px-3 ${backgroundColorClass}`}>
+            <Text numberOfLines={1} className={`${textClasses} font-medium text-xs`}>{shippingMethodName || status}</Text>
+            <Text className={`${textClasses} font-medium text-xs`}>({counters[status] || 0})</Text>
           </View>
         </TouchableOpacity>,
         value: status,

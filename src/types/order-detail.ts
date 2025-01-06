@@ -77,7 +77,7 @@ export interface OrderDetailHeader {
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
-  deliveryType?: 'DEFAULT' | 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'SHIPPER_DELIVERY';
+  deliveryType: 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'SHIPPER_DELIVERY';
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   vouchers?: Array<Voucher>;

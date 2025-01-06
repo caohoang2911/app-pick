@@ -17,12 +17,11 @@ export function TabsStatus() {
   const ref = useRef<any>();
   const cachingOrderStatusCounters = useRef<any>(null);
 
-  const deliveryType = useOrders.use.deliveryType();
   const operationType = useOrders.use.operationType();
 
   const { storeCode } = useAuth.use.userInfo();
 
-  const { data, refetch } = useGetOrderStatusCounters({ deliveryType, operationType, storeCode });
+  const { data, refetch } = useGetOrderStatusCounters({ operationType, storeCode });
   const orderStatusCounters = {...cachingOrderStatusCounters.current, ...(data as any)?.data} || {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
@@ -47,7 +46,7 @@ export function TabsStatus() {
 
   useEffect(() => {
     refetch();
-  }, [orderStatusCounters])
+  }, [storeCode])
 
   const dataStatusCounters = Object.keys(orderStatusCounters)?.filter(key => ORDER_COUNTER_STATUS_PRIORITY[key] !== undefined)?.map(
     (key: string) => {

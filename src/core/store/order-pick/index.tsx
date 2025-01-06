@@ -93,7 +93,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
             if(comboAvailable < comboQuantity) {
               showAlert({
                 title: 'SP chưa đáp ứng đủ combo!',
-                message: `SP chỉ đáp ứng đủ ${comboQuantity - comboAvailable} combo. Sản phẩm trong combo sẽ bị xoá, bạn có muốn tiếp tục?`,
+                message: `SP chỉ đáp ứng đủ ${comboQuantity - comboAvailable} combo?`,
                 onConfirm: () => {
                   toggleShowAmountInput(false);
                   hideAlert();

@@ -23,7 +23,7 @@ const _useOrders = create<OrdersState>((set, get) => ({
   selectedOrderCounter: 'ALL',
   keyword: '',
   deliveryType: null,
-  operationType: '',
+  operationType: 'EXPRESS',
   fromScanQrCode: false,
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });
