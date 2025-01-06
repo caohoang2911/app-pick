@@ -7,7 +7,7 @@ const HeaderRightAction: React.FC<{}> = () => {
   return (
     <>
       <TouchableOpacity onPress={() => toggleScanQrCodeProduct(true)}>
-        <View className="rounded-md w-9 h-9 mr-3 flex flex-row justify-center items-center">
+        <View className="rounded-md w-9 h-9 flex flex-row justify-center items-center">
           <FontAwesome name="qrcode" size={24} color="black" />
         </View>
       </TouchableOpacity>

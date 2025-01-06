@@ -40,7 +40,8 @@ const OrderPickProduct = ({
   pickedTime,
   pickedError,
   pickedQuantity,
-  extraConversionQuantity
+  extraConversionQuantity,
+  isHiddenTag = false,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -77,9 +78,10 @@ const OrderPickProduct = ({
                 <Row label="Số lượng đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
                 <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
                 <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
-                <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
+                {!isHiddenTag && <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
                   {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
-                </View>
+                </View>}
+                
               </View>
             </View>
           </View>

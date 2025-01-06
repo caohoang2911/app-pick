@@ -11,8 +11,10 @@ import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { Button } from '~/src/components/Button';
-import { useCheckoutOrderBags } from '~/src/api/app-pick/use-checkout-order-bags';
 import { queryClient } from '~/src/api/shared';
+import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
+import { OrderDetailHeader } from '~/src/types/order-detail';
+import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -23,6 +25,10 @@ const OrderScanToDelivery = () => {
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
+  const header = getHeaderOrderDetailOrderPick();
+  const { deliveryType } = header as OrderDetailHeader;
+
+  const actionType = deliveryType ? (deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP' ? 'Hoàn tất đơn hàng' : 'Giao cho shipper') : '';
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -36,12 +42,14 @@ const OrderScanToDelivery = () => {
     return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
   }
 
-  const { mutate: checkoutOrderBags, isPending: isCheckoutOrderBagsPending } = useCheckoutOrderBags(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
+    setLoading(false);
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   });
 
+
   const handleCheckoutOrderBags = () => {
-    checkoutOrderBags({ orderCode: code });
+    completeOrder({ orderCode: code });
   }
 
   const isAllDone = useMemo(() => {
@@ -60,16 +68,18 @@ const OrderScanToDelivery = () => {
           </View>
         </ScrollView>
       </View> 
-      <View className="border-t border-gray-200 pb-4">
-        <View className="px-4 py-3 bg-white ">
-          <Button
-            loading={isCheckoutOrderBagsPending}
-            onPress={handleCheckoutOrderBags}
-            disabled={!isAllDone}
-            label={'Hoàn tất'}
-          />
+      {actionType && 
+        <View className="border-t border-gray-200 pb-4">
+          <View className="px-4 py-3 bg-white ">
+            <Button
+              loading={isLoadingCompleteOrder}
+              onPress={handleCheckoutOrderBags}
+              disabled={!isAllDone}
+              label={actionType}
+            />
+          </View>
         </View>
-      </View>
+      }
       {isScanQrCodeProduct && (
         <ScannerBox
           type="qr"

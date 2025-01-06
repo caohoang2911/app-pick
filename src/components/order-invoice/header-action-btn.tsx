@@ -25,11 +25,6 @@ const actions = [
     title: 'Cancel Book Shipper',
     icon: <TruckLine />,
   },
-  {
-    key: 'complete-order',
-    title: 'Hoàn tất đơn hàng',
-    icon: <EBikeLine />,
-  },
 ];
 
 const HeaderActionBtn = () => {
