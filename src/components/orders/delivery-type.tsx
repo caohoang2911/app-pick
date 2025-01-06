@@ -19,7 +19,6 @@ const pickStatus = [
   "CUSTOMER_PICKUP",
 ]
 
-
 function DeliveryType() {
   const cachingShippingMethods = useRef<any>(null);
 
@@ -39,8 +38,6 @@ function DeliveryType() {
   const { data, refetch } = useGetOrderDeliveryTypeCounters({ operationType, storeCode, status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
 
   const counters = {...cachingShippingMethods.current, ...(data as any)?.data} || {};
-
-  console.log(data, "datadatadatadata");
 
   useFocusEffect(
     useCallback(() => {
@@ -77,9 +74,9 @@ function DeliveryType() {
     
       return ({
         label: <TouchableOpacity onPress={() => handleSelect(status)}>
-          <View className={`flex flex-row items-center gap-1 rounded-full py-1 px-2 ${backgroundColorClass}`}>
-            <Text numberOfLines={1} className={textClasses}>{shippingMethodName || status}</Text>
-            <Text className={textClasses}>({counters[status] || 0})</Text>
+          <View className={`flex flex-row items-center gap-1 rounded-full py-1 px-3 ${backgroundColorClass}`}>
+            <Text numberOfLines={1} className={`${textClasses} font-medium text-xs`}>{shippingMethodName || status}</Text>
+            <Text className={`${textClasses} font-medium text-xs`}>({counters[status] || 0})</Text>
           </View>
         </TouchableOpacity>,
         value: status,
