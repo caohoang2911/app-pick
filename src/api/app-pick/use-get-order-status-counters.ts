@@ -1,11 +1,8 @@
-import type { AxiosError } from 'axios';
 
 import { axiosClient } from '@/api/shared';
-import { createQuery } from 'react-query-kit';
 import { useQuery } from '@tanstack/react-query';
 
 type Variables = {
-  deliveryType: string;
   operationType: string;
   storeCode: string;
 };
@@ -24,20 +21,19 @@ type Response = { error: string } & {
   data: OrderCounterResponse;
 };
 
-const getCounter = async (deliveryType: string, operationType: string, storeCode: string): Promise<Response> => {
+const getCounter = async (operationType?: string | null, storeCode?: string | null): Promise<Response> => {
 
   const params = {
-    deliveryType,
     operationType,
     storeCode,
   };
 
   return await axiosClient.get('app-pick/getOrderStatusCounters', { params });
 };
-export const useGetOrderStatusCounters = ({ deliveryType, operationType, storeCode }: Variables) =>
+export const useGetOrderStatusCounters = ({ operationType, storeCode }: Variables) =>
   useQuery({
-    queryKey: ['getOrderStatusCounters', deliveryType, operationType, storeCode],
+    queryKey: ['getOrderStatusCounters', operationType, storeCode],
     queryFn: () => {
-      return getCounter(deliveryType, operationType, storeCode);
+      return getCounter(operationType, storeCode);
     },
   });

@@ -1,24 +1,18 @@
+import { router, useGlobalSearchParams } from 'expo-router';
 import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { router, useGlobalSearchParams } from 'expo-router';
 import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import {
   BillLine,
-  CloseLine,
   PrintLine,
-  QRScanLine,
+  QRScanLine
 } from '~/src/core/svgs';
 import SaveOutLine from '~/src/core/svgs/SaveOutline';
-import SBottomSheet from '../SBottomSheet';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
-import { queryClient } from '~/src/api/shared';
-import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { OrderStatusValue } from '~/src/types/order';
-import { showMessage } from 'react-native-flash-message';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { OrderStatusValue } from '~/src/types/order';
+import SBottomSheet from '../SBottomSheet';
 
 type Action = {
   key: string;
@@ -44,26 +38,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const actionRef = useRef<any>();
 
     const { mutate: saveOrderPickingAsDraft } = useSaveOrderPickingAsDraft();
-
-    const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
-      hideAlert();
-      setLoading(false);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-    });
   
-    const handleCompleteOrder = () => {
-      if (!code) return;
-  
-      showAlert({
-        title: 'Xác nhận hoàn tất đơn hàng hàng',
-        loading: isLoadingCompleteOrder,
-        onConfirm: () => {
-          setLoading(true);
-          completeOrder({ orderCode: code });
-        },
-      });
-    };
-
     useImperativeHandle(
       ref,
       () => {
@@ -101,12 +76,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         disabled: status !== OrderStatusValue.STORE_PICKING,
         icon: <SaveOutLine />,
       },
-      {
-        key: 'complete-order',
-        title: 'Hoàn tất đơn hàng',
-        disabled: deliveryType === 'SHIPPER_DELIVERY',
-        icon: <MaterialIcons name="done" size={24} color="black" />,
-      },
     ], [code, deliveryType, status]);
 
     const renderItem = ({
@@ -140,9 +109,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           break;
         case 'scan-bag':
           router.push(`orders/order-scan-to-delivery/${code}`);
-          break;
-        case 'complete-order':
-          handleCompleteOrder();
           break;
         case 'enter-bag-and-tem':
           router.push(`orders/order-bags/${code}`);
