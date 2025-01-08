@@ -21,11 +21,6 @@ export const colors = {
     200: '#D6BCFA',
     600: '#6B46C1',
   },
-  orange: {
-    50: '#FFFAF0',
-    200: '#D6BCFA',
-    600: '#C05621',
-  },
   cyan: {
     50: '#EDFDFD',
     200: '#9DECF9',
@@ -41,5 +36,9 @@ export const colors = {
     50: '#F0FFF4',
     200: '#9AE6B4',
     600: '#25855A',
+  },
+  orange: {
+    200: '#FFA500',
+    500: '#C05621'
   },
 };

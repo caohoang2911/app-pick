@@ -15,6 +15,7 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
+import ProductGift from './product-gift';
 
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{
@@ -131,7 +132,9 @@ const OrderPickProducts = () => {
               key={index}
               className={clsx('px-4 mb-4', { 'mb-10': isLast })}
             >
-              {item.type === "COMBO" ? <ProductCombo combo={item as ProductItemGroup} /> : <OrderPickProduct {...(item as Product)} />}
+              {item.type === "COMBO" && <ProductCombo combo={item as ProductItemGroup} />} 
+              {item.type === "GIFT_PACK" && <ProductGift giftPack={item as ProductItemGroup} />}
+              {item.type === "PRODUCT" && <OrderPickProduct {...(item as Product)} />}
             </View>
           );
         }}

@@ -17,8 +17,10 @@ export type ProductItemGroup = {
   elements?: Array<Product>;
 }
 
+export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
+
 export type Product = {
-  type?: "COMBO" | "PRODUCT";
+  type?: "COMBO" | "PRODUCT" | "GIFT_PACK";
   pId: number;
   pickedError?: string;
   pickedNote?: string;
