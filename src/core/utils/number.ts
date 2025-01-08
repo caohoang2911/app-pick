@@ -38,16 +38,34 @@ export const splitBarcode = ({
 
   const barcodeString = barcode?.toString().trim();
 
-  if (barcodeString?.length >=12 && barcodeString?.startsWith("110")) {
+  if (barcodeString?.length === 13 && barcodeString?.startsWith("110")) {
     newBarcode = barcodeString.substring(0, 7);
     let strQuantity = Number(barcodeString.substring(7, barcodeString.length));
-    newQuantity = Number(strQuantity / 1000.0);
-  }
 
-  console.log(newQuantity, newBarcode, "okayokayokay");
+    newQuantity = Number(strQuantity / 10000.0);
+  }
 
   return {
     quantity: newQuantity,
     barcode: newBarcode
   };
+}
+
+export const roundToDecimalIncrease = (value: number) => {
+  const decimalsNumber = value.toString().split('.')[1]?.length || value.toString().split(',')[1]?.length || 0;
+  const factor = Math.pow(10, decimalsNumber);
+
+  return Math.round(value * factor + 1) / factor;
+};
+
+export const roundToDecimalDecrease = (value: number) => {
+  const decimalsNumber = value.toString().split('.')[1]?.length || value.toString().split(',')[1]?.length || 0;
+  const factor = Math.pow(10, decimalsNumber);
+
+  return Math.round(value * factor - 1) / factor;
+};
+
+
+export const formatDecimal = (value: string) => {
+  return value.replace(/,/g, '.');
 }
