@@ -1,7 +1,7 @@
 import { Formik } from 'formik';
 import moment from 'moment-timezone';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 
 import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -21,6 +21,7 @@ import { Button } from '../Button';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
+import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
 
 
 const InputAmountPopup = ({}) => {
@@ -57,13 +58,11 @@ const InputAmountPopup = ({}) => {
       </View>
     )
   }, [productName, displayPickedQuantity])
-
   useEffect(() => {
     return () => {
       setQuantityFromBarcode(0);
     }
   }, []);
-
 
   return (
     <SBottomSheet
@@ -92,12 +91,13 @@ const InputAmountPopup = ({}) => {
               pickedNote: values?.pickedNote,
               pickedTime: moment().valueOf()
             } as Product);
+            toggleShowAmountInput(false);
+            resetForm();
           }}
         >
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
 
             const isError = values?.pickedQuantity < quantity && !values?.pickedError;
-
             useEffect(() => {
               if(quantityFromBarcode) {
                 setFieldValue('pickedQuantity', quantityFromBarcode.toString());
@@ -107,16 +107,19 @@ const InputAmountPopup = ({}) => {
             return (
               <>
                 <View className="flex flex-row gap-2 items-center" style={{ position: 'relative' }}>
-                  <View className="flex-1" style={{ marginRight: 85}}>
+                  <View className="flex-1" style={{ marginRight: 113}}>
                     <Input
                       selectTextOnFocus
                       labelClasses="font-medium"
                       label="Số lượng pick"
                       placeholder="Nhập số lượng"
                       inputClasses="text-center"
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
                       onChangeText={(value: string) => {
-                        setFieldValue('pickedQuantity', value);
+                        setFieldValue('pickedQuantity', formatDecimal(value));
+                        if(Number(values?.pickedQuantity) >= Number(quantity)) {
+                          setFieldValue('pickedError', null);
+                        }
                       }}
                       editable={!isCampaign}
                       useBottomSheetTextInput
@@ -129,12 +132,15 @@ const InputAmountPopup = ({}) => {
                         <TouchableOpacity
                           disabled={isCampaign}
                           onPress={() => {
-                            const valueChange = Number(values?.pickedQuantity || 0) - 1
+                            const valueChange = roundToDecimalDecrease(Number(values?.pickedQuantity || 0))
                             if (Number(valueChange) < 0) {
                               setFieldValue('pickedQuantity', 0);
                               return;
                             };
-                            setFieldValue('pickedQuantity', Number(values?.pickedQuantity - 1));
+                            setFieldValue('pickedQuantity', Number(valueChange));
+                            if(Number(values?.pickedQuantity) >= Number(quantity)) {
+                              setFieldValue('pickedError', null);
+                            }
                           }}
                         >
                           <View className="size-8 rounded-full bg-gray-200">
@@ -150,12 +156,16 @@ const InputAmountPopup = ({}) => {
                         <TouchableOpacity
                           disabled={isCampaign}
                           onPress={() => {
-                            const valueChange = Number(values?.pickedQuantity || 0) + 1;
+                            const valueChange = roundToDecimalIncrease(Number(values?.pickedQuantity || 0))
                             if (Number(valueChange) < 0) {
                               setFieldValue('pickedQuantity', 0);
                               return;
                             };
                             setFieldValue('pickedQuantity', Number(valueChange));
+
+                            if(Number(values?.pickedQuantity) >= Number(quantity)) {
+                              setFieldValue('pickedError', null);
+                            }
                           }}
                         >
                           <View className="size-8 rounded-full bg-gray-200">
@@ -169,10 +179,10 @@ const InputAmountPopup = ({}) => {
                       }
                     />
                   </View>
-                  <View style={{ position: 'absolute', top: 32, right: 0 }}>
+                  <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 32 : 38, right: 0 }}>
                     <View className="flex flex-row items-center gap-2">
-                      <View className="bg-gray-200 rounded-lg p-2">
-                        <Text className="text-gray-300 text-xs font-medium">{currentProduct?.unit}</Text>
+                      <View className="bg-gray-200 rounded-lg p-2" style={{ width: 70 }}>
+                        <Text className="text-gray-300 text-ellipsis text-center text-xs font-medium">{currentProduct?.unit}</Text>
                       </View>
                       <TouchableOpacity onPress={() => {
                           toggleScanQrCodeProduct(true, { isNewScan: false });
@@ -199,7 +209,7 @@ const InputAmountPopup = ({}) => {
                   disabled={Number(values?.pickedQuantity) >= Number(quantity)}
                   value={values?.pickedError}
                   onSelect={(value: string) => {
-                    setFieldValue('pickedError', value);
+                    setFieldValue('pickedError', formatDecimal(value));
                     setErrors({})
                   }}
                   onClear={() => {
@@ -216,3 +226,4 @@ const InputAmountPopup = ({}) => {
 };
 
 export default InputAmountPopup;
+
