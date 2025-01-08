@@ -95,6 +95,18 @@ const OrderPickProducts = () => {
     );
   }
 
+  const renderItem = (item: Product | ProductItemGroup | any) => {
+    if(item.type === "COMBO" && 'elements' in item) {
+      return <ProductCombo combo={item as ProductItemGroup} />;
+    }
+    if(item.type === "GIFT_PACK" && 'elements' in item) {
+      return <ProductGift giftPack={item as ProductItemGroup} />;
+    }
+
+    return <OrderPickProduct {...(item as Product)} />;
+    
+  }
+
   return (
     <View className="flex-1 flex-grow mt-2">
       <FlatList
@@ -132,9 +144,7 @@ const OrderPickProducts = () => {
               key={index}
               className={clsx('px-4 mb-4', { 'mb-10': isLast })}
             >
-              {item.type === "COMBO" && <ProductCombo combo={item as ProductItemGroup} />} 
-              {item.type === "GIFT_PACK" && <ProductGift giftPack={item as ProductItemGroup} />}
-              {item.type === "PRODUCT" && <OrderPickProduct {...(item as Product)} />}
+              {renderItem(item)}
             </View>
           );
         }}

@@ -63,16 +63,6 @@ const OrderPickProduct = ({
   return (
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>
-        {isGiftFirst && <View className=" absolute left-1/2 -translate-x-1/2 -top-7 z-10">
-          <View className="bg-gray-200 rounded-full p-2">
-            <Entypo name="pin" size={24} color="orange" />
-          </View>
-        </View>}
-        {isGiftNotFirst && <View className=" absolute left-1/2 -translate-x-1/2 -top-7 z-10">
-          <View className="bg-gray-200 rounded-full p-2">
-            <EvilIcons name="plus" size={24} color="orange" />
-          </View>
-        </View>}
         <View className="p-4">
           <View className='flex flex-row gap-2 items-center mb-3' style={[{paddingRight: shouldDisplayEdit ? 53 : 28}]}>
             {pickedTime && (
