@@ -7,7 +7,7 @@ const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
 
   return (
     <>
-      <View className="bg-white border border-orange-200 rounded-md">
+      <View className="bg-white border border-purple-200 rounded-md">
         <View className="bg-orange-50 rounded-t-md p-2 py-3">
           <Text className="text-sm text-orange-600 font-bold" numberOfLines={2}>{giftPack.name}</Text>
         </View>
