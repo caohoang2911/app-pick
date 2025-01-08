@@ -66,7 +66,7 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item => barcode?.startsWith(item?.barcode || '') || barcode?.startsWith(item?.baseBarcode || ''));
+      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item => barcode === item?.barcode || barcode === item?.baseBarcode);
 
       if (indexOfCodeScanned === -1) {
         showMessage({

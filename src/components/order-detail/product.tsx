@@ -1,6 +1,11 @@
 import { Image } from 'expo-image';
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import EvilIcons from '@expo/vector-icons/EvilIcons';
+
+
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -42,6 +47,8 @@ const OrderPickProduct = ({
   pickedQuantity,
   extraConversionQuantity,
   isHiddenTag = false,
+  type,
+  index,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -50,10 +57,12 @@ const OrderPickProduct = ({
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
   const shouldDisplayEdit = useCanEditOrderPick();
+  const isGiftFirst = type === "GIFT" && index === 1;
+  const isGiftNotFirst = type === "GIFT" && index !== 1;
 
   return (
     <>
-      <View className={cn(`bg-white shadow`)} style={styles.box}>
+      <View className={cn(`bg-white shadow relative`)} style={styles.box}>
         <View className="p-4">
           <View className='flex flex-row gap-2 items-center mb-3' style={[{paddingRight: shouldDisplayEdit ? 53 : 28}]}>
             {pickedTime && (
@@ -61,7 +70,10 @@ const OrderPickProduct = ({
                 <CheckCircleFill color={'green'}/>
               </View>
             )}
+           <View className="flex flex-row items-center gap-2">
+            <Text className="text-lg text-gray-500 mb-1">{type === "GIFT" && "🎁"}</Text>
             <Text className="text-lg font-semibold" numberOfLines={1}>{name}</Text>
+           </View>
           </View>
           <View className="flex flex-row justify-between gap-4 flex-grow ">
             <View className="">
@@ -81,11 +93,9 @@ const OrderPickProduct = ({
                 {!isHiddenTag && <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
                   {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
                 </View>}
-                
               </View>
             </View>
           </View>
-          <View className="border my-3 border-gray-100" />
           <View className="flex">
             <View className="flex-row justify-end">
               <Text className="text-gray-500">
@@ -93,7 +103,8 @@ const OrderPickProduct = ({
               </Text>
             </View>
           </View>
-          {pickedErrorName && <View className="flex gap-1 mt-2">
+          {pickedErrorName && <View className="flex gap-1">
+            <View className="border my-3 border-gray-100" />
             <Text className="text-red-500 italic">Lỗi: {pickedErrorName}</Text>
           </View>}
         </View>

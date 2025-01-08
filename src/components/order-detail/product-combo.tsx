@@ -33,7 +33,7 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
           <Text className="text-sm text-blue-600 font-bold" numberOfLines={2}>{combo.name}</Text>
           <View className="flex flex-row items-center gap-2 justify-between">
             <Text className="text-sm text-blue-500 font-medium mt-2"><Text className="text-gray-500">Số lượng đặt: </Text> {combo.quantity || 0}</Text>
-            <Text className="text-sm text-blue-500 font-medium"><Text className="text-gray-500">Thực pick: </Text> {isPickDoneCombo ? Math.floor(pickedQuantityCombo) : 0}</Text>
+            <Text className="text-sm text-blue-500 font-medium"><Text className="text-gray-500">Thực pick: </Text> {isPickDoneCombo && !isNaN(pickedQuantityCombo) ? Math.floor(pickedQuantityCombo) : 0}</Text>
           </View>
         </View>
         <View className="gap-2">
