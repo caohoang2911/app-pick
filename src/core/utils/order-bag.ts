@@ -48,6 +48,11 @@ export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGr
     if(product.type === 'COMBO' && 'elements' in product) {
       return [...(product.elements || [])];
     }
+    if(product.type === 'GIFT_PACK' && 'elements' in product) {
+      return [...(product.elements || [])];
+    }
+    
+
     return [product];
   }) as Array<Product>;
 

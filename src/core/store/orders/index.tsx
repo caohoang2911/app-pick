@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
 import { OrderStatus } from '~/src/types/order';
 
+const TAB_STATUS_DEFAULT = 'CONFIRMED';
+const OPERATION_TYPE_DEFAULT = 'EXPRESS';
+
 interface OrdersState {
   isScanQrCode: boolean;
   selectedOrderCounter: OrderStatus;
@@ -20,10 +23,10 @@ interface OrdersState {
 
 const _useOrders = create<OrdersState>((set, get) => ({
   isScanQrCode: false,
-  selectedOrderCounter: 'ALL',
+  selectedOrderCounter: TAB_STATUS_DEFAULT,
   keyword: '',
   deliveryType: null,
-  operationType: 'EXPRESS',
+  operationType: OPERATION_TYPE_DEFAULT,
   fromScanQrCode: false,
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });

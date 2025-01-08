@@ -75,60 +75,23 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
     
+    let flag = false;
     const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup) => {
       if(productMap.type === 'COMBO' && 'elements' in productMap) {
-        let lowQuantity = false;
         return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
-          if (productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) {
-            const { elementPerComboQuantities, quantity: comboQuantity } = productMap || {};
-            const productInComboAmountByBarcode = elementPerComboQuantities?.[product.barcode?.toString() || ''] || 0;
+          if ((productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) && !flag && !productRel.pickedTime) {
+            flag = true;
             const pickedQuantity = product.pickedQuantity || 0;
-
-            let comboAvailable = comboQuantity;
-
-            if(pickedQuantity && comboQuantity > 0) {
-              comboAvailable = Math.floor(pickedQuantity / comboQuantity);
-            }
-            
-            if(comboAvailable < comboQuantity) {
-              showAlert({
-                title: 'SP chưa đáp ứng đủ combo!',
-                message: `SP chỉ đáp ứng đủ ${comboQuantity - comboAvailable} combo?`,
-                onConfirm: () => {
-                  toggleShowAmountInput(false);
-                  hideAlert();
-                  lowQuantity = true;
-                  return {
-                    ...productRel,
-                    ...product,
-                    quantity: comboAvailable,
-                    pickedQuantity: Math.floor(pickedQuantity / comboQuantity)
-                  };
-                },
-                onCancel: () => {
-                  hideAlert();
-                },
-                confirmText: 'Đồng ý',
-                cancelText: 'Pick thêm',
-              });
-              return { ...productRel, ...product, pickedQuantity };
-            } else if(pickedQuantity > productInComboAmountByBarcode * comboQuantity) {
-              showAlert({
-                title: 'SP vượt quá combo!',
-                message: `Bạn có muốn tiếp tục?`,
-                onConfirm: () => {
-                  toggleShowAmountInput(false);
-                  hideAlert();
-                },
-                onCancel: () => {
-                  hideAlert();
-                },
-                confirmText: 'Đồng ý',
-                cancelText: 'Sửa lại',
-              });
-              return { ...productRel, ...product, pickedQuantity };
-            }
-            toggleShowAmountInput(false);
+            return { ...productRel, ...product, pickedQuantity };
+          } else {
+            return productRel;
+          }
+        })};
+      } else if(productMap.type === 'GIFT_PACK' && 'elements' in productMap) {
+        return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
+          if ((productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) && !flag && !productRel.pickedTime) {
+            flag = true;
+            const pickedQuantity = product.pickedQuantity || 0;
             return { ...productRel, ...product, pickedQuantity };
           } else {
             return productRel;
