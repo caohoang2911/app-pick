@@ -1,14 +1,11 @@
 import { Image } from 'expo-image';
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import EvilIcons from '@expo/vector-icons/EvilIcons';
-
 
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
+  setCurrentPid,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
@@ -48,7 +45,7 @@ const OrderPickProduct = ({
   extraConversionQuantity,
   isHiddenTag = false,
   type,
-  index,
+  pId,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -57,16 +54,13 @@ const OrderPickProduct = ({
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
   const shouldDisplayEdit = useCanEditOrderPick();
-  const isGiftFirst = type === "GIFT" && index === 1;
-  const isGiftNotFirst = type === "GIFT" && index !== 1;
-
   return (
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>
         <View className="p-4">
           <View className='flex flex-row gap-2 items-center mb-3' style={[{paddingRight: shouldDisplayEdit ? 53 : 28}]}>
             {pickedTime && (
-              <View className="rounded-full bg-white ">
+              <View className="rounded-full bg-white">
                 <CheckCircleFill color={'green'}/>
               </View>
             )}
@@ -113,6 +107,7 @@ const OrderPickProduct = ({
             onPress={() => {
               toggleShowAmountInput(!isShowAmountInput);
               setSuccessForBarcodeScan(barcode, { fillInput: false });
+              setCurrentPid(pId);
             }}
           >
             <EditOutLine width={21} height={21} color={'gray'} />

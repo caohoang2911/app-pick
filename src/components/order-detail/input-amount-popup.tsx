@@ -8,6 +8,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
   getQuantityFromBarcode,
+  setCurrentPid,
   setOrderPickProduct,
   setQuantityFromBarcode,
   toggleScanQrCodeProduct,
@@ -42,7 +43,9 @@ const InputAmountPopup = ({}) => {
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
-  const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess);
+  const currentPid = useOrderPick.use.currentPid();
+
+  const currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime) || product.pId === currentPid);
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
     
@@ -91,6 +94,7 @@ const InputAmountPopup = ({}) => {
               pickedNote: values?.pickedNote,
               pickedTime: moment().valueOf()
             } as Product);
+            setCurrentPid(null);
             toggleShowAmountInput(false);
             resetForm();
           }}
