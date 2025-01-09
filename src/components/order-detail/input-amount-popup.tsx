@@ -42,7 +42,7 @@ const InputAmountPopup = ({}) => {
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
-  const currentProduct = orderPickProductsFlat.find((product: Product) => product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess);
+  const currentProduct = orderPickProductsFlat.find((product: Product) => (product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime);
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
     

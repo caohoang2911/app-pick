@@ -57,9 +57,6 @@ const OrderPickProduct = ({
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
   const shouldDisplayEdit = useCanEditOrderPick();
-  const isGiftFirst = type === "GIFT" && index === 1;
-  const isGiftNotFirst = type === "GIFT" && index !== 1;
-
   return (
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>

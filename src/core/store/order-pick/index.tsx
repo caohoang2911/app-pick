@@ -59,7 +59,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     set({ barcodeScanSuccess: barcode, fillInput });
   },
   setInitOrderPickProducts: (data: any) => {
-    console.log(data, "myData");
     set({ orderPickProducts: [ ...data ] });
   },
   setBarcodeScrollTo: (barcode: string) => {
