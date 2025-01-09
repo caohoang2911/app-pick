@@ -49,18 +49,13 @@ const ActionsBottom = () => {
   const title = status !== 'STORE_PICKING' ? 'Xác nhận bắt đầu pick hàng' : 'Xác nhận đã pick hàng xong';
   const message = status !== 'STORE_PICKING' ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng' : '';
 
+  // console.log(orderPickProductsFlat.length, "BB")
+
   const handlePick = () => {
     showAlert({title, message, onConfirm: () => {
+      console.log(orderPickProductsFlat.length, "B33B")
       status === 'STORE_PICKING'
-        ? setOrderStatusPacked({ pickedItems: Object.values(orderPickProductsFlat).map((item: any) => ({
-          ...item,
-          name: item.name || '',
-          quantity: item.quantity || 0,
-          barcode: item.barcode || '',
-          pickedQuantity: item.pickedQuantity || 0,
-          pickedError: item.pickedError || '',
-          pickedNote: item.pickedNote || '',
-        })), orderCode: code})
+        ? setOrderStatusPacked({ pickedItems: [...orderPickProductsFlat], orderCode: code})
         : setOrderStatusPicking({ orderCode: code });
         hideAlert();
     }});
