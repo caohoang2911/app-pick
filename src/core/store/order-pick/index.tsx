@@ -18,6 +18,7 @@ interface OrdersState {
   orderPickProducts: Array<Product | ProductItemGroup>;
   quantityFromBarcode: number;
   isNewScan: boolean;
+  currentPid: number | null;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean, { isNewScan }: { isNewScan?: boolean }) => void;
@@ -28,6 +29,7 @@ interface OrdersState {
   setOrderPickProduct: (product: Product) => void;
   toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => void;
   setQuantityFromBarcode: (quantity: number) => void;
+  setCurrentPid: (pid: number | null) => void;
 }
 
 const _useOrderPick = create<OrdersState>((set, get) => ({
@@ -43,6 +45,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   productComboRemoveSelected: null,
   quantityFromBarcode: 0,
   isNewScan: true,
+  currentPid: null,
   setKeyword: (keyword: string) => {
     set({ keyword });
   },
@@ -69,6 +72,9 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   },
   setQuantityFromBarcode: (quantity: number) => {
     set({ quantityFromBarcode: quantity });
+  },
+  setCurrentPid: (pid: number | null) => {
+    set({ currentPid: pid });
   },
   setOrderPickProduct: (product: Product) => {
     const orderPickProducts = get().orderPickProducts;
@@ -141,6 +147,9 @@ export const setOrderPickProduct = (product: Product) => _useOrderPick.getState(
 
 export const setOrderDetail = (orderDetail: OrderDetail) =>
   _useOrderPick.getState().setOrderDetail(orderDetail);
+
+export const setCurrentPid = (pid: number | null) =>
+  _useOrderPick.getState().setCurrentPid(pid);
 
 export const setQuantityFromBarcode = (quantity: number) =>
   _useOrderPick.getState().setQuantityFromBarcode(quantity);
