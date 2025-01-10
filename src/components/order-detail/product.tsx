@@ -22,8 +22,8 @@ const Row = ({label, value, unit, extraConversionQuantity}: {label: string, valu
   return (
     <View style={{width: 150}} className='flex flex-row w-100'>
       <View style={{width: 100}}><Text>{label}</Text></View>
-      <View style={{width: 45}}>
-        <Text className='font-medium'>{value}</Text>
+      <View style={{width: 65}}>
+        <Text className='font-medium' numberOfLines={1}>{value}</Text>
       </View>
       {extraConversionQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${extraConversionQuantity}`} /></View> : <Text className='font-medium'>{unit}</Text> }
     </View>
