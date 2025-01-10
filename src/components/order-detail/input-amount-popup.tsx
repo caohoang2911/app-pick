@@ -61,6 +61,7 @@ const InputAmountPopup = ({}) => {
       </View>
     )
   }, [productName, displayPickedQuantity])
+  
   useEffect(() => {
     return () => {
       setQuantityFromBarcode(0);
