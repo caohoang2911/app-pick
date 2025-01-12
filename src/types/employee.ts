@@ -14,7 +14,10 @@ export type Customer = {
   name: string;
   email: string;
   phone: string;
-  membership: any;
+  membership: {
+    rank: string;
+    rankName: string;
+  };
   numberOrders: number;
   spend: number;
   points: number;

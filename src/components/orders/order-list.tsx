@@ -120,6 +120,7 @@ const OrderList = () => {
             onRefresh={async () => {
               withoutRefresh.current = false;
               goFirstPage();
+              queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', operationType, storeCode] });
             }}
           />
         }
