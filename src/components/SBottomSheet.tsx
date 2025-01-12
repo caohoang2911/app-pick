@@ -23,6 +23,7 @@ type Props = {
   snapPoints?: any;
   title?: string;
   renderTitle?: React.ReactNode;
+  extraTitle?: React.ReactNode;
   children: React.ReactNode;
   titleAlign: 'left' | 'center';
   visible: boolean;
@@ -38,6 +39,7 @@ const SBottomSheet = forwardRef<any, Props>(
       snapPoints,
       title = 'Title',
       renderTitle,
+      extraTitle,
       children,
       titleAlign = 'left',
       visible,
@@ -142,27 +144,31 @@ const SBottomSheet = forwardRef<any, Props>(
               const { height } = event.nativeEvent.layout
               setHeaderHeight(height);
             }}
-          className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 flex-row  justify-between px-4">
-            {titleAlign == 'center' && <View />}
-            {!renderTitle && <Text className={`text-${titleAlign} font-semibold text-lg`}>
-              {title}
-            </Text>}
-            {renderTitle && <View className="mr-3">{renderTitle}</View>}
-            <Pressable
-              onPress={async () => {
-                if (isKeyboardVisible) {
-                  Keyboard.dismiss();
-                }
-                setTimeout(() => {
-                  onClose?.();
-                  bottomSheetModalRef.current?.dismiss();
-                });
-              }}
-            > 
-              <View style={{ marginTop: -3 }}>
-                <CloseLine />
-              </View>
-            </Pressable>
+            className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4"
+          >
+            <View className='flex flex-row justify-between items-center w-100'> 
+              {titleAlign == 'center' && <View />}
+              {!renderTitle && <Text className={`text-${titleAlign} font-semibold text-lg`}>
+                {title}
+              </Text>}
+              {renderTitle && <View className="mr-3">{renderTitle}</View>}
+              <Pressable
+                onPress={async () => {
+                  if (isKeyboardVisible) {
+                    Keyboard.dismiss();
+                  }
+                  setTimeout(() => {
+                    onClose?.();
+                    bottomSheetModalRef.current?.dismiss();
+                  });
+                }}
+              > 
+                <View style={{ marginTop: -3 }}>
+                  <CloseLine />
+                </View>
+              </Pressable>
+            </View>
+            {extraTitle && extraTitle}
           </View>
           <BottomSheetScrollView
             keyboardDismissMode="on-drag"
