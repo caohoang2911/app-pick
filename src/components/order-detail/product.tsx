@@ -84,7 +84,12 @@ const OrderPickProduct = ({
                 <Row label="Số lượng đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
                 <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
                 <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
-                <Row label="Giá bán" value={formatCurrency(sellPrice, {unit: true}) || "--"} unit={false} />
+                <View style={{width: 150}} className='flex flex-row w-100'>
+                  <View style={{width: 100}}><Text>Giá bán</Text></View>
+                  <View style={{width: 65}}>
+                    <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
+                  </View>
+                </View>
                 {!isHiddenTag && <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
                   {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
                 </View>}
