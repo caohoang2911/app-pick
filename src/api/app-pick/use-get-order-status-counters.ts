@@ -36,4 +36,5 @@ export const useGetOrderStatusCounters = ({ operationType, storeCode }: Variable
     queryFn: () => {
       return getCounter(operationType, storeCode);
     },
+    enabled: !!operationType && !!storeCode
   });
