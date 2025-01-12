@@ -37,6 +37,7 @@ const _useAuth = create<AuthState>((set, get) => ({
   },
   setUser: (userInfo: UserInfo) => {
     set({ userInfo });
+    setUserInfo(userInfo);
   },
   signIn: ({ token, userInfo }: TokenType) => {
     setToken(token);
