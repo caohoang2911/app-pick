@@ -41,4 +41,5 @@ export const useGetOrderDeliveryTypeCounters = ({ operationType, storeCode, stat
     queryFn: () => {
       return getOrderDeliveryTypeCounters({ operationType, storeCode, status });
     },
+    enabled: !!operationType && !!storeCode && !!status
   });

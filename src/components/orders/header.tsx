@@ -11,7 +11,7 @@ import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
 import { TabsStatus } from '~/src/components/orders/tab-status';
 import { setUser, useAuth } from '~/src/core';
-import { setToken } from '~/src/core/store/auth/utils';
+import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import {
@@ -51,12 +51,18 @@ const Header = () => {
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setLoading(true);
-    setToken(data?.data?.zas);
     setTimeout(() => {
-      setUser({
+      setUserInfo({
         ...userInfo,
         ...data?.data
       });
+      setToken(data?.data?.zas || '');
+      setTimeout(() => {
+        setUser({
+          ...userInfo,
+          ...data?.data
+        });
+      }, 100);
     }, 1000);
   });
   

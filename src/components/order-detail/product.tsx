@@ -18,14 +18,14 @@ import { cn } from '~/src/lib/utils';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 
-const Row = ({label, value, unit, extraConversionQuantity}: {label: string, value: string, unit: string, extraConversionQuantity?: number}) => {
+const Row = ({label, value, unit, extraConversionQuantity}: {label: string, value: string, unit?: string, extraConversionQuantity?: number}) => {
   return (
     <View style={{width: 150}} className='flex flex-row w-100'>
       <View style={{width: 100}}><Text>{label}</Text></View>
       <View style={{width: 65}}>
         <Text className='font-medium' numberOfLines={1}>{value}</Text>
       </View>
-      {extraConversionQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${extraConversionQuantity}`} /></View> : <Text className='font-medium'>{unit}</Text> }
+      {extraConversionQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${extraConversionQuantity}`} /></View> : unit ? <Text className='font-medium'>{unit}</Text> : null}
     </View>
   )
 }
@@ -84,19 +84,19 @@ const OrderPickProduct = ({
                 <Row label="Số lượng đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
                 <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
                 <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
+                <View style={{width: 150}} className='flex flex-row w-100'>
+                  <View style={{width: 100}}><Text>Giá bán</Text></View>
+                  <View style={{width: 65}}>
+                    <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
+                  </View>
+                </View>
                 {!isHiddenTag && <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
                   {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
                 </View>}
               </View>
             </View>
           </View>
-          <View className="flex">
-            <View className="flex-row justify-end">
-              <Text className="text-gray-500">
-                Giá: {formatCurrency(sellPrice, {unit: true})}
-              </Text>
-            </View>
-          </View>
+          
           {pickedErrorName && <View className="flex gap-1">
             <View className="border my-3 border-gray-100" />
             <Text className="text-red-500 italic">Lỗi: {pickedErrorName}</Text>
