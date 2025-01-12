@@ -1,6 +1,8 @@
 import { router, useGlobalSearchParams } from 'expo-router';
 import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+
+import { Linking, Pressable, Text, View } from 'react-native';
 import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderPick } from '~/src/core/store/order-pick';
@@ -13,6 +15,7 @@ import SaveOutLine from '~/src/core/svgs/SaveOutline';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderStatusValue } from '~/src/types/order';
 import SBottomSheet from '../SBottomSheet';
+import { Badge } from '../Badge';
 
 type Action = {
   key: string;
@@ -30,7 +33,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const orderDetail = useOrderPick.use.orderDetail();
 
-    const { deliveryType, status, fulfillError } = orderDetail?.header || {};
+    const { deliveryType, status, fulfillError, customer } = orderDetail?.header || {};
+    const { name, phone, membership } = customer || {};
+    const { rank } = membership || {};
 
     const orderPickProducts = useOrderPick.use.orderPickProducts();
     const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
@@ -120,10 +125,31 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     };
 
+    const renderExtraTitle = () => {
+      return (
+        <View className='flex flex-row justify-between items-center w-100 mt-2'> 
+          <View className='flex flex-row gap-2 items-center'>
+            <Feather name="user" size={20} color="black" />
+            <Text>{name}</Text>
+            {rank && <Badge label={rank} />}
+          </View>
+          <Pressable onPress={() => {
+            Linking.openURL(`tel:${phone}`);
+          }}>
+            <View className='bg-blue-50 rounded-full p-2'>
+              <Feather name="phone-call" size={16} color="black" />
+            </View>
+          </Pressable>
+        </View>
+      );
+    };
+
     return (
       <SBottomSheet
         visible={visible}
-        title="Thao tác" ref={actionRef}>
+        title="Thao tác"
+        extraTitle={renderExtraTitle()}
+        ref={actionRef}>
         {actions.map((action: Action) => renderItem({ ...action, onClickAction: handleClickAction, disabled: action.disabled || false }))}
       </SBottomSheet>
     );
