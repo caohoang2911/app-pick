@@ -121,6 +121,7 @@ const OrderList = () => {
               withoutRefresh.current = false;
               goFirstPage();
               queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', operationType, storeCode] });
+              queryClient.invalidateQueries({ queryKey: ['getOrderDeliveryTypeCounters', operationType, storeCode, selectedOrderCounter] });
             }}
           />
         }
