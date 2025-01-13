@@ -20,6 +20,7 @@ import {
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { add } from 'lodash';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -75,12 +76,18 @@ const OrderPick = () => {
         });
       } else {
         const currentBarcode: string | undefined = orderPickProductFlat?.[indexOfCodeScanned]?.barcode;
-        const currentAmount = orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity || 0;
+        const currentAmount = orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity || orderPickProductFlat?.[indexOfCodeScanned]?.quantity;
+
+        console.log('currentAmount', currentAmount);
+        console.log('quantity', quantity);
+
+        console.log('newAmount', (Number(currentAmount) + (Number(quantity) || 0)).toFixed(2));
+
         if (currentBarcode) {
-          const newAmount = isNewScan ? quantity : currentAmount + (quantity || 0);
+          const newAmount = isNewScan ? quantity : (Number(currentAmount) + (Number(quantity) || 0)).toFixed(2);
 
           setSuccessForBarcodeScan(currentBarcode);
-          setQuantityFromBarcode(newAmount || 0);
+          setQuantityFromBarcode(Number(newAmount || 0));
           toggleShowAmountInput(true);
         }
       }

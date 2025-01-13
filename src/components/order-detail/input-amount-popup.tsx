@@ -98,6 +98,7 @@ const InputAmountPopup = ({}) => {
             setCurrentPid(null);
             toggleShowAmountInput(false);
             resetForm();
+            setQuantityFromBarcode(0);
           }}
         >
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
@@ -191,11 +192,6 @@ const InputAmountPopup = ({}) => {
                       </View>
                       <TouchableOpacity onPress={() => {
                           toggleScanQrCodeProduct(true, { isNewScan: false });
-                          setOrderPickProduct({
-                            ...currentProduct,
-                            barcode: barcodeScanSuccess,
-                            pickedQuantity: displayPickedQuantity,
-                          } as Product);
                         }}>
                           <View className=" bg-colorPrimary rounded-md size-8 flex flex-row justify-center items-center">
                             <FontAwesome name="qrcode" size={18} color="white" />

@@ -81,7 +81,7 @@ const OrderPickProduct = ({
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
-                <Row label="Số lượng đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
+                <Row label="SL đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
                 <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
                 <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
                 <View style={{width: 150}} className='flex flex-row w-100'>

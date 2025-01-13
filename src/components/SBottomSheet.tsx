@@ -163,7 +163,7 @@ const SBottomSheet = forwardRef<any, Props>(
                   });
                 }}
               > 
-                <View style={{ marginTop: -3 }}>
+                <View style={{ marginTop: -3 }} className='p-2'>
                   <CloseLine />
                 </View>
               </Pressable>
