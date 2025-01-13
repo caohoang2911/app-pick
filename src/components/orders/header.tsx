@@ -51,18 +51,18 @@ const Header = () => {
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setLoading(true);
+    setToken(data?.data?.zas || '');
     setTimeout(() => {
       setUserInfo({
         ...userInfo,
         ...data?.data
       });
-      setToken(data?.data?.zas || '');
       setTimeout(() => {
         setUser({
           ...userInfo,
           ...data?.data
         });
-      }, 100);
+      }, 200);
     }, 1000);
   });
   

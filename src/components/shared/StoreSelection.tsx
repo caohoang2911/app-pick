@@ -8,6 +8,7 @@ import SBottomSheet from '../SBottomSheet';
 import Empty from './Empty';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { CheckCircleFill } from '~/src/core/svgs';
+import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 
 type Props = {
   onSelect: (store: Option & { address: string }) => void;
@@ -18,6 +19,8 @@ const StoreSelection = forwardRef<any, Props>(
   ({ onSelect, selectedId }, ref) => {
     const [visible, setVisible] = useState(false);
     const [search, setSearch] = useState('');
+
+    const isKeyboardVisible = useKeyboardVisible();
 
     const actionRef = useRef<any>();
     const { stores } = useConfig.use.config();
@@ -59,7 +62,7 @@ const StoreSelection = forwardRef<any, Props>(
           visible={visible}
           title="Chọn cửa hàng"
           ref={actionRef}
-          snapPoints={[600, "70%"]}
+          snapPoints={[isKeyboardVisible ? 400 : 600, isKeyboardVisible ? "70%" : "100%"]}
           onClose={() => setVisible(false)}
         >
           <View className="px-4 pt-3">

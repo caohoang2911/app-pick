@@ -136,7 +136,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           <Pressable onPress={() => {
             Linking.openURL(`tel:${phone}`);
           }}>
-            <View className='bg-blue-50 rounded-full p-2'>
+            <View className='bg-blue-50 rounded-full p-3'>
               <Feather name="phone-call" size={16} color="black" />
             </View>
           </Pressable>
