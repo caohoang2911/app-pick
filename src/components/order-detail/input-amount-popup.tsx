@@ -23,6 +23,8 @@ import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
+import { useSetOrderTemToPicked } from '~/src/api/app-pick/use-set-order-tem-to-picked';
+import { useLocalSearchParams } from 'expo-router';
 
 
 const InputAmountPopup = ({}) => {
@@ -32,6 +34,10 @@ const InputAmountPopup = ({}) => {
   const quantityFromBarcode = getQuantityFromBarcode();
   const { header } = orderDetail || {};
   const { operationType } = header || {};
+
+  const { code } = useLocalSearchParams<{ code: string }>();
+  
+  const { mutate: setOrderTemToPicked } = useSetOrderTemToPicked();
 
   const isCampaign = operationType === 'CAMPAIGN';
 
@@ -68,6 +74,27 @@ const InputAmountPopup = ({}) => {
     }
   }, []);
 
+  const handleSubmit = (values: any, { resetForm }: any) => {
+      if (!productName) return;
+      const pickedItem = {
+        ...currentProduct,
+        barcode: barcodeScanSuccess,
+        pickedQuantity: values?.pickedQuantity,
+        pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
+        pickedNote: values?.pickedNote,
+        pickedTime: moment().valueOf()
+      } as Product;
+      
+      setOrderTemToPicked({ pickedItem, orderCode: code});
+      
+      setOrderPickProduct(pickedItem);
+      setCurrentPid(null);
+      toggleShowAmountInput(false);
+      resetForm();
+      setQuantityFromBarcode(0);
+  }
+
+
   return (
     <SBottomSheet
       renderTitle={renderTitle}
@@ -85,21 +112,7 @@ const InputAmountPopup = ({}) => {
             pickedNote: (currentProduct as any)?.pickedNote || ''
           }}
           validateOnChange
-          onSubmit={(values, { resetForm, setFieldValue}) => {
-            if (!productName) return;
-            setOrderPickProduct({
-              ...currentProduct,
-              barcode: barcodeScanSuccess,
-              pickedQuantity: values?.pickedQuantity,
-              pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
-              pickedNote: values?.pickedNote,
-              pickedTime: moment().valueOf()
-            } as Product);
-            setCurrentPid(null);
-            toggleShowAmountInput(false);
-            resetForm();
-            setQuantityFromBarcode(0);
-          }}
+          onSubmit={handleSubmit}
         >
           {({ values, errors, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
 

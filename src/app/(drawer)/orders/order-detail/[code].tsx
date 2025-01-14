@@ -7,10 +7,10 @@ import ActionsBottom from '~/src/components/order-detail/actions-bottom';
 import Header from '~/src/components/order-detail/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-detail/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-detail/input-amount-popup';
+import { PackageSizePicker } from '~/src/components/order-detail/package-size-picker';
 import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import { PackageSizePicker } from '~/src/components/order-detail/package-size-picker';
 import {
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
@@ -20,7 +20,6 @@ import {
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
-import { add } from 'lodash';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -94,6 +93,8 @@ const OrderPick = () => {
     },
     [orderPickProductsFlat, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
   );
+
+
 
   if(!orderDetail) {
     return <SectionAlert><Text>Không tìm thấy đơn hàng</Text></SectionAlert>

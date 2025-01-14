@@ -46,6 +46,7 @@ const OrderPickProduct = ({
   isHiddenTag = false,
   type,
   pId,
+  categoryType,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -58,25 +59,26 @@ const OrderPickProduct = ({
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>
         <View className="p-4">
-          <View className='flex flex-row gap-2 items-center mb-3' style={[{paddingRight: shouldDisplayEdit ? 53 : 28}]}>
+          <View className='flex flex-row gap-1 items-center mb-3' style={{paddingRight: shouldDisplayEdit ? 53 : 0}}>
             {pickedTime && (
               <View className="rounded-full bg-white">
                 <CheckCircleFill color={'green'}/>
               </View>
             )}
-           <View className="flex flex-row items-center gap-2">
-            <Text className="text-lg text-gray-500 mb-1">{type === "GIFT" && "🎁"}</Text>
-            <Text className="text-lg font-semibold" numberOfLines={1}>{name}</Text>
+           <View className="flex-1">
+            <Text className="text-lg font-semibold" numberOfLines={1}>{type === "GIFT" && "🎁 "}{name}</Text>
            </View>
           </View>
           <View className="flex flex-row justify-between gap-4 flex-grow ">
-            <View className="">
-              <Image
-                style={{ width: 80, height: 80 }}
-                source={image}
-                contentFit="cover"
-                transition={1000}
-              />
+            <View className="flex justify-between items-center">
+              <View className="">
+                <Image
+                  style={{ width: 80, height: 80 }}
+                  source={image || require("~/assets/default-img.jpg")}
+                  contentFit="cover"
+                  transition={1000}
+                />
+              </View>
               <Text numberOfLines={1} className='text-xs text-gray-500 text-center mt-2'>{barcode}</Text>
             </View>
             <View className="flex-row justify-between flex-grow h-full" >

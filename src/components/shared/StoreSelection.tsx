@@ -62,8 +62,9 @@ const StoreSelection = forwardRef<any, Props>(
           visible={visible}
           title="Chọn cửa hàng"
           ref={actionRef}
-          snapPoints={[isKeyboardVisible ? 400 : 600, isKeyboardVisible ? "70%" : "100%"]}
+          snapPoints={[600, "80%"]}
           onClose={() => setVisible(false)}
+          keyboardBehavior="extend"
         >
           <View className="px-4 pt-3">
             <Input

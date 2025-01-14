@@ -31,7 +31,7 @@ export const generateBagCode = (type: OrderBagType, orderCode: string, bagLabels
 }
 
 export const generateBagName = (type: OrderBagType, index: number, total: number) => {
-  return `${OrderBagLabel[type]} - ${index}/${total} - ${total} túi`;
+  return `${OrderBagLabel[type]} - ${index}/${total}`;
 }
 
 export const transformOrderBags = (orderBags: OrderBagItem[]) => {

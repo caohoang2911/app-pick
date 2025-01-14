@@ -12,7 +12,7 @@ const HEIGHT_LABEL = 315;
 const WIDTH = Dimensions.get('window').width - 20;
 const HEIGHT = WIDTH * HEIGHT_LABEL / WIDTH_LABEL;
 
-const  LabelPrintTemplate = React.memo(({ setUri, code, name }: { setUri: (uri: string) => void, code: string, name: string }) => {
+const  LabelPrintTemplate = React.memo(({ setUri, code, name, total }: { setUri: (uri: string) => void, code: string, name: string, total: number }) => {
   const ref = useRef<ViewShot>(null);
 
   const orderDetail = useOrderBag.use.orderDetail();
@@ -44,7 +44,10 @@ const  LabelPrintTemplate = React.memo(({ setUri, code, name }: { setUri: (uri: 
       <ViewShot ref={ref}>
         <View style={{width: WIDTH, height: HEIGHT, backgroundColor: 'transparent' }}>
           <View style={{ padding: 10 }}>
-            <Text className="text-2xl font-bold">{name}</Text>
+            <View className="flex flex-row justify-between">
+              <Text className="text-2xl font-bold">{name}</Text>
+              <Text className="text-2xl font-bold ">{total} túi</Text>
+            </View>
             <View className="flex flex-row justify-between mt-3 gap-3">
               <QRCode value={code} size={100} backgroundColor="transparent" />
               <View className="flex-1 justify-between">

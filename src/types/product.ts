@@ -42,4 +42,5 @@ export type Product = {
   unit?: string;
   gifts?: Array<{ name: string; image: string }>;
   extraConversionQuantity?: number;
+  categoryType?: string;
 };

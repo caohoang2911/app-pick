@@ -10,7 +10,6 @@ import { expectedDeliveryTime } from "~/src/core/utils/moment";
 import { toLower } from "lodash";
 import MoreActionsBtn from "./more-actions-btn";
 import { OrderStatus } from "~/src/types/order";
-import { Ionicons } from "@expo/vector-icons";
 
 const RowWithLabel = ({label, value}: {label: string, value: string}) => {
   return (
@@ -105,14 +104,12 @@ const OrderItem = ({
               </View>
             }
             {note && (
-              <View className="flex flex-row items-center gap-1 mt-1">
-                <Ionicons name="information-circle-outline" size={15} color="#f97316" />
-                <Text className="text-sm text-orange-500 italic">{note}</Text>
+              <View className="flex flex-row gap-1 mt-1">
+                <Text className="text-sm text-orange-500 italic">Note: {note?.trim()}</Text>
               </View>
             )}
             {fulfillError?.type && (
               <View className="flex flex-row items-center gap-1">
-                <Ionicons name="information-circle-outline" size={15} color="red" />
                 <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
               </View>
             )}

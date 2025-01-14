@@ -104,7 +104,9 @@ function PrintPreview() {
               <LabelPrintTemplate
                 {...item}
                 setUri={handleSetUri}
-                key={index} />
+                key={index} 
+                total={bagLabelsPrint.length}
+              />
             ))}
           </View>
        </ScrollView>

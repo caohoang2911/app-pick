@@ -33,8 +33,6 @@ const InvoiceInfo = () => {
   const { status, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, bagLabels } = header || {};
 
 
-  console.log('bagLabels', bagLabels);
-
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
 
@@ -50,7 +48,7 @@ const InvoiceInfo = () => {
             </>
           })}
         </View>
-      </View>
+      </View> 
       <View className='flex gap-2 mt-3'>
         <View className='flex flex-row items-center'>
           <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Trạng thái</Text></View>
@@ -61,7 +59,7 @@ const InvoiceInfo = () => {
                 {moment(orderTime).fromNow()}
               </Text>
             } 
-            variant={toLower(status) as any}
+            variant={toLower(status as string) as any}
           />
         </View>
         <RowInfo label="COD" value={formatCurrency(amount, { unit: true })} />
