@@ -153,6 +153,8 @@ export interface OrderDetailHeader {
   logs?: Array<LogOrder>;
   warnings?: Array<string>;
   cancel?: any;
+  tags?: Array<string>;
+  bagLabels?: Array<string>;
 }
 
 export interface OrderDetail {

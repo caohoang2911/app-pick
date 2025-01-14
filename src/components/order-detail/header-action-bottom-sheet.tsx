@@ -1,9 +1,8 @@
+import Feather from '@expo/vector-icons/Feather';
 import { router, useGlobalSearchParams } from 'expo-router';
 import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import Feather from '@expo/vector-icons/Feather';
 
 import { Linking, Pressable, Text, View } from 'react-native';
-import { useSaveOrderPickingAsDraft } from '~/src/api/app-pick/use-save-order-picking-as-draft';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import {
@@ -14,8 +13,8 @@ import {
 import SaveOutLine from '~/src/core/svgs/SaveOutline';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderStatusValue } from '~/src/types/order';
-import SBottomSheet from '../SBottomSheet';
 import { Badge } from '../Badge';
+import SBottomSheet from '../SBottomSheet';
 
 type Action = {
   key: string;
@@ -41,8 +40,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
     
     const actionRef = useRef<any>();
-
-    const { mutate: saveOrderPickingAsDraft } = useSaveOrderPickingAsDraft();
   
     useImperativeHandle(
       ref,
@@ -75,12 +72,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         // disabled: status !== OrderStatusValue.STORE_PACKED,
         icon: <QRScanLine />,
       },
-      {
-        key: 'save-draft',
-        title: 'Lưu tạm',
-        disabled: status !== OrderStatusValue.STORE_PICKING,
-        icon: <SaveOutLine />,
-      },
     ], [code, deliveryType, status]);
 
     const renderItem = ({
@@ -105,10 +96,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const handleClickAction = (key: string) => {
       switch (key) {
-        case 'save-draft':
-          setLoading(true);
-          saveOrderPickingAsDraft({ pickedItems: orderPickProductsFlat, orderCode: code,});
-          break;
         case 'view-order':
           router.push(`orders/order-invoice/${code}`);
           break;
@@ -122,7 +109,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           break;
       }
       actionRef.current?.dismiss();
-
     };
 
     const renderExtraTitle = () => {

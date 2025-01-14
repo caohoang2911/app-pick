@@ -36,7 +36,7 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
             <Text className="text-sm text-blue-500 font-medium"><Text className="text-gray-500">Thực pick: </Text> {isPickDoneCombo && !isNaN(pickedQuantityCombo) ? Math.floor(pickedQuantityCombo) : 0}</Text>
           </View>
         </View>
-        <View className="gap-2">
+        <View className="gap-2 p-2">
           {combo.elements?.map((product: Product, index: number) => (
             // <Swipeable 
             //   renderRightActions={() => 
