@@ -10,14 +10,10 @@ import { setLoading } from '~/src/core/store/loading';
 import { useOrderBag } from '~/src/core/store/order-bag';
 import { OrderBagType } from '~/src/types/order-bag';
 import { getItem } from '~/src/core/storage';
+import { useConfig } from '~/src/core/store/config';
+import { useAuth } from '~/src/core';
 
-const port = 9100;
-const host = getItem('ip');
 
-const options: any = {
-  port: port,
-  host: host,
-};
 
 function PrintPreview() {
   const [result, setResult] = useState<any>([]);
@@ -32,6 +28,23 @@ function PrintPreview() {
   const bagLabelsPrint = code ? [{...findBagLabel}] : orderBagsMerged;
 
   const refClient = useRef<any>(null);
+
+  const config = useConfig.use.config();
+  const stores = config?.stores || [];
+
+  const user = useAuth.use.userInfo();
+  const { storeCode } = user || {}
+
+  const store: any = stores.find((store: any) => store.id === storeCode);
+  const { printerIp } = store || {};
+
+  const port = 9100;
+  const host = getItem('ip') || printerIp;
+
+  const options: any = {
+    port: port,
+    host: host,
+  };
 
   const handleSetUri = useCallback((uri: string) => {
     setResult((prev: any) => [...prev, uri]);

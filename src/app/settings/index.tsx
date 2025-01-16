@@ -9,13 +9,23 @@ import { Switch } from '~/src/components/Switch';
 import { setLoading } from '~/src/core/store/loading';
 import TcpSocket from 'react-native-tcp-socket';
 import { showMessage } from 'react-native-flash-message';
-import { getItem, setItem } from '@/core/storage';
+import { getItem, removeItem, setItem } from '@/core/storage';
+import { useConfig } from '~/src/core/store/config';
+import { useAuth } from '~/src/core';
 
 const Settings = () => {
   const { data } = useGetSettingQuery();
   const noti = data?.data?.noti || {} as any;
+  const config = useConfig.use.config();
+  const stores = config?.stores || [];
 
-  const [ip, setIp] = useState<string>(getItem('ip') || '');
+  const user = useAuth.use.userInfo();
+  const { storeCode } = user || {}
+
+  const store: any = stores.find((store: any) => store.id === storeCode);
+  const { printerIp, name } = store || {};
+
+  const [ip, setIp] = useState<string>(getItem('ip') || printerIp || '');
   const [isLoadingPrint, setIsLoadingPrint] = useState<boolean>(false);
   
   const { mutate: updateSetting, isPending } = useUpdateSetting(() => {
@@ -35,6 +45,11 @@ const Settings = () => {
   const handleUpdateSetting = () => {
     setLoading(true);
     updateSetting({ data: { noti: { isSubcribeOrderStoreDelivery, isSubcribeOrderCustomerPickup, isSubcribeOrderShipperDelivery } } });
+  };
+
+  const handleResetIp = () => {
+    setItem('ip', printerIp);
+    setIp(printerIp);
   };
 
   const handleSaveIp = () => {
@@ -84,10 +99,11 @@ const Settings = () => {
           </View>
         </View>
         <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
-          <Text className="text-base font-bold">Máy in</Text>
-          <View className="flex flex-row gap-4 mt-3 justify-between">
+          <Text numberOfLines={1} className="text-base font-bold">Máy in - {name}</Text>
+          <View className="flex flex-row gap-2 mt-3 justify-between">
             <Input value={ip} className="flex-1" placeholder="Nhập IP máy in" onChangeText={setIp} />
             <Button loading={isLoadingPrint} label="Lưu" onPress={handleSaveIp} />
+            <Button variant="warning" label="Reset" onPress={handleResetIp} />
           </View>
         </View>
       </View>

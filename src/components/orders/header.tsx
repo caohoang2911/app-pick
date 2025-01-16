@@ -28,6 +28,7 @@ import { Option } from '~/src/types/commons';
 import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
+import { removeItem, setItem } from '~/src/core/storage';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -52,6 +53,7 @@ const Header = () => {
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setLoading(true);
     setToken(data?.data?.zas || '');
+    removeItem('ip');
     setTimeout(() => {
       setUserInfo({
         ...userInfo,
