@@ -14,7 +14,7 @@ const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
         </View>
         <View className="gap-2 p-2">
           {giftPack.elements?.map((product: Product, index: number) => (
-              <OrderPickProduct {...product} isHiddenTag index={index} />
+              <OrderPickProduct {...product} index={index} />
           ))}
         </View>
       </View>

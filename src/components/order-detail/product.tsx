@@ -46,7 +46,6 @@ const OrderPickProduct = ({
   isHiddenTag = false,
   type,
   pId,
-  categoryType,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -90,9 +89,11 @@ const OrderPickProduct = ({
                   <View style={{width: 100}}><Text>Giá bán</Text></View>
                   <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
                 </View>
-                {!isHiddenTag && <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
-                  {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
-                </View>}
+                {!isHiddenTag && (
+                  <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
+                    {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
+                  </View>
+                )}
               </View>
             </View>
           </View>
