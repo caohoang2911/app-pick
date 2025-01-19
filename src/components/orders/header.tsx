@@ -51,7 +51,6 @@ const Header = () => {
   });
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
-    setLoading(true);
     setToken(data?.data?.zas || '');
     removeItem('ip');
     setTimeout(() => {
@@ -64,11 +63,11 @@ const Header = () => {
           ...userInfo,
           ...data?.data
         });
+        setLoading(false);
       }, 200);
     }, 1000);
   });
   
-
   useEffect(() => {
     setValue(keyword);
   }, [keyword]);

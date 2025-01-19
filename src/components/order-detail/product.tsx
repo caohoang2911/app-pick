@@ -54,6 +54,8 @@ const OrderPickProduct = ({
   const pickedErrorName = getConfigNameById(productPickedErrors, pickedError);
 
   const shouldDisplayEdit = useCanEditOrderPick();
+
+  const isGift = type === "GIFT";
   return (
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>
@@ -65,7 +67,7 @@ const OrderPickProduct = ({
               </View>
             )}
            <View className="flex-1">
-            <Text className="text-lg font-semibold" numberOfLines={1}>{type === "GIFT" && "🎁 "}{name}</Text>
+            <Text className="text-lg font-semibold" numberOfLines={1}>{isGift && "🎁 "}{name}</Text>
            </View>
           </View>
           <View className="flex flex-row justify-between gap-4 flex-grow ">
@@ -78,17 +80,17 @@ const OrderPickProduct = ({
                   transition={1000}
                 />
               </View>
-              <Text numberOfLines={1} className='text-xs text-gray-500 text-center mt-2'>{barcode}</Text>
+              <Text numberOfLines={1} className={`text-xs text-gray-500 text-center mt-2 ${tags.length && !isHiddenTag ? 'mb-1' : ''}`}>{barcode || '--'}</Text>
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
                 <Row label="SL đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
                 <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
                 <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
-                <View style={{width: 150}} className='flex flex-row w-100'>
+                {!isGift && <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Giá bán</Text></View>
                   <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
-                </View>
+                </View>}
                 {!isHiddenTag && (
                   <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
                     {tags?.map((tag: any) => <Badge className="self-start" label={tag} style={{maxWidth: 180}} /> )}
