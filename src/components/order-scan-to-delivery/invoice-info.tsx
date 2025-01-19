@@ -30,7 +30,7 @@ const InvoiceInfo = () => {
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { status, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, bagLabels } = header || {};
+  const { status, payment, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, bagLabels } = header || {};
 
 
   const config = useConfig.use.config();
@@ -62,7 +62,7 @@ const InvoiceInfo = () => {
             variant={toLower(status as string) as any}
           />
         </View>
-        <RowInfo label="COD" value={formatCurrency(amount, { unit: true })} />
+        <RowInfo label={payment?.methodName || '--'} value={formatCurrency(amount, { unit: true })} />
         <RowInfo label="Khách hàng" value={customer?.name || '' } />
         <RowInfo label="SDT" value={customer?.phone.slice(customer?.phone.length - 4) || ''} />
         <RowInfo label="Giờ giao" value={deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).hh || ''} />

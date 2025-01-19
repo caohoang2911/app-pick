@@ -15,8 +15,10 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
     onSuccess: (data) => {
       if (!data.error) {
         cb?.(data);
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     },
   });
 };
+

@@ -13,10 +13,11 @@ import { getItem } from '~/src/core/storage';
 import { useConfig } from '~/src/core/store/config';
 import { useAuth } from '~/src/core';
 
-
+const TIMEOUT_CONNECT_PRINTER = 5000;
 
 function PrintPreview() {
   const [result, setResult] = useState<any>([]);
+
   const [connected, setConnected] = useState(false);
 
   const orderBags = useOrderBag.use.orderBags();
@@ -46,8 +47,8 @@ function PrintPreview() {
     host: host,
   };
 
-  const handleSetUri = useCallback((uri: string) => {
-    setResult((prev: any) => [...prev, uri]);
+  const handleSetUri = useCallback((uri: string, index: number) => {
+    setResult((prev: any) => [...prev, { uri, index }]);
   }, []);
 
   const { mutate: genRongtaPrintData, data } = useGenRongtaPrintData();
@@ -59,24 +60,30 @@ function PrintPreview() {
   }, [connected]);
 
   useEffect(() => {
+    if(result.length === 0) return;
+    
     if(result.length === bagLabelsPrint.length && connected) {
-      genRongtaPrintData({ base64Images: result });
+      const resultsBase64WithSorted = result.sort((a: any, b: any) => a.index - b.index).map((item: any) => item.uri);
+      
+      genRongtaPrintData({ base64Images: resultsBase64WithSorted });
     }
   }, [result, connected]);
 
   useEffect(() => {
+    let timer: any;
+    
     try {
       refClient.current = TcpSocket.createConnection(options, () => {
         console.log('Connected to the server');
         setConnected(true);
       });
 
-      refClient.current.setTimeout(5000, () => {
+      timer = setTimeout(() => {
         console.log('close');
         setLoading(false);
         setConnected(false);
         showAlert({ 
-          message: 'Không thể kết nối với máy in. Vui lòng kiểm tra lại.',
+          message: `Không thể kết nối với máy in ${host}. Vui lòng kiểm tra lại.`,
           onConfirm: () => {
             router.back();
             hideAlert();
@@ -84,7 +91,8 @@ function PrintPreview() {
           confirmText: 'Trở lại',
           isHideCancelButton: true,
         });
-      });
+      }, TIMEOUT_CONNECT_PRINTER);
+      
     } catch (error) {
       console.log(error);
       setConnected(false);
@@ -93,6 +101,9 @@ function PrintPreview() {
     return () => {
       refClient.current.destroy();
       setLoading(false);
+      if(timer) {
+        clearTimeout(timer);
+      }
     }
   }, []);
 
@@ -116,7 +127,9 @@ function PrintPreview() {
             {bagLabelsPrint?.map((item: any, index: number) => (
               <LabelPrintTemplate
                 {...item}
-                setUri={handleSetUri}
+                setUri={(uri: string) => {
+                  handleSetUri(uri, item?.code);
+                }}
                 key={index} 
                 total={bagLabelsPrint.length}
               />

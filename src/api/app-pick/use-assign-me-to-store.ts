@@ -21,8 +21,9 @@ export const useAssignMeToStore = (cb: () => void) => {
     onSuccess: (data: Response) => {
       if (!data.error) {
         cb?.();
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     },
   });
 };

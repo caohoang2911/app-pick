@@ -79,12 +79,14 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setOrderPickProduct: (product: Product) => {
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
+
+    console.log(product, "productproduct")
     
     let flag = false;
     const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup) => {
       if(productMap.type === 'COMBO' && 'elements' in productMap) {
         return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
-          if ((productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) && !flag && !productRel.pickedTime) {
+          if ((productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) && !flag && !productRel.pickedTime || (product.pId === productRel.pId)) {
             flag = true;
             const pickedQuantity = product.pickedQuantity || 0;
             return { ...productRel, ...product, pickedQuantity };
@@ -94,7 +96,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
         })};
       } else if(productMap.type === 'GIFT_PACK' && 'elements' in productMap) {
         return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
-          if ((productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) && !flag && !productRel.pickedTime) {
+          if ((productRel.barcode === product.barcode || productRel.baseBarcode === product.barcode) && !flag && !productRel.pickedTime || (product.pId === productRel.pId)) {
             flag = true;
             const pickedQuantity = product.pickedQuantity || 0;
             return { ...productRel, ...product, pickedQuantity };

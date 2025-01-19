@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Keyboard, Platform, Pressable, Text, View } from 'react-native';
+import { Dimensions, Keyboard, Platform, Pressable, Text, View } from 'react-native';
 import { Easing } from 'react-native-reanimated';
 
 import {
@@ -18,6 +18,8 @@ import {
 } from '@gorhom/bottom-sheet';
 import { CloseLine } from '~/src/core/svgs';
 import { useKeyboardVisible } from '../core/hooks/useKeyboardVisible';
+
+const width = Dimensions.get('window').width;
 
 type Props = {
   snapPoints?: any;
@@ -151,7 +153,7 @@ const SBottomSheet = forwardRef<any, Props>(
               {!renderTitle && <Text className={`text-${titleAlign} font-semibold text-lg`}>
                 {title}
               </Text>}
-              {renderTitle && <View className="mr-3">{renderTitle}</View>}
+              {renderTitle && <View className="mr-3" style={{ width: width - 80 }}>{renderTitle}</View>}
               <Pressable
                 onPress={async () => {
                   if (isKeyboardVisible) {
@@ -162,8 +164,9 @@ const SBottomSheet = forwardRef<any, Props>(
                     bottomSheetModalRef.current?.dismiss();
                   });
                 }}
+                className="self-start"
               > 
-                <View style={{ marginTop: -3 }} className='p-2'>
+                <View style={{ marginTop: -5 }} className='p-2'>
                   <CloseLine />
                 </View>
               </Pressable>
