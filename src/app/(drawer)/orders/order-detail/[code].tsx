@@ -77,11 +77,6 @@ const OrderPick = () => {
         const currentBarcode: string | undefined = orderPickProductFlat?.[indexOfCodeScanned]?.barcode;
         const currentAmount = orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity || orderPickProductFlat?.[indexOfCodeScanned]?.quantity;
 
-        console.log('currentAmount', currentAmount);
-        console.log('quantity', quantity);
-
-        console.log('newAmount', (Number(currentAmount) + (Number(quantity) || 0)).toFixed(2));
-
         if (currentBarcode) {
           const newAmount = isNewScan ? quantity : (Number(currentAmount) + (Number(quantity) || 0)).toFixed(2);
 
