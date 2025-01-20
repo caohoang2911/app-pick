@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { useUpdateSetting } from '~/src/api/app-pick/use-update-setting';
@@ -18,6 +18,8 @@ const Settings = () => {
   const noti = data?.data?.noti || {} as any;
   const config = useConfig.use.config();
   const stores = config?.stores || [];
+
+  const timer = useRef<any>(null);
 
   const user = useAuth.use.userInfo();
   const { storeCode } = user || {}
@@ -54,9 +56,10 @@ const Settings = () => {
 
   const handleSaveIp = () => {
     setIsLoadingPrint(true);
-    const client = TcpSocket.createConnection({
-      port: 9100,
-      host: ip,
+    try {
+      const client = TcpSocket.createConnection({
+        port: 9100,
+        host: ip,
     }, () => {
       console.log('Connected to server');
       setItem('ip', ip);
@@ -68,15 +71,29 @@ const Settings = () => {
       setIsLoadingPrint(false);
     });
 
-    client.setTimeout(4000, () => {
+    timer.current = setTimeout(() => {
       showMessage({
         message: 'Kết nối máy in thất bại',
         type: 'danger',
       });
       client.destroy();
       setIsLoadingPrint(false);
-    });
+    }, 4000);
+    } catch (error) {
+      showMessage({
+        message: JSON.stringify(error),
+        type: 'danger',
+      });
+    }
   };
+
+  useEffect(() => {
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+    };
+  }, []);
 
   return (
     <View className="bg-gray-100 flex-1">
@@ -100,7 +117,7 @@ const Settings = () => {
         </View>
         <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
           <Text numberOfLines={1} className="text-base font-bold">Máy in - {name}</Text>
-          <View className="flex flex-row gap-2 mt-3 justify-between">
+          <View className="flex flex-row gap-2 mt-3 items-center justify-between">
             <Input value={ip} className="flex-1" placeholder="Nhập IP máy in" onChangeText={setIp} />
             <Button loading={isLoadingPrint} label="Lưu" onPress={handleSaveIp} />
             <Button variant="warning" label="Reset" onPress={handleResetIp} />
