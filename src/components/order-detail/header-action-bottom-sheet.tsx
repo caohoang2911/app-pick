@@ -25,6 +25,26 @@ type Action = {
 
 type Props = {};
 
+
+const actions: Array<Action> = [
+  {
+    key: 'view-order',
+    title: 'Thông tin đơn hàng',
+    icon: <BillLine />,
+  },
+  {
+    key: 'enter-bag-and-tem',
+    title: 'Nhập số lượng túi và in tem',
+    icon: <PrintLine />,
+  },
+  {
+    key: 'scan-bag',
+    title: 'Scan túi - Giao hàng',
+    // disabled: status !== OrderStatusValue.STORE_PACKED,
+    icon: <QRScanLine />,
+  },
+];
+
 const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
   ({ }, ref) => {
     const { code } = useGlobalSearchParams<{ code: string }>();
@@ -32,13 +52,10 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const orderDetail = useOrderPick.use.orderDetail();
 
-    const { deliveryType, status, fulfillError, customer } = orderDetail?.header || {};
+    const { status, fulfillError, customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};
     const { rank } = membership || {};
 
-    const orderPickProducts = useOrderPick.use.orderPickProducts();
-    const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
-    
     const actionRef = useRef<any>();
   
     useImperativeHandle(
@@ -54,26 +71,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       []
     );
 
-    const actions: Array<Action> = useMemo(() => [
-      {
-        key: 'view-order',
-        title: 'Thông tin đơn hàng',
-        icon: <BillLine />,
-      },
-      {
-        key: 'enter-bag-and-tem',
-        title: 'Nhập số lượng túi và in tem',
-        disabled: Boolean(status !== OrderStatusValue.STORE_PACKED || fulfillError != null),
-        icon: <PrintLine />,
-      },
-      {
-        key: 'scan-bag',
-        title: 'Scan túi - Giao hàng',
-        // disabled: status !== OrderStatusValue.STORE_PACKED,
-        icon: <QRScanLine />,
-      },
-    ], [code, deliveryType, status]);
-
     const renderItem = ({
       onClickAction,
       key,
@@ -84,12 +81,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       return (
         <Pressable
           onPress={() => onClickAction?.(key)}
-          className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
+          
           disabled={false}
           style={{ opacity: disabled ? 0.5 : 1 }}
         >
-          {icon}
-          <Text className="text-gray-300 font-medium">{title}</Text>
+          <View className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4">
+            {icon}
+            <Text className="text-gray-300 font-medium">{title}</Text>
+          </View>
         </Pressable>
       );
     };
@@ -130,13 +129,17 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       );
     };
 
+  
     return (
       <SBottomSheet
         visible={visible}
         title="Thao tác"
         extraTitle={renderExtraTitle()}
-        ref={actionRef}>
-        {actions.map((action: Action) => renderItem({ ...action, onClickAction: handleClickAction, disabled: action.disabled || false }))}
+        ref={actionRef}
+      >
+        <View className="flex-1">
+          {actions.map((action: Action) => renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false }))}
+        </View>
       </SBottomSheet>
     );
   }
