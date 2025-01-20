@@ -94,10 +94,12 @@ const InputAmountPopup = ({}) => {
   }
 
   const reset = () => {
-    setCurrentPid(null);
     toggleShowAmountInput(false);
+    setCurrentPid(null);
     setQuantityFromBarcode(0);
   }
+
+  if(!isShowAmountInput) return null;
 
   return (
     <Formik
