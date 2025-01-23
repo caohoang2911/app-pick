@@ -31,6 +31,7 @@ const OrderPick = () => {
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const isNewScan = useOrderPick.use.isNewScan();
+  const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
 
   const orderDetail = useOrderPick.use.orderDetail();
 
@@ -74,19 +75,20 @@ const OrderPick = () => {
           type: 'warning',
         });
       } else {
+
         const currentBarcode: string | undefined = orderPickProductFlat?.[indexOfCodeScanned]?.barcode;
-        const currentAmount = orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity || orderPickProductFlat?.[indexOfCodeScanned]?.quantity;
+        const currentAmount = isNewScan ?  orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity : quantity || orderPickProductFlat?.[indexOfCodeScanned]?.quantity;
 
         if (currentBarcode) {
-          const newAmount = isNewScan ? quantity : (Number(currentAmount) + (Number(quantity) || 0)).toFixed(2);
+          const newAmount = isNewScan ? quantity || currentAmount : Number(quantityFromBarcode || 0) + (Number(currentAmount) || 0);
 
           setSuccessForBarcodeScan(currentBarcode);
-          setQuantityFromBarcode(Number(newAmount || 0));
+          setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
           toggleShowAmountInput(true);
         }
       }
     },
-    [orderPickProductsFlat, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
+    [orderPickProductsFlat, quantityFromBarcode, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
   );
 
 

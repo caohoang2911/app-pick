@@ -42,7 +42,8 @@ export const splitBarcode = ({
     newBarcode = barcodeString.substring(0, 7);
     let strQuantity = Number(barcodeString.substring(7, barcodeString.length));
 
-    newQuantity = Number(strQuantity / 10000.0);
+    strQuantity = Number(strQuantity / 10000.0);
+    newQuantity =  Math.floor(strQuantity * 1000) / 1000;
   }
 
   return {
