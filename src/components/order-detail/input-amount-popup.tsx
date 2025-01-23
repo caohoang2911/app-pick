@@ -2,6 +2,7 @@ import { Formik } from 'formik';
 import moment from 'moment-timezone';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Platform, Text, View } from 'react-native';
+import { isEmpty } from 'lodash';
 
 import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -51,7 +52,11 @@ const InputAmountPopup = ({}) => {
 
   const currentPid = useOrderPick.use.currentPid();
 
-  const currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime) || product.pId === currentPid);
+  let currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime) || product.pId === currentPid);
+
+  if(isEmpty(currentProduct)) {
+    currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) || product.pId === currentPid));
+  }
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
     
@@ -79,10 +84,10 @@ const InputAmountPopup = ({}) => {
       const pickedItem = {
         ...currentProduct,
         barcode: barcodeScanSuccess,
-        pickedQuantity: values?.pickedQuantity,
+        pickedQuantity: quantityFromBarcode || values?.pickedQuantity,
         pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
         pickedNote: values?.pickedNote,
-        pickedTime: moment().valueOf()
+        pickedTime: moment().valueOf(),
       } as Product;
       
       setOrderTemToPicked({ pickedItem, orderCode: code});
