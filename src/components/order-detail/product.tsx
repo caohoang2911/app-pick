@@ -17,6 +17,7 @@ import { formatCurrency } from '~/src/core/utils/number';
 import { cn } from '~/src/lib/utils';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
+import { isNil } from 'lodash';
 
 const Row = ({label, value, unit, extraConversionQuantity}: {label: string, value: string, unit?: string, extraConversionQuantity?: number}) => {
   return (
@@ -85,8 +86,8 @@ const OrderPickProduct = ({
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
                 <Row label="SL đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
-                <Row label="Thực pick" value={pickedQuantity || "--"} unit={unit} />
-                <Row label="Tồn kho" value={stockAvailable || "--"} unit={unit} />
+                <Row label="Thực pick" value={!isNil(pickedQuantity) ? pickedQuantity : "--"} unit={unit} />
+                <Row label="Tồn kho" value={!isNil(stockAvailable) ? stockAvailable : "--"} unit={unit} />
                 {!isGift && <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Giá bán</Text></View>
                   <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>

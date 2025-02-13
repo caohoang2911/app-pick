@@ -10,7 +10,7 @@ interface OrderScanToDeliveryState {
   orderBags: (OrderBagItem)[];
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => void;
   setOrderBags: (orderBags: (OrderBagItem)[]) => void;
-  scanQrCodeSuccess: (result: BarcodeScanningResult) => void;
+  scanQrCodeSuccess: (result: BarcodeScanningResult, cb?: () => void) => void;
 }
 
 const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => ({
@@ -22,7 +22,7 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => (
   setOrderBags: (orderBags: (OrderBagItem)[]) => {
     set({ orderBags });
   },
-  scanQrCodeSuccess: (result: BarcodeScanningResult) => {
+  scanQrCodeSuccess: (result: BarcodeScanningResult, cb?: () => void) => {
     const orderBags = get().orderBags;
     const orderBagIndex = orderBags.findIndex((bag) => bag.code === result.data);
 
@@ -30,6 +30,7 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => (
       const newOrderBags = [...orderBags];
       newOrderBags[orderBagIndex].isDone = true;
       set({ orderBags: newOrderBags });
+      cb?.();
     } else {
       showMessage({
         message: `Không tìm thấy túi hàng ${result.data}`,
@@ -49,8 +50,8 @@ export const setOrderBags = (orderBags: (OrderBagItem)[]) => {
   _useOrderScanToDelivery.getState().setOrderBags(orderBags);
 };
 
-export const scanQrCodeSuccess = (result: BarcodeScanningResult) => {
-  _useOrderScanToDelivery.getState().scanQrCodeSuccess(result);
+export const scanQrCodeSuccess = (result: BarcodeScanningResult, cb?: () => void) => {
+  _useOrderScanToDelivery.getState().scanQrCodeSuccess(result, cb);
 };
 
 export const getIsScanQrCodeProduct = () => {
