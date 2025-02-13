@@ -20,9 +20,8 @@ export function TabsStatus() {
   const operationType = useOrders.use.operationType();
 
   const { storeCode } = useAuth.use.userInfo();
-
   const { data, refetch } = useGetOrderStatusCounters({ operationType, storeCode });
-  const orderStatusCounters = {...cachingOrderStatusCounters.current, ...(data as any)?.data} || {};
+  const orderStatusCounters = data?.data ? { ...cachingOrderStatusCounters.current, ...data.data } : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
 

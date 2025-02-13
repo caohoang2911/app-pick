@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { Badge } from '../Badge';
 import { toLower } from 'lodash';
 import { useOrderBag } from '~/src/core/store/order-bag';
+import { ORDER_COUNTER_STATUS } from '~/src/contants/order';
 
 function HeaderBag() {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -18,7 +19,7 @@ function HeaderBag() {
       <View className="flex flex-row items-center gap-2">
         <Text className="text-base text-colorPrimary font-semibold">{code}</Text>
         <Badge
-          label={"Đang soạn hàng"}
+          label={ORDER_COUNTER_STATUS[status]}
           variant={toLower(status as string) as any}
         />
       </View>
