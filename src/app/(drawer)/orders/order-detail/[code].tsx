@@ -34,6 +34,8 @@ const OrderPick = () => {
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
 
   const orderDetail = useOrderPick.use.orderDetail();
+  const isEditManual = useOrderPick.use.isEditManual();
+  const currentPid = useOrderPick.use.currentPid();
 
   const orderPickProductFlat = getOrderPickProductsFlat(orderPickProducts);
 
@@ -67,7 +69,7 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item => barcode === item?.barcode || barcode === item?.baseBarcode);
+      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item =>  isEditManual ? item?.pId === currentPid : barcode === item?.barcode || barcode === item?.baseBarcode);
 
       if (indexOfCodeScanned === -1) {
         showMessage({
@@ -79,10 +81,6 @@ const OrderPick = () => {
 
         const currentBarcode: string | undefined = currentProduct?.barcode;
         const currentAmount = !scannedPids?.[currentProduct?.pId] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.quantity;
-
-        if(!scannedPids?.[currentProduct?.pId]) {
-          setQuantityFromBarcode(Math.floor(Number(currentProduct?.pickedQuantity || 0) * 1000) / 1000);
-        }
 
         if (currentBarcode) {
           setTimeout(() => {

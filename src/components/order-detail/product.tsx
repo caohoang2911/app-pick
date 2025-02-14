@@ -6,7 +6,7 @@ import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentPid,
-  setQuantityFromBarcode,
+  setIsEditManual,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
@@ -129,8 +129,8 @@ const OrderPickProduct = ({
             onPress={() => {
               toggleShowAmountInput(!isShowAmountInput, pId);
               setSuccessForBarcodeScan(barcode, { fillInput: false });
-              setQuantityFromBarcode(Math.floor(Number(pickedQuantity || quantity || 0) * 1000) / 1000);
               setCurrentPid(pId);
+              setIsEditManual(true);
             }}
           >
             <EditOutLine width={21} height={21} color={'gray'} />

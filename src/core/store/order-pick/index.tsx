@@ -1,9 +1,7 @@
-import moment from 'moment';
 import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
-import { hideAlert, showAlert } from '../alert-dialog';
 
 interface OrdersState {
   orderDetail: OrderDetail;
@@ -19,6 +17,8 @@ interface OrdersState {
   quantityFromBarcode: number;
   scannedPids: Record<string, boolean>;
   currentPid: number | null;
+  isEditManual: boolean;
+  setIsEditManual: (isEditManual: boolean) => void;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -46,6 +46,10 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   quantityFromBarcode: 0,
   scannedPids: {},
   currentPid: null,
+  isEditManual: false,
+  setIsEditManual: (isEditManual: boolean) => {
+    set({ isEditManual });
+  },
   setKeyword: (keyword: string) => {
     set({ keyword });
   },
@@ -104,12 +108,23 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
         })};
       } else {
         const productAsTypeProduct = { ...productMap as Product };
-        if((productAsTypeProduct.barcode === product.barcode || productAsTypeProduct.baseBarcode === product.barcode) && !flag && (!productAsTypeProduct.pickedTime || (product.pId === productAsTypeProduct.pId))) {
-          flag = true;
-          toggleShowAmountInput(false);
-          return { ...productAsTypeProduct, ...product };
+        const isEditManual = get().isEditManual;
+
+        if(isEditManual) {
+          if(product.pId === productAsTypeProduct.pId) {
+            flag = true;
+            return { ...productAsTypeProduct, ...product };
+          } else {
+            return productAsTypeProduct;
+          }
         } else {
-          return productAsTypeProduct;
+          if((productAsTypeProduct.barcode === product.barcode || productAsTypeProduct.baseBarcode === product.barcode) && !flag && !productAsTypeProduct.pickedTime) {
+            flag = true;
+            toggleShowAmountInput(false);
+            return { ...productAsTypeProduct, ...product };
+          } else {
+            return productAsTypeProduct;
+          }
         }
       }
     });
@@ -165,3 +180,6 @@ export const getQuantityFromBarcode = () =>
 export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useOrderPick.getState().orderDetail?.header || {};
 
 export const getDeliveryOrderDetailOrderPick = (): OrderDelivery | {} => _useOrderPick.getState().orderDetail?.delivery || {};
+
+export const setIsEditManual = (isEditManual: boolean) =>
+  _useOrderPick.getState().setIsEditManual(isEditManual);

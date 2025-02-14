@@ -9,7 +9,7 @@ import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
-import { setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
+import { setIsEditManual, setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { getConfigNameById } from "~/src/core/utils/config";
 import { OrderDetail } from '~/src/types/order-detail';
@@ -112,6 +112,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <TouchableOpacity onPress={() => {
             toggleScanQrCodeProduct(true);
             setSuccessForBarcodeScan('');
+            setIsEditManual(false);
           }}>
             <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
               <FontAwesome name="qrcode" size={24} color="white" />
