@@ -6,6 +6,7 @@ import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentPid,
+  setIsEditManual,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
@@ -35,6 +36,7 @@ const OrderPickProduct = ({
   name,
   image,
   barcode,
+  baseBarcode,
   sellPrice,
   unit,
   quantity,
@@ -57,6 +59,7 @@ const OrderPickProduct = ({
   const shouldDisplayEdit = useCanEditOrderPick();
 
   const isGift = type === "GIFT";
+  
   return (
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>
@@ -81,7 +84,22 @@ const OrderPickProduct = ({
                   transition={1000}
                 />
               </View>
-              <Text numberOfLines={1} className={`text-xs text-gray-500 text-center mt-2 ${tags.length && !isHiddenTag ? 'mb-1' : ''}`}>{barcode || '--'}</Text>
+              <View>
+                <Text
+                  numberOfLines={1}
+                  className={`text-xs  text-center mt-2 ${barcode && barcode !== baseBarcode ? 'text-gray-500' : ''}`}
+                >
+                  {baseBarcode|| '--'}
+                </Text>
+                {barcode && barcode !== baseBarcode && 
+                  <Text 
+                    numberOfLines={1}
+                    className={`text-xs text-center mt-2 ${tags.length && !isHiddenTag ? 'mb-1' : ''}`}
+                  >
+                    {barcode}
+                  </Text>
+                }
+              </View>
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
@@ -109,9 +127,10 @@ const OrderPickProduct = ({
         {shouldDisplayEdit && <View style={styles.edit}>
           <Pressable
             onPress={() => {
-              toggleShowAmountInput(!isShowAmountInput);
+              toggleShowAmountInput(!isShowAmountInput, pId);
               setSuccessForBarcodeScan(barcode, { fillInput: false });
               setCurrentPid(pId);
+              setIsEditManual(true);
             }}
           >
             <EditOutLine width={21} height={21} color={'gray'} />

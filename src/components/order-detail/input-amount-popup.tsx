@@ -49,10 +49,11 @@ const InputAmountPopup = ({}) => {
   
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const isEditManual = useOrderPick.use.isEditManual();
 
   const currentPid = useOrderPick.use.currentPid();
 
-  let currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime) || product.pId === currentPid);
+  let currentProduct = orderPickProductsFlat.find((product: Product) => ( isEditManual ? product.pId === currentPid : (product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime));
 
   if(isEmpty(currentProduct)) {
     currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) || product.pId === currentPid));
@@ -81,10 +82,11 @@ const InputAmountPopup = ({}) => {
 
   const handleSubmit = (values: any, { resetForm }: any) => {
       if (!productName) return;
+
       const pickedItem = {
         ...currentProduct,
         barcode: barcodeScanSuccess,
-        pickedQuantity: quantityFromBarcode || values?.pickedQuantity,
+        pickedQuantity: values?.pickedQuantity || quantityFromBarcode || 0,
         pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
         pickedNote: values?.pickedNote,
         pickedTime: moment().valueOf(),
@@ -213,7 +215,8 @@ const InputAmountPopup = ({}) => {
                     <Text className="text-gray-300 text-ellipsis text-center text-xs font-medium">{currentProduct?.unit}</Text>
                   </View>
                   <TouchableOpacity onPress={() => {
-                      toggleScanQrCodeProduct(true, { isNewScan: false });
+                      toggleScanQrCodeProduct(true);
+                      setQuantityFromBarcode(Math.floor(Number(values?.pickedQuantity || 0) * 1000) / 1000);
                     }}>
                       <View className=" bg-colorPrimary rounded-md size-8 flex flex-row justify-center items-center">
                         <FontAwesome name="qrcode" size={18} color="white" />

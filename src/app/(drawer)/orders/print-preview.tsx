@@ -12,6 +12,7 @@ import { OrderBagType } from '~/src/types/order-bag';
 import { getItem } from '~/src/core/storage';
 import { useConfig } from '~/src/core/store/config';
 import { useAuth } from '~/src/core';
+import { useSetOrderPrintedBagLabel } from '~/src/api/app-pick/use-set-order-printed-bag-label';
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
 
@@ -27,6 +28,8 @@ function PrintPreview() {
   const orderBagsMerged = [...orderBags.DRY, ...orderBags.FROZEN, ...orderBags.FRESH, ...orderBags.NON_FOOD];
 
   const bagLabelsPrint = code ? [{...findBagLabel}] : orderBagsMerged;
+
+  const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel();
 
   const refClient = useRef<any>(null);
 
@@ -115,6 +118,9 @@ function PrintPreview() {
       });
       setTimeout(() => {
         router.back();
+        if(code) {
+          setOrderPrintedBagLabel({ orderCode: code, labelCodes: bagLabelsPrint.map((item: any) => item.code) });
+        }
         refClient.current.destroy();
       }, 1000);
     }
