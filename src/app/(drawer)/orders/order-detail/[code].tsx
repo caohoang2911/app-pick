@@ -30,7 +30,7 @@ const OrderPick = () => {
 
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
-  const isNewScan = useOrderPick.use.isNewScan();
+  const scannedPids = useOrderPick.use.scannedPids();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
 
   const orderDetail = useOrderPick.use.orderDetail();
@@ -75,16 +75,23 @@ const OrderPick = () => {
           type: 'warning',
         });
       } else {
+        const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];
 
-        const currentBarcode: string | undefined = orderPickProductFlat?.[indexOfCodeScanned]?.barcode;
-        const currentAmount = isNewScan ?  orderPickProductFlat?.[indexOfCodeScanned]?.pickedQuantity : quantity || orderPickProductFlat?.[indexOfCodeScanned]?.quantity;
+        const currentBarcode: string | undefined = currentProduct?.barcode;
+        const currentAmount = !scannedPids?.[currentProduct?.pId] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.quantity;
+
+        if(!scannedPids?.[currentProduct?.pId]) {
+          setQuantityFromBarcode(Math.floor(Number(currentProduct?.pickedQuantity || 0) * 1000) / 1000);
+        }
 
         if (currentBarcode) {
-          const newAmount = isNewScan ? quantity || currentAmount : Number(quantityFromBarcode || 0) + (Number(currentAmount) || 0);
+          setTimeout(() => {
+            const newAmount = !scannedPids?.[currentProduct?.pId] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + (Number(currentAmount) || 0);
 
-          setSuccessForBarcodeScan(currentBarcode);
-          setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
-          toggleShowAmountInput(true);
+            setSuccessForBarcodeScan(currentBarcode);
+            setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
+            toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.pId);
+          }, 100);
         }
       }
     },

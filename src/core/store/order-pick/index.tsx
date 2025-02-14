@@ -17,12 +17,12 @@ interface OrdersState {
   productComboRemoveSelected: Product | null;
   orderPickProducts: Array<Product | ProductItemGroup>;
   quantityFromBarcode: number;
-  isNewScan: boolean;
+  scannedPids: Record<string, boolean>;
   currentPid: number | null;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
-  toggleScanQrCode: (status: boolean, { isNewScan }: { isNewScan?: boolean }) => void;
-  toggleShowAmountInput: (isShowAmountInput: boolean) => void;
+  toggleScanQrCode: (status: boolean) => void;
+  toggleShowAmountInput: (isShowAmountInput: boolean, pid?: number) => void;
   setSuccessForBarcodeScan: (barcode: string, { fillInput }: { fillInput?: boolean }) => void;
   setBarcodeScrollTo: (barcode: string) => void;
   setInitOrderPickProducts: (data: Array<Product | ProductItemGroup>) => void;
@@ -44,7 +44,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   isShowConfirmationRemoveProductCombo: false,
   productComboRemoveSelected: null,
   quantityFromBarcode: 0,
-  isNewScan: true,
+  scannedPids: {},
   currentPid: null,
   setKeyword: (keyword: string) => {
     set({ keyword });
@@ -52,11 +52,11 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setOrderDetail: (orderDetail: OrderDetail) => {
     set({ orderDetail });
   },
-  toggleScanQrCode: (isScanQrCodeProduct: boolean, { isNewScan }: { isNewScan?: boolean } = {}) => {
-    set({ isScanQrCodeProduct, isNewScan });
+  toggleScanQrCode: (isScanQrCodeProduct: boolean) => {
+    set({ isScanQrCodeProduct });
   },
-  toggleShowAmountInput: (isShowAmountInput: boolean) => {
-    set({ isShowAmountInput });
+  toggleShowAmountInput: (isShowAmountInput: boolean, pid?: number) => {
+    set({ isShowAmountInput, scannedPids: pid ? { ...get().scannedPids, [pid]: true } : {...get().scannedPids} });
   },
   setSuccessForBarcodeScan: (barcode: string, { fillInput = true }: { fillInput?: boolean } = {}) => {
     set({ barcodeScanSuccess: barcode, fillInput });
@@ -79,8 +79,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setOrderPickProduct: (product: Product) => {
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
-
-    console.log(product, "productproduct")
     
     let flag = false;
     const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup) => {
@@ -105,11 +103,14 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
           }
         })};
       } else {
-        if((productMap as Product).barcode === product.barcode || (productMap as Product).baseBarcode === product.barcode) {
+        const productAsTypeProduct = { ...productMap as Product };
+        if((productAsTypeProduct.barcode === product.barcode || productAsTypeProduct.baseBarcode === product.barcode) && !flag && (!productAsTypeProduct.pickedTime || (product.pId === productAsTypeProduct.pId))) {
+          flag = true;
           toggleShowAmountInput(false);
-          return { ...productMap, ...product };
+          return { ...productAsTypeProduct, ...product };
+        } else {
+          return productAsTypeProduct;
         }
-        return productMap;
       }
     });
 
@@ -122,15 +123,11 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
 
 export const useOrderPick = createSelectors(_useOrderPick);
 
-export const toggleScanQrCodeProduct = (status: boolean, {
-  isNewScan = true
-}: {
-  isNewScan?: boolean
-} = {}) =>
-  _useOrderPick.getState().toggleScanQrCode(status, { isNewScan });
+export const toggleScanQrCodeProduct = (status: boolean) =>
+  _useOrderPick.getState().toggleScanQrCode(status);
 
-export const toggleShowAmountInput = (isShowAmountInput: boolean) =>
-  _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput);
+export const toggleShowAmountInput = (isShowAmountInput: boolean, pid?: number) =>
+  _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput, pid);
 
 export const setSuccessForBarcodeScan = (barcode: string, { fillInput = true }: { fillInput?: boolean } = {}) =>
   _useOrderPick.getState().setSuccessForBarcodeScan(barcode, { fillInput });

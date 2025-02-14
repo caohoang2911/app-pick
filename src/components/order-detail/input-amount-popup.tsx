@@ -213,7 +213,7 @@ const InputAmountPopup = ({}) => {
                     <Text className="text-gray-300 text-ellipsis text-center text-xs font-medium">{currentProduct?.unit}</Text>
                   </View>
                   <TouchableOpacity onPress={() => {
-                      toggleScanQrCodeProduct(true, { isNewScan: false });
+                      toggleScanQrCodeProduct(true);
                     }}>
                       <View className=" bg-colorPrimary rounded-md size-8 flex flex-row justify-center items-center">
                         <FontAwesome name="qrcode" size={18} color="white" />
