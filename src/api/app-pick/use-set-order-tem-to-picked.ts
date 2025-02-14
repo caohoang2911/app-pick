@@ -1,7 +1,5 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { showMessage } from 'react-native-flash-message';
-import { setLoading } from '~/src/core/store/loading';
 import { Product } from '~/src/types/product';
 
 type Variables = {
