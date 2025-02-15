@@ -51,7 +51,7 @@ const _useOrders = create<OrdersState>((set, get) => ({
       isScanQrCode: false,
       selectedOrderCounter: 'ALL',
       keyword: '',
-      operationType: 'CAMPAIGN',
+      operationType: OPERATION_TYPE_DEFAULT,
       deliveryType: 'SHIPPER_DELIVERY',
     });
   },
