@@ -21,7 +21,7 @@ export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 
 export type Product = {
   type?: "COMBO" | "PRODUCT" | "GIFT_PACK";
-  pId: number;
+  id: number;
   pickedError?: string;
   pickedNote?: string;
   pickedQuantity?: number;

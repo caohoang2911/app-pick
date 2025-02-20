@@ -32,7 +32,7 @@ export function ProductComboConfirmation() {
       return;
     }
     setLoading(true);
-    removeProductItem({ itemId: productComboRemoveSelected?.pId, reason: reason, orderCode: code as string });
+    removeProductItem({ itemId: productComboRemoveSelected?.id, reason: reason, orderCode: code as string });
     toggleConfirmationRemoveProductCombo(false);
   };
 

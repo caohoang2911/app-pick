@@ -5,7 +5,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
-  setCurrentPid,
+  setCurrentId,
   setIsEditManual,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
@@ -48,7 +48,7 @@ const OrderPickProduct = ({
   extraConversionQuantity,
   isHiddenTag = false,
   type,
-  pId,
+  id,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -127,9 +127,9 @@ const OrderPickProduct = ({
         {shouldDisplayEdit && <View style={styles.edit}>
           <Pressable
             onPress={() => {
-              toggleShowAmountInput(!isShowAmountInput, pId);
+              toggleShowAmountInput(!isShowAmountInput, id);
               setSuccessForBarcodeScan(barcode, { fillInput: false });
-              setCurrentPid(pId);
+              setCurrentId(id);
               setIsEditManual(true);
             }}
           >

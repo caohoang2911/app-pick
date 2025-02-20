@@ -21,7 +21,7 @@ export const useSelfShipping = (cb?: () => void) => {
       cb?.();
       if (!data.error) {
         showMessage({
-          message: 'Store tự giao hàng thành công',
+          message: 'Cập nhật thành công',
           type: 'success',
         });
       }

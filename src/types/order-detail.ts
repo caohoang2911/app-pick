@@ -37,8 +37,7 @@ export type OrderDelivery = {
   storeCode?: string;
   storeAddress?: string;
   productItems?: Product[];
-  productItemGroups?: Array<Array<Product>>;
-  productItemsV2?: Array<Product | ProductItemGroup>
+  productItemGroups?: Array<Product | ProductItemGroup>
 };
 
 export type LogOrder = {

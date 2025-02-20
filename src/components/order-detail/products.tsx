@@ -38,7 +38,7 @@ const OrderPickProducts = () => {
   }, [data]);
 
   const orderDetail = data?.data || {};
-  const { productItemGroups, productItemsV2 } = orderDetail?.delivery || {};
+  const { productItemGroups } = orderDetail?.delivery || {};
 
   const filterProductItems = useMemo(() => {
 
@@ -56,12 +56,12 @@ const OrderPickProducts = () => {
   }, [keyword, orderPickProducts]);
 
   useEffect(() => {
-    const tempArr = Object.values(productItemsV2 || {}).map((item: any) => {
+    const tempArr = Object.values(productItemGroups || {}).map((item: any) => {
       return item;
     }) || [];
 
     setInitOrderPickProducts([...tempArr] as never[]);
-  }, [productItemsV2]);
+  }, [productItemGroups]);
 
   const indexCurrentProduct = useMemo(
     () =>

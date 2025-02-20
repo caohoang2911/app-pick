@@ -21,7 +21,7 @@ export const useCompleteOrder = (cb?: () => void) => {
       cb?.();
       if (!data.error) {
         showMessage({
-          message: 'Store tự giao hàng thành công',
+          message: 'Đã hoàn tất đơn hàng',
           type: 'success',
         });
       }
