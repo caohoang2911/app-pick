@@ -44,7 +44,7 @@ const OrderBags = () => {
   }
 
   const handlePrintAll = () => {
-    router.push('/orders/print-preview');
+    router.push(`/orders/print-preview?code=${code}`);
   }
 
   useEffect(() => {

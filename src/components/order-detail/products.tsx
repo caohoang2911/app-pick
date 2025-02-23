@@ -103,7 +103,7 @@ const OrderPickProducts = () => {
       return <ProductGift giftPack={item as ProductItemGroup} />;
     }
 
-    return <OrderPickProduct {...(item as Product)} />;
+    return <OrderPickProduct {...(item.elements?.[0] as Product)} />;
     
   }
 

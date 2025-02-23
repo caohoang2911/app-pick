@@ -91,7 +91,7 @@ const InputAmountPopup = ({}) => {
         pickedNote: values?.pickedNote,
         pickedTime: moment().valueOf(),
       } as Product;
-      
+
       setOrderTemToPicked({ pickedItem, orderCode: code});
       
       resetForm();

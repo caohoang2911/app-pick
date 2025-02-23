@@ -69,29 +69,50 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      const indexOfCodeScanned = orderPickProductsFlat?.findIndex(item =>  isEditManual ? item?.id === currentId : barcode === item?.barcode || barcode === item?.baseBarcode);
+      const indexWithBarcode = orderPickProductsFlat?.findIndex(
+        item => item?.barcode === barcode || barcode === item?.baseBarcode
+      );
 
-      if (indexOfCodeScanned === -1) {
+      if(indexWithBarcode === -1) {
         showMessage({
           message: `Mã ${barcode} vừa quét không nằm trong đơn hàng`,
           type: 'warning',
         });
-      } else {
-        const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];
-
-        const currentBarcode: string | undefined = currentProduct?.barcode;
-        const currentAmount = !scannedIds?.[currentProduct?.id] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.quantity;
-
-        if (currentBarcode) {
-          setTimeout(() => {
-            const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + (Number(currentAmount) || 0);
-
-            setSuccessForBarcodeScan(currentBarcode);
-            setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
-            toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.id);
-          }, 100);
-        }
+        return;
       }
+
+      let indexOfCodeScanned = -1;
+
+      const barcodeWithPickedTime = orderPickProductsFlat?.findIndex(
+        item => (item?.barcode === barcode || barcode === item?.baseBarcode) && item?.pickedTime
+      );
+
+      const indexOfCodeScannedWithoutPickedTime = orderPickProductsFlat?.findIndex(
+        item =>  isEditManual ? 
+        item?.id === currentId : 
+        (barcode === item?.barcode || barcode === item?.baseBarcode) && !item?.pickedTime);
+
+      if(indexOfCodeScannedWithoutPickedTime === -1) {
+        indexOfCodeScanned = barcodeWithPickedTime;
+      } else {
+        indexOfCodeScanned = indexOfCodeScannedWithoutPickedTime;
+      }
+   
+      const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];
+
+      const currentBarcode: string | undefined = currentProduct?.barcode;
+      const currentAmount = !scannedIds?.[currentProduct?.id] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.quantity;
+
+      if (currentBarcode) {
+        setTimeout(() => {
+          const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + (Number(currentAmount) || 0);
+
+          setSuccessForBarcodeScan(currentBarcode);
+          setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
+          toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.id);
+        }, 100);
+      }
+      
     },
     [orderPickProductsFlat, quantityFromBarcode, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
   );

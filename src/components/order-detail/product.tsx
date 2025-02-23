@@ -120,8 +120,10 @@ const OrderPickProduct = ({
           </View>
           
           {pickedErrorName && <View className="flex gap-1">
-            <View className="border my-3 border-gray-100" />
-            <Text className="text-red-500 italic">Lỗi: {pickedErrorName}</Text>
+            <View className="border mb-2 border-gray-100 mt-3" />
+            <View className='flex flex-row bg-orange-100 p-2 gap-2 rounded-md items-center self-end'>
+              <Text className='text-orange-500 text-xs'>{pickedErrorName}</Text>
+            </View>
           </View>}
         </View>
         {shouldDisplayEdit && <View style={styles.edit}>

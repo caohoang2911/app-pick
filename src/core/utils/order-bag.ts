@@ -43,17 +43,9 @@ export const transformOrderBags = (orderBags: OrderBagItem[]) => {
   return { DRY: dry, FROZEN: frozen, FRESH: fresh, NON_FOOD: nonFood };
 }
 
-export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGroup>): Array<Product> => { 
-  const productsFlat = products.flatMap((product: Product | ProductItemGroup) => {
-    if(product.type === 'COMBO' && 'elements' in product) {
-      return [...(product.elements || [])];
-    }
-    if(product.type === 'GIFT_PACK' && 'elements' in product) {
-      return [...(product.elements || [])];
-    }
-    
-
-    return [product];
+export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGroup | any>): Array<Product> => { 
+  const productsFlat = products.flatMap((product: Product | ProductItemGroup | any) => {
+    return [...(product.elements || [])];
   }) as Array<Product>;
 
   return [...productsFlat];
