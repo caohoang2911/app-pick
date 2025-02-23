@@ -5,7 +5,6 @@ import { Product } from '~/src/types/product';
 
 type Variables = {
   orderCode?: string;
-  pickedItems: Product[];
 };
 
 type Response = { error: string } & {};

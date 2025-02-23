@@ -13,15 +13,15 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
     toggleConfirmationRemoveProductCombo(true, product);
   };
 
-  const { elementPerComboQuantities }  = combo || {};
+  const { elementRatio }  = combo || {};
 
   const isPickDoneCombo = useMemo(() => {
     return combo.elements?.every((product: Product) => product.pickedTime);
   }, [combo.elements]);
 
   const pickedQuantityCombo = useMemo(() => {
-    return Math.min(...combo.elements?.map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementPerComboQuantities[product.barcode as string] : 0) || [0]);
-  }, [combo.elements, elementPerComboQuantities]);
+    return Math.min(...combo.elements?.map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementRatio[product.barcode as string] : 0) || [0]);
+  }, [combo.elements, elementRatio]);
 
   console.log(pickedQuantityCombo, "pickedQuantityCombo");
   console.log(isPickDoneCombo, "isPickDoneCombo");

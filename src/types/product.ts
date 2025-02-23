@@ -11,7 +11,7 @@ export type ProductItemGroup = {
   type: string;
   name: string;
   quantity: number;
-  elementPerComboQuantities: {
+  elementRatio: {
     [key: string]: number;
   }  
   elements?: Array<Product>;

@@ -55,7 +55,7 @@ const ActionsBottom = () => {
     showAlert({title, message, onConfirm: () => {
       console.log(orderPickProductsFlat.length, "B33B")
       status === 'STORE_PICKING'
-        ? setOrderStatusPacked({ pickedItems: [...orderPickProductsFlat], orderCode: code})
+        ? setOrderStatusPacked({ orderCode: code})
         : setOrderStatusPicking({ orderCode: code });
         hideAlert();
     }});

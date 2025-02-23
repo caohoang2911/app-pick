@@ -40,7 +40,7 @@ const OrderPickProduct = ({
   sellPrice,
   unit,
   quantity,
-  stockAvailable,
+  stockOnhand,
   tags,
   pickedTime,
   pickedError,
@@ -105,7 +105,7 @@ const OrderPickProduct = ({
               <View className="flex gap-2 flex-1">
                 <Row label="SL đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
                 <Row label="Thực pick" value={!isNil(pickedQuantity) ? pickedQuantity : "--"} unit={unit} />
-                <Row label="Tồn kho" value={!isNil(stockAvailable) ? stockAvailable : "--"} unit={unit} />
+                <Row label="Tồn kho" value={!isNil(stockOnhand) ? stockOnhand : "--"} unit={unit} />
                 {!isGift && <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Giá bán</Text></View>
                   <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
