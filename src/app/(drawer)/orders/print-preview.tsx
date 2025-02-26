@@ -22,12 +22,12 @@ function PrintPreview() {
   const [connected, setConnected] = useState(false);
 
   const orderBags = useOrderBag.use.orderBags();
-  const { code, type } = useLocalSearchParams<{ code?: string, type?: string }>();
-  const findBagLabel = orderBags[type as OrderBagType]?.find((item: any) => item.code === code);
+  const { code, type, bagCode} = useLocalSearchParams<{ code?: string, type?: string, bagCode?: string }>();
+  const findBagLabel = orderBags[type as OrderBagType]?.find((item: any) => item.code === bagCode);
 
-  const orderBagsMerged = [...orderBags.DRY, ...orderBags.FROZEN, ...orderBags.FRESH, ...orderBags.NON_FOOD];
+  const orderBagsMerged = [...orderBags.DRY, ...orderBags.FROZEN, ...orderBags.FRESH];
 
-  const bagLabelsPrint = code ? [{...findBagLabel}] : orderBagsMerged;
+  const bagLabelsPrint = bagCode ? [{...findBagLabel}] : orderBagsMerged;
 
   const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel();
 

@@ -49,14 +49,14 @@ const OrderBags = () => {
 
   useEffect(() => {
     if(hasUpdateOrderBagLabels) {
-      const mergedOrderBags = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN, ...orderBags.NON_FOOD];
+      const mergedOrderBags = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];
 
       updateOrderBagLabels({
         data: mergedOrderBags,
         orderCode: code,
       });
     }
-  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN, orderBags.NON_FOOD]);
+  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN]);
 
   return (
     <View className='flex-1 mb-4'>

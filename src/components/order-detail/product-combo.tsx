@@ -20,11 +20,9 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
   }, [combo.elements]);
 
   const pickedQuantityCombo = useMemo(() => {
-    return Math.min(...combo.elements?.map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementRatio[product.barcode as string] : 0) || [0]);
+    return Math.min(...combo.elements?.filter((product: Product) => product.sellPrice).map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementRatio[product.barcode as string] : 0) || [0]);
   }, [combo.elements, elementRatio]);
 
-  console.log(pickedQuantityCombo, "pickedQuantityCombo");
-  console.log(isPickDoneCombo, "isPickDoneCombo");
 
   return (
     <>

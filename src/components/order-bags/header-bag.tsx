@@ -16,7 +16,7 @@ function HeaderBag() {
   
 
   const orderBags = useOrderBag.use.orderBags();
-  const mergeOrderBags =  orderBags ? [...orderBags?.DRY || [], ...orderBags?.FRESH || [], ...orderBags?.FROZEN || [], ...orderBags?.NON_FOOD || []] : [];
+  const mergeOrderBags =  orderBags ? [...orderBags?.DRY || [], ...orderBags?.FRESH || [], ...orderBags?.FROZEN || []] : [];
 
 
   return (

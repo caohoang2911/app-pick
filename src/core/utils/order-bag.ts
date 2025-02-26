@@ -7,13 +7,11 @@ export const transformBagsData: any = (bags: OrderBagItem[]) => {
   const dry = bags.filter((bag) => bag.type === 'DRY');
   const frozen = bags.filter((bag) => bag.type === 'FROZEN');
   const fresh = bags.filter((bag) => bag.type === 'FRESH');
-  const nonFood = bags.filter((bag) => bag.type === 'NON_FOOD');
 
   const bagsType = {
     DRY: dry.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.DRY, index + 1, dry.length) })),
     FROZEN: frozen.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FROZEN, index + 1, frozen.length) })),
     FRESH: fresh.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FRESH, index + 1, fresh.length) })),
-    NON_FOOD: nonFood.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.NON_FOOD, index + 1, nonFood.length) })),
   };
 
   return bagsType;
@@ -38,9 +36,8 @@ export const transformOrderBags = (orderBags: OrderBagItem[]) => {
   const dry = orderBags.filter((bag) => bag.type === 'DRY');
   const frozen = orderBags.filter((bag) => bag.type === 'FROZEN');
   const fresh = orderBags.filter((bag) => bag.type === 'FRESH');
-  const nonFood = orderBags.filter((bag) => bag.type === 'NON_FOOD');
 
-  return { DRY: dry, FROZEN: frozen, FRESH: fresh, NON_FOOD: nonFood };
+  return { DRY: dry, FROZEN: frozen, FRESH: fresh };
 }
 
 export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGroup | any>): Array<Product> => { 
