@@ -29,7 +29,7 @@ const OrderPickProducts = () => {
 
   const ref: any = useRef<FlatList>();
 
-  const { data, refetch, isPending, isFetching } = useOrderDetailQuery({
+  const { data, refetch, isPending, isFetching, isLoading } = useOrderDetailQuery({
     orderCode: code,
   });
 
@@ -73,7 +73,7 @@ const OrderPickProducts = () => {
 
   useEffect(() => {
     if (indexCurrentProduct !== -1) {
-      setTimeout(() => {
+      // setTimeout(() => {
         try {
           ref.current?.scrollToIndex({
             animated: true,
@@ -83,11 +83,11 @@ const OrderPickProducts = () => {
         } catch (error) {
           console.log('error', error);
         }
-      }, 500);
+      // }, 500);
     }
   }, [indexCurrentProduct]);
 
-  if (isPending || isFetching) {
+  if (isPending || isFetching || isLoading) {
     return (
       <View className="text-center py-3">
         <ActivityIndicator className="text-gray-300" />
@@ -104,8 +104,7 @@ const OrderPickProducts = () => {
     }
 
     return <OrderPickProduct {...(item.elements?.[0] as Product)} />;
-    
-  }
+  };
 
   return (
     <View className="flex-1 flex-grow mt-2">
@@ -120,7 +119,7 @@ const OrderPickProducts = () => {
         }
         data={filterProductItems as Array<any>}
         ListEmptyComponent={
-          !isFetching ? (
+          !isFetching && !isLoading && !isPending && !orderPickProducts ? (
             <View className="mt-3">
               <Empty />
             </View>
@@ -154,3 +153,7 @@ const OrderPickProducts = () => {
 };
 
 export default OrderPickProducts;
+function useCallback(arg0: (item: Product | ProductItemGroup | any) => React.JSX.Element, arg1: never[]) {
+  throw new Error('Function not implemented.');
+}
+

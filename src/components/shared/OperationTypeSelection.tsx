@@ -69,4 +69,4 @@ const OperationTypeSelection = forwardRef<any, Props>(
     )
   })
 
-  export default OperationTypeSelection;
+  export default React.memo(OperationTypeSelection);

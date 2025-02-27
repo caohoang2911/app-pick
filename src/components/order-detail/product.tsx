@@ -143,7 +143,7 @@ const OrderPickProduct = ({
   );
 };
 
-export default OrderPickProduct;
+export default React.memo(OrderPickProduct);
 
 const styles = StyleSheet.create({
   edit: {

@@ -111,4 +111,4 @@ const StoreSelection = forwardRef<any, Props>(
     )
   })
 
-  export default StoreSelection;
+export default React.memo(StoreSelection);
