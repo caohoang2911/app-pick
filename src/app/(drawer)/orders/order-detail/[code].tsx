@@ -32,8 +32,12 @@ const OrderPick = () => {
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
-
   const orderDetail = useOrderPick.use.orderDetail();
+  const deliveryType = orderDetail?.header?.deliveryType;
+
+  const isShowPackageSizePicker = deliveryType !== 'CUSTOMER_PICKUP';
+
+
   const isEditManual = useOrderPick.use.isEditManual();
   const currentId = useOrderPick.use.currentId();
 
@@ -126,7 +130,7 @@ const OrderPick = () => {
   return (
     <>
       <View className="flex-1 bg-gray-50 pt-2">
-        <PackageSizePicker />
+        {isShowPackageSizePicker && <PackageSizePicker />}
         <OrderPickProducts />
       </View>
       <ActionsBottom />
