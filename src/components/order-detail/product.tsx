@@ -20,14 +20,14 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { isNil } from 'lodash';
 
-const Row = ({label, value, unit, extraConversionQuantity}: {label: string, value: string, unit?: string, extraConversionQuantity?: number}) => {
+const Row = ({label, value, unit, originOrderQuantity}: {label: string, value: string, unit?: string, originOrderQuantity?: number}) => {
   return (
     <View style={{width: 150}} className='flex flex-row w-100'>
       <View style={{width: 100}}><Text>{label}</Text></View>
       <View style={{width: 65}}>
         <Text className='font-medium' numberOfLines={1}>{value}</Text>
       </View>
-      {extraConversionQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${extraConversionQuantity}`} /></View> : unit ? <Text className='font-medium'>{unit}</Text> : null}
+      {originOrderQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${originOrderQuantity}`} /></View> : unit ? <Text className='font-medium'>{unit}</Text> : null}
     </View>
   )
 }
@@ -39,13 +39,13 @@ const OrderPickProduct = ({
   baseBarcode,
   sellPrice,
   unit,
-  quantity,
+  orderQuantity,
   stockOnhand,
   tags,
   pickedTime,
   pickedError,
   pickedQuantity,
-  extraConversionQuantity,
+  originOrderQuantity,
   isHiddenTag = false,
   type,
   id,
@@ -103,10 +103,10 @@ const OrderPickProduct = ({
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
-                <Row label="SL đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
+                <Row label="SL đặt" value={orderQuantity} unit={unit} originOrderQuantity={originOrderQuantity} />
                 <Row label="Thực pick" value={!isNil(pickedQuantity) ? pickedQuantity : "--"} unit={unit} />
                 <Row label="Tồn kho" value={!isNil(stockOnhand) ? stockOnhand : "--"} unit={unit} />
-                {!isGift && <View style={{width: 150}} className='flex flex-row w-100'>
+                {(!isGift && Number(sellPrice) > 0) && <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Giá bán</Text></View>
                   <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
                 </View>}

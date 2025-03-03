@@ -35,7 +35,7 @@ const ActionsBottom = () => {
 
   const canCompletePick = useMemo(() => {
     return orderPickProductsFlat.filter((product: Product) => {
-      return !product.pickedTime;
+      return !product.pickedTime && Number(product.sellPrice) > 0;
     })?.length === 0;
   }, [orderPickProductsFlat]);
 

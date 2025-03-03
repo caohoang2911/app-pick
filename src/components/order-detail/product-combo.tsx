@@ -16,7 +16,7 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
   const { elementRatio }  = combo || {};
 
   const isPickDoneCombo = useMemo(() => {
-    return combo.elements?.every((product: Product) => product.pickedTime);
+    return combo.elements?.filter((product: Product) => product.sellPrice).every((product: Product) => product.pickedTime);
   }, [combo.elements]);
 
   const pickedQuantityCombo = useMemo(() => {
