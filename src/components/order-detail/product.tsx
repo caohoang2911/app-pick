@@ -22,12 +22,19 @@ import { isNil } from 'lodash';
 
 const Row = ({label, value, unit, originOrderQuantity}: {label: string, value: string, unit?: string, originOrderQuantity?: number}) => {
   return (
-    <View style={{width: 150}} className='flex flex-row w-100'>
-      <View style={{width: 100}}><Text>{label}</Text></View>
-      <View style={{width: 65}}>
+    <View className='flex-1 flex-row w-100'>
+      <View className='flex-row' style={{width: "35%"}}>
+        <Text>{label}</Text>
+      </View>
+      <View className='flex-row' style={{width: "20%"}}>
         <Text className='font-medium' numberOfLines={1}>{value}</Text>
       </View>
-      {originOrderQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${originOrderQuantity}`} /></View> : unit ? <Text className='font-medium'>{unit}</Text> : null}
+      <View className='flex-row' style={{width: "20%"}}>
+        {unit && <Text className='font-medium'>{unit}</Text>}
+      </View>
+      {originOrderQuantity && <View className='flex-row items-end justify-end' style={{width: "25%"}}>
+        <Badge label={`${originOrderQuantity}`} />
+      </View>}
     </View>
   )
 }
@@ -63,7 +70,7 @@ const OrderPickProduct = ({
   return (
     <>
       <View className={cn(`bg-white shadow relative`)} style={styles.box}>
-        <View className="p-4">
+        <View className="p-3">
           <View className='flex flex-row gap-1 items-center mb-3' style={{paddingRight: shouldDisplayEdit ? 53 : 0}}>
             {pickedTime && (
               <View className="rounded-full bg-white">
@@ -103,7 +110,7 @@ const OrderPickProduct = ({
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
-                <Row label="SL đặt" value={orderQuantity} unit={unit} originOrderQuantity={originOrderQuantity} />
+                <Row label="SL đặt" value={orderQuantity} unit={unit} originOrderQuantity={originOrderQuantity}  />
                 <Row label="Thực pick" value={!isNil(pickedQuantity) ? pickedQuantity : "--"} unit={unit} />
                 <Row label="Tồn kho" value={!isNil(stockOnhand) ? stockOnhand : "--"} unit={unit} />
                 {(!isGift && Number(sellPrice) > 0) && <View style={{width: 150}} className='flex flex-row w-100'>
