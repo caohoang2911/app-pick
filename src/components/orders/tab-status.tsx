@@ -64,13 +64,13 @@ export function TabsStatus() {
     );
     if (index === -1) return;
 
-    setTimeout(() => {
+    // setTimeout(() => {
       ref.current?.scrollToIndex({
         animated: true,
         index: index || 0,
         viewPosition: 0.5,
       });
-    }, 500);
+    // }, 500);
   }, [selectedOrderCounter])
 
   useEffect(() => {

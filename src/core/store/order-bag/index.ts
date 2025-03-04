@@ -11,7 +11,6 @@ interface OrderBagState {
     DRY: Array<any>;
     FROZEN: Array<any>;
     FRESH: Array<any>;
-    NON_FOOD: Array<any>;
   };
   header?: any;
   isLoadingDeliveryOrderDetail: boolean;
@@ -28,7 +27,6 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
     DRY: [],
     FROZEN: [],
     FRESH: [],
-    NON_FOOD: [],
   },
   isLoadingDeliveryOrderDetail: false,
   setOrderDetail: (orderDetail: OrderDetail) => {

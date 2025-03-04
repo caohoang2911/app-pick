@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View, Platform, ToastAndroid } from 'react-native';
 import {
   FlatList,
   RefreshControl
@@ -41,7 +41,8 @@ const OrderList = () => {
     hasNextPage,
     refetch,
     hasPreviousPage,
-    isSuccess
+    isSuccess,
+    isPending
   } = useSearchOrders({...params});
 
 
@@ -80,7 +81,6 @@ const OrderList = () => {
       };
     }, [])
   );
-  
 
   const renderFooterList = useMemo(() => {
     if (isFetchingNextPage) return <ActivityIndicator color={"blue"} />;
@@ -88,7 +88,7 @@ const OrderList = () => {
     return <View />;
   }, [isFetchingNextPage, hasNextPage, isFetching, orderList]);
 
-  if (!hasPreviousPage && isFetching && withoutRefresh.current) {
+  if (!hasPreviousPage && isPending && withoutRefresh.current) {
     return (
       <View className="text-center py-3">
         <ActivityIndicator className="text-gray-300" />
@@ -109,6 +109,7 @@ const OrderList = () => {
 
   return (
     <View className="flex-grow mb-4">
+
       <FlatList
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -118,7 +119,7 @@ const OrderList = () => {
           <RefreshControl
             refreshing={false}
             onRefresh={async () => {
-              withoutRefresh.current = false;
+              // withoutRefresh.current = false;
               goFirstPage();
               queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', operationType, storeCode] });
               queryClient.invalidateQueries({ queryKey: ['getOrderDeliveryTypeCounters', operationType, storeCode, selectedOrderCounter] });

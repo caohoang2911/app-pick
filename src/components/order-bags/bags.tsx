@@ -11,9 +11,8 @@ const Bags = () => {
     <View className="mb-6">
       <View className="flex flex-col gap-4">
         <BagType title={OrderBagLabel.DRY} type={OrderBagType.DRY} bagLabels={orderBags.DRY} />
-        <BagType title={OrderBagLabel.FROZEN} type={OrderBagType.FROZEN} bagLabels={orderBags.FROZEN} />
         <BagType title={OrderBagLabel.FRESH} type={OrderBagType.FRESH} bagLabels={orderBags.FRESH} />
-        {/* <BagType title={OrderBagLabel.NON_FOOD} type={OrderBagType.NON_FOOD} bagLabels={orderBags.NON_FOOD} /> */}
+        <BagType title={OrderBagLabel.FROZEN} type={OrderBagType.FROZEN} bagLabels={orderBags.FROZEN} />
       </View>
     </View>
   )

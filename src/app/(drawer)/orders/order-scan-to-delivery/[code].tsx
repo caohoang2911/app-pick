@@ -62,8 +62,9 @@ const OrderScanToDelivery = () => {
 
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
-    scanQrCodeSuccess(result, () => {
-      if(isAllDone) {
+    scanQrCodeSuccess(result, (orderBagsCB) => {
+      const isDone = orderBagsCB.every((bag) => bag.isDone)
+      if(isDone) {
         setOrderScanedBagLabel({ orderCode: code });
       }
     });

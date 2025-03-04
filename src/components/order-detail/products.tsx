@@ -29,7 +29,7 @@ const OrderPickProducts = () => {
 
   const ref: any = useRef<FlatList>();
 
-  const { data, refetch, isPending, isFetching } = useOrderDetailQuery({
+  const { data, refetch, isPending, isFetching, isLoading } = useOrderDetailQuery({
     orderCode: code,
   });
 
@@ -38,7 +38,7 @@ const OrderPickProducts = () => {
   }, [data]);
 
   const orderDetail = data?.data || {};
-  const { productItemGroups, productItemsV2 } = orderDetail?.delivery || {};
+  const { productItemGroups } = orderDetail?.delivery || {};
 
   const filterProductItems = useMemo(() => {
 
@@ -56,12 +56,12 @@ const OrderPickProducts = () => {
   }, [keyword, orderPickProducts]);
 
   useEffect(() => {
-    const tempArr = Object.values(productItemsV2 || {}).map((item: any) => {
+    const tempArr = Object.values(productItemGroups || {}).map((item: any) => {
       return item;
     }) || [];
 
     setInitOrderPickProducts([...tempArr] as never[]);
-  }, [productItemsV2]);
+  }, [productItemGroups]);
 
   const indexCurrentProduct = useMemo(
     () =>
@@ -73,7 +73,7 @@ const OrderPickProducts = () => {
 
   useEffect(() => {
     if (indexCurrentProduct !== -1) {
-      setTimeout(() => {
+      // setTimeout(() => {
         try {
           ref.current?.scrollToIndex({
             animated: true,
@@ -83,11 +83,11 @@ const OrderPickProducts = () => {
         } catch (error) {
           console.log('error', error);
         }
-      }, 500);
+      // }, 500);
     }
   }, [indexCurrentProduct]);
 
-  if (isPending || isFetching) {
+  if (isPending || isFetching || isLoading) {
     return (
       <View className="text-center py-3">
         <ActivityIndicator className="text-gray-300" />
@@ -103,9 +103,8 @@ const OrderPickProducts = () => {
       return <ProductGift giftPack={item as ProductItemGroup} />;
     }
 
-    return <OrderPickProduct {...(item as Product)} />;
-    
-  }
+    return <OrderPickProduct {...(item.elements?.[0] as Product)} />;
+  };
 
   return (
     <View className="flex-1 flex-grow mt-2">
@@ -120,7 +119,7 @@ const OrderPickProducts = () => {
         }
         data={filterProductItems as Array<any>}
         ListEmptyComponent={
-          !isFetching ? (
+          !isFetching && !isLoading && !isPending && !orderPickProducts ? (
             <View className="mt-3">
               <Empty />
             </View>
@@ -154,3 +153,7 @@ const OrderPickProducts = () => {
 };
 
 export default OrderPickProducts;
+function useCallback(arg0: (item: Product | ProductItemGroup | any) => React.JSX.Element, arg1: never[]) {
+  throw new Error('Function not implemented.');
+}
+

@@ -59,8 +59,8 @@ const SBottomSheet = forwardRef<any, Props>(
     const [snapPointsLocal, setSnapPointsLocal] = useState([230, "70%"]);
 
     const animationConfigs = useBottomSheetTimingConfigs({
-      duration: 250,
-      easing: Easing.linear,
+      duration: 100,
+      easing: Easing.linear
     });
 
     useEffect(() => {

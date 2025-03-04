@@ -1,3 +1,4 @@
+import React, { useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -59,13 +60,13 @@ const OrderItem = ({
   const fulfillErrorTypes = config?.fulfillErrorTypes || [];
   const fulfillErrorTypeDisplay = getConfigNameById(fulfillErrorTypes, fulfillError?.type);
 
-  const handlePress = () => {
+  const handlePress = useCallback(() => {
     if(type === 'STORE_DELIVERY') {
       router.push(`orders/order-invoice/${code}`);
     } else {
       router.push({ pathname: `orders/order-detail/${code}`, params: { status } });
     }
-  };
+  }, [type, code, status, router]);
 
   return (
     <TouchableOpacity onPress={handlePress}>
@@ -123,4 +124,4 @@ const OrderItem = ({
   );
 };
 
-export default OrderItem;
+export default React.memo(OrderItem);

@@ -1,3 +1,4 @@
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useLocalSearchParams } from "expo-router";
 import { FC, useMemo, useRef, useState } from "react";
@@ -7,19 +8,19 @@ import { queryClient } from "~/src/api/shared/api-provider";
 import { setLoading } from "~/src/core/store/loading";
 import { getHeaderOrderDetailOrderPick } from "~/src/core/store/order-pick";
 import { OrderStatusValue, PackageSize, PackageSizeLabel } from "~/src/types/order";
-import AntDesign from '@expo/vector-icons/AntDesign';
 
+import React from "react";
+import { CheckCircleFill } from "~/src/core/svgs";
 import { OrderDetailHeader } from "~/src/types/order-detail";
 import Box from "../Box";
 import SBottomSheet from "../SBottomSheet";
-import { Colors } from "react-native/Libraries/NewAppScreen";
-import { CheckCircleFill } from "~/src/core/svgs";
 interface PackageSizePickerProps {
 }
 
 interface Action {
   key?: string;
   title: string;
+  active: boolean;
 }
 
 export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {

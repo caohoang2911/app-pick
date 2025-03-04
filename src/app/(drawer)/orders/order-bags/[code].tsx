@@ -44,19 +44,19 @@ const OrderBags = () => {
   }
 
   const handlePrintAll = () => {
-    router.push('/orders/print-preview');
+    router.push(`/orders/print-preview?code=${code}`);
   }
 
   useEffect(() => {
     if(hasUpdateOrderBagLabels) {
-      const mergedOrderBags = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN, ...orderBags.NON_FOOD];
+      const mergedOrderBags = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];
 
       updateOrderBagLabels({
         data: mergedOrderBags,
         orderCode: code,
       });
     }
-  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN, orderBags.NON_FOOD]);
+  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN]);
 
   return (
     <View className='flex-1 mb-4'>

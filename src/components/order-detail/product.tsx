@@ -5,7 +5,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
-  setCurrentPid,
+  setCurrentId,
   setIsEditManual,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
@@ -20,14 +20,14 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { isNil } from 'lodash';
 
-const Row = ({label, value, unit, extraConversionQuantity}: {label: string, value: string, unit?: string, extraConversionQuantity?: number}) => {
+const Row = ({label, value, unit, originOrderQuantity}: {label: string, value: string, unit?: string, originOrderQuantity?: number}) => {
   return (
     <View style={{width: 150}} className='flex flex-row w-100'>
-      <View style={{width: 100}}><Text>{label}</Text></View>
-      <View style={{width: 65}}>
+      <View style={{width: 85}}><Text>{label}</Text></View>
+      <View style={{width: 45}}>
         <Text className='font-medium' numberOfLines={1}>{value}</Text>
       </View>
-      {extraConversionQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${extraConversionQuantity}`} /></View> : unit ? <Text className='font-medium'>{unit}</Text> : null}
+      {originOrderQuantity ? <View className='flex flex-row gap-2 items-center'><Text className='font-medium'>{unit}</Text><Badge label={`${originOrderQuantity}`} /></View> : unit ? <Text className='font-medium'>{unit}</Text> : null}
     </View>
   )
 }
@@ -39,16 +39,16 @@ const OrderPickProduct = ({
   baseBarcode,
   sellPrice,
   unit,
-  quantity,
-  stockAvailable,
+  orderQuantity,
+  stockOnhand,
   tags,
   pickedTime,
   pickedError,
   pickedQuantity,
-  extraConversionQuantity,
+  originOrderQuantity,
   isHiddenTag = false,
   type,
-  pId,
+  id,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
@@ -78,7 +78,7 @@ const OrderPickProduct = ({
             <View className="flex justify-between items-center">
               <View className="">
                 <Image
-                  style={{ width: 80, height: 80 }}
+                  style={{ width: 75, height: 75 }}
                   source={image || require("~/assets/default-img.jpg")}
                   contentFit="cover"
                   transition={1000}
@@ -103,10 +103,10 @@ const OrderPickProduct = ({
             </View>
             <View className="flex-row justify-between flex-grow h-full" >
               <View className="flex gap-2 flex-1">
-                <Row label="SL đặt" value={quantity} unit={unit} extraConversionQuantity={extraConversionQuantity} />
+                <Row label="SL đặt" value={orderQuantity} unit={unit} originOrderQuantity={originOrderQuantity} />
                 <Row label="Thực pick" value={!isNil(pickedQuantity) ? pickedQuantity : "--"} unit={unit} />
-                <Row label="Tồn kho" value={!isNil(stockAvailable) ? stockAvailable : "--"} unit={unit} />
-                {!isGift && <View style={{width: 150}} className='flex flex-row w-100'>
+                <Row label="Tồn kho" value={!isNil(stockOnhand) ? stockOnhand : "--"} unit={unit} />
+                {(!isGift && Number(sellPrice) > 0) && <View style={{width: 150}} className='flex flex-row w-100'>
                   <View style={{width: 100}}><Text>Giá bán</Text></View>
                   <Text className='font-medium' numberOfLines={1}>{formatCurrency(sellPrice, {unit: true}) || "--"}</Text>
                 </View>}
@@ -120,16 +120,18 @@ const OrderPickProduct = ({
           </View>
           
           {pickedErrorName && <View className="flex gap-1">
-            <View className="border my-3 border-gray-100" />
-            <Text className="text-red-500 italic">Lỗi: {pickedErrorName}</Text>
+            <View className="border mb-2 border-gray-100 mt-3" />
+            <View className='flex flex-row bg-orange-100 p-2 gap-2 rounded-md items-center self-end'>
+              <Text className='text-orange-500 text-xs'>{pickedErrorName}</Text>
+            </View>
           </View>}
         </View>
         {shouldDisplayEdit && <View style={styles.edit}>
           <Pressable
             onPress={() => {
-              toggleShowAmountInput(!isShowAmountInput, pId);
+              toggleShowAmountInput(!isShowAmountInput, id);
               setSuccessForBarcodeScan(barcode, { fillInput: false });
-              setCurrentPid(pId);
+              setCurrentId(id);
               setIsEditManual(true);
             }}
           >
@@ -141,7 +143,7 @@ const OrderPickProduct = ({
   );
 };
 
-export default OrderPickProduct;
+export default React.memo(OrderPickProduct);
 
 const styles = StyleSheet.create({
   edit: {

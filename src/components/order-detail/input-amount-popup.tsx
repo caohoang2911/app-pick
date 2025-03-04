@@ -9,7 +9,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
   getQuantityFromBarcode,
-  setCurrentPid,
+  setCurrentId,
   setOrderPickProduct,
   setQuantityFromBarcode,
   toggleScanQrCodeProduct,
@@ -24,7 +24,7 @@ import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
-import { useSetOrderTemToPicked } from '~/src/api/app-pick/use-set-order-tem-to-picked';
+import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
 import { useLocalSearchParams } from 'expo-router';
 
 
@@ -38,7 +38,7 @@ const InputAmountPopup = ({}) => {
 
   const { code } = useLocalSearchParams<{ code: string }>();
   
-  const { mutate: setOrderTemToPicked } = useSetOrderTemToPicked();
+  const { mutate: setOrderTemToPicked } = useSetOrderItemPicked();
 
   const isCampaign = operationType === 'CAMPAIGN';
 
@@ -51,12 +51,12 @@ const InputAmountPopup = ({}) => {
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const isEditManual = useOrderPick.use.isEditManual();
 
-  const currentPid = useOrderPick.use.currentPid();
+  const currentId = useOrderPick.use.currentId();
 
-  let currentProduct = orderPickProductsFlat.find((product: Product) => ( isEditManual ? product.pId === currentPid : (product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime));
+  let currentProduct = orderPickProductsFlat.find((product: Product) => ( isEditManual ? product.id === currentId : (product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime));
 
   if(isEmpty(currentProduct)) {
-    currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) || product.pId === currentPid));
+    currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) || product.id === currentId));
   }
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
@@ -91,7 +91,7 @@ const InputAmountPopup = ({}) => {
         pickedNote: values?.pickedNote,
         pickedTime: moment().valueOf(),
       } as Product;
-      
+
       setOrderTemToPicked({ pickedItem, orderCode: code});
       
       resetForm();
@@ -102,7 +102,7 @@ const InputAmountPopup = ({}) => {
 
   const reset = () => {
     toggleShowAmountInput(false);
-    setCurrentPid(null);
+    setCurrentId(null);
     setQuantityFromBarcode(0);
   }
 

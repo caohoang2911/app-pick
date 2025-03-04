@@ -161,4 +161,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ScannerBox;
+export default React.memo(ScannerBox);

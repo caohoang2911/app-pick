@@ -9,12 +9,12 @@ type Variables = {
 
 type Response = { error: string } & {};
 
-const setOrderItemToPicked = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/setOrderItemToPicked', params);
+const setOrderItemPicked = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/setOrderItemPicked', params);
 };
 
-export const useSetOrderTemToPicked = () => {
+export const useSetOrderItemPicked = () => {
   return useMutation({
-    mutationFn: (params: Variables) => setOrderItemToPicked(params),
+    mutationFn: (params: Variables) => setOrderItemPicked(params),
   });
 };

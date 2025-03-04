@@ -31,7 +31,6 @@ function Bags() {
         <BagType title={OrderBagLabel.DRY} type={OrderBagType.DRY} bagLabels={orderBagTransform.DRY} />
         <BagType title={OrderBagLabel.FROZEN} type={OrderBagType.FROZEN} bagLabels={orderBagTransform.FROZEN} />
         <BagType title={OrderBagLabel.FRESH} type={OrderBagType.FRESH} bagLabels={orderBagTransform.FRESH} />
-        {/* <BagType title={OrderBagLabel.NON_FOOD} type={OrderBagType.NON_FOOD} bagLabels={orderBagTransform.NON_FOOD} /> */}
       </View>
     </Box> 
   )

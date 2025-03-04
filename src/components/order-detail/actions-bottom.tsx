@@ -35,7 +35,7 @@ const ActionsBottom = () => {
 
   const canCompletePick = useMemo(() => {
     return orderPickProductsFlat.filter((product: Product) => {
-      return !product.pickedTime;
+      return !product.pickedTime && Number(product.sellPrice) > 0;
     })?.length === 0;
   }, [orderPickProductsFlat]);
 
@@ -55,7 +55,7 @@ const ActionsBottom = () => {
     showAlert({title, message, onConfirm: () => {
       console.log(orderPickProductsFlat.length, "B33B")
       status === 'STORE_PICKING'
-        ? setOrderStatusPacked({ pickedItems: [...orderPickProductsFlat], orderCode: code})
+        ? setOrderStatusPacked({ orderCode: code})
         : setOrderStatusPicking({ orderCode: code });
         hideAlert();
     }});
