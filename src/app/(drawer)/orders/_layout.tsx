@@ -2,12 +2,34 @@
 
 import { Stack } from "expo-router";
 
-export default function OrderLayout() {
+export default function OrdersLayout() {
 
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen
+        name="index" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="order-invoice" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
       <Stack.Screen
         name="order-bags" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="order-detail" 
         options={{ 
           headerShown: false,
         }} 
