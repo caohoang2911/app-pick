@@ -81,7 +81,7 @@ const Settings = () => {
       });
       client.destroy();
       setIsLoadingPrint(false);
-    }, 4000);
+    }, 5000);
 
     } catch (error) {
       showMessage({

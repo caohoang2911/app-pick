@@ -16,7 +16,7 @@ import {
   toggleShowAmountInput,
   useOrderPick
 } from '~/src/core/store/order-pick';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { barcodeCondition, getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
@@ -53,10 +53,10 @@ const InputAmountPopup = ({}) => {
 
   const currentId = useOrderPick.use.currentId();
 
-  let currentProduct = orderPickProductsFlat.find((product: Product) => ( isEditManual ? product.id === currentId : (product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) && !product.pickedTime));
+  let currentProduct = orderPickProductsFlat.find((product: Product) => ( isEditManual ? product.id === currentId : (barcodeCondition(barcodeScanSuccess, product.refBarcodes) || product.id === currentId) && !product.pickedTime));
 
   if(isEmpty(currentProduct)) {
-    currentProduct = orderPickProductsFlat.find((product: Product) => ((product.barcode === barcodeScanSuccess || product.baseBarcode === barcodeScanSuccess) || product.id === currentId));
+    currentProduct = orderPickProductsFlat.find((product: Product) => (barcodeCondition(barcodeScanSuccess, product.refBarcodes) || product.id === currentId));
   }
 
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };

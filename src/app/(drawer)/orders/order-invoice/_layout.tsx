@@ -1,21 +1,10 @@
 
 
-import { Stack } from "expo-router"
-import HeaderActionBtn from "~/src/components/order-invoice/header-action-btn"
-import Header from "~/src/components/shared/Header"
-import { useOrderPick } from "~/src/core/store/order-pick";
-import { OrderStatusValue } from "~/src/types/order";
-import { OrderDetail } from "~/src/types/order-detail";
+import { Stack } from "expo-router";
+import HeaderActionBtn from "~/src/components/order-invoice/header-action-btn";
+import Header from "~/src/components/shared/Header";
 
 export default function OrderInvoiceLayout() {
-
-  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
-  const { header } = orderDetail || {};
-  const { status, tags } = header || {};
-
-  // const isShowActionRight = status !== OrderStatusValue.SHIPPING && tags?.includes('ORDER_HOME_DELIVERY');
-  const isShowActionRight = true;
-
   return (
     <Stack>
       <Stack.Screen
@@ -25,7 +14,7 @@ export default function OrderInvoiceLayout() {
           header: () => (
             <Header
               title="Hóa đơn"
-              headerRight={isShowActionRight && <HeaderActionBtn />}
+              headerRight={<HeaderActionBtn />}
             />
           )
         }} 

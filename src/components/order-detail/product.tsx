@@ -23,13 +23,13 @@ import { isNil } from 'lodash';
 const Row = ({label, value, unit, originOrderQuantity}: {label: string, value: string, unit?: string, originOrderQuantity?: number}) => {
   return (
     <View className='flex-1 flex-row w-100'>
-      <View className='flex-row' style={{width: "35%"}}>
+      <View className='flex-row' style={{width: "30%"}}>
         <Text>{label}</Text>
       </View>
-      <View className='flex-row' style={{width: "20%"}}>
+      <View className='flex-row justify-center' style={{width: "20%"}}>
         <Text className='font-medium' numberOfLines={1}>{value}</Text>
       </View>
-      <View className='flex-row' style={{width: "20%"}}>
+      <View className='flex-row' style={{width: "25%"}}>
         {unit && <Text className='font-medium'>{unit}</Text>}
       </View>
       {originOrderQuantity && <View className='flex-row items-end justify-end' style={{width: "25%"}}>

@@ -19,7 +19,7 @@ import {
   useOrderPick
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { barcodeCondition, getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -74,7 +74,7 @@ const OrderPick = () => {
       }, 1000);
 
       const indexWithBarcode = orderPickProductsFlat?.findIndex(
-        item => item?.barcode === barcode || barcode === item?.baseBarcode
+        item => barcodeCondition(barcode, item?.refBarcodes)
       );
 
       if(indexWithBarcode === -1) {
@@ -88,13 +88,13 @@ const OrderPick = () => {
       let indexOfCodeScanned = -1;
 
       const barcodeWithPickedTime = orderPickProductsFlat?.findIndex(
-        item => (item?.barcode === barcode || barcode === item?.baseBarcode) && item?.pickedTime
+        item => (barcodeCondition(barcode, item?.refBarcodes) && item?.pickedTime)
       );
 
       const indexOfCodeScannedWithoutPickedTime = orderPickProductsFlat?.findIndex(
         item =>  isEditManual ? 
         item?.id === currentId : 
-        (barcode === item?.barcode || barcode === item?.baseBarcode) && !item?.pickedTime);
+        (barcodeCondition(barcode, item?.refBarcodes)) && !item?.pickedTime);
 
       if(indexOfCodeScannedWithoutPickedTime === -1) {
         indexOfCodeScanned = barcodeWithPickedTime;

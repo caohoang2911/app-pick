@@ -59,8 +59,8 @@ function DeliveryType() {
     return Object.keys(counters).filter((status) => pickStatus.includes(status)).map((status) => {
       const shippingMethodName = getConfigNameById(orderDeliveryTypes, status)
 
-      const textClasses = deliveryType === status ? 'text-blue-600' : 'text-gray-600';
-      const backgroundColorClass = deliveryType === status ? 'bg-blue-50' : 'bg-gray-100';
+      const textClasses = deliveryType === status ? 'text-blue-600' : 'text-gray-500';
+      const backgroundColorClass = deliveryType === status ? 'bg-blue-50' : 'bg-slate-100';
 
       const handleSelect = (value: string) => {
         if(refCurrentStatus.current === value) {

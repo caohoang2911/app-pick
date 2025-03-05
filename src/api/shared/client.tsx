@@ -51,8 +51,6 @@ axiosClient.interceptors.response.use(function (
 axiosClient.interceptors.request.use(function (config: any) {
   const token = getToken();
 
-  console.log('baseURL', config?.baseURL);
-
   if (token) {
     config.headers.zas = token;
   }

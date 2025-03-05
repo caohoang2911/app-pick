@@ -113,7 +113,7 @@ const OrderPickProducts = () => {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item: any, index: number) => item.name + index}
+        keyExtractor={(item: any, index: number) => item.code + index}
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refetch} />
         }

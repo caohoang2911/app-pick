@@ -53,7 +53,6 @@ const ActionsBottom = () => {
 
   const handlePick = () => {
     showAlert({title, message, onConfirm: () => {
-      console.log(orderPickProductsFlat.length, "B33B")
       status === 'STORE_PICKING'
         ? setOrderStatusPacked({ orderCode: code})
         : setOrderStatusPicking({ orderCode: code });

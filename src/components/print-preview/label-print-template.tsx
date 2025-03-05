@@ -17,7 +17,7 @@ const  LabelPrintTemplate = React.memo(({ setUri, code, name, total }: { setUri:
 
   const orderDetail = useOrderBag.use.orderDetail();
   const { header } = orderDetail || {};
-  console.log(orderDetail, "orderDetail");
+
   const { customer, deliveryAddress, deliveryTimeRange, codAmount } = header || {};
   const { name: customerName, phone } = customer || {};
   const { fullAddress } = deliveryAddress || {};
