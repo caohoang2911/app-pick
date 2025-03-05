@@ -67,6 +67,9 @@ const Settings = () => {
         message: 'Kết nối máy in thành công',
         type: 'success',
       });
+      if(timer.current) {
+        clearTimeout(timer.current);
+      }
       client.destroy();
       setIsLoadingPrint(false);
     });
@@ -79,6 +82,7 @@ const Settings = () => {
       client.destroy();
       setIsLoadingPrint(false);
     }, 4000);
+
     } catch (error) {
       showMessage({
         message: JSON.stringify(error),
