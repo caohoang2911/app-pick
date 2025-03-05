@@ -2,12 +2,45 @@
 
 import { Stack } from "expo-router";
 
-export default function OrderInvoiceLayout() {
-  // const isShowActionRight = status !== OrderStatusValue.SHIPPING && tags?.includes('ORDER_HOME_DELIVERY');
-  const isShowActionRight = true;
+export default function OrdersLayout() {
 
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen
+        name="index" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="order-invoice" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="order-bags" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="order-detail" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="order-scan-to-delivery" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+
       <Stack.Screen
         name="print-preview" 
         options={{ 

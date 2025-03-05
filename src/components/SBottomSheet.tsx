@@ -70,7 +70,7 @@ const SBottomSheet = forwardRef<any, Props>(
         } else if(snapPoints) {
           setSnapPointsLocal(snapPoints)
         }
-      })
+      }, 100)
     }, [height, visible]);
 
     useEffect(() => {

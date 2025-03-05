@@ -78,6 +78,9 @@ function PrintPreview() {
     try {
       refClient.current = TcpSocket.createConnection(options, () => {
         console.log('Connected to the server');
+        if(timer) {
+          clearTimeout(timer);
+        }
         setConnected(true);
       });
 
