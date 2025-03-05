@@ -13,6 +13,13 @@ export default function OrderLayout() {
         }} 
       />
       <Stack.Screen
+        name="order-scan-to-delivery" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+
+      <Stack.Screen
         name="print-preview" 
         options={{ 
           headerShown: false,
