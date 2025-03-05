@@ -39,6 +39,7 @@ export type Product = {
   originPrice?: number;
   barcode?: string;
   baseBarcode?: string;
+  refBarcodes?: Array<string>;
   unit?: string;
   gifts?: Array<{ name: string; image: string }>;
   extraConversionQuantity?: number;

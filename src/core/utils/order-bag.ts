@@ -47,3 +47,7 @@ export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGr
 
   return [...productsFlat];
 }
+
+export const barcodeCondition = (barcode: string = '', refBarcodes: string[] = []) => {
+  return refBarcodes.includes(barcode);
+}

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
+import { barcodeCondition } from '../../utils/order-bag';
 
 interface OrdersState {
   orderDetail: OrderDetail;
@@ -98,7 +99,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
             return productAsTypeProduct;
           }
         } else {
-          if((productAsTypeProduct.barcode === product.barcode || productAsTypeProduct.baseBarcode === product.barcode) && !flag && !productAsTypeProduct.pickedTime) {
+          if(barcodeCondition(product.barcode, productAsTypeProduct.refBarcodes) && !flag && !productAsTypeProduct.pickedTime) {
             flag = true;
             toggleShowAmountInput(false);
             return { ...productAsTypeProduct, ...product };
