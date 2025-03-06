@@ -118,60 +118,6 @@ const OrderPickProducts = () => {
     });
   }, [keyword, orderPickProducts]);
 
-  // Tìm index của sản phẩm cần scroll đến
-  const indexCurrentProduct = useMemo(() => {
-    if (!barcodeScrollTo || !orderPickProducts) return -1;
-    
-    for (let i = 0; i < orderPickProducts.length; i++) {
-      const products = orderPickProducts[i];
-      const foundProduct = products.find((product: Product) => product.barcode === barcodeScrollTo);
-      if (foundProduct) return i;
-    }
-    return -1;
-  }, [barcodeScrollTo, orderPickProducts]);
-
-  // Scroll đến sản phẩm được quét
-  useEffect(() => {
-    if (indexCurrentProduct !== -1 && flatListRef.current) {
-      hasPendingScroll.current = true;
-      
-      // Sử dụng setTimeout ngắn hơn
-      const timer = setTimeout(() => {
-        try {
-          flatListRef.current?.scrollToIndex({
-            animated: true,
-            index: indexCurrentProduct,
-            viewPosition: 0.5,
-          });
-        } catch (error) {
-          // Fallback khi scroll thất bại
-          console.log('Scroll failed, trying offset method');
-          
-          // Scroll bằng offset
-          const estimatedItemHeight = 200; // Ước tính chiều cao trung bình của mỗi item
-          flatListRef.current?.scrollToOffset({
-            animated: true,
-            offset: estimatedItemHeight * indexCurrentProduct
-          });
-        } finally {
-          hasPendingScroll.current = false;
-        }
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [indexCurrentProduct]);
-
-  // Tính toán layout cho FlatList
-  const getItemLayout = useCallback((_, index) => {
-    const height = 200; // Ước tính trung bình chiều cao mỗi sản phẩm
-    return {
-      length: height,
-      offset: height * index,
-      index,
-    };
-  }, []);
-
   // Callback cho việc render item
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
     const isLast = index === (filteredProducts?.length || 0) - 1;
@@ -239,7 +185,6 @@ const OrderPickProducts = () => {
           />
         }
         data={filteredProducts as Array<any>}
-        getItemLayout={getItemLayout}
         ListEmptyComponent={isEmpty ? <EmptyProductList /> : null}
         renderItem={renderItem}
         onScrollToIndexFailed={handleScrollToIndexFailed}

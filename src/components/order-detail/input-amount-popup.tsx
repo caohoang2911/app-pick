@@ -302,7 +302,7 @@ const InputAmountPopup = () => {
   }, [isShowAmountInput]);
 
   // Memoized callbacks
-  const handleSubmit = useCallback((values: any, { resetForm }: any) => {
+  const onSubmit = useCallback((values: any, { resetForm }: any) => {
     if (!productName) return;
 
     const pickedItem = {
@@ -315,7 +315,7 @@ const InputAmountPopup = () => {
     } as Product;
 
     setOrderTemToPicked({ pickedItem, orderCode: code});
-    resetForm();
+    // resetForm();
     setOrderPickProduct(pickedItem);
     reset();
   }, [productName, currentProduct, barcodeScanSuccess, quantityFromBarcode, quantity, code]);
@@ -337,7 +337,7 @@ const InputAmountPopup = () => {
     <Formik
       initialValues={initialValues}
       validateOnChange
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       enableReinitialize={true}
     >
     {({ values, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
@@ -353,7 +353,7 @@ const InputAmountPopup = () => {
         <SBottomSheet
           renderTitle={renderTitle}
           ref={inputBottomSheetRef}
-          snapPoints={[isError ? 370 : 330]}
+          snapPoints={[370]}
           onClose={reset}
           visible={isShowAmountInput}
         > 
