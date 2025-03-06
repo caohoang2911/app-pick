@@ -52,7 +52,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
 
     const orderDetail = useOrderPick.use.orderDetail();
 
-    const { status, fulfillError, customer } = orderDetail?.header || {};
+    const { customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};
     const { rank } = membership || {};
 
@@ -136,6 +136,10 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         title="Thao tác"
         extraTitle={renderExtraTitle()}
         ref={actionRef}
+        snapPoints={[280]}
+        onClose={() => {
+          setVisible(false);
+        }}
       >
         <View className="flex-1">
           {actions.map((action: Action) => renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false }))}

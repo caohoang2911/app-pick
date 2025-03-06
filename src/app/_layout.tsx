@@ -159,29 +159,31 @@ function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <PortalProvider>
-        <APIProvider>
-          <NotificationWrapper>
-            <AuthWrapper>
-              <BottomSheetModalProvider>
-                <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                  <NetworkStatus />
-                  {loading && <Loading />}
-                  {children}
+    <BottomSheetModalProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <PortalProvider>
+          <APIProvider>
+            <NotificationWrapper>
+              <AuthWrapper>
+    
+                  <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                    <NetworkStatus />
+                    {loading && <Loading />}
+                    {children}
+                    <AlertDialog />
+                  </SafeAreaView>
                   <AlertDialog />
-                </SafeAreaView>
-                <AlertDialog />
-                <FlashMessage
-                  position="top"
-                  duration={5000}
-                  statusBarHeight={StatusBar.currentHeight}
-                />
-              </BottomSheetModalProvider>
-            </AuthWrapper>
-          </NotificationWrapper>
-        </APIProvider>
-      </PortalProvider>
-    </GestureHandlerRootView>
+                  <FlashMessage
+                    position="top"
+                    duration={5000}
+                    statusBarHeight={StatusBar.currentHeight}
+                  />
+
+              </AuthWrapper>
+            </NotificationWrapper>
+          </APIProvider>
+        </PortalProvider>
+      </GestureHandlerRootView>
+    </BottomSheetModalProvider>
   );
 }

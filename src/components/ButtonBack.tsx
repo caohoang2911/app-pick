@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { ArrowLeft } from '@/core/svgs';
 import { router } from 'expo-router';
 
@@ -12,7 +12,9 @@ const ButtonBack = () => {
 
   return (
     <Pressable onPress={goBack} className="text-left">
-      <ArrowLeft />
+      <View className='p-1'>
+        <ArrowLeft />
+      </View>
     </Pressable>
   );
 };

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { BillLine, More2Fill } from '~/src/core/svgs';
@@ -20,6 +20,7 @@ const MoreActionsBtn = ({
   code
 }: MoreActionsBtnProps) => {
   const [visible, setVisible] = useState(false);
+  const actionRef = useRef<any>();
 
   const renderItem = useMemo(() => ({
     onClickAction,
@@ -54,6 +55,12 @@ const MoreActionsBtn = ({
     setVisible(false);
   }, [code]);
 
+  useEffect(() => {
+    if (visible) {
+      actionRef.current?.present();
+    }
+  }, [visible]);
+
   return (
     <>
       <TouchableOpacity onPress={() => setVisible(true)}>
@@ -61,9 +68,18 @@ const MoreActionsBtn = ({
         <More2Fill width={20} height={20} />
         </View>
       </TouchableOpacity>
-      <SBottomSheet title="Thao tác" visible={visible} onClose={() => setVisible(false)} extraHeight={80}>
-        {actions.map((item) => renderItem({...item, onClickAction: handleClickAction }))}
-      </SBottomSheet>
+      {visible && (
+        <SBottomSheet 
+          title="Thao tác" 
+          visible={visible} 
+          onClose={() => setVisible(false)} 
+          ref={actionRef}
+          snapPoints={[200]}
+        >
+          {actions.map((item) => renderItem({...item, onClickAction: handleClickAction }))}
+        </SBottomSheet>
+       )
+      }
     </>
   )
 }
