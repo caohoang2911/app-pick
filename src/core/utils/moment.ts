@@ -3,7 +3,7 @@ import momentTimezone from 'moment-timezone';
 export const initConfigDate = () => {
   moment.updateLocale('en', {
     relativeTime: {
-      future: 'cách đây %s',
+      future: '%s',
       past: '%s',
       s: 'vài giây',
       ss: '%d giây',
