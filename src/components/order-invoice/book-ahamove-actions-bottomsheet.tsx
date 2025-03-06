@@ -1,7 +1,7 @@
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import { useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useBookShipper } from '~/src/api/app-pick/use-book-shipper';
 import { hideAlert } from "~/src/core/store/alert-dialog";
@@ -28,13 +28,19 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
     () => {
       return {
         present: () => {
-          actionRef.current?.present();
+  
           setVisible(!visible);
         },
       };
     },
     []
   );
+
+  useEffect(() => {
+    if (visible) {
+      actionRef.current?.present();
+    }
+  }, [visible]);
 
   const handleBookShipper = (values: any) => {
     setVisible(false);
@@ -51,6 +57,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
         visible={visible}
         title="Thao tác"
         titleAlign="center"
+        snapPoints={[510]}
         ref={actionRef}
         onClose={() => setVisible(false)}
       >

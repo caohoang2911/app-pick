@@ -86,9 +86,11 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             />
           )}
         </View>
-        <Pressable onPress={onClickHeaderAction}>
-          <More2Fill />
-        </Pressable>
+        <TouchableOpacity onPress={onClickHeaderAction}>
+          <View className='p-2'>
+            <More2Fill />
+          </View>
+        </TouchableOpacity>
       </View>
       <HeaderTags tags={tags} />
       <GroupShippingInfo />

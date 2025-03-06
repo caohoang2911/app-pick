@@ -24,4 +24,4 @@ const BagItem = ({
   )
 }
 
-export default BagItem;
+export default React.memo(BagItem);
