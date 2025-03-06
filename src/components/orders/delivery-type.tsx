@@ -3,6 +3,7 @@ import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Text, TextStyle, TouchableOpacity, View } from 'react-native';
 import { useGetOrderDeliveryTypeCounters } from '~/src/api/app-pick/use-get-order-delivery-type-counters';
+import { queryClient } from '~/src/api/shared';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { setDeliveryType, useOrders } from '~/src/core/store/orders';
@@ -55,6 +56,18 @@ function DeliveryType() {
   }, [fromScanQrCode, selectedOrderCounter, operationType, storeCode])
 
 
+  const handleSelect = (value: string) => {
+    queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', operationType, storeCode] });
+    if(refCurrentStatus.current === value) {
+      setDeliveryType(null);
+      refCurrentStatus.current = null;
+    } else {
+      setDeliveryType(value);
+      refCurrentStatus.current = value;
+    }
+  };
+
+
   const options: DeliveryTypeOption[] = useMemo(() => {
     return Object.keys(counters).filter((status) => pickStatus.includes(status)).map((status) => {
       const shippingMethodName = getConfigNameById(orderDeliveryTypes, status)
@@ -62,21 +75,11 @@ function DeliveryType() {
       const textClasses = deliveryType === status ? 'text-blue-600' : 'text-gray-500';
       const backgroundColorClass = deliveryType === status ? 'bg-blue-50' : 'bg-slate-100';
 
-      const handleSelect = (value: string) => {
-        if(refCurrentStatus.current === value) {
-          setDeliveryType(null);
-          refCurrentStatus.current = null;
-        } else {
-          setDeliveryType(value);
-          refCurrentStatus.current = value;
-        }
-      };
-    
       return ({
         label: <TouchableOpacity onPress={() => handleSelect(status)}>
-          <View className={`flex flex-row items-center gap-1 rounded-full py-1 px-3 ${backgroundColorClass}`}>
-            <Text numberOfLines={1} className={`${textClasses} font-medium text-xs`}>{shippingMethodName || status}</Text>
-            <Text className={`${textClasses} font-medium text-xs`}>({counters[status] || 0})</Text>
+          <View className={`flex flex-row items-center rounded-full py-2 px-3 ${backgroundColorClass}`}>
+            <Text numberOfLines={1} className={`${textClasses} font-medium text-sm`}>{shippingMethodName || status}</Text>
+            <Text className={`${textClasses} font-medium text-sm`}>({counters[status] || 0})</Text>
           </View>
         </TouchableOpacity>,
         value: status,

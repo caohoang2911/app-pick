@@ -137,7 +137,7 @@ function PrintPreview() {
               <LabelPrintTemplate
                 {...item}
                 setUri={(uri: string) => {
-                  handleSetUri(uri, item?.code);
+                  handleSetUri(uri, index);
                 }}
                 key={index} 
                 total={bagLabelsPrint.length}

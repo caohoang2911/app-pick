@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
@@ -31,6 +31,8 @@ const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const { code } = useLocalSearchParams<{ code: string }>();
+
+  const actionRef = useRef<any>();
 
   // Store giao hàng
   const { isPending: isLoadingSelfShipping, mutate: selfShipping } = useSelfShipping(() => {
@@ -103,6 +105,12 @@ const HeaderActionBtn = () => {
     }
   };
 
+  useEffect(() => {
+    if (visible) {
+      actionRef.current?.present();
+    }
+  }, [visible]);
+
   return (
     <>
       <Pressable onPress={() => setVisible(true)}>
@@ -111,6 +119,8 @@ const HeaderActionBtn = () => {
       <SBottomSheet
         visible={visible}
         title="Thao tác"
+        ref={actionRef}
+        snapPoints={[250]}
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
