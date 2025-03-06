@@ -205,14 +205,14 @@ const OrderList = () => {
   // Memoize item renderer to prevent unnecessary re-renders
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
     // Fast path: Chỉ render các items gần viewport
-    if (isItemInViewport(index)) {
+    // if (isItemInViewport(index)) {
       return (
         <MemoizedOrderItem 
           item={item} 
           selectedOrderCounter={selectedOrderCounter} 
         />
       );
-    }
+    // }
     
     // Nếu item ở xa viewport, render placeholder hoặc item đơn giản hơn
     return (
@@ -285,20 +285,20 @@ const OrderList = () => {
         }
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        getItemLayout={getItemLayout}
-        removeClippedSubviews={true}
-        initialNumToRender={3}
+        // getItemLayout={getItemLayout}
+        // removeClippedSubviews={true}
+        initialNumToRender={5}
         maxToRenderPerBatch={3}
         updateCellsBatchingPeriod={75}
         windowSize={3}
-        progressViewOffset={10}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          autoscrollToTopThreshold: 3
-        }}
-        legacyImplementation={Platform.OS === 'android'}
-        onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
+        // progressViewOffset={10}
+        // maintainVisibleContentPosition={{
+        //   minIndexForVisible: 0,
+        //   autoscrollToTopThreshold: 3
+        // }}
+        // legacyImplementation={Platform.OS === 'android'}
+        // onViewableItemsChanged={handleViewableItemsChanged}
+        // viewabilityConfig={viewabilityConfig}
       />
     </View>
   );
