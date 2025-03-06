@@ -25,7 +25,7 @@ const OperationTypeSelection = forwardRef<any, Props>(
         return {
           present: () => {
             actionRef.current?.present();
-            setVisible(!visible);
+            setVisible(true);
           },
           close: () => {
             actionRef.current?.close();
@@ -43,6 +43,7 @@ const OperationTypeSelection = forwardRef<any, Props>(
           title="Operation type"
           ref={actionRef}
           titleAlign="center"
+          snapPoints={[270]}
           onClose={() => setVisible(false)}
         >
           <View>

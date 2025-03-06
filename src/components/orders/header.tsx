@@ -9,7 +9,7 @@ import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import { Input } from '~/src/components/Input';
-import { TabsStatus } from '~/src/components/orders/tab-status';
+import TabsStatus from '~/src/components/orders/tab-status';
 import { setUser, useAuth } from '~/src/core';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { useConfig } from '~/src/core/store/config';

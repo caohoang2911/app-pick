@@ -1,7 +1,7 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useLocalSearchParams } from "expo-router";
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { useUpdateShippingPackageSize } from "~/src/api/app-pick/use-update-shipping-package-size";
 import { queryClient } from "~/src/api/shared/api-provider";
@@ -95,12 +95,19 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
     }
   };
 
+  useEffect(() => {
+    if(visible) {
+      actionRef.current?.present();
+    }
+  }, [visible]);
+
   return (
     <>
       <SBottomSheet
         visible={visible}
         title="Chọn kích thước gói hàng" 
         ref={actionRef}
+        snapPoints={[310]}
         onClose={() => setVisible(false)}
       >
         {actions.map((action: Action) => renderItem({ ...action, onClickAction: handleSelectPackageSize }))}
