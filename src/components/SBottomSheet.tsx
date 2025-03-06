@@ -12,6 +12,7 @@ import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
+  useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 import { CloseLine } from '~/src/core/svgs';
 
@@ -50,10 +51,10 @@ const SBottomSheet = forwardRef<any, Props>(
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
 
-    const animationConfigs = {
+    const animationConfigs = useBottomSheetTimingConfigs({
       duration: 100,
-      easing: Easing.linear,
-    };
+      easing: Easing.linear
+    });
 
     const handleSheetChanges = useCallback(
       (index: number) => {
@@ -103,7 +104,7 @@ const SBottomSheet = forwardRef<any, Props>(
         snapPoints={snapPoints}
         onChange={handleSheetChanges}
         handleIndicatorStyle={{ display: 'none', padding: 0 }}
-        key={'order-pick-action'}
+        // key={'order-pick-action'}
         backdropComponent={renderBackdrop}
         enablePanDownToClose
         enableHandlePanningGesture
