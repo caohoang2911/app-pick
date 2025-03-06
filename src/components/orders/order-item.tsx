@@ -115,7 +115,7 @@ const OrderItem = ({
               </View>
             )}
           </View>
-          <View className="mt-3 mr-1">
+          <View className="mt-3 mr-1" style={{position: 'absolute', right: 0, top: 0 }}>
             <MoreActionsBtn code={code} />
           </View>
         </View>

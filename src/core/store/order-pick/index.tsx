@@ -99,7 +99,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
             return productAsTypeProduct;
           }
         } else {
-          if(barcodeCondition(product.barcode, productAsTypeProduct.refBarcodes) && !flag && !productAsTypeProduct.pickedTime) {
+          if(barcodeCondition(product.barcode, productAsTypeProduct.refBarcodes) && !flag) {
             flag = true;
             toggleShowAmountInput(false);
             return { ...productAsTypeProduct, ...product };

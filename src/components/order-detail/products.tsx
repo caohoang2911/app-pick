@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useCallback, memo, useState } from 'react';
+import { ActivityIndicator, Text, View, Dimensions } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import {
@@ -17,143 +17,192 @@ import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
 import ProductGift from './product-gift';
 
-const OrderPickProducts = () => {
-  const { code } = useLocalSearchParams<{
-    code: string;
-    status: OrderStatus;
-  }>();
-  const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
-  const keyword = useOrderPick.use.keyword();
+// Memoize các component hiển thị trạng thái loading và empty
+const LoadingIndicator = memo(() => (
+  <View className="text-center py-3">
+    <ActivityIndicator className="text-gray-300" />
+  </View>
+));
 
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
+const EmptyProductList = memo(() => (
+  <View className="mt-3">
+    <Empty />
+  </View>
+));
 
-  const ref: any = useRef<FlatList>();
-
-  const { data, refetch, isPending, isFetching, isLoading } = useOrderDetailQuery({
-    orderCode: code,
-  });
-
-  useEffect(() => {
-    setOrderDetail(data?.data || {});
-  }, [data]);
-
-  const orderDetail = data?.data || {};
-  const { productItemGroups } = orderDetail?.delivery || {};
-
-  const filterProductItems = useMemo(() => {
-
-    return orderPickProducts?.filter((products: Array<Product>) => {
-      if (!keyword) return true;
-
-      if(products.length === 1) {
-        const byProductName = stringUtils.removeAccents(products[0].name?.toLowerCase()).includes(stringUtils.removeAccents(keyword.toLowerCase()));
-        const byProductBarcode = products[0].barcode?.toLowerCase().includes(keyword.toLowerCase());
-        return byProductBarcode || byProductName;
-      }
-      
-      return true;
-    });
-  }, [keyword, orderPickProducts]);
-
-  useEffect(() => {
-    const tempArr = Object.values(productItemGroups || {}).map((item: any) => {
-      return item;
-    }) || [];
-
-    setInitOrderPickProducts([...tempArr] as never[]);
-  }, [productItemGroups]);
-
-  const indexCurrentProduct = useMemo(
-    () =>
-      orderPickProducts.flat().findIndex((productItem: Product) => {
-        return productItem.barcode === barcodeScrollTo;
-      }),
-    [barcodeScrollTo, orderPickProducts]
-  );
-
-  useEffect(() => {
-    if (indexCurrentProduct !== -1) {
-      // setTimeout(() => {
-        try {
-          ref.current?.scrollToIndex({
-            animated: true,
-            index: indexCurrentProduct || 0,
-            viewPosition: 0.5,
-          });
-        } catch (error) {
-          console.log('error', error);
-        }
-      // }, 500);
-    }
-  }, [indexCurrentProduct]);
-
-  if (isPending || isFetching || isLoading) {
-    return (
-      <View className="text-center py-3">
-        <ActivityIndicator className="text-gray-300" />
-      </View>
-    );
-  }
-
-  const renderItem = (item: Product | ProductItemGroup | any) => {
+// Memoize các component render item
+const ProductItem = memo(({ 
+  item, 
+  isLast 
+}: { 
+  item: Product | ProductItemGroup | any, 
+  isLast: boolean 
+}) => {
+  // Xác định loại sản phẩm và render component tương ứng
+  const renderProduct = () => {
     if(item.type === "COMBO" && 'elements' in item) {
       return <ProductCombo combo={item as ProductItemGroup} />;
     }
     if(item.type === "GIFT_PACK" && 'elements' in item) {
       return <ProductGift giftPack={item as ProductItemGroup} />;
     }
-
     return <OrderPickProduct {...(item.elements?.[0] as Product)} />;
   };
 
   return (
+    <View className={clsx('px-4 mb-4', { 'mb-10': isLast })}>
+      {renderProduct()}
+    </View>
+  );
+});
+
+// Component chính
+const OrderPickProducts = () => {
+  const { code } = useLocalSearchParams<{
+    code: string;
+    status: OrderStatus;
+  }>();
+  
+  const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
+  const keyword = useOrderPick.use.keyword();
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+
+  const flatListRef = useRef<FlatList>(null);
+  const hasPendingScroll = useRef(false);
+  const [forceUpdate, setForceUpdate] = useState(false); // Để force re-render khi cần
+
+  // Query data
+  const { 
+    data, 
+    refetch, 
+    isPending, 
+    isFetching, 
+    isLoading 
+  } = useOrderDetailQuery({
+    orderCode: code,
+  });
+
+  // Cập nhật order detail chỉ khi data thay đổi
+  useEffect(() => {
+    if (data?.data) {
+      setOrderDetail(data.data);
+    }
+  }, [data]);
+
+  // Khởi tạo products từ API response
+  useEffect(() => {
+    const productItemGroups = data?.data?.delivery?.productItemGroups;
+    if (productItemGroups) {
+      const tempArr = Object.values(productItemGroups).map((item: any) => item);
+      setInitOrderPickProducts([...tempArr] as never[]);
+    }
+  }, [data?.data?.delivery?.productItemGroups]);
+
+  // Tối ưu hóa filter products bằng useMemo
+  const filteredProducts = useMemo(() => {
+    if (!keyword || !orderPickProducts) return orderPickProducts;
+
+    return orderPickProducts.filter((products: Array<Product>) => {
+      if (!products) return false;
+      if (products.length === 1) {
+        const product = products[0];
+        if (!product || !product.name) return false;
+        
+        const normalizedKeyword = stringUtils.removeAccents(keyword.toLowerCase());
+        const normalizedName = stringUtils.removeAccents((product.name || '').toLowerCase());
+        const normalizedBarcode = (product.barcode || '').toLowerCase();
+        
+        return normalizedName.includes(normalizedKeyword) || normalizedBarcode.includes(normalizedKeyword);
+      }
+      return true;
+    });
+  }, [keyword, orderPickProducts]);
+
+  // Callback cho việc render item
+  const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
+    const isLast = index === (filteredProducts?.length || 0) - 1;
+    return <ProductItem item={item} isLast={isLast} />;
+  }, [filteredProducts?.length]);
+
+  // Key extractor tối ưu
+  const keyExtractor = useCallback((item: any, index: number) => {
+    return item.code ? `${item.code}_${index}` : `item_${index}`;
+  }, []);
+
+  // Handle refresh
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  // Handle scroll failure
+  const handleScrollToIndexFailed = useCallback((info: {
+    index: number;
+    highestMeasuredFrameIndex: number;
+    averageItemLength: number;
+  }) => {
+    // Tính toán scroll offset dựa trên số liệu thống kê
+    const offset = info.averageItemLength * info.index;
+    flatListRef.current?.scrollToOffset({ offset, animated: true });
+    
+    // Thử lại sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      if (flatListRef.current) {
+        flatListRef.current.scrollToIndex({
+          animated: true,
+          index: info.index,
+          viewPosition: 0.5
+        });
+      }
+    }, 100);
+  }, []);
+
+  // Tính toán các giá trị mô tả trạng thái
+  const isLoaded = !(isPending || isFetching || isLoading);
+  const isEmpty = isLoaded && (!orderPickProducts || orderPickProducts.length === 0);
+
+  // Render component loading
+  if (isPending || isFetching || isLoading) {
+    return <LoadingIndicator />;
+  }
+
+  // Window dimensions
+  const { height } = Dimensions.get('window');
+  const itemHeight = 200; // Ước tính chiều cao trung bình
+  const visibleItems = Math.ceil(height / itemHeight);
+
+  return (
     <View className="flex-1 flex-grow mt-2">
       <FlatList
-        ref={ref}
+        ref={flatListRef}
         className="flex-1"
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item: any, index: number) => item.code + index}
+        keyExtractor={keyExtractor}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={refetch} />
+          <RefreshControl 
+            refreshing={false} 
+            onRefresh={handleRefresh} 
+          />
         }
-        data={filterProductItems as Array<any>}
-        ListEmptyComponent={
-          !isFetching && !isLoading && !isPending && !orderPickProducts ? (
-            <View className="mt-3">
-              <Empty />
-            </View>
-          ) : (
-            <></>
-          )
-        }
-        renderItem={({
-          item,
-          index,
-        }: {
-          item: Product | ProductItemGroup;
-          index: number;
-        }) => {
-          const isLast = Boolean(
-            index === Number((orderPickProducts || []).length - 1)
-          );
-         
-          return (
-            <View
-              key={index}
-              className={clsx('px-4 mb-4', { 'mb-10': isLast })}
-            >
-              {renderItem(item)}
-            </View>
-          );
+        data={filteredProducts as Array<any>}
+        ListEmptyComponent={isEmpty ? <EmptyProductList /> : null}
+        renderItem={renderItem}
+        onScrollToIndexFailed={handleScrollToIndexFailed}
+        removeClippedSubviews={true}
+        initialNumToRender={visibleItems}
+        maxToRenderPerBatch={visibleItems}
+        windowSize={5}
+        updateCellsBatchingPeriod={50}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 1,
         }}
       />
     </View>
   );
 };
 
-export default OrderPickProducts;
-function useCallback(arg0: (item: Product | ProductItemGroup | any) => React.JSX.Element, arg1: never[]) {
-  throw new Error('Function not implemented.');
-}
+// Đặt displayName để dễ debug
+OrderPickProducts.displayName = 'OrderPickProducts';
 
+export default memo(OrderPickProducts);

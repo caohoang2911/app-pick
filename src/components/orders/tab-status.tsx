@@ -1,7 +1,7 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import clsx from 'clsx';
 import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, memo } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
@@ -10,10 +10,9 @@ import {
   ORDER_COUNTER_STATUS_PRIORITY,
 } from '~/src/contants/order';
 import { useAuth } from '~/src/core';
-import { useRefreshOnFocus } from '~/src/core/hooks/useRefreshOnFocus';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 
-export function TabsStatus() {
+const TabsStatus = () => {
   const ref = useRef<any>();
   const cachingOrderStatusCounters = useRef<any>(null);
 
@@ -64,13 +63,13 @@ export function TabsStatus() {
     );
     if (index === -1) return;
 
-    // setTimeout(() => {
+    setTimeout(() => {
       ref.current?.scrollToIndex({
         animated: true,
         index: index || 0,
         viewPosition: 0.5,
       });
-    // }, 500);
+    }, 500);
   }, [selectedOrderCounter])
 
   useEffect(() => {
@@ -94,12 +93,13 @@ export function TabsStatus() {
           <TouchableOpacity
             key={item.id}
             onPress={() => {
+              refetch();
               goTabSelected(item.id);
               setSelectedOrderCounter(item.id)
             }}
           >
             <View
-              className={clsx('py-1 rounded', {
+              className={clsx('py- rounded', {
                 'pr-4': isFirst,
                 'px-3': !isFirst,
                 'px-0 pl-3': isLast,
@@ -129,6 +129,8 @@ export function TabsStatus() {
     />
   );
 }
+
+export default memo(TabsStatus);
 
 function sortByPriority(data: Array<any>) {
   return data.sort((a, b) => a.priority - b.priority);
