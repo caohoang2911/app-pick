@@ -65,7 +65,7 @@ const MoreActionsBtn = ({
     <>
       <TouchableOpacity onPress={() => setVisible(true)}>
         <View className="p-2">
-        <More2Fill width={20} height={20} />
+        <More2Fill width={18} height={18} />
         </View>
       </TouchableOpacity>
       {visible && (
