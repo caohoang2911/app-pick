@@ -1,22 +1,28 @@
-import React, { useCallback } from "react";
+
 import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { useConfig } from "~/src/core/store/config";
-import { Badge } from "../Badge";
+import { toLower } from "lodash";
 import moment from 'moment';
-import { formatCurrency } from "~/src/core/utils/number";
+import React, { useCallback } from "react";
+import { Text, View } from "react-native";
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+
+import { TouchableOpacity } from "react-native-gesture-handler";
+import Feather from '@expo/vector-icons/Feather';
+import { useConfig } from "~/src/core/store/config";
 import { getConfigNameById } from "~/src/core/utils/config";
 import { expectedDeliveryTime } from "~/src/core/utils/moment";
-import { toLower } from "lodash";
-import MoreActionsBtn from "./more-actions-btn";
+import { formatCurrency } from "~/src/core/utils/number";
 import { OrderStatus } from "~/src/types/order";
+import { Payment } from "~/src/types/order-detail";
+import { Badge } from "../Badge";
+import MoreActionsBtn from "./more-actions-btn";
 
-const RowWithLabel = ({label, value}: {label: string, value: string}) => {
+const RowWithLabel = ({icon, label, value}: {icon: React.ReactNode, label: string, value: string}) => {
   return (
-    <View className="flex flex-row">
-      <View style={{width: 87}}><Text>{label}</Text></View>
-      <Text className="font-semibold">{value}</Text>
+    <View className="flex flex-row gap-2">
+      <View className="mr-2 -mt-0.5">{icon}</View>
+      <View style={{width: 75}}><Text className="text-gray-500">{label}</Text></View>
+      <Text className="font-medium" numberOfLines={1} style={{ maxWidth: "68%" }} ellipsizeMode="tail">{value}</Text>
     </View>
   )
 }
@@ -27,7 +33,7 @@ const OrderItem = ({
   code,
   status,
   customer,
-  selectedOrderCounter,
+  payment,
   deliveryTimeRange,
   amount,
   tags,
@@ -35,14 +41,16 @@ const OrderItem = ({
   type,
   fulfillError,
   groupShippingCode,
-  lastTimeUpdateStatus
+  lastTimeUpdateStatus,
+  deliveryAddress,
+  picker
 }: {
   statusName: string;
   orderTime: string;
   code: string;
   status: OrderStatus;
   customer: any;
-  selectedOrderCounter?: OrderStatus;
+  payment: Payment;
   deliveryTimeRange?: any;
   amount: number;
   tags: Array<any>;
@@ -51,6 +59,13 @@ const OrderItem = ({
   groupShippingCode: string;
   fulfillError: any;
   lastTimeUpdateStatus: string;
+  deliveryAddress: {
+    fullAddress: string;
+  };
+  picker: {
+    username: string;
+    name: string;
+  };
 }) => {
   const router = useRouter();
 
@@ -69,55 +84,85 @@ const OrderItem = ({
   }, [type, code, status, router]);
 
   return (
-    <TouchableOpacity onPress={handlePress}>
+    <TouchableOpacity onPress={handlePress} className="flex-1 bg-red-500">
       <View className="rounded-md border-bgPrimary border">
-        <View className="bg-bgPrimary p-4 flex flex-row justify-between items-center">
+        <View className="bg-bgPrimary pl-3 py-4 pr-0 flex flex-row justify-between items-center">
           <View className="flex flex-row items-center gap-2">
             <Text className="font-semibold text-base text-colorPrimary">
               {code}
             </Text>
             {groupShippingCode && <Badge label={groupShippingCode} variant="warning" />}
           </View>
-          <Badge
-            label={selectedOrderCounter === 'ALL' ? statusName : ''}
-            extraLabel={
-              <Text className="text-xs text-contentPrimary">{selectedOrderCounter === 'ALL' && ` | `}
-                {moment(lastTimeUpdateStatus).fromNow()}
-              </Text>
-            } 
-            variant={toLower(status) as any}
-          />
+          <View className="flex flex-row items-center gap-0">
+            <Badge
+              label={statusName}
+              variant={toLower(status) as any}
+              extraLabel={<Text className="text-xs text-contentPrimary ml-3">
+                | {moment(lastTimeUpdateStatus).fromNow()}
+              </Text>}
+            />
+            <View className="mr-1  rounded-full">
+              <MoreActionsBtn code={code} />
+            </View>
+          </View>
         </View>
-        <View className="flex flex-row justify-between">
-          <View className="p-4 pt-2 gap-1">
-            <RowWithLabel label="Khách hàng" value={customer?.name} />
-            <RowWithLabel label="Giá trị đơn" value={formatCurrency(amount, {unit: true})} />
-            <RowWithLabel label="Ngày đặt" value={moment(orderTime).format('DD/MM/YYYY')} />
-            <RowWithLabel label="Giao hàng" value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} - ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'} />
-            {tags?.length > 0 && 
-              <View className="pt-1 flex flex-row gap-2 flex-wrap">
-                {tags?.map((tag: string, index: number) => {
-                  const tagName = getConfigNameById(orderTags, tag)
-                  return <>
-                    <Badge key={index} label={tagName as string || tag} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
-                  </>
-                })}
+        <View className="py-4 px-3 pt-3 gap-3">
+          <View className="flex flex-row gap-2 items-center justify-between mb-1">
+            <View className="flex flex-row gap-2 items-center flex-1">
+              <View className="-mt-0.5">
+                <Feather name="user" size={22} color="black" />
               </View>
-            }
-            {note && (
-              <View className="flex flex-row gap-1 mt-1">
-                <Text className="text-sm text-orange-500 italic">Note: {note?.trim()}</Text>
-              </View>
-            )}
-            {fulfillError?.type && (
-              <View className="flex flex-row items-center gap-1">
-                <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
-              </View>
-            )}
+              <Text className="text-md font-semibold " style={{width: '80%'}} numberOfLines={1} ellipsizeMode="tail">{customer?.name}</Text>
+            </View>
+            <View className="flex flex-row gap-1 items-center flex-1 justify-end">
+              <Badge 
+                label={<Text className="text-base mr-2">{formatCurrency(amount, {unit: true})}</Text>}  
+                extraLabel={<Text className="text-sm text-contentPrimary ml-3">
+                  - {payment?.methodName}
+                </Text>}
+                variant="warning" 
+              />
+            </View>
           </View>
-          <View className="mt-3 mr-1" style={{position: 'absolute', right: 0, top: 0 }}>
-            <MoreActionsBtn code={code} />
-          </View>
+          <RowWithLabel 
+            icon={<SimpleLineIcons name="location-pin" size={18} color="gray" />}
+            label="ĐC giao"
+            value={deliveryAddress?.fullAddress} />
+          <RowWithLabel
+            icon={<Feather name="calendar" size={18} color="gray" />}
+            label="Ngày đặt"
+            value={moment(orderTime).format('DD/MM/YYYY')}
+          />
+          <RowWithLabel
+            icon={<Feather name="calendar" size={18} color="gray" />}
+            label="Giao hàng"
+            value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} - ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'}
+          />
+          <RowWithLabel
+            icon={<Feather name="package" size={18} color="gray" />}
+            label="NV pick"
+            value={picker?.username ? `${picker?.username?.toUpperCase()} - ${picker?.name}` : '--'}
+          />
+          {tags?.length > 0 && 
+            <View className="pt-1 flex flex-row gap-2 flex-wrap">
+              {tags?.map((tag: string, index: number) => {
+                const tagName = getConfigNameById(orderTags, tag)
+                return <>
+                  <Badge key={index} label={tagName as string || tag} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+                </>
+              })}
+            </View>
+          }
+          {note && (
+            <View className="flex flex-row gap-1 mt-1">
+              <Text className="text-sm text-orange-500 italic">Note: {note?.trim()}</Text>
+            </View>
+          )}
+          {fulfillError?.type && (
+            <View className="flex flex-row items-center gap-1">
+              <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
+            </View>
+          )}
         </View>
       </View>
     </TouchableOpacity>

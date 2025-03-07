@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Dimensions, Text, View } from 'react-native';
+import { Dimensions, Platform, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewShot, { captureRef } from "react-native-view-shot";
+import { showAlert } from '~/src/core/store/alert-dialog';
 import { useOrderBag } from '~/src/core/store/order-bag';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
@@ -24,19 +25,34 @@ const  LabelPrintTemplate = React.memo(({ setUri, code, name, total }: { setUri:
 
   useEffect(() => {
     setTimeout(() => {
-      captureRef(ref, {
-        format: "png",
-        quality: 0.8,
-        result: 'data-uri',
-        width: WIDTH_LABEL,
-        height: HEIGHT_LABEL,
+      try {
+        captureRef(ref, {
+          format: "png",
+          quality: 0.8,
+          result: 'data-uri',
+          width: WIDTH_LABEL,
+          height: HEIGHT_LABEL,
       }).then(
         async (uri) => {
           setUri(uri)
         },
-        (error) => console.error("Oops, snapshot failed", error)
-      );
-    }, 200);
+          (error) => {
+            console.error("Oops, snapshot failed", error)
+            showAlert({
+              title: "Oops, snapshot failed captureRef",
+              message: JSON.stringify(error),
+              onConfirm: () => {},
+            });
+          }
+        );
+      } catch (error) {
+        showAlert({
+          title: "Oops, snapshot failed throw error",
+          message: JSON.stringify(error),
+          onConfirm: () => {},
+        });
+      }
+    }, Platform.OS === 'ios' ? 200 : 500);
   }, [ref]);
 
   return (
