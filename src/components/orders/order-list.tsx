@@ -229,7 +229,7 @@ const OrderList = () => {
   }), []);
 
   // Optimize key extraction
-  const keyExtractor = useCallback((item: any) => item.code, []);
+  const keyExtractor = useCallback((item: any, index: number) => `${item.code}-${index}`, []);
 
   // Thêm hàm này để theo dõi các items đang hiển thị
   const isItemInViewport = useCallback((index: number) => {
@@ -239,7 +239,7 @@ const OrderList = () => {
   }, [visibleIndices]);
 
   // Thêm prop onViewableItemsChanged cho FlatList
-  const handleViewableItemsChanged = useCallback(({ viewableItems }) => {
+  const handleViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: any }) => {
     setVisibleIndices(viewableItems.map((item: any) => item.index));
   }, []);
 

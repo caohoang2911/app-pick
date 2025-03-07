@@ -25,22 +25,24 @@ const Row = memo(({
   label,
   value,
   unit,
-  originOrderQuantity
+  originOrderQuantity,
+  warning = false
 }: {
   label: string,
   value: string,
   unit?: string,
-  originOrderQuantity?: number
+  originOrderQuantity?: number,
+  warning?: boolean
 }) => (
   <View className='flex-1 flex-row w-100'>
     <View className='flex-row' style={styles.labelColumn}>
       <Text>{label}</Text>
     </View>
     <View className='flex-row' style={styles.valueColumn}>
-      <Text className='font-medium' numberOfLines={1}>{value}</Text>
+      <Text className={`font-medium ${warning ? 'text-red-500' : ''}`} numberOfLines={1}>{value}</Text>
     </View>
     <View className='flex-row' style={styles.unitColumn}>
-      {unit && <Text className='font-medium'>{unit}</Text>}
+      {unit && <Text className={`font-medium ${warning ? 'text-red-500' : ''}`}>{unit}</Text>}
     </View>
     {originOrderQuantity && (
       <View className='flex-row items-end justify-end' style={styles.badgeColumn}>
@@ -242,6 +244,7 @@ const OrderPickProduct = memo(({
                 label="Thực pick" 
                 value={!isNil(pickedQuantity) ? pickedQuantity : "--"} 
                 unit={unit} 
+                warning={Number(pickedQuantity) != Number(orderQuantity)}
               />
               <Row 
                 label="Tồn kho" 
@@ -314,8 +317,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
   },
-  labelColumn: { width: "30%" },
-  valueColumn: { width: "20%" },
+  labelColumn: { width: "32%" },
+  valueColumn: { width: "18%" },
   unitColumn: { width: "25%" },
   badgeColumn: { width: "25%" },
 });
