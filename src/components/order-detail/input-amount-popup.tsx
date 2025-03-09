@@ -302,7 +302,7 @@ const InputAmountPopup = () => {
   }, [isShowAmountInput]);
 
   // Memoized callbacks
-  const onSubmit = useCallback((values: any, { resetForm }: any) => {
+  const onSubmit = useCallback((values: any) => {
     if (!productName) return;
 
     const pickedItem = {
@@ -315,7 +315,6 @@ const InputAmountPopup = () => {
     } as Product;
 
     setOrderTemToPicked({ pickedItem, orderCode: code});
-    // resetForm();
     setOrderPickProduct(pickedItem);
     reset();
   }, [productName, currentProduct, barcodeScanSuccess, quantityFromBarcode, quantity, code]);

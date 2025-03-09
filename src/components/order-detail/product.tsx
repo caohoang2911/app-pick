@@ -124,7 +124,7 @@ const BarcodeDisplay = memo(({
     {barcode && barcode !== baseBarcode && (
       <Text
         numberOfLines={1}
-        className={`text-xs text-center mt-2 ${hasTags && !isHiddenTag ? 'mb-1' : ''}`}
+        className={`text-xs text-center mt-1 ${hasTags && !isHiddenTag ? 'mb-1' : ''}`}
       >
         {barcode}
       </Text>

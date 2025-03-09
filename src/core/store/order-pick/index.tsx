@@ -85,27 +85,13 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
     
-    let flag = false;
     const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup | any) => {
       return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
         const productAsTypeProduct = { ...productRel as Product };
-        const isEditManual = get().isEditManual;
-
-        if(isEditManual) {
-          if(product.id === productAsTypeProduct.id) {
-            flag = true;
-            return { ...productAsTypeProduct, ...product };
-          } else {
-            return productAsTypeProduct;
-          }
+        if(product.id === productAsTypeProduct.id) {
+          return { ...productAsTypeProduct, ...product };
         } else {
-          if(barcodeCondition(product.barcode, productAsTypeProduct.refBarcodes) && !flag) {
-            flag = true;
-            toggleShowAmountInput(false);
-            return { ...productAsTypeProduct, ...product };
-          } else {
-            return productAsTypeProduct;
-          }
+          return productAsTypeProduct;
         }
       })};
     });

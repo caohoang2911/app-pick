@@ -1,19 +1,16 @@
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
-import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
-import { Easing } from 'react-native-reanimated';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
-  useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef
+} from 'react';
+import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
+import { Easing } from 'react-native-reanimated';
 import { CloseLine } from '~/src/core/svgs';
 
 const width = Dimensions.get('window').width;
@@ -26,8 +23,6 @@ type Props = {
   children: React.ReactNode;
   titleAlign: 'left' | 'center';
   visible: boolean;
-  extraHeight?: number;
-  maxSnapPoint?: string;
   onClose: () => void;
   [key: string]: any;
 };
@@ -42,19 +37,12 @@ const SBottomSheet = forwardRef<any, Props>(
       children,
       titleAlign = 'left',
       visible,
-      extraHeight = Platform.OS === 'ios' ? 50 : 20,
-      maxSnapPoint,
       onClose,
       ...rests
     },
     ref
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
-
-    const animationConfigs = useBottomSheetTimingConfigs({
-      duration: 100,
-      easing: Easing.linear
-    });
 
     const handleSheetChanges = useCallback(
       (index: number) => {
@@ -112,7 +100,7 @@ const SBottomSheet = forwardRef<any, Props>(
         onDismiss={onClose}
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustResize"
-        animationConfigs={animationConfigs}
+        // animationConfigs={animationConfigs}
         {...rests}
       >
         <View 
