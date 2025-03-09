@@ -12,6 +12,7 @@ import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import {
+  setCurrentId,
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
@@ -102,10 +103,12 @@ const OrderPick = () => {
         indexOfCodeScanned = indexOfCodeScannedWithoutPickedTime;
       }
    
-      const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];
+      const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];;
+
+      setCurrentId(currentProduct?.id)
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
-      const currentAmount = !scannedIds?.[currentProduct?.id] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.quantity;
+      const currentAmount = !scannedIds?.[currentProduct?.id] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.pickedQuantity;
 
       if (currentBarcode) {
         setTimeout(() => {

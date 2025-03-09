@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import React, { memo, useMemo, useCallback } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -59,7 +59,13 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => (
       <Badge 
         key={`${tag}-${index}`} 
         className="self-start" 
-        label={tag} 
+        icon={
+          tag?.toUpperCase() == 'GIFT' &&
+            <View className='mr-1 -mt-0.5'>
+              <AntDesign name="gift" size={13} color="orange" />
+            </View>
+        }
+        label={tag}
         style={{ maxWidth: 180 }}
       />
     ))}
@@ -124,7 +130,7 @@ const BarcodeDisplay = memo(({
     {barcode && barcode !== baseBarcode && (
       <Text
         numberOfLines={1}
-        className={`text-xs text-center mt-2 ${hasTags && !isHiddenTag ? 'mb-1' : ''}`}
+        className={`text-xs text-center mt-1 ${hasTags && !isHiddenTag ? 'mb-1' : ''}`}
       >
         {barcode}
       </Text>

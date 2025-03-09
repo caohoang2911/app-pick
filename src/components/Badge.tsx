@@ -53,6 +53,7 @@ export interface BadgeProps
   extends React.ComponentPropsWithoutRef<typeof View>,
     VariantProps<typeof badgeVariants> {
   extraLabel?: string | React.ReactNode;
+  icon?: React.ReactNode,
   label: string | React.ReactNode;
   labelClasses?: string;
 }
@@ -63,13 +64,15 @@ function Badge({
   className,
   variant,
   children,
+  icon,
   ...props
 }: BadgeProps) {
   return (
     <View
-      className={cn(badgeVariants({ variant }), 'rounded-full', className)}
+      className={cn(badgeVariants({ variant }), 'rounded-full items-center', className)}
       {...props}
     >
+      {icon}
       <Text numberOfLines={1} ellipsizeMode='tail' className={cn(badgeTextVariants({ variant }), labelClasses)}>
         {label} {extraLabel}
       </Text>
