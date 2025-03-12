@@ -183,10 +183,17 @@ const OrderPickProduct = memo(({
   vendorName,
   type,
   id,
+  disable,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
   const shouldDisplayEdit = useCanEditOrderPick();
+
+  const isGift = useMemo(() => {
+    return tags?.includes('Gift');
+  }, [tags]);
+
+  const isDisable = useMemo(() => disable && isGift, [disable, isGift]) && isGift;
   
   // Memoize expensive calculations
   const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]);
@@ -194,7 +201,7 @@ const OrderPickProduct = memo(({
     getConfigNameById(productPickedErrors, pickedError), 
     [productPickedErrors, pickedError]
   );
-  const isGift = useMemo(() => type === "GIFT", [type]);
+  // const isGift = useMemo(() => type === "GIFT", [type]);
   const hasSellPrice = useMemo(() => 
     !isGift && Number(sellPrice) > 0, 
     [isGift, sellPrice]
@@ -206,11 +213,12 @@ const OrderPickProduct = memo(({
   
   // Extract handler to useCallback 
   const handleEditPress = useCallback(() => {
+    if(isDisable) return;
     toggleShowAmountInput(!isShowAmountInput, id);
     setSuccessForBarcodeScan(barcode, { fillInput: false });
     setCurrentId(id);
     setIsEditManual(true);
-  }, [isShowAmountInput, id, barcode]);
+  }, [isShowAmountInput, id, barcode, isDisable]);
 
   // Memoize image source to prevent re-renders
   const imageSource = useMemo(() => 
@@ -219,7 +227,7 @@ const OrderPickProduct = memo(({
   );
 
   return (
-    <View className={cn(`bg-white shadow relative`)} style={styles.box}>
+    <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={styles.box}>
       <View className="p-3">
         <ProductHeader 
           name={name || ''} 

@@ -6,6 +6,7 @@ import { colors } from '~/src/ui/colors';
 
 const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
 
+  const isHasTabOutOfStock = giftPack.elements?.some((product: Product) => product.pickedError === 'OUT_OF_STOCK');
   return (
     <>
       <View className="bg-white border rounded-md " style={{borderColor: colors.purple[200]}}>
@@ -14,7 +15,7 @@ const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
         </View>
         <View className="gap-2 p-2">
           {giftPack.elements?.map((product: Product, index: number) => (
-              <OrderPickProduct {...product} index={index} />
+              <OrderPickProduct {...product} index={index} disable={isHasTabOutOfStock} />
           ))}
         </View>
       </View>

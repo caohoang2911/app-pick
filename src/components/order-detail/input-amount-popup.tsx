@@ -8,10 +8,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useConfig } from '~/src/core/store/config';
 import {
-  getQuantityFromBarcode,
   setCurrentId,
   setOrderPickProduct,
   setQuantityFromBarcode,
+  setScanMoreProduct,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   useOrderPick
@@ -102,7 +102,14 @@ const QuantitySection = memo(({
   const handleQRScan = useCallback(() => {
     toggleScanQrCodeProduct(true);
     setQuantityFromBarcode(Math.floor(Number(values?.pickedQuantity || 0) * 1000) / 1000);
-  }, [values?.pickedQuantity, toggleScanQrCodeProduct, setQuantityFromBarcode]);
+    setScanMoreProduct(true);
+  }, [values?.pickedQuantity, toggleScanQrCodeProduct, setQuantityFromBarcode, setScanMoreProduct]);
+
+  useEffect(() => {
+    return () => {
+      setScanMoreProduct(false);
+    };
+  }, [setScanMoreProduct]);
 
   const handleChangeText = useCallback((value: string) => {
     setFieldValue('pickedQuantity', formatDecimal(value));
@@ -120,6 +127,7 @@ const QuantitySection = memo(({
   return (
     <View className="flex flex-row gap-2 items-center" style={{ position: 'relative' }}>
       <View className="flex-1" style={{ marginRight: 113 }}>
+
         <Input
           selectTextOnFocus
           labelClasses="font-medium"
@@ -227,7 +235,7 @@ const InputAmountPopup = () => {
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const orderDetail = useOrderPick.use.orderDetail();
-  const quantityFromBarcode = getQuantityFromBarcode();
+  const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const { code } = useLocalSearchParams<{ code: string }>();
   
   // Extract once to prevent unnecessary re-renders
@@ -270,10 +278,10 @@ const InputAmountPopup = () => {
 
   // Extract product properties once
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
-  const displayPickedQuantity = useMemo(() => 
-    quantityFromBarcode || pickedQuantity || quantity || 0, 
-    [quantityFromBarcode, pickedQuantity, quantity]
-  );
+  const displayPickedQuantity = useMemo(() => { 
+    // alert(quantityFromBarcode);
+    return quantityFromBarcode || pickedQuantity || 0;
+  }, [quantityFromBarcode, pickedQuantity]);
   const productName = currentProduct?.name || '';
 
   // Memoize title component
@@ -344,9 +352,9 @@ const InputAmountPopup = () => {
       
       useEffect(() => {
         if(quantityFromBarcode) {
-          setFieldValue('pickedQuantity', quantityFromBarcode.toString());
+          setFieldValue('pickedQuantity', displayPickedQuantity.toString());
         }
-      }, [quantityFromBarcode, setFieldValue]);
+      }, [displayPickedQuantity, setFieldValue]);
 
       return (
         <SBottomSheet
@@ -363,7 +371,7 @@ const InputAmountPopup = () => {
             handleSubmit={handleSubmit}
             setErrors={setErrors}
             currentProduct={currentProduct}
-            quantity={quantity}
+            quantity={displayPickedQuantity}
             isCampaign={isCampaign}
             productPickedErrors={productPickedErrors}
             isError={isError}
