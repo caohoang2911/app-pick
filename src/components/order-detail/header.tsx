@@ -39,7 +39,7 @@ const Assignee = ({assignee}: {assignee: {username: string, name: string}}) => {
   return (
     <View className='flex flex-row items-center mb-3 -mt-1'>
       <Feather name="package" size={18} color="gray" />
-      <View className="flex flex-row gap-1 ml-1">
+      <View className="flex flex-row gap-1 ml-2">
         <Text className="text-xs text-gray-500">{assignee?.username?.toUpperCase()} -</Text>
         <Text className="text-xs text-gray-500">{assignee?.name}</Text>
       </View>
