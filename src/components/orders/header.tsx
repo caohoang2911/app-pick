@@ -123,14 +123,14 @@ const Header = () => {
       </View>
       <View className="flex flex-row justify-between items-center">
         <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
-        <TouchableOpacity onPress={() => {
+        {/* <TouchableOpacity onPress={() => {
           //  operationTypeRef.current?.present()
         }}>
           <View className="flex flex-row items-center gap-1">
             <Text>{stringUtils.uppercaseFirstCharacter(operationType) || 'Tất cả'}</Text>
             <ArrowDown width={20} height={20} />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input

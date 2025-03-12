@@ -138,16 +138,16 @@ const OrderPick = () => {
       </View>
       <ActionsBottom />
       {/* bottomshet */}
-      {isScanQrCodeProduct && (
+      {/* {isScanQrCodeProduct && ( */}
         <ScannerBox
-          type="qr"
+          types={['codabar', 'code128']}
           visible={isScanQrCodeProduct}
           onSuccessBarcodeScanned={handleSuccessBarCode}
           onDestroy={() => {
             toggleScanQrCodeProduct(false);
           }}
         />
-      )}
+      {/* )} */}
       <OrderPickHeadeActionBottomSheet
         ref={headerAcrtionRef}
       />

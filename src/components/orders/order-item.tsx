@@ -43,7 +43,7 @@ const OrderItem = ({
   groupShippingCode,
   lastTimeUpdateStatus,
   deliveryAddress,
-  picker
+  assignee
 }: {
   statusName: string;
   orderTime: string;
@@ -62,7 +62,7 @@ const OrderItem = ({
   deliveryAddress: {
     fullAddress: string;
   };
-  picker: {
+  assignee: {
     username: string;
     name: string;
   };
@@ -82,6 +82,8 @@ const OrderItem = ({
       router.push({ pathname: `orders/order-detail/${code}`, params: { status } });
     }
   }, [type, code, status, router]);
+
+  const shouldShowassignee = assignee?.username && assignee?.name;
 
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1 bg-red-500">
@@ -141,7 +143,7 @@ const OrderItem = ({
           <RowWithLabel
             icon={<Feather name="package" size={18} color="gray" />}
             label="NV pick"
-            value={picker?.username ? `${picker?.username?.toUpperCase()} - ${picker?.name}` : '--'}
+            value={shouldShowassignee ? `${assignee?.username && assignee?.username?.toUpperCase()}  ${assignee?.name &&  `-- ${assignee?.name}`}` : '--'}
           />
           {tags?.length > 0 && 
             <View className="pt-1 flex flex-row gap-2 flex-wrap">

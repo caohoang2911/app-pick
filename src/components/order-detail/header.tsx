@@ -5,7 +5,7 @@ import { useGlobalSearchParams } from 'expo-router';
 import { debounce, toLower } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
@@ -16,6 +16,8 @@ import { OrderDetail } from '~/src/types/order-detail';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { GroupShippingInfo } from './group-shipping-info';
+import { Employee } from '~/src/types/employee';
+import Feather from '@expo/vector-icons/Feather';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -33,6 +35,17 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
   )
 }
 
+const Assignee = ({assignee}: {assignee: {username: string, name: string}}) => {
+  return (
+    <View className='flex flex-row items-center mb-3 -mt-1'>
+      <Feather name="package" size={18} color="gray" />
+      <View className="flex flex-row gap-1 ml-1">
+        <Text className="text-xs text-gray-500">{assignee?.username?.toUpperCase()} -</Text>
+        <Text className="text-xs text-gray-500">{assignee?.name}</Text>
+      </View>
+    </View>
+  )
+}
 type Props = {
   onClickHeaderAction?: () => void;
 };
@@ -68,7 +81,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
-  const { status, statusName,  lastTimeUpdateStatus, tags } = header || {};
+  const { status, statusName,  lastTimeUpdateStatus, tags, assignee } = header || {};
 
   const shouldDisplayQrScan = useCanEditOrderPick();
 
@@ -92,6 +105,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           </View>
         </TouchableOpacity>
       </View>
+      <Assignee assignee={assignee as Employee} />
       <HeaderTags tags={tags} />
       <GroupShippingInfo />
       <View className="flex flex-row mt-4 justify-between items-center gap-3">

@@ -7,6 +7,7 @@ export type Employee = {
   id: number;
   name: string;
   phone: string;
+  username: string;
 };
 
 export type Customer = {

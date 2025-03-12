@@ -94,7 +94,7 @@ const ProductHeader = memo(({
   isGift: boolean,
   showEdit: boolean 
 }) => (
-  <View className='flex flex-row gap-1 items-center mb-3' style={{ paddingRight: showEdit ? 33 : 0 }}>
+  <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0 }}>
     {pickedTime ? (
       <View className="rounded-full bg-white">
         <CheckCircleFill color={'green'} />
@@ -108,17 +108,27 @@ const ProductHeader = memo(({
   </View>
 ));
 
+const ProductVender = ({ vendorName }: { vendorName: string }) => {
+  if(!vendorName) return null;
+
+  return (
+    <View className='flex flex-row gap-2 items-center'>
+      <Badge label={vendorName} variant="pink" />
+    </View>
+  )
+}
+
 // Barcode display component
 const BarcodeDisplay = memo(({ 
   baseBarcode, 
   barcode, 
   hasTags,
-  isHiddenTag
+  isHiddenTag,
 }: { 
   baseBarcode?: string, 
   barcode?: string,
   hasTags: boolean,
-  isHiddenTag: boolean
+  isHiddenTag: boolean,
 }) => (
   <View>
     <Text
@@ -170,6 +180,7 @@ const OrderPickProduct = memo(({
   pickedQuantity,
   originOrderQuantity,
   isHiddenTag = false,
+  vendorName,
   type,
   id,
 }: Partial<Product | any>) => {
@@ -216,8 +227,8 @@ const OrderPickProduct = memo(({
           isGift={isGift} 
           showEdit={shouldDisplayEdit}
         />
-        
-        <View className="flex flex-row justify-between gap-4 flex-grow">
+        <ProductVender vendorName={vendorName} />
+        <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
           <View className="flex justify-between items-center">
             <View>
               <Image
