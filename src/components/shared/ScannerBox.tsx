@@ -260,17 +260,18 @@ const styles = StyleSheet.create({
   },
   controls: {
     position: 'absolute',
-    bottom: 0,
+    zIndex: 13,
+    bottom: 30,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     padding: 10,
-    marginBottom: 30
   },
   controlButton: {
     padding: 10,
+    zIndex: 3,
   },
   controlText: {
     fontSize: 24,
