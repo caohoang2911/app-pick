@@ -19,7 +19,7 @@ const InvoiceInfo = () => {
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { status, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags } = header || {};
+  const { status, assignee, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, payment } = header || {};
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
@@ -47,13 +47,13 @@ const InvoiceInfo = () => {
                 {moment(orderTime).fromNow()}
               </Text>
             } 
-            variant={toLower(status) as any}
+            variant={toLower(status as string) as any}
           />
         </View>
-        <View className='flex flex-row items-center'>
+        {payment?.method === "CASH_ON_DELIVERY" && <View className='flex flex-row items-center'>
           <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>COD</Text></View>
           <Text>{formatCurrency(amount, { unit: true })}</Text>
-        </View>
+        </View>}
         <View className='flex flex-row items-center'>
           <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Khách hàng</Text></View> 
           <Text>{customer?.name}</Text>
@@ -68,6 +68,14 @@ const InvoiceInfo = () => {
             {deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).day}
             {!deliveryTimeRange && "--"}
           </Text>
+        </View>
+        <View className='flex flex-row'>
+          <View style={{ width: COL_LEFT_WIDTH }}>
+            <Text className='text-gray-500'>NV Pick</Text>
+          </View>
+          <View className='flex-1'>
+            <Text numberOfLines={2} ellipsizeMode='tail'>{assignee?.username?.toUpperCase()} - {assignee?.name}</Text>
+          </View>
         </View>
         <View className='flex flex-row'>
           <View style={{ width: COL_LEFT_WIDTH }}>

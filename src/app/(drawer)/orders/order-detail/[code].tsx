@@ -33,6 +33,7 @@ const OrderPick = () => {
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
+  const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
   const orderDetail = useOrderPick.use.orderDetail();
   const deliveryType = orderDetail?.header?.deliveryType;
 
@@ -108,16 +109,16 @@ const OrderPick = () => {
       setCurrentId(currentProduct?.id)
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
-      const currentAmount = !scannedIds?.[currentProduct?.id] ?  currentProduct?.pickedQuantity : quantity || currentProduct?.pickedQuantity;
+      const currentAmount = !isScanMoreProduct ? currentProduct?.pickedQuantity : 1;
 
       if (currentBarcode) {
-        setTimeout(() => {
-          const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + (Number(currentAmount) || 0);
+        // setTimeout(() => {
+          const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentProduct?.pickedQuantity : Number(quantityFromBarcode || 0) + Number(quantity || currentAmount);
 
           setSuccessForBarcodeScan(currentBarcode);
           setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
           toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.id);
-        }, 100);
+        // }, 100);
       }
       
     },
@@ -138,16 +139,16 @@ const OrderPick = () => {
       </View>
       <ActionsBottom />
       {/* bottomshet */}
-      {isScanQrCodeProduct && (
+      {/* {isScanQrCodeProduct && ( */}
         <ScannerBox
-          type="qr"
+          types={['codabar', 'code128']}
           visible={isScanQrCodeProduct}
           onSuccessBarcodeScanned={handleSuccessBarCode}
           onDestroy={() => {
             toggleScanQrCodeProduct(false);
           }}
         />
-      )}
+      {/* )} */}
       <OrderPickHeadeActionBottomSheet
         ref={headerAcrtionRef}
       />

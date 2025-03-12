@@ -17,6 +17,7 @@ import { OrderDetailHeader } from '~/src/types/order-detail';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { BarcodeScanningResult } from 'expo-camera';
 import { useSetOrderScanedBagLabel } from '~/src/api/app-pick/use-set-order-scaned-bag-label';
+import { ORDER_STATUS } from '~/src/contants/order';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -28,7 +29,7 @@ const OrderScanToDelivery = () => {
 
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
   const header = getHeaderOrderDetailOrderPick();
-  const { deliveryType } = header as OrderDetailHeader;
+  const { deliveryType, status } = header as OrderDetailHeader;
 
   const actionType = deliveryType ? (deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP' ? 'Hoàn tất đơn hàng' : 'Giao cho shipper') : '';
 
@@ -55,11 +56,19 @@ const OrderScanToDelivery = () => {
     completeOrder({ orderCode: code });
   }
 
+  const  disableByStatus = useMemo(() => {
+    if(deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP') {
+      return status === ORDER_STATUS.SHIPPING;
+    }
+
+    return status !== ORDER_STATUS.STORE_PACKED;
+  }, [deliveryType, status]);
+
 
   const isAllDone = useMemo(() => {
-    return orderBags.every((bag) => bag.isDone);
-  }, [orderBags]);
 
+    return orderBags.every((bag) => bag.isDone)
+  }, [orderBags, disableByStatus]);
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, (orderBagsCB) => {
@@ -88,7 +97,7 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingCompleteOrder}
               onPress={handleCheckoutOrderBags}
-              disabled={!isAllDone}
+              disabled={!isAllDone || disableByStatus}
               label={actionType}
             />
           </View>

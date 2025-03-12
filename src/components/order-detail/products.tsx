@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useCallback, memo, useState } from 'react';
-import { ActivityIndicator, Text, View, Dimensions } from 'react-native';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { ActivityIndicator, Dimensions, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import {
@@ -39,6 +39,7 @@ const ProductItem = memo(({
   isLast: boolean 
 }) => {
   // Xác định loại sản phẩm và render component tương ứng
+  
   const renderProduct = () => {
     if(item.type === "COMBO" && 'elements' in item) {
       return <ProductCombo combo={item as ProductItemGroup} />;
@@ -59,18 +60,14 @@ const ProductItem = memo(({
 // Component chính
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{
-    code: string;
+    code: string; 
     status: OrderStatus;
   }>();
   
-  const barcodeScrollTo = useOrderPick.use.barcodeScrollTo();
   const keyword = useOrderPick.use.keyword();
   const orderPickProducts = useOrderPick.use.orderPickProducts();
 
   const flatListRef = useRef<FlatList>(null);
-  const hasPendingScroll = useRef(false);
-  const [forceUpdate, setForceUpdate] = useState(false); // Để force re-render khi cần
-
   // Query data
   const { 
     data, 

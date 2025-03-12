@@ -94,7 +94,7 @@ const ProductHeader = memo(({
   isGift: boolean,
   showEdit: boolean 
 }) => (
-  <View className='flex flex-row gap-1 items-center mb-3' style={{ paddingRight: showEdit ? 33 : 0 }}>
+  <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0 }}>
     {pickedTime ? (
       <View className="rounded-full bg-white">
         <CheckCircleFill color={'green'} />
@@ -108,17 +108,27 @@ const ProductHeader = memo(({
   </View>
 ));
 
+const ProductVender = ({ vendorName }: { vendorName: string }) => {
+  if(!vendorName) return null;
+
+  return (
+    <View className='flex flex-row gap-2 items-center'>
+      <Badge label={vendorName} variant="pink" />
+    </View>
+  )
+}
+
 // Barcode display component
 const BarcodeDisplay = memo(({ 
   baseBarcode, 
   barcode, 
   hasTags,
-  isHiddenTag
+  isHiddenTag,
 }: { 
   baseBarcode?: string, 
   barcode?: string,
   hasTags: boolean,
-  isHiddenTag: boolean
+  isHiddenTag: boolean,
 }) => (
   <View>
     <Text
@@ -170,12 +180,20 @@ const OrderPickProduct = memo(({
   pickedQuantity,
   originOrderQuantity,
   isHiddenTag = false,
+  vendorName,
   type,
   id,
+  disable,
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
   const shouldDisplayEdit = useCanEditOrderPick();
+
+  const isGift = useMemo(() => {
+    return tags?.includes('Gift');
+  }, [tags]);
+
+  const isDisable = useMemo(() => disable && isGift, [disable, isGift]) && isGift;
   
   // Memoize expensive calculations
   const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]);
@@ -183,7 +201,7 @@ const OrderPickProduct = memo(({
     getConfigNameById(productPickedErrors, pickedError), 
     [productPickedErrors, pickedError]
   );
-  const isGift = useMemo(() => type === "GIFT", [type]);
+  // const isGift = useMemo(() => type === "GIFT", [type]);
   const hasSellPrice = useMemo(() => 
     !isGift && Number(sellPrice) > 0, 
     [isGift, sellPrice]
@@ -195,11 +213,12 @@ const OrderPickProduct = memo(({
   
   // Extract handler to useCallback 
   const handleEditPress = useCallback(() => {
+    if(isDisable) return;
     toggleShowAmountInput(!isShowAmountInput, id);
     setSuccessForBarcodeScan(barcode, { fillInput: false });
     setCurrentId(id);
     setIsEditManual(true);
-  }, [isShowAmountInput, id, barcode]);
+  }, [isShowAmountInput, id, barcode, isDisable]);
 
   // Memoize image source to prevent re-renders
   const imageSource = useMemo(() => 
@@ -208,7 +227,7 @@ const OrderPickProduct = memo(({
   );
 
   return (
-    <View className={cn(`bg-white shadow relative`)} style={styles.box}>
+    <View className={cn(`bg-white shadow relative`, isDisable && 'opacity-40')}>
       <View className="p-3">
         <ProductHeader 
           name={name || ''} 
@@ -216,8 +235,8 @@ const OrderPickProduct = memo(({
           isGift={isGift} 
           showEdit={shouldDisplayEdit}
         />
-        
-        <View className="flex flex-row justify-between gap-4 flex-grow">
+        <ProductVender vendorName={vendorName} />
+        <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
           <View className="flex justify-between items-center">
             <View>
               <Image

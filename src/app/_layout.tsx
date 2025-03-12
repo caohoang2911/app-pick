@@ -165,20 +165,18 @@ function Providers({ children }: { children: React.ReactNode }) {
           <APIProvider>
             <NotificationWrapper>
               <AuthWrapper>
-    
-                  <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                    <NetworkStatus />
-                    {loading && <Loading />}
-                    {children}
-                    <AlertDialog />
-                  </SafeAreaView>
+                <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                  <NetworkStatus />
+                  {loading && <Loading />}
+                  {children}
                   <AlertDialog />
-                  <FlashMessage
-                    position="top"
-                    duration={5000}
-                    statusBarHeight={StatusBar.currentHeight}
-                  />
-
+                </SafeAreaView>
+                <AlertDialog />
+                <FlashMessage
+                  position="top"
+                  duration={5000}
+                  statusBarHeight={StatusBar.currentHeight}
+                />
               </AuthWrapper>
             </NotificationWrapper>
           </APIProvider>
