@@ -19,6 +19,8 @@ interface OrdersState {
   scannedIds: Record<string, boolean>;
   currentId: number | null;
   isEditManual: boolean;
+  isScanMoreProduct: boolean;
+  setScanMoreProduct: (isScanMoreProduct: boolean) => void;
   setIsEditManual: (isEditManual: boolean) => void;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
@@ -48,6 +50,10 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   scannedIds: {},
   currentId: null,
   isEditManual: false,
+  isScanMoreProduct: false,
+  setScanMoreProduct: (isScanMoreProduct: boolean) => {
+    set({ isScanMoreProduct });
+  },
   setIsEditManual: (isEditManual: boolean) => {
     set({ isEditManual });
   },
@@ -141,12 +147,12 @@ export const toggleConfirmationRemoveProductCombo = (isShowConfirmationRemovePro
 export const getProductComboRemoveSelected = () =>
   _useOrderPick.getState().productComboRemoveSelected;
 
-export const getQuantityFromBarcode = () =>
-  _useOrderPick.getState().quantityFromBarcode;
-
 export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useOrderPick.getState().orderDetail?.header || {};
 
 export const getDeliveryOrderDetailOrderPick = (): OrderDelivery | {} => _useOrderPick.getState().orderDetail?.delivery || {};
 
 export const setIsEditManual = (isEditManual: boolean) =>
   _useOrderPick.getState().setIsEditManual(isEditManual);
+
+export const setScanMoreProduct = (isScanMoreProduct: boolean) =>
+  _useOrderPick.getState().setScanMoreProduct(isScanMoreProduct);
