@@ -227,7 +227,7 @@ const OrderPickProduct = memo(({
   );
 
   return (
-    <View className={cn(`bg-white shadow relative`, isDisable && 'opacity-40')}>
+    <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}>
       <View className="p-3">
         <ProductHeader 
           name={name || ''} 
