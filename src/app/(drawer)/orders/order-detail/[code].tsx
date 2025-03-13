@@ -109,11 +109,11 @@ const OrderPick = () => {
       setCurrentId(currentProduct?.id)
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
-      const currentAmount = !isScanMoreProduct ? currentProduct?.pickedQuantity : 1;
+      const currentAmount = !isScanMoreProduct ? currentProduct?.pickedQuantity || 1 : 1;
 
       if (currentBarcode) {
         // setTimeout(() => {
-          const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentProduct?.pickedQuantity : Number(quantityFromBarcode || 0) + Number(quantity || currentAmount);
+          const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + Number(quantity || currentAmount);
 
           setSuccessForBarcodeScan(currentBarcode);
           setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
