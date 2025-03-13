@@ -72,6 +72,7 @@ const QuantitySection = memo(({
   currentProduct,
   handleBlur,
   setFieldValue,
+  quantityInit,
   setQuantityFromBarcode,
   toggleScanQrCodeProduct,
 }: any) => {
@@ -119,7 +120,7 @@ const QuantitySection = memo(({
   }, [quantity, setFieldValue]);
 
   const errorMessage = useMemo(() => {
-    return (Number(values?.pickedQuantity) < quantity && !values?.pickedError) 
+    return (Number(values?.pickedQuantity) < quantityInit && !values?.pickedError) 
       ? "Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do" 
       : undefined;
   }, [values?.pickedQuantity, values?.pickedError, quantity]);
@@ -162,11 +163,12 @@ const ErrorSection = memo(({
   productPickedErrors, 
   values, 
   quantity, 
-  setFieldValue, 
+  setFieldValue,
+  quantityInit,
   setErrors 
 }: any) => {
-  const isDisabled = useMemo(() => Number(values?.pickedQuantity) >= Number(quantity), 
-    [values?.pickedQuantity, quantity]);
+  const isDisabled = useMemo(() => Number(values?.pickedQuantity) >= Number(quantityInit), 
+    [values?.pickedQuantity, quantityInit]);
 
   const handleSelect = useCallback((value: string) => {
     setFieldValue('pickedError', formatDecimal(value));
@@ -204,7 +206,8 @@ const FormContent = memo(({
   quantity,
   isCampaign,
   productPickedErrors,
-  isError
+  isError,
+  quantityInit,
 }: any) => {
   return (
     <View className="flex-1 px-4 mt-4 pb-4 gap-4">
@@ -212,6 +215,7 @@ const FormContent = memo(({
         values={values}
         quantity={quantity}
         isCampaign={isCampaign}
+        quantityInit={quantityInit}
         currentProduct={currentProduct}
         handleBlur={handleBlur}
         setFieldValue={setFieldValue}
@@ -222,6 +226,7 @@ const FormContent = memo(({
         productPickedErrors={productPickedErrors}
         values={values}
         quantity={quantity}
+        quantityInit={quantityInit}
         setFieldValue={setFieldValue}
         setErrors={setErrors}
       />
@@ -371,6 +376,7 @@ const InputAmountPopup = () => {
             handleSubmit={handleSubmit}
             setErrors={setErrors}
             currentProduct={currentProduct}
+            quantityInit={currentProduct?.orderQuantity}
             quantity={displayPickedQuantity}
             isCampaign={isCampaign}
             productPickedErrors={productPickedErrors}
