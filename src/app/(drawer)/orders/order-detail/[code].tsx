@@ -109,7 +109,7 @@ const OrderPick = () => {
       setCurrentId(currentProduct?.id)
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
-      const currentAmount = !isScanMoreProduct ? currentProduct?.pickedQuantity || 1 : 1;
+      const currentAmount = !isScanMoreProduct ? Number(currentProduct?.pickedQuantity) + 1 || 1 : 1;
 
       if (currentBarcode) {
         // setTimeout(() => {
