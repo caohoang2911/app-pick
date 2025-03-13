@@ -97,7 +97,7 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingCompleteOrder}
               onPress={handleCheckoutOrderBags}
-              disabled={!isAllDone || disableByStatus}
+              disabled={!isAllDone}
               label={actionType}
             />
           </View>
