@@ -23,7 +23,7 @@ const  LabelPrintTemplate = React.memo(({ setUri, code, name, total }: { setUri:
   const { name: customerName, phone } = customer || {};
   const { fullAddress } = deliveryAddress || {};
 
-  const captureTimeout = Platform.OS === 'ios' ? 300 : (Number(Platform.Version) >= 31 ? 2000 : 1000);
+  const captureTimeout = Platform.OS === 'ios' ? 300 : 1000;
 
   useEffect(() => {
     setTimeout(() => {
