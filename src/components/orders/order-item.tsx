@@ -2,7 +2,7 @@
 import { useRouter } from "expo-router";
 import { toLower } from "lodash";
 import moment from 'moment';
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Text, View } from "react-native";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
@@ -43,7 +43,7 @@ const OrderItem = ({
   groupShippingCode,
   lastTimeUpdateStatus,
   deliveryAddress,
-  assignee
+  picker,
 }: {
   statusName: string;
   orderTime: string;
@@ -62,7 +62,7 @@ const OrderItem = ({
   deliveryAddress: {
     fullAddress: string;
   };
-  assignee: {
+  picker: {
     username: string;
     name: string;
   };
@@ -83,7 +83,7 @@ const OrderItem = ({
     }
   }, [type, code, status, router]);
 
-  const shouldShowassignee = assignee?.username && assignee?.name;
+  const shouldShowassignee = picker?.username && picker?.name;
 
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1 bg-red-500">
@@ -109,14 +109,14 @@ const OrderItem = ({
           </View>
         </View>
         <View className="py-4 px-3 pt-3 gap-3">
-          <View className="flex flex-row gap-2 items-center justify-between mb-1">
-            <View className="flex flex-row gap-2 items-center flex-1">
+          <View className="flex flex-row gap-1 items-center justify-between mb-1">
+            <View className="flex flex-row gap-2 items-center flex-1 ">
               <View className="-mt-0.5">
                 <Feather name="user" size={22} color="black" />
               </View>
-              <Text className="text-md font-semibold " style={{width: '80%'}} numberOfLines={1} ellipsizeMode="tail">{customer?.name}</Text>
+              <Text className="text-md font-semibold " style={{width: '85%'}} numberOfLines={1} ellipsizeMode="tail">{customer?.name}</Text>
             </View>
-            <View className="flex flex-row gap-1 items-center flex-1 justify-end">
+            <View className="flex flex-row gap-1 items-center flex-grow-1">
               <Badge 
                 label={<Text className="text-base mr-2">{formatCurrency(amount, {unit: true})}</Text>}  
                 extraLabel={<Text className="text-sm text-contentPrimary ml-3">
@@ -143,7 +143,7 @@ const OrderItem = ({
           <RowWithLabel
             icon={<Feather name="package" size={18} color="gray" />}
             label="NV pick"
-            value={shouldShowassignee ? `${assignee?.username && assignee?.username?.toUpperCase()}  ${assignee?.name &&  `-- ${assignee?.name}`}` : '--'}
+            value={shouldShowassignee ? `${picker?.username && picker?.username?.toUpperCase()}  ${picker?.name &&  `- ${picker?.name}`}` : '--'}
           />
           {tags?.length > 0 && 
             <View className="pt-1 flex flex-row gap-2 flex-wrap">

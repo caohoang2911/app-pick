@@ -105,7 +105,6 @@ const OrderScanToDelivery = () => {
       }
       {isScanQrCodeProduct && (
         <ScannerBox
-          type="qr"
           visible={isScanQrCodeProduct}
           onSuccessBarcodeScanned={handleScanQrCodeProduct}
           onDestroy={() => toggleScanQrCodeProduct(false)}

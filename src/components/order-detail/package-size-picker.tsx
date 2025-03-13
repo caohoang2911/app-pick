@@ -14,6 +14,12 @@ import { CheckCircleFill } from "~/src/core/svgs";
 import { OrderDetailHeader } from "~/src/types/order-detail";
 import Box from "../Box";
 import SBottomSheet from "../SBottomSheet";
+
+const EDITABLE_STATUSES = [
+  OrderStatusValue.STORE_PICKING,
+  OrderStatusValue.STORE_PACKED
+];
+
 interface PackageSizePickerProps {
 }
 
@@ -87,7 +93,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
     updateShippingPackageSize({ size: value as PackageSize, orderCode });
   };
   
-  const isEditPackageSize = status === OrderStatusValue.STORE_PICKING;
+  const isEditPackageSize = EDITABLE_STATUSES.includes(status as OrderStatusValue);
 
   const handleOpenBottomSheet = () => {
     if(isEditPackageSize) {

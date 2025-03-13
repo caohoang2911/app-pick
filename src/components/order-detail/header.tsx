@@ -35,13 +35,14 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
   )
 }
 
-const Assignee = ({assignee}: {assignee: {username: string, name: string}}) => {
+const Picker = ({picker}: {picker: {username: string, name: string}}) => {
+  if (!picker) return null;
   return (
     <View className='flex flex-row items-center mb-3 -mt-1'>
       <Feather name="package" size={18} color="gray" />
       <View className="flex flex-row gap-1 ml-2">
-        <Text className="text-xs text-gray-500">{assignee?.username?.toUpperCase()} -</Text>
-        <Text className="text-xs text-gray-500">{assignee?.name}</Text>
+        <Text className="text-xs text-gray-500">{picker?.username?.toUpperCase()} -</Text>
+        <Text className="text-xs text-gray-500">{picker?.name}</Text>
       </View>
     </View>
   )
@@ -81,7 +82,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
-  const { status, statusName,  lastTimeUpdateStatus, tags, assignee } = header || {};
+  const { status, statusName,  lastTimeUpdateStatus, tags, picker } = header || {};
 
   const shouldDisplayQrScan = useCanEditOrderPick();
 
@@ -105,7 +106,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           </View>
         </TouchableOpacity>
       </View>
-      <Assignee assignee={assignee as Employee} />
+      <Picker picker={picker as Employee} />
       <HeaderTags tags={tags} />
       <GroupShippingInfo />
       <View className="flex flex-row mt-4 justify-between items-center gap-3">

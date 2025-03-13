@@ -5,8 +5,11 @@ import OrderPickProduct from './product';
 import { colors } from '~/src/ui/colors';
 
 const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
-
-  const isHasTabOutOfStock = giftPack.elements?.some((product: Product) => product.pickedError === 'OUT_OF_STOCK');
+  // console.log('giftPack', giftPack);
+  const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
+    console.log('product.pickedQuantity', product.pickedQuantity);
+    return product.pickedQuantity === 0 || product.pickedQuantity === null
+  });
   return (
     <>
       <View className="bg-white border rounded-md " style={{borderColor: colors.purple[200]}}>
@@ -15,7 +18,7 @@ const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
         </View>
         <View className="gap-2 p-2">
           {giftPack.elements?.map((product: Product, index: number) => (
-              <OrderPickProduct {...product} index={index} disable={isHasTabOutOfStock} />
+              <OrderPickProduct {...product} index={index} disable={isHasPickedQuantity} />
           ))}
         </View>
       </View>

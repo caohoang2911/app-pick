@@ -88,6 +88,10 @@ export interface OrderDetailHeader {
   status?: number | string;
   refund?: TemplateOrderRefund;
   statusName?: string;
+  picker?: {
+    username?: string;
+    name?: string;
+  };
   isExistCallLog?: boolean;
   shipping?: {
     serviceId: string;

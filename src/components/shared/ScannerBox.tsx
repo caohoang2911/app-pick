@@ -12,7 +12,7 @@ type Props = {
   visible?: boolean;
   onDestroy?: () => void;
   onSuccessBarcodeScanned?: (result: BarcodeScanningResult) => void;
-  types: BarcodeType[];
+  types?: BarcodeType[];
 };
 
 const deviceWidth = Dimensions.get('window').width;
