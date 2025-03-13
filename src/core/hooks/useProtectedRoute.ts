@@ -16,7 +16,7 @@ export function useProtectedRoute() {
 
     if (status === 'signOut') {
       router.navigate('/login');
-    } else if ('signIn' && firstTime.current) {
+    } else if (status === 'signIn' && firstTime.current) {
       firstTime.current = false;
       // Redirect away from the sign-in page.
       router.navigate('/orders');
