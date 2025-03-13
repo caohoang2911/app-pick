@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
 import moment from 'moment-timezone';
-import React, { useEffect, useMemo, useRef, useCallback, memo } from 'react';
+import React, { useEffect, useMemo, useRef, useCallback, memo, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { isEmpty } from 'lodash';
 
@@ -242,13 +242,21 @@ const InputAmountPopup = () => {
   const orderDetail = useOrderPick.use.orderDetail();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const { code } = useLocalSearchParams<{ code: string }>();
+
+  const [currentPickedProduct, setCurrentPickedProduct] = useState<Product>();
   
   // Extract once to prevent unnecessary re-renders
   const { header } = orderDetail || {};
   const { operationType } = header || {};
   const isCampaign = operationType === 'CAMPAIGN';
 
-  const { mutate: setOrderTemToPicked } = useSetOrderItemPicked();
+  const { mutate: setOrderTemToPicked } = useSetOrderItemPicked(() => {
+    if(currentPickedProduct) {
+      setOrderPickProduct(currentPickedProduct);
+    }
+  }, (error: string) => {
+    setQuantityFromBarcode(0);
+  });
   const config = useConfig.use.config();
   const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]);
 
@@ -327,8 +335,8 @@ const InputAmountPopup = () => {
       pickedTime: moment().valueOf(),
     } as Product;
 
+    setCurrentPickedProduct(pickedItem);
     setOrderTemToPicked({ pickedItem, orderCode: code});
-    setOrderPickProduct(pickedItem);
     reset();
   }, [productName, currentProduct, barcodeScanSuccess, quantityFromBarcode, quantity, code]);
 

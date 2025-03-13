@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router'
-import { toLower } from 'lodash'
-import React from 'react'
+import { pick, toLower } from 'lodash'
+import React, { useMemo } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import { useOrderInvoice } from '~/src/core/store/order-invoice'
 import { expectedDeliveryTime } from '~/src/core/utils/moment'
@@ -19,7 +19,11 @@ const InvoiceInfo = () => {
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { status, assignee, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, payment } = header || {};
+  const { status, picker, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, payment } = header || {};
+
+  const shouldDisplayPicker = useMemo(() => {
+    return picker?.username && picker?.name;
+  }, [picker]);
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
@@ -46,14 +50,14 @@ const InvoiceInfo = () => {
               <Text className="text-xs text-contentPrimary"> | &nbsp;
                 {moment(orderTime).fromNow()}
               </Text>
-            } 
+            }
             variant={toLower(status as string) as any}
           />
         </View>
-        {payment?.method === "CASH_ON_DELIVERY" && <View className='flex flex-row items-center'>
+        <View className='flex flex-row items-center'>
           <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>COD</Text></View>
-          <Text>{formatCurrency(amount, { unit: true })}</Text>
-        </View>}
+          <Text>{payment?.method === "CASH_ON_DELIVERY" ? formatCurrency(amount, { unit: true }) : '0 đ'}</Text>
+        </View>
         <View className='flex flex-row items-center'>
           <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Khách hàng</Text></View> 
           <Text>{customer?.name}</Text>
@@ -74,7 +78,7 @@ const InvoiceInfo = () => {
             <Text className='text-gray-500'>NV Pick</Text>
           </View>
           <View className='flex-1'>
-            <Text numberOfLines={2} ellipsizeMode='tail'>{assignee?.username?.toUpperCase()} - {assignee?.name}</Text>
+            {shouldDisplayPicker ? <Text numberOfLines={2} ellipsizeMode='tail'>{picker?.username?.toUpperCase()} - {picker?.name}</Text> : <Text className='text-gray-500'>--</Text>}
           </View>
         </View>
         <View className='flex flex-row'>

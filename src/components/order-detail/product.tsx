@@ -266,7 +266,7 @@ const OrderPickProduct = memo(({
                 originOrderQuantity={originOrderQuantity} 
               />
               <Row 
-                label="Thực pick" 
+                label="Đã pick" 
                 value={!isNil(pickedQuantity) ? pickedQuantity : "--"} 
                 unit={unit} 
                 warning={Number(pickedQuantity) != Number(orderQuantity)}
@@ -298,15 +298,6 @@ const OrderPickProduct = memo(({
       
       {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
     </View>
-  );
-}, (prevProps, nextProps) => {
-  // Custom comparison function for memo
-  return (
-    prevProps.id === nextProps.id &&
-    prevProps.pickedTime === nextProps.pickedTime &&
-    prevProps.pickedQuantity === nextProps.pickedQuantity &&
-    prevProps.pickedError === nextProps.pickedError &&
-    prevProps.stockOnhand === nextProps.stockOnhand
   );
 });
 
@@ -342,8 +333,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
   },
-  labelColumn: { width: "32%" },
-  valueColumn: { width: "18%" },
+  labelColumn: { width: "25%" },
+  valueColumn: { width: "25%" },
   unitColumn: { width: "25%" },
   badgeColumn: { width: "25%" },
 });

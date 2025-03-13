@@ -64,7 +64,7 @@ const InvoiceInfo = () => {
         </View>
         <RowInfo label={payment?.methodName || '--'} value={formatCurrency(amount, { unit: true })} />
         <RowInfo label="Khách hàng" value={customer?.name || '' } />
-        <RowInfo label="SDT" value={customer?.phone.slice(customer?.phone.length - 4) || ''} />
+        <RowInfo label="SDT" value={customer?.phone || ''} />
         <RowInfo label="Giờ giao" value={deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).hh || ''} />
         <View className='flex flex-row'>
           <View style={{ width: COL_LEFT_WIDTH }}>

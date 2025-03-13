@@ -122,9 +122,20 @@ const OrderPick = () => {
       }
       
     },
-    [orderPickProductsFlat, quantityFromBarcode, currentQr, toggleShowAmountInput, setSuccessForBarcodeScan, orderPickProductFlat]
+    [
+      orderPickProductsFlat,
+      quantityFromBarcode,
+      currentQr,
+      toggleShowAmountInput,
+      setSuccessForBarcodeScan,
+      orderPickProductFlat,
+      isScanMoreProduct,
+      currentId,
+      isEditManual,
+      scannedIds,
+      orderPickProductFlat,
+    ]
   );
-
 
 
   if(!orderDetail) {
