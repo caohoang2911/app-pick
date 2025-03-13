@@ -1,12 +1,11 @@
 import { useLogin } from '@/api/auth';
-import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
-import { setRedirectUrl, signIn, useAuth } from '@/core';
+import { setRedirectUrl, signIn } from '@/core';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Formik } from 'formik';
 import React, { useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import * as Yup from 'yup';
 import { useAuthorizeUserPassword } from '../api/auth/use-authorize-user-password';
 import { Input } from '../components/Input';
@@ -27,7 +26,7 @@ export default function Login() {
       }
 
       signIn({ token: zas as string, userInfo });
-      router.replace('/orders');
+      router.replace('/(drawer)/orders');
     }
   });
 
