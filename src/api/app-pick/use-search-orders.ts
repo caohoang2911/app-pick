@@ -41,9 +41,9 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
   return await axiosClient.get('app-pick/searchOrders', { params });
 };
 
-export const useSearchOrders = (params?: Variables, options?: any) =>
+export const useSearchOrders = (params?: Variables, options?: any, queryKey?: string) =>
   useInfiniteQuery({
-    queryKey: ['searchOrders', params],
+    queryKey: [queryKey || 'searchOrders', params],
     queryFn: ({ pageParam = 0 }) => {
       return searchOrders({ ...params, pageIndex: pageParam as number });
     },

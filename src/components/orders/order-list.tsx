@@ -83,7 +83,6 @@ const OrderList = () => {
   
   // State from store
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
-  const keyword = useOrders.use.keyword();
   const deliveryType = useOrders.use.deliveryType();
   const operationType = useOrders.use.operationType();
   const fromScanQrCode = useOrders.use.fromScanQrCode();
@@ -161,7 +160,7 @@ const OrderList = () => {
     } else {
       isInitialRender.current = false;
     }
-  }, [selectedOrderCounter, keyword, deliveryType, operationType, goFirstPage, haveParamsChanged]);
+  }, [selectedOrderCounter, deliveryType, operationType, goFirstPage, haveParamsChanged]);
 
   // Refresh on screen focus
   useFocusEffect(

@@ -33,6 +33,7 @@ interface Props {
   autoFocus?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  value?: string;
   focusable?: boolean;
   onDropdownOpen?: () => void;
   onDropdownClose?: () => void;
@@ -59,6 +60,7 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
   inputStyle,
   itemStyle,
   itemTextStyle,
+  value,
   selectedValue,
   noResultsText = 'No results found',
   autoFocus = false,
@@ -110,8 +112,10 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
   useEffect(() => {
     if (selectedValue) {
       setSearchText(selectedValue.name);
+    } else if (value) { 
+      setSearchText(value);
     }
-  }, [selectedValue]);
+  }, [selectedValue, value]);
 
   useEffect(() => {
     if (searchText && allowSearch) {
