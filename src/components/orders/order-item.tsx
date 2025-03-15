@@ -86,7 +86,7 @@ const OrderItem = ({
   const shouldShowassignee = picker?.username && picker?.name;
 
   return (
-    <TouchableOpacity onPress={handlePress} className="flex-1 bg-red-500">
+    <TouchableOpacity onPress={handlePress} className="flex-1">
       <View className="rounded-md border-bgPrimary border">
         <View className="bg-bgPrimary pl-3 py-4 pr-0 flex flex-row justify-between items-center">
           <View className="flex flex-row items-center gap-2">

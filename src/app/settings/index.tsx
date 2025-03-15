@@ -1,17 +1,17 @@
+import { getItem, setItem } from '@/core/storage';
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
+import TcpSocket from 'react-native-tcp-socket';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { useUpdateSetting } from '~/src/api/app-pick/use-update-setting';
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
 import { Input } from '~/src/components/Input';
 import { Switch } from '~/src/components/Switch';
-import { setLoading } from '~/src/core/store/loading';
-import TcpSocket from 'react-native-tcp-socket';
-import { showMessage } from 'react-native-flash-message';
-import { getItem, removeItem, setItem } from '@/core/storage';
-import { useConfig } from '~/src/core/store/config';
 import { useAuth } from '~/src/core';
+import { useConfig } from '~/src/core/store/config';
+import { setLoading } from '~/src/core/store/loading';
 
 const Settings = () => {
   const { data } = useGetSettingQuery();
@@ -60,6 +60,7 @@ const Settings = () => {
       const client = TcpSocket.createConnection({
         port: 9100,
         host: ip,
+        reuseAddress: true,
     }, () => {
       console.log('Connected to server');
       setItem('ip', ip);
@@ -84,8 +85,9 @@ const Settings = () => {
     }, 5000);
 
     } catch (error) {
+      setIsLoadingPrint(false);
       showMessage({
-        message: JSON.stringify(error),
+        message: "Lỗi không xác định khi kết nối máy in",
         type: 'danger',
       });
     }
