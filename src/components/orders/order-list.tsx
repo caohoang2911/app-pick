@@ -95,12 +95,11 @@ const OrderList = () => {
 
   // Memoize search params
   const params = useMemo(() => ({
-    keyword,
     status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
     deliveryType: fromScanQrCode ? null : deliveryType,
     operationType: fromScanQrCode ? null : operationType,
     storeCode,
-  }), [keyword, selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode]);
+  }), [selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode]);
 
   // Check if params have changed
   const haveParamsChanged = useCallback(() => {
@@ -109,7 +108,6 @@ const OrderList = () => {
     // Only compare relevant fields for reload
     const prevParams = prevParamsRef.current;
     return (
-      prevParams.keyword !== params.keyword ||
       prevParams.status !== params.status ||
       prevParams.deliveryType !== params.deliveryType ||
       prevParams.operationType !== params.operationType

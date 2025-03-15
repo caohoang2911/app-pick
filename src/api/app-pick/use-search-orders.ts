@@ -41,12 +41,11 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
   return await axiosClient.get('app-pick/searchOrders', { params });
 };
 
-export const useSearchOrders = (params?: Variables) =>
+export const useSearchOrders = (params?: Variables, options?: any) =>
   useInfiniteQuery({
     queryKey: ['searchOrders', params],
     queryFn: ({ pageParam = 0 }) => {
-      console.log('pageParam', pageParam);
-      return searchOrders({ ...params, pageIndex: pageParam });
+      return searchOrders({ ...params, pageIndex: pageParam as number });
     },
     getNextPageParam: (lastPage, allPages) => {
       const pageIndex = lastPage.data?.pageIndex;
@@ -60,4 +59,5 @@ export const useSearchOrders = (params?: Variables) =>
     },
     enabled: !!params,
     initialPageParam: 1,
+    ...options,
   });

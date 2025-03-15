@@ -1,40 +1,34 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DrawerActions } from "@react-navigation/native";
 import { useNavigation } from 'expo-router';
-import { debounce, toUpper } from 'lodash';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { toUpper } from 'lodash';
+import { useRef } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
-import { Input } from '~/src/components/Input';
 import TabsStatus from '~/src/components/orders/tab-status';
 import { setUser, useAuth } from '~/src/core';
+import { removeItem } from '~/src/core/storage';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import {
-  setKeyWord,
   setOperationType,
   toggleScanQrCode,
   useOrders
 } from '~/src/core/store/orders';
 import ArrowDown from '~/src/core/svgs/ArrowDown';
-import SearchLine from '~/src/core/svgs/SearchLine';
 import { getConfigNameById } from '~/src/core/utils/config';
-import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
 import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
-import { removeItem, setItem } from '~/src/core/storage';
+import InputSearch from './input-search';
 
 const windowWidth = Dimensions.get('window').width;
 
 const Header = () => {
-  const [value, setValue] = useState<string>();
-  const keyword = useOrders.use.keyword();
   const operationType = useOrders.use.operationType();
 
   const userInfo = useAuth.use.userInfo();
@@ -67,17 +61,6 @@ const Header = () => {
       }, 200);
     }, 1000);
   });
-  
-  useEffect(() => {
-    setValue(keyword);
-  }, [keyword]);
-
-  const handleSearch = useCallback(
-    debounce((value: string) => {
-      setKeyWord(value);
-    }, 400),
-    []
-  );
 
   const navigation = useNavigation()
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer())
@@ -132,27 +115,8 @@ const Header = () => {
           </View>
         </TouchableOpacity> */}
       </View>
-      <View className="flex flex-row mt-4 justify-between items-center gap-3">
-        <Input
-          className="flex-grow"
-          placeholder="Mã đơn hàng, SDT khách hàng"
-          prefix={<SearchLine width={20} height={20} />}
-          onChangeText={(value: string) => {
-            setValue(value);
-            handleSearch(value);
-          }}
-          value={value}
-          allowClear
-          onClear={() => {
-            setValue('');
-            setKeyWord('');
-          }}
-        />
-        <TouchableOpacity onPress={() => toggleScanQrCode(true)}>
-          <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
-            <FontAwesome name="qrcode" size={24} color="white" />
-          </View>
-        </TouchableOpacity>
+      <View className="flex flex-row mt-4 justify-between z-10 items-center gap-3">
+        <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
       </View>
       <TabsStatus />
       <View className="mt-2">
