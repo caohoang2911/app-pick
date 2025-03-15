@@ -10,7 +10,7 @@ import { useAuth } from '~/src/core/store/auth';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
-import SearchableDropdown from '../SearchableDropdown';
+import SearchableDropdown, { SearchableDropdownRef } from '../SearchableDropdown';
 
 const OrderItem = memo(({ item }: { item: any }) => {
   const handleSelect = useCallback(() => {
@@ -77,11 +77,14 @@ const InputSearch = ({
   const { storeCode } = useAuth.use.userInfo();
   const keyword = useOrders.use.keyword();
 
+  const searchableDropdownRef = useRef<SearchableDropdownRef>(null);
+
   useEffect(() => {
-    if (keyword && !value) {
+    if (keyword) {
       setValue(keyword);
+      searchableDropdownRef.current?.openDropdown();
     }
-  }, []);
+  }, [keyword]);
 
   const params = useMemo(() => ({
     keyword: value || '',
@@ -94,7 +97,7 @@ const InputSearch = ({
     isRefetching,
   } = useSearchOrders({...params}, {
     enabled: !!value,
-  });
+  }, 'searchOrdersFilter');
 
   const handleTextChange = useCallback((text: string) => {
     setValue(text);
@@ -114,7 +117,7 @@ const InputSearch = ({
 
   const refetchOrders = useCallback(async () => {
     try {
-      await queryClient.resetQueries({ queryKey: ['searchOrders', params] });
+      await queryClient.resetQueries({ queryKey: ['searchOrdersFilter', params] });
       refetch();
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -153,6 +156,8 @@ const InputSearch = ({
         isLoading={isRefetching}
         items={orderList}
         renderItem={renderItem}
+        value={value}
+        ref={searchableDropdownRef}
         onSelect={handleSelect}
         onChangeText={handleTextChange}
         maxDropdownHeight={400}
