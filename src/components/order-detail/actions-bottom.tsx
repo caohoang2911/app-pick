@@ -1,6 +1,6 @@
 import { Button } from '@/components/Button';
 import { useGlobalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
@@ -9,8 +9,11 @@ import { useOrderPick } from '~/src/core/store/order-pick';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Product } from '~/src/types/product';
+import PickedCompleteConfirmation from './picked-complete-confirmation';
 
 const ActionsBottom = () => {
+  const [visible, setVisible] = useState(false);
+  const actionRef = useRef<any>(null);
 
   const {
     mutate: setOrderStatusPicking,
@@ -49,16 +52,26 @@ const ActionsBottom = () => {
   const title = status !== 'STORE_PICKING' ? 'Xác nhận bắt đầu pick hàng' : 'Xác nhận đã pick hàng xong';
   const message = status !== 'STORE_PICKING' ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng' : '';
 
-  // console.log(orderPickProductsFlat.length, "BB")
+  const productFulfillError = orderPickProductsFlat.filter((item: Product) => Number(item.quantity || 0) !== Number(item.pickedQuantity || 0));
+
+
+  const onConfirm = () => {
+    hideAlert();
+    if (status === 'STORE_PICKING') {
+      setOrderStatusPacked({ orderCode: code});
+    } else {
+      setOrderStatusPicking({ orderCode: code });
+    }
+  }
 
   const handlePick = () => {
-    showAlert({title, message, onConfirm: () => {
-      status === 'STORE_PICKING'
-        ? setOrderStatusPacked({ orderCode: code})
-        : setOrderStatusPicking({ orderCode: code });
-        hideAlert();
-    }});
-  };
+    if (productFulfillError.length > 0 && status === 'STORE_PICKING') {
+      actionRef.current?.present();
+      setVisible(true);
+    } else {
+      showAlert({title, message, onConfirm: () => onConfirm()});
+    }
+  }
 
   if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;
   return (
@@ -71,6 +84,13 @@ const ActionsBottom = () => {
           label={status === 'STORE_PICKING' ? 'Đã pick xong' : 'Bắt đầu pick'}
         />
       </View>
+      <PickedCompleteConfirmation
+        visible={visible}
+        setVisible={setVisible}
+        actionRef={actionRef}
+        onConfirm={onConfirm}
+        productFulfillError={productFulfillError}
+      />
     </View>
   );
 };

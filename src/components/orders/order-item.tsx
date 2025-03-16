@@ -2,7 +2,7 @@
 import { useRouter } from "expo-router";
 import { toLower } from "lodash";
 import moment from 'moment';
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, memo } from "react";
 import { Text, View } from "react-native";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
@@ -17,15 +17,20 @@ import { Payment } from "~/src/types/order-detail";
 import { Badge } from "../Badge";
 import MoreActionsBtn from "./more-actions-btn";
 
-const RowWithLabel = ({icon, label, value}: {icon: React.ReactNode, label: string, value: string}) => {
+const RowWithLabel = memo(({icon, label, value, pickedItemProgress}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number}) => {
   return (
-    <View className="flex flex-row gap-2">
+    <View className="flex flex-row gap-1">
       <View className="mr-2 -mt-0.5">{icon}</View>
-      <View style={{width: 75}}><Text className="text-gray-500">{label}</Text></View>
-      <Text className="font-medium" numberOfLines={1} style={{ maxWidth: "68%" }} ellipsizeMode="tail">{value}</Text>
+      <View style={{width: 72}}><Text className="text-gray-500">{label}</Text></View>
+      <Text className="font-medium" numberOfLines={1} style={{ maxWidth: pickedItemProgress ? "60%" : "68%" }} ellipsizeMode="tail">{value}</Text>
+      {pickedItemProgress && (
+        <View className="flex flex-row ml-auto gap-1">
+          <Badge label={`${pickedItemProgress}`} variant="warning" />
+        </View>
+      )}
     </View>
   )
-}
+});
 
 const OrderItem = ({
   statusName,
@@ -44,6 +49,7 @@ const OrderItem = ({
   lastTimeUpdateStatus,
   deliveryAddress,
   picker,
+  pickedItemProgress,
 }: {
   statusName: string;
   orderTime: string;
@@ -66,6 +72,7 @@ const OrderItem = ({
     username: string;
     name: string;
   };
+  pickedItemProgress: number;
 }) => {
   const router = useRouter();
 
@@ -143,7 +150,8 @@ const OrderItem = ({
           <RowWithLabel
             icon={<Feather name="package" size={18} color="gray" />}
             label="NV pick"
-            value={shouldShowassignee ? `${picker?.username && picker?.username?.toUpperCase()}  ${picker?.name &&  `- ${picker?.name}`}` : '--'}
+            value={shouldShowassignee ? `${picker?.name &&  `${picker?.name}`}` : '--'}
+            pickedItemProgress={pickedItemProgress}
           />
           {tags?.length > 0 && 
             <View className="pt-1 flex flex-row gap-2 flex-wrap">

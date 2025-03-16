@@ -40,7 +40,7 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
       hasUpdateOrderBagLabels: true,
       orderBags: { 
         ...get().orderBags,
-        [values.type]: [...get().orderBags[values.type], values]
+        [values.type]: [...get().orderBags[values.type], { ...values}],
       }
     });
   },
@@ -51,7 +51,7 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
         ...get().orderBags, 
         [type]: get().orderBags[type]
           .filter((item: OrderBagItem) => item.code !== code)
-          .map((item: OrderBagItem, index: number) => ({ ...item, name: generateBagName(type, index + 1, get().orderBags[type].length - 1) }))
+          .map((item: OrderBagItem, index: number) => ({ ...item, name: generateBagName(type, index + 1) }))
       }
     });
   },

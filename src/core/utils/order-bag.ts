@@ -9,9 +9,9 @@ export const transformBagsData: any = (bags: OrderBagItem[]) => {
   const fresh = bags.filter((bag) => bag.type === 'FRESH');
 
   const bagsType = {
-    DRY: dry.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.DRY, index + 1, dry.length) })),
-    FROZEN: frozen.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FROZEN, index + 1, frozen.length) })),
-    FRESH: fresh.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FRESH, index + 1, fresh.length) })),
+    DRY: dry.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.DRY, index + 1) })),
+    FROZEN: frozen.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FROZEN, index + 1) })),
+    FRESH: fresh.map((bag: OrderBagItem, index: number) => ({ ...bag, name: generateBagName(OrderBagType.FRESH, index + 1) })),
   };
 
   return bagsType;
@@ -28,8 +28,8 @@ export const generateBagCode = (type: OrderBagType, orderCode: string, bagLabels
   return `${orderCode}-${OrderBagCode[type]}${index < 10 ? `0${index}` : index}`;
 }
 
-export const generateBagName = (type: OrderBagType, index: number, total: number) => {
-  return `${OrderBagLabel[type]} - ${index}/${total}`;
+export const generateBagName = (type: OrderBagType, index: number) => {
+  return `${OrderBagLabel[type]} - ${index}`;
 }
 
 export const transformOrderBags = (orderBags: OrderBagItem[]) => {

@@ -3,7 +3,6 @@ import { Text, View } from 'react-native';
 import { OrderBagItem } from '~/src/types/order-bag';
 import { Button } from '../Button';
 import { removeOrderBag } from '~/src/core/store/order-bag';
-import { router } from 'expo-router';
 const BagItem = ({
   code,
   type,

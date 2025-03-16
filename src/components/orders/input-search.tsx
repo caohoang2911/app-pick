@@ -74,6 +74,7 @@ const InputSearch = ({
 }) => {
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const [value, setValue] = useState<string>();
+  const [isSearching, setIsSearching] = useState(false);
   const { storeCode } = useAuth.use.userInfo();
   const keyword = useOrders.use.keyword();
 
@@ -95,9 +96,15 @@ const InputSearch = ({
     data: ordersResponse,
     refetch,
     isRefetching,
+    isLoading,
+    isFetching,
   } = useSearchOrders({...params}, {
-    enabled: !!value,
-  }, 'searchOrdersFilter');
+    enabled: !!value && value.length > 3,
+  });
+
+  const isLoadingData = useMemo(() => {
+    return isLoading || isRefetching || isFetching || isSearching;
+  }, [isLoading, isRefetching, isFetching, isSearching]);
 
   const handleTextChange = useCallback((text: string) => {
     setValue(text);
@@ -107,20 +114,28 @@ const InputSearch = ({
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current);
     }
+    if(text.length > 3) {
+      setIsSearching(true);
+    }
     
     searchTimeout.current = setTimeout(() => {
-      if(value) {
+      if(text.length > 3) {
         refetchOrders();
       }
-    }, 300);
+    }, 400);
   }, []);
 
   const refetchOrders = useCallback(async () => {
     try {
-      await queryClient.resetQueries({ queryKey: ['searchOrdersFilter', params] });
-      refetch();
+      setIsSearching(true);
+      
+      await queryClient.resetQueries({ queryKey: ['searchOrders', params] });
+      await refetch();
+      
+      setIsSearching(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
+      setIsSearching(false);
     }
   }, [params, refetch]);
 
@@ -149,11 +164,17 @@ const InputSearch = ({
       </View>
     </TouchableOpacity>
   ), [toggleScanQrCode]);
+
+  const noResultsText = useMemo(() => {
+    if(isSearching) return 'Đang tìm kiếm...';
+    if(value && value.length <= 3) return 'Nhập trên 3 ký tự để tìm kiếm';
+    return 'Không tìm thấy kết quả';
+  }, [isSearching, value]);
   
   return (
     <View className="flex-grow">
       <SearchableDropdown
-        isLoading={isRefetching}
+        isLoading={isLoadingData}
         items={orderList}
         renderItem={renderItem}
         value={value}
@@ -161,9 +182,9 @@ const InputSearch = ({
         onSelect={handleSelect}
         onChangeText={handleTextChange}
         maxDropdownHeight={400}
+        noResultsText={noResultsText}
         placeholder="Mã đơn hàng, SDT khách hàng"
         right={rightComponent}
-        // allowSearch={true}
       />
     </View>
   );

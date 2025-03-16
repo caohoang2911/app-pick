@@ -11,7 +11,7 @@ const ButtonBack = () => {
   };
 
   return (
-    <Pressable onPress={goBack} className="text-left">
+    <Pressable onPress={goBack} className="text-left -ml-3">
       <View className='p-1'>
         <ArrowLeft />
       </View>

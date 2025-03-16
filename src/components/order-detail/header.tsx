@@ -4,7 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useGlobalSearchParams } from 'expo-router';
 import { debounce, toLower } from 'lodash';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
@@ -18,6 +18,10 @@ import { Input } from '../Input';
 import { GroupShippingInfo } from './group-shipping-info';
 import { Employee } from '~/src/types/employee';
 import Feather from '@expo/vector-icons/Feather';
+import { useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
+import { OrderBagItem } from '~/src/types/order-bag';
+import { Product, ProductItemGroup } from '~/src/types/product';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -37,12 +41,23 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
 
 const Picker = ({picker}: {picker: {username: string, name: string}}) => {
   if (!picker) return null;
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+
+  const totalPickedDone = useMemo(() => {
+    return orderPickProductsFlat?.filter((bag: Product | ProductItemGroup) => (bag as Product).pickedTime)?.length;
+  }, [orderPickProductsFlat]);
+
   return (
-    <View className='flex flex-row items-center mb-3 -mt-1'>
-      <Feather name="package" size={18} color="gray" />
-      <View className="flex flex-row gap-1 ml-2">
-        <Text className="text-xs text-gray-500">{picker?.username?.toUpperCase()} -</Text>
-        <Text className="text-xs text-gray-500">{picker?.name}</Text>
+    <View className='flex flex-row justify-between'>
+      <View className='flex flex-row items-center mb-3 -mt-1'>
+        <Feather name="package" size={18} color="gray" />
+        <View className="flex flex-row gap-1 ml-2">
+          <Text className="text-xs text-gray-500">{picker?.name}</Text>
+        </View>
+      </View>
+      <View className='flex gap-1'>
+        <Badge label={`${totalPickedDone || 0}/${orderPickProductsFlat?.length || 0}`} variant="warning" />
       </View>
     </View>
   )

@@ -23,9 +23,49 @@ type Props = {
   children: React.ReactNode;
   titleAlign: 'left' | 'center';
   visible: boolean;
+  hideHeader?: boolean;
+  extraButton?: React.ReactNode;
   onClose: () => void;
   [key: string]: any;
 };
+
+const Header = ({ title, renderTitle, extraTitle, hideHeader, titleAlign, bottomSheetModalRef, onClose }: Props) => {
+  if (hideHeader) return null;
+
+  return (
+    <View 
+    className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4"
+  >
+    <View className='flex flex-row justify-between items-center w-100'> 
+      {titleAlign == 'center' && <View />}
+      {!renderTitle && (
+        <Text className={`text-${titleAlign} font-semibold text-lg`}>
+          {title}
+        </Text>
+      )}
+      {renderTitle && (
+        <View className="mr-3" style={{ width: width - 80 }}>
+          {renderTitle}
+        </View>
+      )}
+      <Pressable
+        onPress={() => {
+          requestAnimationFrame(() => {
+            onClose?.();
+            bottomSheetModalRef.current?.dismiss();
+          });
+        }}
+        className="self-start"
+      > 
+        <View style={{ marginTop: -5 }} className='p-2'>
+          <CloseLine />
+        </View>
+      </Pressable>
+    </View>
+    {extraTitle && extraTitle}
+  </View>
+  )
+}
 
 const SBottomSheet = forwardRef<any, Props>(
   (
@@ -37,6 +77,8 @@ const SBottomSheet = forwardRef<any, Props>(
       children,
       titleAlign = 'left',
       visible,
+      hideHeader = false,
+      extraButton,
       onClose,
       ...rests
     },
@@ -103,37 +145,17 @@ const SBottomSheet = forwardRef<any, Props>(
         // animationConfigs={animationConfigs}
         {...rests}
       >
-        <View 
-          className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4"
-        >
-          <View className='flex flex-row justify-between items-center w-100'> 
-            {titleAlign == 'center' && <View />}
-            {!renderTitle && (
-              <Text className={`text-${titleAlign} font-semibold text-lg`}>
-                {title}
-              </Text>
-            )}
-            {renderTitle && (
-              <View className="mr-3" style={{ width: width - 80 }}>
-                {renderTitle}
-              </View>
-            )}
-            <Pressable
-              onPress={() => {
-                requestAnimationFrame(() => {
-                  onClose?.();
-                  bottomSheetModalRef.current?.dismiss();
-                });
-              }}
-              className="self-start"
-            > 
-              <View style={{ marginTop: -5 }} className='p-2'>
-                <CloseLine />
-              </View>
-            </Pressable>
-          </View>
-          {extraTitle && extraTitle}
-        </View>
+        <Header
+          title={title}
+          renderTitle={renderTitle}
+          extraTitle={extraTitle}
+          hideHeader={hideHeader}
+          titleAlign={titleAlign}
+          bottomSheetModalRef={bottomSheetModalRef}
+          onClose={onClose} 
+          children={children} 
+          visible={visible}
+        />
         <BottomSheetScrollView
           keyboardDismissMode="on-drag"
           bounces={true}
@@ -142,6 +164,7 @@ const SBottomSheet = forwardRef<any, Props>(
         >
           {children}
         </BottomSheetScrollView>
+        {extraButton && extraButton}
       </BottomSheetModal>
     );
   }

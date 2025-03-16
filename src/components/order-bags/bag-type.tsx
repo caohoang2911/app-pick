@@ -2,7 +2,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { addOrderBag } from '~/src/core/store/order-bag';
+import { addOrderBag, useOrderBag } from '~/src/core/store/order-bag';
 import { generateBagCode, generateBagName } from '~/src/core/utils/order-bag';
 import { OrderBagItem, OrderBagType } from '~/src/types/order-bag';
 import { Button } from '../Button';
@@ -18,7 +18,8 @@ const BagType = ({
   type: OrderBagType;
 }) => {
   const { code } = useLocalSearchParams<{ code: string }>();
-
+  const orderBags = useOrderBag.use.orderBags();
+  const total = orderBags[type]?.length || 0;
   return (
     <View className="bg-white mx-4 pt-3 rounded-md overflow-hidden">
       <View className="flex flex-col gap-2 px-4">
@@ -38,7 +39,7 @@ const BagType = ({
               color="#3280F6"
             />
           }
-            onPress={() => addOrderBag({ code: generateBagCode(type, code, bagLabels), type, name: generateBagName(type, bagLabels.length + 1, bagLabels.length + 1)})}
+            onPress={() => addOrderBag({ code: generateBagCode(type, code, bagLabels), type, name: generateBagName(type, bagLabels.length + 1)})}
           variant="text"
           label={"Thêm tem"}
           labelClasses="text-colorPrimary text-base font-semibold"

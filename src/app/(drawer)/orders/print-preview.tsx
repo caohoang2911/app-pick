@@ -18,6 +18,7 @@ const TIMEOUT_CONNECT_PRINTER = 5000;
 
 function PrintPreview() {
   const [result, setResult] = useState<any>([]);
+  const [done, setIsDone] = useState(0);
 
   const [connected, setConnected] = useState(false);
 
@@ -25,7 +26,7 @@ function PrintPreview() {
   const { code, type, bagCode} = useLocalSearchParams<{ code?: string, type?: string, bagCode?: string }>();
   const findBagLabel = orderBags[type as OrderBagType]?.find((item: any) => item.code === bagCode);
 
-  const orderBagsMerged = [...orderBags.DRY, ...orderBags.FROZEN, ...orderBags.FRESH];
+  const orderBagsMerged = [...orderBags.DRY, ...orderBags.FRESH,  ...orderBags.FROZEN];
 
   const bagLabelsPrint = bagCode ? [{...findBagLabel}] : orderBagsMerged;
 
@@ -67,7 +68,6 @@ function PrintPreview() {
     
     if(result.length === bagLabelsPrint.length && connected) {
       const resultsBase64WithSorted = result.sort((a: any, b: any) => a.index - b.index).map((item: any) => item.uri);
-      
       genRongtaPrintData({ base64Images: resultsBase64WithSorted });
     }
   }, [result, connected]);
@@ -107,6 +107,7 @@ function PrintPreview() {
     return () => {
       refClient.current.destroy();
       setLoading(false);
+      setResult([]);
       if(timer) {
         clearTimeout(timer);
       }
@@ -130,16 +131,19 @@ function PrintPreview() {
   }, [data, connected]);
 
   return (
-    <View style={{ padding: 10 }} >
+    <View style={{ padding: 10}} >
        <ScrollView>
           <View className='gap-3'>
-            {bagLabelsPrint?.map((item: any, index: number) => (
+            {bagLabelsPrint.slice(0, done + 1)?.map((item: any, index: number) => (
               <LabelPrintTemplate
                 {...item}
                 setUri={(uri: string) => {
+                  setIsDone(done + 1);
                   handleSetUri(uri, index);
                 }}
                 key={index} 
+                index={index}
+                bagLabelsPrint={bagLabelsPrint}
                 total={bagLabelsPrint.length}
               />
             ))}

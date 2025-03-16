@@ -19,7 +19,7 @@ export enum OrderBagLabel {
 export type OrderBagItem = {
   code: string;
   type: OrderBagType;
-  name: string;
+  name?: string;
   isDone?: boolean;
 }
 
