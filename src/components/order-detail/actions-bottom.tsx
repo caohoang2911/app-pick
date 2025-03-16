@@ -65,7 +65,7 @@ const ActionsBottom = () => {
   }
 
   const handlePick = () => {
-    if (productFulfillError.length > 0) {
+    if (productFulfillError.length > 0 && status === 'STORE_PICKING') {
       actionRef.current?.present();
       setVisible(true);
     } else {
