@@ -31,6 +31,7 @@ interface Props {
   selectedValue?: Item | null;
   noResultsText?: string;
   autoFocus?: boolean;
+  showDropdownOnEmptySearch?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
   value?: string;
@@ -55,14 +56,14 @@ export interface SearchableDropdownRef {
 const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
   items,
   onSelect,
-  placeholder = 'Search...',
+  placeholder = 'Tìm kiếm...',
   containerStyle,
   inputStyle,
   itemStyle,
   itemTextStyle,
   value,
   selectedValue,
-  noResultsText = 'No results found',
+  noResultsText = 'Không tìm thấy kết quả',
   autoFocus = false,
   onFocus,
   onBlur,
@@ -75,6 +76,7 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
   renderItem,
   allowSearch = false,
   maxDropdownHeight = 300,
+  showDropdownOnEmptySearch = false,
 }, ref) => {
   const [searchText, setSearchText] = useState('');
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
@@ -150,7 +152,9 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
 
   const handleFocus = () => {
     if (focusable) {
-      setIsDropdownOpen(true);
+      if (searchText.length > 0 || showDropdownOnEmptySearch) {
+        setIsDropdownOpen(true);
+      }
       onFocus?.();
     } else {
       inputRef.current?.blur();
@@ -166,6 +170,12 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
     onChangeText?.('');
     inputRef.current?.focus();
     
+    if (showDropdownOnEmptySearch) {
+      setIsDropdownOpen(true);
+    } else {
+      setIsDropdownOpen(false);
+    }
+    
     setFilteredItems(items);
   };
 
@@ -179,7 +189,11 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
               value={searchText}
               onChangeText={(text) => {
                 setSearchText(text);
-                setIsDropdownOpen(true);
+                if (text.length > 0 || showDropdownOnEmptySearch) {
+                  setIsDropdownOpen(true);
+                } else {
+                  setIsDropdownOpen(false);
+                }
                 onChangeText?.(text);
               }}
               placeholder={placeholder}
