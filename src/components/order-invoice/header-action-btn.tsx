@@ -8,6 +8,7 @@ import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
+import { queryClient } from '~/src/api/shared/api-provider';
 
 const actions = [
   {
@@ -38,6 +39,7 @@ const HeaderActionBtn = () => {
   const { isPending: isLoadingSelfShipping, mutate: selfShipping } = useSelfShipping(() => {
     hideAlert();
     setLoading(false)
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   });
 
   // Hoàn thành đơn hàng
@@ -124,7 +126,11 @@ const HeaderActionBtn = () => {
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
-        {actions.map((action) => renderItem({ ...action, onClickAction: handleClickAction }))}
+        {actions.map((action) => (
+          <React.Fragment key={action.key}>
+            {renderItem({ ...action, onClickAction: handleClickAction })}
+          </React.Fragment>
+        ))}
       </SBottomSheet>
       <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
     </>

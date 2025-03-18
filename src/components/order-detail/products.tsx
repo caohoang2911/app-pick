@@ -99,19 +99,14 @@ const OrderPickProducts = () => {
   const filteredProducts = useMemo(() => {
     if (!keyword || !orderPickProducts) return orderPickProducts;
 
-    return orderPickProducts.filter((products: Array<Product>) => {
-      if (!products) return false;
-      if (products.length === 1) {
-        const product = products[0];
-        if (!product || !product.name) return false;
-        
+    return orderPickProducts.filter((products: any) => {
+      return products?.elements?.some((product: Product) => {
         const normalizedKeyword = stringUtils.removeAccents(keyword.toLowerCase());
         const normalizedName = stringUtils.removeAccents((product.name || '').toLowerCase());
-        const normalizedBarcode = (product.barcode || '').toLowerCase();
+        const normalizedBarcode = (product.barcode || '').toLowerCase() + (product.baseBarcode || '').toLowerCase();
         
         return normalizedName.includes(normalizedKeyword) || normalizedBarcode.includes(normalizedKeyword);
-      }
-      return true;
+      });
     });
   }, [keyword, orderPickProducts]);
 
@@ -155,7 +150,7 @@ const OrderPickProducts = () => {
 
   // Tính toán các giá trị mô tả trạng thái
   const isLoaded = !(isPending || isFetching || isLoading);
-  const isEmpty = isLoaded && (!orderPickProducts || orderPickProducts.length === 0);
+  const isEmpty = isLoaded && (!filteredProducts || filteredProducts.length === 0);
 
   // Render component loading
   if (isPending || isFetching || isLoading) {

@@ -116,7 +116,11 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
         snapPoints={[310]}
         onClose={() => setVisible(false)}
       >
-        {actions.map((action: Action) => renderItem({ ...action, onClickAction: handleSelectPackageSize }))}
+        {actions.map((action: Action) => (
+          <React.Fragment key={action.key}>
+            { renderItem({ ...action, onClickAction: handleSelectPackageSize })}
+          </React.Fragment>
+        ))}
       </SBottomSheet>
       <Pressable onPress={() => handleOpenBottomSheet()}>
         <Box className="mb-2 flex-row items-center justify-between">

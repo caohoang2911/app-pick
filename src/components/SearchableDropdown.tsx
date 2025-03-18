@@ -181,6 +181,13 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
 
   return (
     <View style={[styles.outerContainer, containerStyle]}>
+
+      {isDropdownOpen && (
+        <Pressable 
+          style={[styles.overlay]}
+          onPress={handleOutsideClick}
+        />
+      )}
       <View style={styles.rowContainer}>
         <View style={styles.inputWrapper} ref={containerRef}>
           <View style={styles.inputContainer}>
@@ -221,13 +228,6 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
           </View>
         )}
       </View>
-
-      {isDropdownOpen && (
-        <Pressable 
-          style={[styles.overlay]}
-          onPress={handleOutsideClick}
-        />
-      )}
 
       {isDropdownOpen && (
         <View style={[
@@ -277,12 +277,18 @@ const styles = StyleSheet.create({
   outerContainer: {
     width: '100%',
     zIndex: 1000,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    position: 'absolute',
+    paddingHorizontal: 12,
+    zIndex: 1000,
   },
   
   inputWrapper: {
@@ -338,7 +344,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     width: '100%',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 999,
     transform: [{ translateY: -1000 }],
     height: 9999,
@@ -358,7 +364,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    overflow: 'hidden',
     zIndex: 1001,
+    marginHorizontal: 12,
   },
   item: {
     padding: 12,

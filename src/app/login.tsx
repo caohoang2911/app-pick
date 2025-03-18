@@ -26,7 +26,9 @@ export default function Login() {
       }
 
       signIn({ token: zas as string, userInfo });
-      router.replace('/(drawer)/orders');
+      setTimeout(() => {
+        router.replace('/(drawer)/orders');
+      }, 100);
     }
   });
 

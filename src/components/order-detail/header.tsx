@@ -1,5 +1,6 @@
 import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
+import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useGlobalSearchParams } from 'expo-router';
 import { debounce, toLower } from 'lodash';
@@ -12,16 +13,13 @@ import { useConfig } from '~/src/core/store/config';
 import { setIsEditManual, setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { getConfigNameById } from "~/src/core/utils/config";
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { Employee } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-detail';
+import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { GroupShippingInfo } from './group-shipping-info';
-import { Employee } from '~/src/types/employee';
-import Feather from '@expo/vector-icons/Feather';
-import { useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
-import { OrderBagItem } from '~/src/types/order-bag';
-import { Product, ProductItemGroup } from '~/src/types/product';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -32,7 +30,7 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
       {tags?.map((tag) => {
         const tagName = getConfigNameById(orderTags, tag);
         return  (
-          <Badge className="self-start rounded-md" label={tagName as string} variant="default" />
+          <Badge className="self-start rounded-md" key={tag} label={tagName as string} variant="default" />
         )
       })}
     </View>

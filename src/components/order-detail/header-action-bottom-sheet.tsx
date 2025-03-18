@@ -136,13 +136,17 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         title="Thao tác"
         extraTitle={renderExtraTitle()}
         ref={actionRef}
-        snapPoints={[280]}
+        snapPoints={[320]}
         onClose={() => {
           setVisible(false);
         }}
       >
         <View className="flex-1">
-          {actions.map((action: Action) => renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false }))}
+          {actions.map((action: Action) => (
+            <React.Fragment key={action.key}>
+              {renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false })}    
+            </React.Fragment>
+          ))}
         </View>
       </SBottomSheet>
     );

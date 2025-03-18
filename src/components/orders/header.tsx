@@ -74,8 +74,8 @@ const Header = () => {
   }
 
   return (
-    <View className="px-4 py-2 bg-blue-100">
-      <View className="flex flex-row justify-between items-center mb-4">
+    <View className="py-2 bg-blue-100">
+      <View className="flex px-4 flex-row justify-between items-center mb-4">
         <View className="flex flex-row gap-2 items-center">
           <TouchableOpacity onPress={toggleMenu}>
             <Avatar>
@@ -104,7 +104,7 @@ const Header = () => {
           <NotificationOutline />
         </Pressable> */}
       </View>
-      <View className="flex flex-row justify-between items-center">
+      <View className="flex px-4 flex-row justify-between items-center">
         <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
         {/* <TouchableOpacity onPress={() => {
           //  operationTypeRef.current?.present()
@@ -117,9 +117,11 @@ const Header = () => {
       </View>
       <View className="flex flex-row mt-4 justify-between z-10 items-center gap-3">
         <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
+      </View> 
+      <View className="px-4">
+        <TabsStatus />
       </View>
-      <TabsStatus />
-      <View className="mt-2">
+      <View className="mt-2 px-4">
         <DeliveryType />
       </View>
       {/* Bottom sheet */}

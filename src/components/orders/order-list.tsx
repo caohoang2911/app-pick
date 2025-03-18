@@ -109,7 +109,8 @@ const OrderList = () => {
     return (
       prevParams.status !== params.status ||
       prevParams.deliveryType !== params.deliveryType ||
-      prevParams.operationType !== params.operationType
+      prevParams.operationType !== params.operationType ||
+      prevParams.storeCode !== params.storeCode
     );
   }, [params]);
 
@@ -219,7 +220,7 @@ const OrderList = () => {
   }, [selectedOrderCounter, visibleIndices]);
 
   // Optimize list performance with getItemLayout
-  const getItemLayout = useCallback((_, index) => ({
+  const getItemLayout = useCallback((_: any, index: number) => ({
     length: 120, // Estimated item height
     offset: 120 * index,
     index,

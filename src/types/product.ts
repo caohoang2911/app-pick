@@ -20,7 +20,6 @@ export type ProductItemGroup = {
 export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 
 export type Product = {
-  [x: string]: Key | null | undefined;
   type?: "GIFT";
   id: number;
   pickedError?: string;

@@ -107,7 +107,7 @@ const LabelPrintTemplate = React.memo(({
               <View style={{marginLeft: 10}}>
                 <QRCode 
                   value={code} 
-                  size={90} 
+                  size={95} 
                   backgroundColor="transparent" 
                 />
               </View>
