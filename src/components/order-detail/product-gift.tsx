@@ -5,9 +5,7 @@ import OrderPickProduct from './product';
 import { colors } from '~/src/ui/colors';
 
 const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
-  // console.log('giftPack', giftPack);
   const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
-    console.log('product.pickedQuantity', product.pickedQuantity);
     return product.pickedQuantity === 0 || product.pickedQuantity === null
   });
   return (

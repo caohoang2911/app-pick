@@ -1,7 +1,8 @@
-import { Image } from 'expo-image';
-import React, { memo, useMemo, useCallback } from 'react';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { Image } from 'expo-image';
+import { isNil } from 'lodash';
+import React, { memo, useCallback, useMemo } from 'react';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -15,10 +16,8 @@ import { CheckCircleFill } from '~/src/core/svgs';
 import EditOutLine from '~/src/core/svgs/EditOutLine';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
-import { cn } from '~/src/lib/utils';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
-import { isNil } from 'lodash';
 
 // Extract Row component and memoize
 const Row = memo(({
@@ -181,7 +180,6 @@ const OrderPickProduct = memo(({
   originOrderQuantity,
   isHiddenTag = false,
   vendorName,
-  type,
   id,
   disable,
 }: Partial<Product | any>) => {

@@ -121,39 +121,40 @@ const QuantitySection = memo(({
 
   const errorMessage = useMemo(() => {
     return (Number(values?.pickedQuantity) < quantityInit && !values?.pickedError) 
-      ? "Số lượng pick nhỏ hơn số lượng đặt. Vui lòng chọn lý do" 
+      ? "SL pick nhỏ hơn SL đặt. Vui lòng chọn lý do" 
       : undefined;
   }, [values?.pickedQuantity, values?.pickedError, quantity]);
 
   return (
-    <View className="flex flex-row gap-2 items-center" style={{ position: 'relative' }}>
-      <View className="flex-1" style={{ marginRight: 113 }}>
-
-        <Input
-          selectTextOnFocus
-          labelClasses="font-medium"
-          label="Số lượng pick"
-          placeholder="Nhập số lượng"
-          inputClasses="text-center"
-          keyboardType="decimal-pad"
-          onChangeText={handleChangeText}
-          editable={!isCampaign}
-          useBottomSheetTextInput
-          error={errorMessage}
-          name="pickedQuantity"
-          value={values?.pickedQuantity.toString()}
-          onBlur={handleBlur('pickedQuantity')}
-          defaultValue="0"
-          prefix={<DecrementButton onPress={handleDecrement} disabled={isCampaign} />}
-          suffix={<IncrementButton onPress={handleIncrement} disabled={isCampaign} />}
-        />
-      </View>
-      <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 32 : 38, right: 0 }}>
-        <View className="flex flex-row items-center gap-2">
-          <ProductUnit unit={currentProduct?.unit || ''} />
-          <ScanButton onPress={handleQRScan} />
+    <View className="flex gap-2" style={{ position: 'relative' }}>
+      <View className="flex-1">
+        <View className="flex-1" style={{ marginRight: 113 }}>
+          <Input
+            selectTextOnFocus
+            labelClasses="font-medium"
+            label="Số lượng pick"
+            placeholder="Nhập số lượng"
+            inputClasses="text-center"
+            keyboardType="decimal-pad"
+            onChangeText={handleChangeText}
+            editable={!isCampaign}
+            useBottomSheetTextInput
+            name="pickedQuantity"
+            value={values?.pickedQuantity.toString()}
+            onBlur={handleBlur('pickedQuantity')}
+            defaultValue="0"
+            prefix={<DecrementButton onPress={handleDecrement} disabled={isCampaign} />}
+            suffix={<IncrementButton onPress={handleIncrement} disabled={isCampaign} />}
+          />
+        </View>
+        <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 32 : 38, right: 0 }}>
+          <View className="flex flex-row items-center gap-2">
+            <ProductUnit unit={currentProduct?.unit || ''} />
+            <ScanButton onPress={handleQRScan} />
+          </View>
         </View>
       </View>
+      <Text className="text-red-500">{errorMessage}</Text>
     </View>
   );
 });
