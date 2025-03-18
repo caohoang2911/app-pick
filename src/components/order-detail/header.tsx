@@ -32,7 +32,7 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
       {tags?.map((tag) => {
         const tagName = getConfigNameById(orderTags, tag);
         return  (
-          <Badge className="self-start rounded-md" label={tagName as string} variant="default" />
+          <Badge className="self-start rounded-md" key={tag} label={tagName as string} variant="default" />
         )
       })}
     </View>

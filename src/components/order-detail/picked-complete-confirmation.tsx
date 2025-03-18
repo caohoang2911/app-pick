@@ -49,7 +49,7 @@ const PickedCompleteConfirmation = ({
       <View className="flex gap-4 mt-3">
         {productFulfillError?.map((item: Product) => (
           <>
-            <View key={item.code} className="flex gap-1">
+            <View key={item.id} className="flex gap-1">
               <Text className="font-semibold">• {item.name}</Text>
               <Text className="ml-10">
                 <Text numberOfLines={1} className="w-full text-sm">Đặt <Text className="font-bold">{item.quantity} {item.unit}</Text>, Pick: <Text className="font-bold">{item.pickedQuantity} {item.unit}</Text></Text>

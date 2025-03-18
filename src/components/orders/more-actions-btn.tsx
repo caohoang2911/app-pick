@@ -76,7 +76,11 @@ const MoreActionsBtn = ({
           ref={actionRef}
           snapPoints={[200]}
         >
-          {actions.map((item) => renderItem({...item, onClickAction: handleClickAction }))}
+          {actions.map((item) => (
+            <React.Fragment key={item.key}>
+              {renderItem({...item, onClickAction: handleClickAction })}
+            </React.Fragment>
+          ))}
         </SBottomSheet>
        )
       }
