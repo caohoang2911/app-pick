@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
-import { barcodeCondition } from '../../utils/order-bag';
 
 interface OrdersState {
   orderDetail: OrderDetail;
@@ -11,7 +10,6 @@ interface OrdersState {
   barcodeScanSuccess: string;
   keyword: string;
   barcodeScrollTo: string;
-  fillInput: boolean;
   isShowConfirmationRemoveProductCombo: boolean;
   productComboRemoveSelected: Product | null;
   orderPickProducts: Array<Product | ProductItemGroup>;
@@ -26,7 +24,7 @@ interface OrdersState {
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => void;
-  setSuccessForBarcodeScan: (barcode: string, { fillInput }: { fillInput?: boolean }) => void;
+  setSuccessForBarcodeScan: (barcode: string) => void;
   setBarcodeScrollTo: (barcode: string) => void;
   setInitOrderPickProducts: (data: Array<Product | ProductItemGroup>) => void;
   setOrderPickProduct: (product: Product) => void;
@@ -43,7 +41,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   barcodeScrollTo: '',
   orderPickProducts: [],
   barcodeScanSuccess: '',
-  fillInput: true,
   isShowConfirmationRemoveProductCombo: false,
   productComboRemoveSelected: null,
   quantityFromBarcode: 0,
@@ -69,8 +66,8 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => {
     set({ isShowAmountInput, scannedIds: id ? { ...get().scannedIds, [id]: true } : {...get().scannedIds} });
   },
-  setSuccessForBarcodeScan: (barcode: string, { fillInput = true }: { fillInput?: boolean } = {}) => {
-    set({ barcodeScanSuccess: barcode, fillInput });
+  setSuccessForBarcodeScan: (barcode: string) => {
+    set({ barcodeScanSuccess: barcode });
   },
   setInitOrderPickProducts: (data: any) => {
     set({ orderPickProducts: [ ...data ] });
@@ -117,8 +114,8 @@ export const toggleScanQrCodeProduct = (status: boolean) =>
 export const toggleShowAmountInput = (isShowAmountInput: boolean, id?: number) =>
   _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput, id);
 
-export const setSuccessForBarcodeScan = (barcode: string, { fillInput = true }: { fillInput?: boolean } = {}) =>
-  _useOrderPick.getState().setSuccessForBarcodeScan(barcode, { fillInput });
+export const setSuccessForBarcodeScan = (barcode: string) =>
+  _useOrderPick.getState().setSuccessForBarcodeScan(barcode);
 
 export const setInitOrderPickProducts = (
   data: Array<Product | ProductItemGroup>

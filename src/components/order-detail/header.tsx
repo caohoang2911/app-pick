@@ -69,21 +69,16 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { code } = useGlobalSearchParams<{ code: string }>();
   const [value, setValue] = useState<string>();
 
-  const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
-  const fillInput = useOrderPick.use.fillInput();
-  useEffect(() => {
-    if (barcodeScanSuccess && fillInput) {
-      setValue(barcodeScanSuccess);
-      setKeyword(barcodeScanSuccess);
-    }
-  }, [barcodeScanSuccess]);
-
   useEffect(() => {
     setValue(keyword);
   }, [keyword]);
 
   useEffect(() => {
     setKeyword('');
+
+    return () => {
+      setKeyword('');
+    }
   }, [code])
 
   const handleSearch = useCallback(

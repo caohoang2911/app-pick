@@ -213,7 +213,7 @@ const OrderPickProduct = memo(({
   const handleEditPress = useCallback(() => {
     if(isDisable) return;
     toggleShowAmountInput(!isShowAmountInput, id);
-    setSuccessForBarcodeScan(barcode, { fillInput: false });
+    setSuccessForBarcodeScan(barcode);
     setCurrentId(id);
     setIsEditManual(true);
   }, [isShowAmountInput, id, barcode, isDisable]);
