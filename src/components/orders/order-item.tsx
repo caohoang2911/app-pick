@@ -16,6 +16,7 @@ import { OrderStatus } from "~/src/types/order";
 import { Payment } from "~/src/types/order-detail";
 import { Badge } from "../Badge";
 import MoreActionsBtn from "./more-actions-btn";
+import { ORDER_STATUS_BADGE_VARIANT } from "~/src/contants/order";
 
 const RowWithLabel = memo(({icon, label, value, pickedItemProgress}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number}) => {
   return (
@@ -154,11 +155,11 @@ const OrderItem = ({
             pickedItemProgress={pickedItemProgress}
           />
           {tags?.length > 0 && 
-            <View className="pt-1 flex flex-row gap-2 flex-wrap">
+            <View className="pt-1 flex flex-row gap-1 flex-wrap">
               {tags?.map((tag: string, index: number) => {
                 const tagName = getConfigNameById(orderTags, tag)
                 return <>
-                  <Badge key={index} label={tagName as string || tag} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+                  <Badge key={index} label={tagName as string || tag} variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} className="self-start rounded-md px-1"/>
                 </>
               })}
             </View>

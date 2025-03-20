@@ -20,6 +20,7 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { GroupShippingInfo } from './group-shipping-info';
+import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -30,7 +31,7 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
       {tags?.map((tag) => {
         const tagName = getConfigNameById(orderTags, tag);
         return  (
-          <Badge className="self-start rounded-md" key={tag} label={tagName as string} variant="default" />
+          <Badge className="self-start rounded-md px-1" key={tag} label={tagName as string} variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} />
         )
       })}
     </View>

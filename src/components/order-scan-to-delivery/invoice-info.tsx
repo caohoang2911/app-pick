@@ -1,15 +1,16 @@
 import { useLocalSearchParams } from 'expo-router'
 import { toLower } from 'lodash'
+import moment from 'moment'
 import React from 'react'
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
+import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order'
+import { useConfig } from '~/src/core/store/config'
 import { useOrderInvoice } from '~/src/core/store/order-invoice'
+import { getConfigNameById } from '~/src/core/utils/config'
 import { expectedDeliveryTime } from '~/src/core/utils/moment'
 import { formatCurrency } from '~/src/core/utils/number'
 import { Badge } from '../Badge'
-import { useConfig } from '~/src/core/store/config'
-import { getConfigNameById } from '~/src/core/utils/config'
-import moment from 'moment'
-import Box from '../Box';
+import Box from '../Box'
 
 
 const COL_LEFT_WIDTH = 105;
@@ -44,7 +45,7 @@ const InvoiceInfo = () => {
           {tags?.map((tag: string, index: number) => {
             const tagName = getConfigNameById(orderTags, tag)
             return <>
-              <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+              <Badge key={index} label={tagName as string} variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} className="self-start rounded-md px-1"/>
             </>
           })}
         </View>
