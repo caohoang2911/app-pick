@@ -12,6 +12,8 @@ import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import SearchableDropdown, { SearchableDropdownRef } from '../SearchableDropdown';
 
+const MIN_LENGTH_SEARCH = 3;
+
 const OrderItem = memo(({ item }: { item: any }) => {
   const handleSelect = useCallback(() => {
     if(item.type === 'STORE_DELIVERY') {
@@ -114,12 +116,12 @@ const InputSearch = ({
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current);
     }
-    if(text.length > 3) {
+    if(text.length >= MIN_LENGTH_SEARCH) {
       setIsSearching(true);
     }
     
     searchTimeout.current = setTimeout(() => {
-      if(text.length > 3) {
+      if(text.length >= MIN_LENGTH_SEARCH) {
         refetchOrders();
       }
     }, 400);
@@ -167,7 +169,7 @@ const InputSearch = ({
 
   const noResultsText = useMemo(() => {
     if(isSearching) return 'Đang tìm kiếm...';
-    if(value && value.length <= 3) return 'Nhập trên 3 ký tự để tìm kiếm';
+    if(value && value.length < MIN_LENGTH_SEARCH) return 'Nhập 3 ký tự trở lên để tìm kiếm';
     return 'Không tìm thấy kết quả';
   }, [isSearching, value]);
   

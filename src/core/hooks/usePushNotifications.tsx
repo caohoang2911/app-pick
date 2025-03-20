@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
 import { registerForPushNotificationsAsync } from '@/core/utils/notification';
 import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { router, usePathname } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 export enum TargetScreen {

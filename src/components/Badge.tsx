@@ -21,6 +21,7 @@ const badgeVariants = cva(
         store_packed: 'bg-purple-50',
         completed: 'bg-green-50',
         cancelled: 'bg-red-50',
+        purple: 'bg-purple-50',
       },
     },
     defaultVariants: {
@@ -44,6 +45,7 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
       store_packed: 'text-purple-600',
       completed: 'text-green-600',
       cancelled: 'text-red-600',
+      purple: 'text-purple-600',
     },
   },
   defaultVariants: {

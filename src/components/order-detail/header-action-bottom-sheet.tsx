@@ -1,20 +1,18 @@
 import Feather from '@expo/vector-icons/Feather';
 import { router, useGlobalSearchParams } from 'expo-router';
-import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 
 import { Linking, Pressable, Text, View } from 'react-native';
-import { setLoading } from '~/src/core/store/loading';
+import { ORDER_TAGS } from '~/src/contants/order';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import {
   BillLine,
   PrintLine,
   QRScanLine
 } from '~/src/core/svgs';
-import SaveOutLine from '~/src/core/svgs/SaveOutline';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
-import { OrderStatusValue } from '~/src/types/order';
 import { Badge } from '../Badge';
 import SBottomSheet from '../SBottomSheet';
+import { showMessage } from 'react-native-flash-message';
 
 type Action = {
   key: string;
@@ -51,6 +49,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const [visible, setVisible] = useState(false);
 
     const orderDetail = useOrderPick.use.orderDetail();
+    const { tags } = orderDetail?.header || {};
 
     const { customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};
@@ -99,7 +98,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           router.push(`orders/order-invoice/${code}`);
           break;
         case 'scan-bag':
-          router.push(`orders/order-scan-to-delivery/${code}`);
+          if(!tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL)) {
+            showMessage({
+              message: 'Vui lòng in bill trước khi Scan Túi - Giao hàng',
+              type: 'danger',
+            });
+          } else {
+            router.push(`orders/order-scan-to-delivery/${code}`);
+          }
           break;
         case 'enter-bag-and-tem':
           router.push(`orders/order-bags/${code}`);

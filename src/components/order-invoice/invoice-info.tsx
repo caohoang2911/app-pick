@@ -9,6 +9,7 @@ import { Badge } from '../Badge'
 import { useConfig } from '~/src/core/store/config'
 import { getConfigNameById } from '~/src/core/utils/config'
 import moment from 'moment'
+import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order'
 
 const COL_LEFT_WIDTH = 105;
 
@@ -30,13 +31,13 @@ const InvoiceInfo = () => {
 
   return (
     <View className='bg-white mx-4 px-4 py-3' style={styles.box}>
-      <View className='flex flex-row items-center flex-wrap'>
+      <View className='flex flex-row items-center gap-2 flex-wrap'>
         <View style={{ minWidth: COL_LEFT_WIDTH }}><Text className='text-base font-medium'>{code}</Text></View>
         <View className='flex flex-row gap-1 flex-wrap'>
           {tags?.map((tag: string, index: number) => {
             const tagName = getConfigNameById(orderTags, tag)
             return <>
-              <Badge key={index} label={tagName as string} variant={tag?.startsWith("ERROR") ? "danger" : "default"} className="self-start rounded-md"/>
+              <Badge key={index} label={tagName as string} variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} className="self-start rounded-md px-1"/>
             </>
           })}
         </View>
