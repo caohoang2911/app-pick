@@ -111,7 +111,7 @@ const TabsStatus = () => {
                   'color-gray-500': !isStatusSeleted,
                 })}
               >
-                {item.label} ({item.number})
+                <Text>{item.label}</Text> <Text className='text-blue text-lg'>•</Text> <Text>{item.number}</Text>
               </Text>
               {isStatusSeleted && (
                 <View

@@ -31,7 +31,11 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
       {tags?.map((tag) => {
         const tagName = getConfigNameById(orderTags, tag);
         return  (
-          <Badge className="self-start rounded-md px-1" key={tag} label={tagName as string} variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} />
+          <Badge
+            className="self-start rounded-md"
+            key={tag} label={tagName as string}
+            style={{marginHorizontal: 0}}
+            variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} />
         )
       })}
     </View>

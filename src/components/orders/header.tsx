@@ -75,7 +75,7 @@ const Header = () => {
 
   return (
     <View className="py-2 bg-blue-100">
-      <View className="flex px-4 flex-row justify-between items-center mb-4">
+      <View className="flex px-4 flex-row justify-between items-center mb-2">
         <View className="flex flex-row gap-2 items-center">
           <TouchableOpacity onPress={toggleMenu}>
             <Avatar>
@@ -115,7 +115,7 @@ const Header = () => {
           </View>
         </TouchableOpacity> */}
       </View>
-      <View className="flex flex-row mt-4 justify-between z-10 items-center gap-3">
+      <View className="flex flex-row mt-2 justify-between z-10 items-center gap-3">
         <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
       </View> 
       <View className="px-4">
