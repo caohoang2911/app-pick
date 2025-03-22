@@ -69,7 +69,7 @@ const InvoiceInfo = () => {
           </View>
           <Text>
             {deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).hh}
-            {deliveryTimeRange && ' - '}
+            &nbsp;
             {deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).day}
             {!deliveryTimeRange && "--"}
           </Text>

@@ -146,7 +146,7 @@ const OrderItem = ({
           <RowWithLabel
             icon={<Feather name="calendar" size={18} color="gray" />}
             label="Giao hàng"
-            value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} - ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'}
+            value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'}
           />
           <RowWithLabel
             icon={<Feather name="package" size={18} color="gray" />}

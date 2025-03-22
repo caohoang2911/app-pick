@@ -1,10 +1,8 @@
 import { type VariantProps, cva } from 'class-variance-authority';
 import { Text, View } from 'react-native';
 
-import { cn } from '../lib/utils';
-
 const badgeVariants = cva(
-  'flex flex-row items-center rounded-full px-2 py-1 text-xs font-semibold',
+  'flex flex-row items-center rounded-full px-1.5 py-1 text-xs font-semibold',
   {
     variants: {
       variant: {
@@ -73,11 +71,11 @@ function Badge({
 }: BadgeProps) {
   return (
     <View
-      className={cn(badgeVariants({ variant }), 'rounded-full items-center', className)}
+      className={`${badgeVariants({ variant })} rounded-full items-center ${className}`}
       {...props}
     >
-      {icon}
-      <Text numberOfLines={1} ellipsizeMode='tail' className={cn(badgeTextVariants({ variant }), labelClasses)}>
+      {/* {icon} */}
+      <Text numberOfLines={1} ellipsizeMode='tail' className={`${badgeTextVariants({ variant })} ${labelClasses}`}>
         {label} {extraLabel}
       </Text>
     </View>
