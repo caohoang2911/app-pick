@@ -72,6 +72,7 @@ interface TemplateOrderRefund {
 export interface OrderDetailHeader {
   id?: number;
   groupShippingCode?: string;
+  groupShippingPickedStatues?: {[key: string]: boolean};
   operationType?: string;
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;

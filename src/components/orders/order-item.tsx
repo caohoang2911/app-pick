@@ -158,9 +158,9 @@ const OrderItem = ({
             <View className="pt-1 flex flex-row gap-1 flex-wrap">
               {tags?.map((tag: string, index: number) => {
                 const tagName = getConfigNameById(orderTags, tag)
-                return <>
+                return (
                   <Badge key={index} label={tagName as string || tag} variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} className="self-start rounded-md px-1"/>
-                </>
+                )
               })}
             </View>
           }

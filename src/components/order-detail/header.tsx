@@ -21,6 +21,7 @@ import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { GroupShippingInfo } from './group-shipping-info';
 import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
+import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -121,7 +122,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
       </View>
       <Picker picker={picker as Employee} />
       <HeaderTags tags={tags} />
-      <GroupShippingInfo />
+      {GROUP_SHIPPING_ENABLED && <GroupShippingInfo />}
       <View className="flex flex-row mt-4 justify-between items-center gap-3">
         <Input
           className="flex-grow"
