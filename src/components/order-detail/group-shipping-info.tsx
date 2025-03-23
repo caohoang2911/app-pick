@@ -1,16 +1,16 @@
+import Feather from '@expo/vector-icons/Feather';
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { useOrderPick } from "~/src/core/store/order-pick";
-import Feather from '@expo/vector-icons/Feather';
 import { formatCurrency } from "~/src/core/utils/number";
 import { OrderDetail } from "~/src/types/order-detail";
 import { Badge } from "../Badge";
 
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { router, useGlobalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useRef } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { cn } from '~/src/lib/utils';
 import { colors } from "~/src/ui/colors";
-import { router, useGlobalSearchParams } from "expo-router";
 
 function OrderGroups({
   groupShippingOrderCodes,
