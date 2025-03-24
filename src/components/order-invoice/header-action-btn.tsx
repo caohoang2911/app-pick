@@ -1,14 +1,15 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
+import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
+import { queryClient } from '~/src/api/shared/api-provider';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
-import { queryClient } from '~/src/api/shared/api-provider';
+import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 
 const actions = [
   {
@@ -31,6 +32,7 @@ const actions = [
 const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
+  const cancelBookShipperBottomsheetRef = useRef<any>();
   const { code } = useLocalSearchParams<{ code: string }>();
 
   const actionRef = useRef<any>();
@@ -102,6 +104,10 @@ const HeaderActionBtn = () => {
           },
         });
        break;
+
+      case "cancel-book-shipper":
+        cancelBookShipperBottomsheetRef.current?.present();
+        break;
       default:
         break;
     }
@@ -133,6 +139,7 @@ const HeaderActionBtn = () => {
         ))}
       </SBottomSheet>
       <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
+      <CancelBookShipperBottomsheet orderCode={code} ref={cancelBookShipperBottomsheetRef} />
     </>
   )
 }

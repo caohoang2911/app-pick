@@ -39,7 +39,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
     ref
   ) => {
 
-    const WrapperInput = useBottomSheetTextInput ? BottomSheetTextInput : TextInput
+    const WrapperInput: any = useBottomSheetTextInput ? BottomSheetTextInput : TextInput
     
     return (
       <View className={cn('flex flex-col gap-1.5', className)}>
@@ -48,6 +48,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
         )}
         <View className="relative">
           <WrapperInput
+            ref={ref}
             className={cn(
               inputClasses,
               'border border-input border-slate-300 py-2.5 pl-3 pr-3 rounded-lg bg-white',
