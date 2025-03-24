@@ -9,6 +9,7 @@ import { setLoading } from '~/src/core/store/loading';
 import { PackageSize, scheduleType } from '~/src/types/order';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
+import { queryClient } from "~/src/api/shared/api-provider";
 
 type Props = {};
 
@@ -21,6 +22,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
 
   const { mutate: bookShipper } = useBookShipper(() => {
     hideAlert();
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   });
 
   useImperativeHandle(

@@ -20,6 +20,7 @@ const badgeVariants = cva(
         completed: 'bg-green-50',
         cancelled: 'bg-red-50',
         purple: 'bg-purple-50',
+        booked_shipper: 'bg-pink-50',
       },
     },
     defaultVariants: {
@@ -44,6 +45,7 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
       completed: 'text-green-600',
       cancelled: 'text-red-600',
       purple: 'text-purple-600',
+      booked_shipper: 'text-pink-600',
     },
   },
   defaultVariants: {
