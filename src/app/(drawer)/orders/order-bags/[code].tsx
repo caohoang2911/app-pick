@@ -10,16 +10,24 @@ import { Button } from '~/src/components/Button';
 import Bags from '~/src/components/order-bags/bags';
 import HeaderBag from '~/src/components/order-bags/header-bag';
 import { SectionAlert } from '~/src/components/SectionAlert';
+import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderDetail, useOrderBag } from '~/src/core/store/order-bag';
-
+import { useOrderPick } from '~/src/core/store/order-pick';
+import { OrderDetailHeader } from '~/src/types/order-detail';
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+  const orderDetail = useOrderPick.use.orderDetail();
+  const { isRequireSelectShippingPackageSize } = orderDetail?.header as OrderDetailHeader;
   const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
   const orderBags = useOrderBag.use.orderBags();
+
+  const deliveryType = orderDetail?.header?.deliveryType;
+
+  const isShowPackageSizePicker = deliveryType !== 'CUSTOMER_PICKUP';
   
   const { mutate: updateOrderBagLabels } = useUpdateOrderBagLabels((error) => {
     if(error) {
@@ -44,7 +52,14 @@ const OrderBags = () => {
   }
 
   const handlePrintAll = () => {
-    router.push(`/orders/print-preview?code=${code}`);
+    if(!isRequireSelectShippingPackageSize) {
+      router.push(`/orders/print-preview?code=${code}`);
+    } else {
+      showMessage({
+        message: 'Vui lòng chọn kích thước gói hàng',
+        type: 'danger',
+      });
+    }
   }
 
   useEffect(() => {
@@ -63,6 +78,7 @@ const OrderBags = () => {
       <ScrollView className='flex-1 pt-3 mb-4'>
         <View className='flex flex-col gap-4'>
           <HeaderBag />
+          {isShowPackageSizePicker && <PackageSizePicker />}
           <Bags />
         </View>
       </ScrollView>

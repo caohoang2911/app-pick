@@ -13,7 +13,7 @@ export default function OrderInvoiceLayout() {
           headerShown: true,
           header: () => (
             <Header
-              title="Nhập số lượng túi và in tem"
+              title="Set kích thước & In tem"
             />
           )
         }} 

@@ -32,7 +32,7 @@ const actions: Array<Action> = [
   },
   {
     key: 'enter-bag-and-tem',
-    title: 'Nhập số lượng túi và in tem',
+    title: 'Set kích thước & In tem',
     icon: <PrintLine />,
   },
   {
