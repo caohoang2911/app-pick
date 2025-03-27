@@ -6,7 +6,7 @@ import { Pressable, Text, View } from "react-native";
 import { useUpdateShippingPackageSize } from "~/src/api/app-pick/use-update-shipping-package-size";
 import { queryClient } from "~/src/api/shared/api-provider";
 import { setLoading } from "~/src/core/store/loading";
-import { getHeaderOrderDetailOrderPick } from "~/src/core/store/order-pick";
+import { getHeaderOrderDetailOrderPick, useOrderPick } from "~/src/core/store/order-pick";
 import { OrderStatusValue, PackageSize, PackageSizeLabel } from "~/src/types/order";
 
 import React from "react";
@@ -17,7 +17,7 @@ import SBottomSheet from "../SBottomSheet";
 
 const EDITABLE_STATUSES = [
   OrderStatusValue.STORE_PICKING,
-  OrderStatusValue.STORE_PACKED
+  OrderStatusValue.STORE_PACKED,
 ];
 
 interface PackageSizePickerProps {
@@ -31,9 +31,11 @@ interface Action {
 
 export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
   const [visible, setVisible] = useState(false);
+  const orderDetail = useOrderPick.use.orderDetail();
 
-  const header = getHeaderOrderDetailOrderPick();
-  const { shipping, status } = header as OrderDetailHeader;
+  const header = orderDetail?.header;
+
+  const { shipping, status, isRequireSelectShippingPackageSize } = header as OrderDetailHeader;
   const actionRef = useRef<BottomSheetModal>(null);
 
   const { code: orderCode } = useLocalSearchParams<{ code: string }>();
@@ -43,11 +45,12 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
     setVisible(false);
   });
 
+
   const actions: Array<Action> = useMemo(() => [
     {
       key: PackageSize.STANDARD,
       title: PackageSizeLabel.STANDARD,
-      active: shipping?.packageSize === PackageSize.STANDARD,
+      active: (!isRequireSelectShippingPackageSize && shipping?.packageSize === PackageSize.STANDARD) || false,
     },
     {
       key: PackageSize.SIZE_1,
@@ -64,7 +67,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
       title: PackageSizeLabel.SIZE_3,
       active: shipping?.packageSize === PackageSize.SIZE_3,
     },
-  ], [shipping?.packageSize]);
+  ], [shipping?.packageSize, isRequireSelectShippingPackageSize]);
 
   const renderItem = ({
     onClickAction,
@@ -93,7 +96,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
     updateShippingPackageSize({ size: value as PackageSize, orderCode });
   };
   
-  const isEditPackageSize = EDITABLE_STATUSES.includes(status as OrderStatusValue);
+  const isEditPackageSize = true || EDITABLE_STATUSES.includes(status as OrderStatusValue);
 
   const handleOpenBottomSheet = () => {
     if(isEditPackageSize) {
@@ -118,15 +121,17 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
       >
         {actions.map((action: Action) => (
           <React.Fragment key={action.key}>
-            { renderItem({ ...action, onClickAction: handleSelectPackageSize })}
+            {renderItem({ ...action, onClickAction: handleSelectPackageSize })}
           </React.Fragment>
         ))}
       </SBottomSheet>
       <Pressable onPress={() => handleOpenBottomSheet()}>
-        <Box className="mb-2 flex-row items-center justify-between">
+        <Box className="flex-row items-center justify-between">
           <View className="">
-            <Text className="font-bold text-base">Kích thước gói hàng</Text>
-            <Text className="text-gray-300 font-bold text-xs">{shipping?.packageSize ? PackageSizeLabel[shipping.packageSize as keyof typeof PackageSizeLabel] : 'Vui lòng chọn'}</Text>
+            <Text 
+              className={`font-bold text-base  ${isRequireSelectShippingPackageSize && `text-orange-500`}`}>Kích thước gói hàng</Text>
+            <Text className="text-gray-300 font-bold text-xs">
+              {shipping?.packageSize && !isRequireSelectShippingPackageSize ? PackageSizeLabel[shipping.packageSize as keyof typeof PackageSizeLabel] : 'Vui lòng chọn'}</Text>
           </View>
           {isEditPackageSize && <AntDesign name="right" size={18} color="black" />}
         </Box>

@@ -7,7 +7,7 @@ import ActionsBottom from '~/src/components/order-detail/actions-bottom';
 import Header from '~/src/components/order-detail/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-detail/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-detail/input-amount-popup';
-import { PackageSizePicker } from '~/src/components/order-detail/package-size-picker';
+import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
 import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
@@ -35,10 +35,6 @@ const OrderPick = () => {
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
   const orderDetail = useOrderPick.use.orderDetail();
-  const deliveryType = orderDetail?.header?.deliveryType;
-
-  const isShowPackageSizePicker = deliveryType !== 'CUSTOMER_PICKUP';
-
 
   const isEditManual = useOrderPick.use.isEditManual();
   const currentId = useOrderPick.use.currentId();
@@ -145,7 +141,6 @@ const OrderPick = () => {
   return (
     <>
       <View className="flex-1 bg-gray-50 pt-2">
-        {isShowPackageSizePicker && <PackageSizePicker />}
         <OrderPickProducts />
       </View>
       <ActionsBottom />
