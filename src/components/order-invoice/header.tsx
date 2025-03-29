@@ -3,25 +3,22 @@ import { More2Fill } from '@/core/svgs';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useGlobalSearchParams } from 'expo-router';
-import { debounce, toLower } from 'lodash';
+import { debounce } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import { setIsEditManual, setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { getConfigNameById } from "~/src/core/utils/config";
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
-import { Employee } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
-import { GroupShippingInfo } from './group-shipping-info';
-import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
-import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -43,31 +40,6 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
   )
 }
 
-const Picker = ({picker}: {picker: {username: string, name: string}}) => {
-  if (!picker) return null;
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
-
-  const totalPickedDone = useMemo(() => {
-    return orderPickProductsFlat?.filter((bag: Product | ProductItemGroup) => (bag as Product).pickedTime)?.length;
-  }, [orderPickProductsFlat]);
-
-  return (
-    <View className='flex flex-row items-center justify-between mt-2'>
-      <View className='flex flex-row items-center'>
-        <Feather name="package" size={18} color="gray" />
-        <View className="flex flex-row gap-1 items-center ml-2">
-          <Text className="text-sm text-gray-500">Picker</Text>
-          <Text className="text-sm">{picker?.username}</Text>
-        </View>
-      </View>
-      <View className='flex flex-row gap-1 items-center'>
-        <Text className='text-sm text-gray-500'>Pick</Text>
-        <Badge label={`${totalPickedDone || 0}/${orderPickProductsFlat?.length || 0}`} variant="warning" />
-      </View>
-    </View>
-  )
-}
 type Props = {
   onClickHeaderAction?: () => void;
 };
@@ -107,7 +79,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
       <View className="flex-row justify-between">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
           <View className='flex flex-row items-center gap-2'>
-            <ButtonBack title="PICK & PACK" />
+            <ButtonBack title="ĐƠN HÀNG" />
           </View>
           <Text className="font-semibold text-sm">{code}</Text>
           {status && (
@@ -126,8 +98,6 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
         </TouchableOpacity>
       </View>
       <HeaderTags tags={tags} />
-      <Picker picker={picker as Employee} />
-      {GROUP_SHIPPING_ENABLED && <GroupShippingInfo />}
       <View className="flex flex-row mt-2 justify-between items-center pb-3 gap-3">
         <Input
           className="flex-grow"
