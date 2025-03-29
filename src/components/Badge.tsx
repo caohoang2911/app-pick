@@ -8,6 +8,7 @@ const badgeVariants = cva(
       variant: {
         default: 'bg-blue-50',
         secondary: 'bg-gray-50',
+        transparent: 'bg-gray-transparent',
         warning: 'bg-orange-50',
         danger: 'bg-red-50',
         pink: 'bg-pink-50',
@@ -34,6 +35,7 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
     variant: {
       default: 'blue text-blue-600',
       secondary: 'text-secondary-foreground',
+      transparent: 'text-gray-500',
       destructive: 'text-destructive-foreground',
       pink: 'text-pink-600',
       danger: 'text-red-600',
@@ -76,7 +78,7 @@ function Badge({
       className={`${badgeVariants({ variant })} rounded-full items-center ${className}`}
       {...props}
     >
-      {/* {icon} */}
+      {icon}
       <Text numberOfLines={1} ellipsizeMode='tail' className={`${badgeTextVariants({ variant })} ${labelClasses}`}>
         {label} {extraLabel}
       </Text>
