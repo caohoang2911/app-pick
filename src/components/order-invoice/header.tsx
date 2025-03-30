@@ -19,6 +19,7 @@ import { OrderDetail } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
+import HeaderActionBtn from './header-action-btn';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -76,7 +77,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   return (
     <View className="px-4 bg-white">
-      <View className="flex-row justify-between">
+      <View className="flex-row justify-between items-center">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
           <View className='flex flex-row items-center gap-2'>
             <ButtonBack title="ĐƠN HÀNG" />
@@ -91,11 +92,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             />
           )}
         </View>
-        <TouchableOpacity onPress={onClickHeaderAction}>
-          <View className='p-2 -mr-1'>
-            <More2Fill width={20} height={20} />
-          </View>
-        </TouchableOpacity>
+        <HeaderActionBtn />
       </View>
       <HeaderTags tags={tags} />
       <View className="flex flex-row mt-2 justify-between items-center pb-3 gap-3">
