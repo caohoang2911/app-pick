@@ -87,7 +87,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             <Badge
               icon={<View className='w-1 h-1 bg-blue-500 rounded-full mr-1' />}
               label={statusName as string || status}
-              variant={"transparent"}
+              variant={ORDER_STATUS_BADGE_VARIANT[status as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any}
               extraLabel={<Text className="text-xs text-contentPrimary"> | {moment(lastTimeUpdateStatus).fromNow()}</Text>}
             />
           )}
