@@ -20,7 +20,7 @@ const ButtonBack = ({
     <Pressable onPress={goBack} className="text-left -ml-3">
       <View className='p-1 flex flex-row items-center gap-2'>
         <ArrowLeft />
-        {title && <Text className="font-semibold text-gray-500 text-sm -ml-3">{title}</Text>}    
+        {typeof title === 'string' ? <Text className="font-semibold text-gray-500 text-sm -ml-3">{title}</Text> : title}    
       </View>
     </Pressable>
   );
