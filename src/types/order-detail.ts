@@ -101,6 +101,8 @@ export interface OrderDetailHeader {
     provider?: string;
     fee?: number;
     distance: number;
+    driverName?: string;
+    driverPhone?: string;
     duration: number;
     trackingLink: string;
     trackingNumber: string;

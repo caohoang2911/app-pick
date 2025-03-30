@@ -25,7 +25,8 @@ const RowWithLabel = memo(({icon, label, value, pickedItemProgress}: {icon: Reac
       <View style={{width: 72}}><Text className="text-gray-500">{label}</Text></View>
       <Text className="font-medium" numberOfLines={1} style={{ maxWidth: pickedItemProgress ? "60%" : "68%" }} ellipsizeMode="tail">{value}</Text>
       {pickedItemProgress && (
-        <View className="flex flex-row ml-auto gap-1">
+        <View className="flex flex-row ml-auto gap-1 items-center">
+          <Text className="text-sm text-gray-500">Pick</Text>
           <Badge label={`${pickedItemProgress}`} variant="warning" />
         </View>
       )}

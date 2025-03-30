@@ -1,8 +1,7 @@
 
 
 import { Stack } from "expo-router";
-import HeaderActionBtn from "~/src/components/order-invoice/header-action-btn";
-import Header from "~/src/components/shared/Header";
+import HeaderInvoice from "~/src/components/order-invoice/header";
 
 export default function OrderInvoiceLayout() {
   return (
@@ -12,10 +11,7 @@ export default function OrderInvoiceLayout() {
         options={{ 
           headerShown: true,
           header: () => (
-            <Header
-              title="Hóa đơn"
-              headerRight={<HeaderActionBtn />}
-            />
+            <HeaderInvoice />
           )
         }} 
       />
