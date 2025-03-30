@@ -14,7 +14,7 @@ const ShippingInfo = () => {
       <View className='flex flex-row items-center gap-2'>
         <View style={{ width: COL_LEFT_WIDTH }}><Text className='font-semibold'>Vận chuyển</Text></View>
         <View className='flex-1 flex flex-row items-center gap-2'>
-          <Pressable onPress={() => Linking.openURL(shipping?.trackingLink || '')}>
+          <Pressable onPress={() => shipping?.trackingLink ? Linking.openURL(shipping?.trackingLink || '') : null}>
             <Text className='text-sm text-orange-500'>{shipping?.trackingNumber || '--'}</Text>  
           </Pressable>
           {shipping?.trackingNumber && <Entypo name="chevron-small-right" size={20} color="gray" />}
