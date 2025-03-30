@@ -1,7 +1,5 @@
-import { SimpleLineIcons } from '@expo/vector-icons';
-import React, { useMemo } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { Swipeable } from 'react-native-gesture-handler';
+import React, { Fragment, useMemo } from 'react';
+import { Text, View } from 'react-native';
 import { toggleConfirmationRemoveProductCombo } from '~/src/core/store/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
@@ -44,7 +42,9 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
             //     </View>
             //   </TouchableOpacity>
             // }> // TODO: add swipeable
+            <Fragment key={index}>  
               <OrderPickProduct {...product} isHiddenTag />
+            </Fragment>
             // </Swipeable>
           ))}
         </View>
