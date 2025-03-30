@@ -80,9 +80,9 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
       <View className="flex-row justify-between items-center">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
           <View className='flex flex-row items-center gap-2'>
-            <ButtonBack title="ĐƠN HÀNG" />
+            <ButtonBack />
           </View>
-          <Text className="font-semibold text-sm">{code}</Text>
+          <Text className="font-semibold text-base">{code}</Text>
           {status && (
             <Badge
               icon={<View className='w-1 h-1 bg-blue-500 rounded-full mr-1' />}
