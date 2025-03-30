@@ -121,7 +121,7 @@ const HeaderActionBtn = () => {
 
   return (
     <>
-      <Pressable onPress={() => setVisible(true)}>
+      <Pressable onPress={() => setVisible(true)} className="px-1">
         <More2Fill width={20} height={20} />
       </Pressable>
       <SBottomSheet
