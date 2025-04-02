@@ -17,11 +17,11 @@ const ProductItem = ({ image, name, quantity, unit, barcode }: { image: string, 
           contentFit="cover"
           transition={1000}
         />
-        <View className='flex flex-col gap-1 flex-1'>
+        <View className='flex flex-col gap-2 flex-1'>
           <Text numberOfLines={2}>{name}</Text>
           <View className='flex flex-row justify-between items-center'>
-            <Text className='text-gray-700'>{barcode}</Text>
-            <Text className='self-center'>{quantity} {unit}</Text>
+            <Text className='text-gray-500'>{barcode}</Text>
+            <Text className='self-center text-gray-500'>{quantity} {unit}</Text>
           </View>
         </View>
      </View>
