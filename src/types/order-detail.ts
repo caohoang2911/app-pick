@@ -97,9 +97,11 @@ export interface OrderDetailHeader {
   isExistCallLog?: boolean;
   shipping?: {
     serviceId: string;
+    serviceName?: string;
     method: string;
     provider?: string;
     fee?: number;
+    packageName?: string;
     distance: number;
     driverName?: string;
     driverPhone?: string;

@@ -56,9 +56,9 @@ const Picker = ({picker}: {picker: {username: string, name: string}}) => {
     <View className='flex flex-row items-center justify-between mt-2'>
       <View className='flex flex-row items-center'>
         <Feather name="package" size={18} color="gray" />
-        <View className="flex flex-row gap-1 items-center ml-2">
+        <View className="flex flex-row gap-1 items-center ml-2 max-w-[80%]">
           <Text className="text-sm text-gray-500">Picker</Text>
-          <Text className="text-sm">{picker?.username}</Text>
+          <Text className="text-sm" numberOfLines={1} ellipsizeMode='tail'>{picker?.name} - {picker?.username}</Text>
         </View>
       </View>
       <View className='flex flex-row gap-1 items-center'>

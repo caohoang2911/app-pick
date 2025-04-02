@@ -1,36 +1,45 @@
-import React from 'react'
-import { StyleSheet, View, Text, Platform, Pressable, Linking } from 'react-native'
+import React, { useRef } from 'react'
+import { StyleSheet, View, Text, Platform } from 'react-native'
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
-import Entypo from '@expo/vector-icons/Entypo';
+import TrackingButton from './tracking-button';
 const COL_LEFT_WIDTH = 105;
 
 const ShippingInfo = () => {
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { shipping  } = header || {};
+  const { shipping } = header || {};
 
   return (
     <View className='bg-white mx-4 px-4 py-3 gap-2' style={styles.box}> 
       <View className='flex flex-row items-center gap-2'>
         <View style={{ width: COL_LEFT_WIDTH }}><Text className='font-semibold'>Vận chuyển</Text></View>
-        <View className='flex-1 flex flex-row items-center gap-2'>
-          <Pressable onPress={() => shipping?.trackingLink ? Linking.openURL(shipping?.trackingLink || '') : null}>
-            <Text className='text-sm text-orange-500'>{shipping?.trackingNumber || '--'}</Text>  
-          </Pressable>
-          {shipping?.trackingNumber && <Entypo name="chevron-small-right" size={20} color="gray" />}
+        <View className='flex-1 flex flex-row items-center gap-2 justify-between'>
+          {shipping?.trackingNumber && (
+            <TrackingButton 
+              trackingNumber={shipping.trackingNumber} 
+              trackingUrl={shipping.trackingLink}
+              carrierName={"Tracking mã vận đơn"}
+            />
+          )}
         </View>
       </View>
       <View className='flex flex-row items-center gap-2'>
         <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Kích thước</Text></View>
-        <Text className='text-sm'>{shipping?.packageSize || '--'}</Text>
+        <View className='flex-1'>
+          <Text className='text-sm' numberOfLines={1} ellipsizeMode='tail'>{shipping?.packageName || shipping?.packageSize || '--'}</Text>
+        </View>
       </View>
-      <View className='flex flex-row items-center gap-2'>
+      <View className='flex flex-1 flex-row items-center justify-between gap-2'>
         <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Service</Text></View>
-        <Text className='text-sm'>{shipping?.serviceId && shipping?.provider ? `${shipping?.provider} - ${shipping?.serviceId}` : '--'}</Text>
+        <View className='flex-1'>
+          <Text className='text-sm' numberOfLines={1} ellipsizeMode='tail'>{shipping?.serviceName || '--'}</Text> 
+        </View>
       </View>
       <View className='flex flex-row items-center gap-2'>
         <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Tài xế</Text></View>
-        <Text className='text-sm'>{shipping?.driverName || '--'}</Text>
+        <View className='flex-1'>
+          <Text className='text-sm' numberOfLines={1} ellipsizeMode='tail'>{shipping?.driverName || '--'}</Text>
+        </View>
       </View>
     </View>
   )
