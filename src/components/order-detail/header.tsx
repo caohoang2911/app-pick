@@ -3,11 +3,13 @@ import { More2Fill } from '@/core/svgs';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useGlobalSearchParams } from 'expo-router';
-import { debounce, toLower } from 'lodash';
+import { debounce, lowerCase, toLower } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
+import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import { setIsEditManual, setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
@@ -20,8 +22,7 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import { GroupShippingInfo } from './group-shipping-info';
-import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
-import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
+import WaveButton from '../shared/WaveButton';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -104,26 +105,26 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   return (
     <View className="px-4 bg-white">
-      <View className="flex-row justify-between">
+      <View className="flex-row justify-between gap-2">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
-          <View className='flex flex-row items-center gap-2'>
+          <View className='flex flex-row items-center gap-1'>
             <ButtonBack title={<Text className="font-semibold text-base">{code}</Text>} />
           </View>
-          
           {status && (
             <Badge
-              icon={<View className='w-1 h-1 bg-blue-500 rounded-full mr-1' />}
-              label={statusName as string || status}
-              variant={ORDER_STATUS_BADGE_VARIANT[status as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any}
-              extraLabel={<Text className="text-xs text-contentPrimary"> | {moment(lastTimeUpdateStatus).fromNow()}</Text>}
+              label={statusName}
+              variant={toLower(status as string) as any}
+              extraLabel={<Text className="text-xs text-contentPrimary ml-3">
+                | {moment(lastTimeUpdateStatus).fromNow()}
+              </Text>}
             />
           )}
         </View>
-        <TouchableOpacity onPress={onClickHeaderAction}>
-          <View className='p-2 -mr-1'>
+        <WaveButton onPress={onClickHeaderAction} waveColor="rgba(0, 0, 0, 0.1)" waveSize={80}>
+          <View className='w-10 h-10 justify-center  items-center'>
             <More2Fill width={20} height={20} />
           </View>
-        </TouchableOpacity>
+        </WaveButton>
       </View>
       <HeaderTags tags={tags} />
       <Picker picker={picker as Employee} />
@@ -145,15 +146,19 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           allowClear
         />
         {shouldDisplayQrScan && (
-          <TouchableOpacity onPress={() => {
-            toggleScanQrCodeProduct(true);
-            setSuccessForBarcodeScan('');
-            setIsEditManual(false);
-          }}>
-            <View className=" bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
+          <WaveButton 
+            onPress={() => {
+              toggleScanQrCodeProduct(true);
+              setSuccessForBarcodeScan('');
+              setIsEditManual(false);
+            }}
+            waveColor="rgba(255, 255, 255, 0.3)"
+            waveSize={120}
+          >
+            <View className="bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
               <FontAwesome name="qrcode" size={24} color="white" />
             </View>
-          </TouchableOpacity>
+          </WaveButton>
         )}
       </View>
     </View>
