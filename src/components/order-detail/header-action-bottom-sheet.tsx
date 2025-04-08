@@ -100,7 +100,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         case 'scan-bag':
           if(!tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL)) {
             showMessage({
-              message: 'Vui lòng in bill trước khi Scan Túi - Giao hàng',
+              message: 'Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng',
               type: 'danger',
             });
           } else {

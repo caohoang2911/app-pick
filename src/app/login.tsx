@@ -24,11 +24,7 @@ export default function Login() {
       if(!zas || !userInfo) {
         return;
       }
-
       signIn({ token: zas as string, userInfo });
-      setTimeout(() => {
-        router.replace('/(drawer)/orders');
-      }, 100);
     }
   });
 
