@@ -52,7 +52,7 @@ const _useOrders = create<OrdersState>((set, get) => ({
       selectedOrderCounter: 'ALL',
       keyword: '',
       operationType: OPERATION_TYPE_DEFAULT,
-      deliveryType: 'SHIPPER_DELIVERY',
+      deliveryType: '',
     });
   },
 }));

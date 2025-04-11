@@ -7,7 +7,6 @@ import ActionsBottom from '~/src/components/order-detail/actions-bottom';
 import Header from '~/src/components/order-detail/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-detail/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-detail/input-amount-popup';
-import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
 import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
@@ -108,13 +107,11 @@ const OrderPick = () => {
       const currentAmount = !isScanMoreProduct ? Number(currentProduct?.pickedQuantity) + 1 || 1 : 1;
 
       if (currentBarcode) {
-        // setTimeout(() => {
-          const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + Number(quantity || currentAmount);
+        const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + Number(quantity || currentAmount);
 
-          setSuccessForBarcodeScan(currentBarcode);
-          setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
-          toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.id);
-        // }, 100);
+        setSuccessForBarcodeScan(currentBarcode);
+        setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
+        toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.id);
       }
       
     },
