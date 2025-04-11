@@ -86,7 +86,19 @@ const OrderList = () => {
   const deliveryType = useOrders.use.deliveryType();
   const operationType = useOrders.use.operationType();
   const fromScanQrCode = useOrders.use.fromScanQrCode();
-  const { storeCode } = useAuth.use.userInfo();
+  const userInfo = useAuth.use.userInfo();
+  const { storeCode = '' } = userInfo || {};
+
+  // Add verification for store code
+  const [isStoreReady, setIsStoreReady] = useState(!!storeCode);
+
+  // Check if store code is available
+  useEffect(() => {
+    if (storeCode && !isStoreReady) {
+      setIsStoreReady(true);
+      console.log("Store code is now available:", storeCode);
+    }
+  }, [storeCode, isStoreReady]);
 
   // State
   const [isRefreshIndicatorVisible, setIsRefreshIndicatorVisible] = useState(false);
@@ -97,7 +109,7 @@ const OrderList = () => {
     status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
     deliveryType: fromScanQrCode ? null : deliveryType,
     operationType: fromScanQrCode ? null : operationType,
-    storeCode,
+    storeCode: storeCode || '',
   }), [selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode]);
 
   // Check if params have changed
@@ -135,7 +147,7 @@ const OrderList = () => {
   const orderList = useMemo(() => ordersResponse?.pages || [], [ordersResponse?.pages]);
   const hasItems = orderList.length > 0;
   const hasError = !!(ordersResponse as any)?.error;
-  const isLoading = !hasPreviousPage && isPending && !isManualRefreshRef.current;
+  const isLoading = (!hasPreviousPage && isPending && !isManualRefreshRef.current) || !isStoreReady;
 
   // Reset scan QR flag after successful fetch
   useEffect(() => {

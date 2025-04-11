@@ -25,6 +25,7 @@ export default function Login() {
         return;
       }
       signIn({ token: zas as string, userInfo });
+      router.replace('/(drawer)/orders');
     }
   });
 
