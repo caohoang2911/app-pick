@@ -105,12 +105,15 @@ const OrderList = () => {
   const [visibleIndices, setVisibleIndices] = useState<number[]>([]);
 
   // Memoize search params
-  const params = useMemo(() => ({
-    status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
-    deliveryType: fromScanQrCode ? null : deliveryType,
-    operationType: fromScanQrCode ? null : operationType,
-    storeCode: storeCode || '',
-  }), [selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode]);
+  const params = useMemo(() =>{
+    
+    return ({
+      status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
+      deliveryType: fromScanQrCode ? null : deliveryType,
+      operationType: fromScanQrCode ? null : operationType,
+      storeCode: storeCode || '',
+    })
+  }, [selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode]);
 
   // Check if params have changed
   const haveParamsChanged = useCallback(() => {
@@ -119,10 +122,10 @@ const OrderList = () => {
     // Only compare relevant fields for reload
     const prevParams = prevParamsRef.current;
     return (
-      prevParams.status !== params.status ||
-      prevParams.deliveryType !== params.deliveryType ||
-      prevParams.operationType !== params.operationType ||
-      prevParams.storeCode !== params.storeCode
+      prevParams.status !== params?.status ||
+      prevParams.deliveryType !== params?.deliveryType ||
+      prevParams.operationType !== params?.operationType ||
+      prevParams.storeCode !== params?.storeCode
     );
   }, [params]);
 
@@ -178,11 +181,11 @@ const OrderList = () => {
   // Refresh on screen focus
   useFocusEffect(
     useCallback(() => {
-      if (!isInitialRender.current) {
+      if (!isInitialRender.current && params?.storeCode) {
         refetch();
       }
       return () => {};
-    }, [refetch])
+    }, [refetch, params?.storeCode])
   );
 
   // Pull-to-refresh handler
