@@ -134,7 +134,7 @@ const OrderList = () => {
     prevParamsRef.current = params;
   }, [params]);
 
-  // Data query
+  // Data query - Only run when storeCode exists
   const {
     data: ordersResponse,
     fetchNextPage,
@@ -145,7 +145,10 @@ const OrderList = () => {
     hasPreviousPage,
     isSuccess,
     isPending
-  } = useSearchOrders(params);
+  } = useSearchOrders(
+    // Only pass params when storeCode exists to prevent unnecessary API calls
+    isStoreReady && storeCode ? params : undefined
+  );
 
   const orderList = useMemo(() => ordersResponse?.pages || [], [ordersResponse?.pages]);
   const hasItems = orderList.length > 0;
@@ -161,35 +164,47 @@ const OrderList = () => {
 
   // First page reset function - memoized
   const goFirstPage = useCallback(async () => {
+    // Only reset and refetch if storeCode exists
+    if (!storeCode) {
+      console.log("[Orders] Cannot fetch without storeCode");
+      return Promise.resolve();
+    }
+
     await queryClient.setQueryData(['searchOrders', params], () => ({
       pages: [],
       pageParams: 1,
     }));
     return refetch();
-  }, [params, refetch]);
+  }, [params, refetch, storeCode]);
 
   // Reset page on filter changes
   useEffect(() => {
-    if (!isInitialRender.current && haveParamsChanged() && params?.storeCode) {
+    if (!isInitialRender.current && haveParamsChanged() && storeCode) {
       isManualRefreshRef.current = false;
       goFirstPage();
     } else {
       isInitialRender.current = false;
     }
-  }, [selectedOrderCounter, deliveryType, operationType, goFirstPage, haveParamsChanged]);
+  }, [selectedOrderCounter, deliveryType, operationType, goFirstPage, haveParamsChanged, storeCode]);
 
   // Refresh on screen focus
   useFocusEffect(
     useCallback(() => {
-      if (!isInitialRender.current && params?.storeCode) {
+      if (!isInitialRender.current && storeCode) {
         refetch();
       }
       return () => {};
-    }, [refetch, params?.storeCode])
+    }, [refetch, storeCode])
   );
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(() => {
+    // Only perform refresh if storeCode exists
+    if (!storeCode) {
+      console.log("[Orders] Cannot refresh without storeCode");
+      return;
+    }
+
     isManualRefreshRef.current = true;
     setIsRefreshIndicatorVisible(true);
     
@@ -209,11 +224,11 @@ const OrderList = () => {
 
   // Handle end reached - load more data
   const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetching && !isFetchingNextPage) {
+    if (hasNextPage && !isFetching && !isFetchingNextPage && storeCode) {
       isManualRefreshRef.current = false;
       fetchNextPage();
     }
-  }, [hasNextPage, isFetching, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, isFetching, isFetchingNextPage, fetchNextPage, storeCode]);
 
   // Memoize item renderer to prevent unnecessary re-renders
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {

@@ -1,4 +1,5 @@
 import { INJECTED_SCRIPT, parseEventData, signIn, useAuth } from '@/core';
+import { consumePendingDeepLink, processDeepLink } from '@/core/hooks/useHandleDeepLink';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -51,7 +52,23 @@ const Authorize = () => {
 
         if (role === 'STORE') {
           signIn({ token: zas, userInfo: authInfo });
-          router.replace('/orders');
+          
+          // Check if there's a pending deep link to navigate to
+          const savedDeepLink = consumePendingDeepLink();
+          if (savedDeepLink && typeof savedDeepLink === 'string') {
+            console.log('[Authorize] Processing saved deep link:', savedDeepLink);
+            // Add a small delay to ensure auth is completed
+            setTimeout(() => {
+              try {
+                processDeepLink(savedDeepLink);
+              } catch (error) {
+                console.error('[Authorize] Error processing deep link:', error);
+                router.replace('/orders');
+              }
+            }, 500);
+          } else {
+            router.replace('/orders');
+          }
         } else {
           router.back();
           showAlert({
