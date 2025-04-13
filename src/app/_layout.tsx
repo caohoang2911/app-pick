@@ -168,7 +168,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                   <NetworkStatus />
                   {loading && <Loading />}
-                  <Button title="Test Deep Link" onPress={() => Linking.openURL('apppick://oms.seedcom.vn/orders')} />
                   {children}
                   <AlertDialog />
                 </SafeAreaView>

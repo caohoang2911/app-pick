@@ -117,6 +117,22 @@ const DeepLinkTestScreen = () => {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Cross-App Integration</Text>
+          
+          <Text style={styles.infoText}>
+            Note: App Pick Dev (this app) chỉ có thể mở với scheme apppickdev://
+          </Text>
+          <Text style={styles.infoText}>
+            Production App Pick sẽ mở với scheme apppick://
+          </Text>
+          
+          {renderLinkTest(
+            'Open in Web Browser', 
+            `https://oms.seedcom.vn/order-detail?orderCode=${TEST_ORDER_CODE}`
+          )}
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>How to Use in Other Apps</Text>
           <Text style={styles.codeExample}>
 {`// In React Native
@@ -126,12 +142,25 @@ import { Linking } from 'react-native';
 const openAppPick = async () => {
   const url = 'apppick://oms.seedcom.vn/order-detail?orderCode=123456';
   
-  const canOpen = await Linking.canOpenURL(url);
-  if (canOpen) {
-    await Linking.openURL(url);
-  } else {
-    // App not installed, open web URL instead
-    Linking.openURL('https://oms.seedcom.vn/order-detail?orderCode=123456');
+  try {
+    // Thử mở App Pick Dev
+    const canOpenDev = await Linking.canOpenURL(devUrl);
+    if (canOpenDev) {
+      await Linking.openURL(devUrl);
+      return;
+    }
+    
+    // Thử mở App Pick Production
+    const canOpenProd = await Linking.canOpenURL(prodUrl);
+    if (canOpenProd) {
+      await Linking.openURL(prodUrl);
+      return;
+    }
+    
+    // Fallback to web if no app is installed
+    Linking.openURL(webUrl);
+  } catch (error) {
+    console.error('Error opening URL:', error);
   }
 };`}
           </Text>
@@ -216,6 +245,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginTop: 10,
+  },
+  infoText: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
   },
 });
 
