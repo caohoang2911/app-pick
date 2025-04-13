@@ -3,7 +3,7 @@
     "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -27,8 +27,7 @@
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
-              "apppick",
-              "apppickdev"
+              "apppick"
             ]
           }
         ]
