@@ -170,7 +170,7 @@ const OrderList = () => {
 
   // Reset page on filter changes
   useEffect(() => {
-    if (!isInitialRender.current && haveParamsChanged()) {
+    if (!isInitialRender.current && haveParamsChanged() && params?.storeCode) {
       isManualRefreshRef.current = false;
       goFirstPage();
     } else {
