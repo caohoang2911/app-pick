@@ -2,8 +2,8 @@
   "expo": {
     "name": "App Pick Dev",
     "slug": "seedcom-app-pick",
-    "scheme": "apppick",
-    "version": "1.0.14",
+    "scheme": "apppickdev",
+    "version": "1.0.13-dev",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,13 +16,22 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.caohoang2911.seedcom-app-pick-dev",
       "associatedDomains": [
-        "applinks:expo.dev"
+        "applinks:expo.dev",
+        "applinks:oms.seedcom.vn"
       ],
       "googleServicesFile": "./GoogleService-Info.plist",
       "buildNumber": "3",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "Ứng dụng cần quyền truy cập mạng cục bộ để kết nối với máy in",
-        "NSBonjourServices": ["_http._tcp"]
+        "NSBonjourServices": ["_http._tcp"],
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "apppick",
+              "apppickdev"
+            ]
+          }
+        ]
       }
     },
     "android": {
@@ -35,7 +44,39 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "oms.seedcom.vn",
+              "pathPrefix": "/order-detail"
+            },
+            {
+              "scheme": "https",
+              "host": "oms.seedcom.vn",
+              "pathPrefix": "/order-invoice"
+            },
+            {
+              "scheme": "https",
+              "host": "oms.seedcom.vn",
+              "pathPrefix": "/scan-to-delivery"
+            },
+            {
+              "scheme": "https",
+              "host": "oms.seedcom.vn",
+              "pathPrefix": "/orders"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
