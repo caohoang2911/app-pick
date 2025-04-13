@@ -29,10 +29,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="apppickdev"/>
-        <data android:scheme="apppick"/>
         <data android:scheme="com.caohoang2911.AppPickDev"/>
-        <data android:scheme="com.caohoang2911.AppPick"/>
-
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>

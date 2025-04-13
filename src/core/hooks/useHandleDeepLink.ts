@@ -18,7 +18,7 @@ const useHandleDeepLink = () => {
   function extractPathFromUrl(url: string): string {
     console.log("[DeepLink] Extracting path from URL:", url);
     
-    // Only handle apppickdev:// scheme
+    // Only handle apppickdev:// scheme in App Pick Dev
     if (url.startsWith('apppickdev://')) {
       // Remove the scheme and any trailing slashes
       const path = url.replace('apppickdev://', '').split('?')[0];

@@ -7,7 +7,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
-import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
+import { router, SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -23,7 +23,7 @@ import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import '@/ui/global.css';
 import React, { useCallback, useEffect, useState } from 'react';
-import { AppState, StatusBar, Text, View } from 'react-native';
+import { AppState, Button, Linking, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
@@ -168,6 +168,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                   <NetworkStatus />
                   {loading && <Loading />}
+                  <Button title="Test Deep Link" onPress={() => Linking.openURL('apppick://oms.seedcom.vn/orders')} />
                   {children}
                   <AlertDialog />
                 </SafeAreaView>
