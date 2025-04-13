@@ -1,6 +1,7 @@
 import { useLogin } from '@/api/auth';
 import { Button } from '@/components/Button';
-import { setRedirectUrl, signIn } from '@/core';
+import { setRedirectUrl, signIn, useAuth } from '@/core';
+import { consumePendingDeepLink, processDeepLink } from '@/core/hooks/useHandleDeepLink';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Formik } from 'formik';
@@ -25,7 +26,23 @@ export default function Login() {
         return;
       }
       signIn({ token: zas as string, userInfo });
-      router.replace('/(drawer)/orders');
+      
+      // Check if there's a pending deep link to navigate to
+      const savedDeepLink = consumePendingDeepLink();
+      if (savedDeepLink && typeof savedDeepLink === 'string') {
+        console.log('[Login] Processing saved deep link:', savedDeepLink);
+        // Give time for auth to complete
+        setTimeout(() => {
+          try {
+            processDeepLink(savedDeepLink);
+          } catch (error) {
+            console.error('[Login] Error processing deep link:', error);
+            router.replace('/(drawer)/orders');
+          }
+        }, 500);
+      } else {
+        router.replace('/(drawer)/orders');
+      }
     }
   });
 
