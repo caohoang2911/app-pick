@@ -72,9 +72,8 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => (
 ));
 
 // Error message component
-const ErrorMessage = memo(({ errorName }: { errorName: string }) => (
+const WarningMessage = memo(({ errorName }: { errorName: string }) => (
   <View className="flex gap-1">
-    <View className="border mb-2 border-gray-100 mt-3" />
     <View className='flex flex-row bg-orange-100 p-2 gap-2 rounded-md items-center self-end'>
       <Text className='text-orange-500 text-xs'>{errorName}</Text>
     </View>
@@ -192,7 +191,14 @@ const OrderPickProduct = memo(({
   }, [tags]);
 
   const isDisable = useMemo(() => disable && isGift, [disable, isGift]) && isGift;
-  
+
+  const orderQuantityNum = Number(orderQuantity);
+  const allowedExcess = orderQuantityNum * 0.05; // 5% tolerance
+
+  const isWarningOverQuantity = useMemo(() => {
+    return Number(pickedQuantity) > (orderQuantityNum + allowedExcess);
+  }, [pickedQuantity, orderQuantity]);
+
   // Memoize expensive calculations
   const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]);
   const pickedErrorName = useMemo(() => 
@@ -291,7 +297,19 @@ const OrderPickProduct = memo(({
           </View>
         </View>
         
-        {pickedErrorName ? <ErrorMessage errorName={pickedErrorName} /> : null}
+        {pickedErrorName &&
+          <>
+            <View className="border mb-2 border-gray-100 mt-3" />
+            <WarningMessage errorName={pickedErrorName} /> 
+          </>
+        }
+        {isWarningOverQuantity &&
+          <>
+            <View className="border mb-2 border-gray-100 mt-3" />
+            <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} /> 
+          </>
+        }
+
       </View>
       
       {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}

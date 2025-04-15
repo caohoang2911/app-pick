@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Text, TextStyle, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ScrollView, Text, TextStyle, TouchableOpacity, View, LayoutChangeEvent } from 'react-native';
 import { useGetOrderDeliveryTypeCounters } from '~/src/api/app-pick/use-get-order-delivery-type-counters';
 import { queryClient } from '~/src/api/shared';
 import { useAuth } from '~/src/core';
@@ -38,7 +38,11 @@ function DeliveryType() {
 
   const { data, refetch } = useGetOrderDeliveryTypeCounters({ operationType, storeCode, status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
 
-  const counters = {...cachingShippingMethods.current, ...(data as any)?.data} || {};
+  const counters = data?.data ? { ...cachingShippingMethods.current, ...data.data } : {};
+
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [contentWidth, setContentWidth] = useState(0);
+  const scrollEnabled = contentWidth > containerWidth;
 
   useFocusEffect(
     useCallback(() => {
@@ -93,12 +97,31 @@ function DeliveryType() {
   }, [counters])
 
   return (
-    <View className='flex flex-row items-center justify-end gap-2 pb-1'>
-        {options.map((item, index) => (
-          <View key={index}>
-            {item.label}
-          </View>
-        ))}
+    <View 
+      className='flex flex-row'
+      onLayout={(event: LayoutChangeEvent) => {
+        setContainerWidth(event.nativeEvent.layout.width);
+      }}
+    >
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ justifyContent: 'flex-end', flexGrow: 1 }}
+        style={{ flex: 1 }}
+        scrollEnabled={scrollEnabled}
+        onContentSizeChange={(width) => {
+          setContentWidth(width);
+        }}
+      >
+        {options?.map((item, index) => {
+          const isLast = index === options.length - 1;
+          return (
+            <View key={index} className={`${isLast ? 'mr-0' : 'mr-2'}`}>
+              {item.label}
+            </View>
+          )
+        })}
+      </ScrollView>
     </View>
   );
 }

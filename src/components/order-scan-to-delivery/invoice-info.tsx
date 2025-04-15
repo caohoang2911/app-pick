@@ -40,8 +40,19 @@ const InvoiceInfo = () => {
   return (
     <Box>
       <View className='flex flex-row items-center flex-wrap'>
-        <View style={{ minWidth: COL_LEFT_WIDTH }}><Text className='text-base font-medium'>{code}</Text></View>
-        <View className='flex flex-row gap-1 flex-wrap'>
+        <View className='flex flex-row items-center justify-between gap-2 w-full'>
+          <Text className='text-base font-medium'>{code}</Text>
+          <Badge
+            label={statusName as string}
+            extraLabel={
+              <Text className="text-xs text-contentPrimary"> | &nbsp;
+                {moment(orderTime).fromNow()}
+              </Text>
+            } 
+            variant={toLower(status as string) as any}
+          />  
+        </View>
+        <View className='flex flex-row gap-1 flex-wrap mt-4'>
           {tags?.map((tag: string, index: number) => {
             const tagName = getConfigNameById(orderTags, tag)
             return <>
@@ -51,18 +62,6 @@ const InvoiceInfo = () => {
         </View>
       </View> 
       <View className='flex gap-2 mt-3'>
-        <View className='flex flex-row items-center'>
-          <View style={{ width: COL_LEFT_WIDTH }}><Text className='text-gray-500'>Trạng thái</Text></View>
-          <Badge
-            label={statusName as string}
-            extraLabel={
-              <Text className="text-xs text-contentPrimary"> | &nbsp;
-                {moment(orderTime).fromNow()}
-              </Text>
-            } 
-            variant={toLower(status as string) as any}
-          />
-        </View>
         <RowInfo label={payment?.methodName || '--'} value={formatCurrency(amount, { unit: true })} />
         <RowInfo label="Khách hàng" value={customer?.name || '' } />
         <RowInfo label="SDT" value={customer?.phone || ''} />
@@ -72,7 +71,7 @@ const InvoiceInfo = () => {
             <Text className='text-gray-500'>ĐC giao hàng</Text>
           </View>
           <View className='flex-1'>
-            <Text numberOfLines={2} ellipsizeMode='tail'>{deliveryAddress?.fullAddress}</Text>
+            <Text numberOfLines={1} ellipsizeMode='tail'>{deliveryAddress?.fullAddress}</Text>
           </View>
         </View>
         <RowInfo label="Tổng số túi" value={bagLabels?.length || 0} />
