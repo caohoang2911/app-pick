@@ -21,6 +21,7 @@ export type OrderBagItem = {
   type: OrderBagType;
   name?: string;
   isDone?: boolean;
+  lastScannedTime?: number;
 }
 
 export type OrderBag = {

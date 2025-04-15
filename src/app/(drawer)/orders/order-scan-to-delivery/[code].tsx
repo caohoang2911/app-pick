@@ -16,7 +16,7 @@ import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-detail';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { BarcodeScanningResult } from 'expo-camera';
-import { useSetOrderScanedBagLabel } from '~/src/api/app-pick/use-set-order-scaned-bag-label';
+import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { ORDER_STATUS } from '~/src/contants/order';
 
 const OrderScanToDelivery = () => {
@@ -50,7 +50,7 @@ const OrderScanToDelivery = () => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   });
 
-  const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabel();
+  const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
   const handleCheckoutOrderBags = () => {
     completeOrder({ orderCode: code });
@@ -67,14 +67,13 @@ const OrderScanToDelivery = () => {
 
   const isAllDone = useMemo(() => {
 
-    return orderBags.every((bag) => bag.isDone)
+    return orderBags.every((bag) => bag.isDone || bag.lastScannedTime)
   }, [orderBags, disableByStatus]);
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
-    scanQrCodeSuccess(result, (orderBagsCB) => {
-      const isDone = orderBagsCB.every((bag) => bag.isDone)
-      if(isDone) {
-        setOrderScanedBagLabel({ orderCode: code });
+    scanQrCodeSuccess(result, () => {
+      if(result?.data) {
+        setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
       }
     });
   }

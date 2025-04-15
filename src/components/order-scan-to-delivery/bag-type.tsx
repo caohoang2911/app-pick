@@ -18,11 +18,10 @@ const MemoizedBagItem = memo(BagItem);
 // Item renderer được tối ưu với memo và key duy nhất
 const renderBagItem = ({ item }: { item: OrderBagItem }) => (
   <MemoizedBagItem
-    key={item.code}
-    code={item.code}
-    type={item.type}
-    name={item.name}
-    isDone={item.isDone || false}
+    key={item?.code}
+    code={item?.code}
+    lastScannedTime={item?.lastScannedTime}
+    isDone={item?.isDone || false}
   />
 );
 
