@@ -11,7 +11,7 @@ const alertVariants = cva('rounded-lg flex justify-center', {
       success: 'bg-green-50',
       warning: 'bg-orange-100',
       default: 'bg-gray-50',
-      amber: 'bg-amber-500',
+      amber: 'bg-orange-400',
     },
     size: {
       default: 'p-4',
@@ -43,7 +43,7 @@ function SectionAlert({
 }: AlertProps) {
   return (
     <View
-      className={cn(alertVariants({ variant, size, className }))}
+      className={alertVariants({ variant, size, className })}
       {...props}
     >
       {children}

@@ -86,12 +86,13 @@ const OrderScanToDelivery = () => {
       <View className='flex-1 mt-3'>
         <ScrollView>
           {showAlert && (
-              <View className='px-4'>
-                  <SectionAlert 
-                    className='mb-3' variant='amber'>
-                  <Text className='text-white font-semibold'>
-                    Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng
-                  </Text>
+              <View className='px-4' style={{ marginBottom: 10 }}>
+                <SectionAlert 
+                    style={{ backgroundColor: '#FFA500' }}
+                    >
+                    <Text className='text-white font-semibold'>
+                      Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng
+                    </Text>
                 </SectionAlert>
               </View>
             )
