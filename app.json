@@ -30,7 +30,8 @@
               "apppick"
             ]
           }
-        ]
+        ],
+        "UIBackgroundModes": ["remote-notification"]
       }
     },
     "android": {

@@ -1,23 +1,23 @@
+import { BarcodeScanningResult } from 'expo-camera';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo } from 'react';
-import {  Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
+import { queryClient } from '~/src/api/shared';
+import { Button } from '~/src/components/Button';
+import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import { ORDER_STATUS, ORDER_TAGS } from '~/src/contants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
-import Bags from '~/src/components/order-scan-to-delivery/bags';
-import { getIsScanQrCodeProduct, scanQrCodeSuccess, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
-import { Button } from '~/src/components/Button';
-import { queryClient } from '~/src/api/shared';
 import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
+import { getIsScanQrCodeProduct, scanQrCodeSuccess, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-detail';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
-import { BarcodeScanningResult } from 'expo-camera';
-import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
-import { ORDER_STATUS } from '~/src/contants/order';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -29,7 +29,7 @@ const OrderScanToDelivery = () => {
 
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
   const header = getHeaderOrderDetailOrderPick();
-  const { deliveryType, status } = header as OrderDetailHeader;
+  const { deliveryType, status, tags} = header as OrderDetailHeader;
 
   const actionType = deliveryType ? (deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP' ? 'Hoàn tất đơn hàng' : 'Giao cho shipper') : '';
 
@@ -77,11 +77,25 @@ const OrderScanToDelivery = () => {
       }
     });
   }
+  const showAlert = useMemo(() => {
+    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
+  }, [tags]);
 
   return (
     <>
       <View className='flex-1 mt-3'>
         <ScrollView>
+          {showAlert && (
+              <View className='px-4'>
+                  <SectionAlert 
+                    className='mb-3' variant='amber'>
+                  <Text className='text-white font-semibold'>
+                    Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng
+                  </Text>
+                </SectionAlert>
+              </View>
+            )
+          }
           <View className='flex flex-col gap-4'>
             <InvoiceInfo />
             <View className='border-t border-gray-200 pb-3'>
