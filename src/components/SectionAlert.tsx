@@ -9,8 +9,9 @@ const alertVariants = cva('rounded-lg flex justify-center', {
       info: 'text-blue-50',
       danger: 'bg-red-50',
       success: 'bg-green-50',
-      warning: 'bg-yellow-50',
+      warning: 'bg-orange-100',
       default: 'bg-gray-50',
+      amber: 'bg-amber-500',
     },
     size: {
       default: 'p-4',

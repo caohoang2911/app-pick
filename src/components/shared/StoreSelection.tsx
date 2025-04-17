@@ -1,15 +1,15 @@
-import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState, useCallback, memo } from 'react';
-import { Text, TouchableOpacity, View, FlatList } from 'react-native';
+import { debounce } from 'lodash';
+import React, { forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState, useEffect } from 'react';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
+import { CheckCircleFill } from '~/src/core/svgs';
+import SearchLine from '~/src/core/svgs/SearchLine';
 import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import Empty from './Empty';
-import SearchLine from '~/src/core/svgs/SearchLine';
-import { CheckCircleFill } from '~/src/core/svgs';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
-import { debounce } from 'lodash';
 
 type StoreType = Option & { address: string };
 
@@ -23,7 +23,7 @@ const StoreItem = memo(({
   selectedId: string, 
   onSelect: (store: StoreType) => void 
 }) => {
-  const isSelected = selectedId === store.id;
+  const isSelected = selectedId === String(store.id);
   
   const handlePress = useCallback(() => {
     if (isSelected) return;
@@ -47,44 +47,55 @@ const StoreItem = memo(({
 });
 
 // Tách SearchBar thành component riêng
-const SearchBar = memo(({ 
-  onSearch 
-}: { 
-  onSearch: (text: string) => void 
-}) => {
-  const [searchText, setSearchText] = useState('');
-  
-  // Debounce search để tránh filter quá nhiều lần
-  const debouncedSearch = useRef(
-    debounce((text: string) => {
-      onSearch(text);
-    }, 300)
-  ).current;
-  
-  const handleChangeText = useCallback((value: string) => {
-    setSearchText(value);
-    debouncedSearch(value);
-  }, [debouncedSearch]);
-  
-  const handleClear = useCallback(() => {
-    setSearchText('');
-    onSearch('');
-  }, [onSearch]);
-  
-  return (
-    <View className="px-4 pt-3">
-      <Input
-        className="flex-grow"
-        placeholder="Tìm kiếm"
-        prefix={<SearchLine width={20} height={20} />}
-        onChangeText={handleChangeText}
-        value={searchText}
-        allowClear
-        onClear={handleClear}
-      />
-    </View>
-  );
-});
+const SearchBar = memo(
+  forwardRef<any, { 
+    onSearch: (text: string) => void 
+  }>(({ 
+    onSearch 
+  }, ref) => {
+    const [searchText, setSearchText] = useState('');
+    const inputRef = useRef<any>(null);
+    
+    // Expose focus method
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        inputRef.current?.focus();
+      }
+    }), []);
+    
+    // Debounce search để tránh filter quá nhiều lần
+    const debouncedSearch = useRef(
+      debounce((text: string) => {
+        onSearch(text);
+      }, 300)
+    ).current;
+    
+    const handleChangeText = useCallback((value: string) => {
+      setSearchText(value);
+      debouncedSearch(value);
+    }, [debouncedSearch]);
+    
+    const handleClear = useCallback(() => {
+      setSearchText('');
+      onSearch('');
+    }, [onSearch]);
+    
+    return (
+      <View className="px-4 pt-3">
+        <Input
+          ref={inputRef}
+          className="flex-grow"
+          placeholder="Tìm kiếm"
+          prefix={<SearchLine width={20} height={20} />}
+          onChangeText={handleChangeText}
+          value={searchText}
+          allowClear
+          onClear={handleClear}
+        />
+      </View>
+    );
+  })
+);
 
 type Props = {
   onSelect: (store: StoreType) => void;
@@ -96,7 +107,10 @@ const StoreSelection = forwardRef<any, Props>(
     const [visible, setVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const actionRef = useRef<any>();
+    const searchBarRef = useRef<any>(null);
     const { stores } = useConfig.use.config();
+    
+    const isKeyboardVisible = useKeyboardVisible();
 
     // Memoize the filtered stores
     const filteredStores = useMemo(() => {
@@ -159,33 +173,48 @@ const StoreSelection = forwardRef<any, Props>(
       />
     ), [selectedId, handleSelect]);
 
-    const keyExtractor = useCallback((item: StoreType) => item.id, []);
+    const keyExtractor = useCallback((item: StoreType) => item.id.toString(), []);
 
     const ListEmptyComponent = useCallback(() => <Empty />, []);
+
+    // Focus search input when bottom sheet becomes visible
+    useEffect(() => {
+      if (visible) {
+        // Add a small delay to ensure the bottom sheet is fully presented
+        const timer = setTimeout(() => {
+          searchBarRef.current?.focus();
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }, [visible]);
 
     return (
       <SBottomSheet
         visible={visible}
         title="Chọn cửa hàng"
         ref={actionRef}
-        snapPoints={[400, "80%"]}
+        maintainPositionOnKeyboard={false}
+        snapPoints={[isKeyboardVisible ? 600 : 400, "80%"]}
         onClose={handleClose}
         keyboardBehavior="extend"
       >
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar 
+          ref={searchBarRef}
+          onSearch={handleSearch} 
+        />
         
         <FlatList
           data={filteredStores}
           renderItem={renderItem}
-          keyExtractor={(item: StoreType, index: number) => keyExtractor(item)}
-          initialNumToRender={10}
+          keyExtractor={keyExtractor}
+          initialNumToRender={15}
           maxToRenderPerBatch={10}
           windowSize={5}
           removeClippedSubviews={true}
           ListEmptyComponent={ListEmptyComponent}
           keyboardShouldPersistTaps="handled"
           getItemLayout={(data, index) => ({
-            length: 80, // Ước tính chiều cao mỗi item
+            length: 80,
             offset: 80 * index,
             index
           })}

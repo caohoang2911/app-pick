@@ -7,7 +7,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
-import { router, SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
+import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -18,20 +18,21 @@ import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistration
 import { APIProvider, queryClient } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { hydrateAuth, useAuth } from '@/core';
+import { useCodepush } from '@/core/hooks/useCodePush';
+import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
-import '@/ui/global.css';
-import React, { useCallback, useEffect, useState } from 'react';
-import { AppState, Button, Linking, StatusBar, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCodepush } from '@/core/hooks/useCodePush';
-import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useLoading } from '@/core/store/loading';
 import { initConfigDate, setDefaultTimeZone } from '@/core/utils/moment';
-import AlertDialog from '../components/AlertDialog';
+import '@/ui/global.css';
 import * as Updates from 'expo-updates';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AppState, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
+import { checkNotificationPermission } from '../core/utils/notificationPermission';
 
 const VERSION = '1.0.41';
 
@@ -173,7 +174,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                 </SafeAreaView>
                 <AlertDialog />
                 <FlashMessage
-                  position="top"
+                  position="bottom"
                   duration={5000}
                   statusBarHeight={StatusBar.currentHeight}
                 />

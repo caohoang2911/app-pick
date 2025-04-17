@@ -98,14 +98,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           router.push(`orders/order-invoice/${code}`);
           break;
         case 'scan-bag':
-          if(!tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL)) {
-            showMessage({
-              message: 'Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng',
-              type: 'danger',
-            });
-          } else {
-            router.push(`orders/order-scan-to-delivery/${code}`);
-          }
+          router.push(`orders/order-scan-to-delivery/${code}`);
           break;
         case 'enter-bag-and-tem':
           router.push(`orders/order-bags/${code}`);

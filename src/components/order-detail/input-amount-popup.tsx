@@ -120,10 +120,10 @@ const QuantitySection = memo(({
   }, [quantity, setFieldValue]);
 
   const errorMessage = useMemo(() => {
-    return (Number(values?.pickedQuantity) < quantityInit && !values?.pickedError) 
+    return (Number(values?.pickedQuantity) < Number(quantityInit) && !values?.pickedError) 
       ? "SL pick nhỏ hơn SL đặt. Vui lòng chọn lý do" 
       : undefined;
-  }, [values?.pickedQuantity, values?.pickedError, quantity]);
+  }, [values?.pickedQuantity, values?.pickedError, quantityInit]);
 
   return (
     <View className="flex gap-2" style={{ position: 'relative' }}>
