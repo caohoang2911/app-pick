@@ -4,7 +4,7 @@ import { toLower } from 'lodash';
 import moment from 'moment';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
+import { useSearchOrdersByKeywork } from '~/src/api/app-pick/use-search-orders-by-keywork';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { useAuth } from '~/src/core/store/auth';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
@@ -77,7 +77,6 @@ const InputSearch = ({
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
   const [value, setValue] = useState<string>();
   const [isSearching, setIsSearching] = useState(false);
-  const { storeCode } = useAuth.use.userInfo();
   const keyword = useOrders.use.keyword();
 
   const searchableDropdownRef = useRef<SearchableDropdownRef>(null);
@@ -89,18 +88,13 @@ const InputSearch = ({
     }
   }, [keyword]);
 
-  const params = useMemo(() => ({
-    keyword: value || '',
-    storeCode,
-  }), [value, storeCode]);
-
   const {
     data: ordersResponse,
     refetch,
     isRefetching,
     isLoading,
     isFetching,
-  } = useSearchOrders({...params}, {
+  } = useSearchOrdersByKeywork(value, {
     enabled: !!value && value.length > 3,
   });
 
@@ -131,7 +125,7 @@ const InputSearch = ({
     try {
       setIsSearching(true);
       
-      await queryClient.resetQueries({ queryKey: ['searchOrders', params] });
+      await queryClient.resetQueries({ queryKey: ['searchOrdersByKeywork', value] });
       await refetch();
       
       setIsSearching(false);
@@ -139,14 +133,13 @@ const InputSearch = ({
       console.error('Failed to fetch orders:', error);
       setIsSearching(false);
     }
-  }, [params, refetch]);
+  }, [value, refetch]);
+
 
   const orderList = useMemo(() => {
-    if(!value) return [];
-    const pages = ordersResponse?.pages || [];
-    return pages.flat();
-  }, [ordersResponse?.pages]);
-
+    return ordersResponse?.data || [];
+  }, [ordersResponse]);
+  
   const renderItem = useCallback((item: any) => {
     return <OrderItem item={item} />;
   }, []);
