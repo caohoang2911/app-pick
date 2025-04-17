@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
+import { useTestSendNoti } from '~/src/api/app-pick/test-send-noti';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { useUpdateSetting } from '~/src/api/app-pick/use-update-setting';
 import { queryClient } from '~/src/api/shared';
@@ -12,6 +13,8 @@ import { Switch } from '~/src/components/Switch';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
+import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
+import { checkPermissionAndSend, confirmAndSendNotification } from '~/src/core/utils/notificationSender';
 
 const Settings = () => {
   const { data } = useGetSettingQuery();
@@ -33,6 +36,8 @@ const Settings = () => {
   const { mutate: updateSetting, isPending } = useUpdateSetting(() => {
     queryClient.invalidateQueries({ queryKey: ['getSetting'] });
   });
+
+  const { mutate: testSendNoti, isPending: isPendingTestSendNoti } = useTestSendNoti();
 
   const [isSubcribeOrderStoreDelivery, setIsSubcribeOrderStoreDelivery] = useState<any>(false);
   const [isSubcribeOrderCustomerPickup, setIsSubcribeOrderCustomerPickup] = useState<any>(false);
@@ -101,6 +106,17 @@ const Settings = () => {
     };
   }, []);
 
+  const handleTestPushNotification = async () => {
+    const hasPermission = await checkNotificationPermission();
+  
+    if (!hasPermission) {
+      // Permission denied, notification cannot be sent
+      return false;
+    }
+    testSendNoti();
+
+  };
+
   return (
     <View className="bg-gray-100 flex-1">
       <View className="flex-grow flex mt-4 gap-3">
@@ -109,15 +125,19 @@ const Settings = () => {
           <View className="flex flex-col gap-4 mt-3">
             <View className="flex flex-row items-center justify-between">
               <Text className="text-base">Đơn Shipper giao hàng</Text>
-              <Switch value={isSubcribeOrderShipperDelivery as boolean} onValueChange={setIsSubcribeOrderShipperDelivery} />
+              <Switch disabled value={isSubcribeOrderShipperDelivery as boolean} onValueChange={setIsSubcribeOrderShipperDelivery} />
             </View>
             <View className="flex flex-row items-center justify-between">
               <Text className="text-base">Đơn Store giao hàng</Text>
-              <Switch value={isSubcribeOrderStoreDelivery as boolean} onValueChange={setIsSubcribeOrderStoreDelivery} />
+              <Switch disabled value={isSubcribeOrderStoreDelivery as boolean} onValueChange={setIsSubcribeOrderStoreDelivery} />
             </View>
             <View className="flex flex-row items-center justify-between">
               <Text className="text-base">Đơn khách hàng pickup</Text>
-              <Switch value={isSubcribeOrderCustomerPickup as boolean} onValueChange={setIsSubcribeOrderCustomerPickup} />
+              <Switch disabled value={isSubcribeOrderCustomerPickup as boolean} onValueChange={setIsSubcribeOrderCustomerPickup} />
+            </View>
+            <View className="flex flex-row items-center justify-between">
+              <Text className="text-base text-orange-500">Test gửi thông báo</Text>
+              <Button variant="warning" loading={isPendingTestSendNoti} label="Gửi" onPress={handleTestPushNotification} />
             </View>
           </View>
         </View>
