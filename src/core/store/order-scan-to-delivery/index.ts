@@ -3,6 +3,7 @@ import { showMessage } from 'react-native-flash-message';
 import { create } from 'zustand';
 import { OrderBagItem } from '~/src/types/order-bag';
 import { createSelectors } from '../../utils/browser';
+import { isValidOrderBagCode } from '../../utils/order-bag';
 
 
 interface OrderScanToDeliveryState {
@@ -34,6 +35,13 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => (
         cb?.(orderBags);
       }, 500);
     } else {
+      if (!isValidOrderBagCode(result.data)) {
+        showMessage({
+          message: `${result.data} không đúng định dạng túi hàng`,
+          type: 'danger',
+        });
+        return;
+      }
       showMessage({
         message: `Không tìm thấy túi hàng ${result.data}`,
         type: 'danger',
