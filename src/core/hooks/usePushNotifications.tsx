@@ -2,14 +2,27 @@ import { registerForPushNotificationsAsync } from '@/core/utils/notification';
 import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { Platform, AppState } from 'react-native';
+import { getItem, setItem } from '@/core/storage';
 
 export enum TargetScreen {
   ORDER_PICK = 'ORDER-PICK',
   ORDER_INVOICE = 'ORDER-INVOICE',
 }
+
+// Custom sound file names
+const IOS_NOTIFICATION_SOUND = 'notification.wav'; // Make sure this file is added to the iOS project
+
+// IMPORTANT: Xcode configuration steps for background sound:
+// 1. Add notification.wav to Xcode project - select "Create folder references"
+// 2. In AppDelegate.mm, add the following to didReceiveRemoteNotification:
+//    - UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+//    - content.sound = [UNNotificationSound soundNamed:@"notification.wav"];
+//    - UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:@"backgroundSound" content:content trigger:nil];
+//    - [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:nil];
 
 // Set notification handler outside component for global configuration
 Notifications.setNotificationHandler({
@@ -20,10 +33,15 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Storage keys
+const FCM_TOKEN_KEY = 'fcm_token';
+const USER_SESSION_KEY = 'user_session';
+
 export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+  const appState = useRef(AppState.currentState);
 
   const goOrderDetail = useCallback((remoteMessage: any) => {
     const { orderCode, targetScr} = remoteMessage || {};
@@ -37,30 +55,134 @@ export const usePushNotifications: any = () => {
     }
   }, [router])
 
+  // Persist FCM token and ensure session persistence
+  const persistFCMToken = useCallback(async (fcmToken: string) => {
+    try {
+      if (fcmToken) {
+        // Store FCM token
+        await setItem(FCM_TOKEN_KEY, fcmToken);
+        
+        // For Android, ensure session persistence
+        if (Platform.OS === 'android') {
+          // Check if we have an existing session
+          const existingSession = getItem<any>(USER_SESSION_KEY);
+          if (existingSession) {
+            // Refresh the session timestamp to keep it alive
+            existingSession.lastRefreshed = new Date().toISOString();
+            await setItem(USER_SESSION_KEY, existingSession);
+            console.log('Android session refreshed');
+          }
+        }
+      }
+    } catch (error) {
+      console.log('Error persisting FCM token:', error);
+    }
+  }, []);
+
   useEffect(() => {
+    // Monitor app state changes (foreground/background)
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      // When app returns to foreground, check push notification permissions
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground!');
+        if (Platform.OS === 'ios') {
+          configureIOS();
+        }
+      }
+      
+      appState.current = nextAppState;
+    });
+
     // Chỉ cấu hình đặc biệt cho iOS
     const configureIOS = async () => {
       if (Platform.OS === 'ios') {
-        // Cần thiết cho thông báo nền iOS có âm thanh
-        await messaging().setAutoInitEnabled(true);
-        
-        // Yêu cầu quyền iOS với âm thanh được bật
-        const authStatus = await messaging().requestPermission({
-          alert: true,
-          badge: true,
-          sound: true,
-          announcement: false,
-          provisional: false,
-        });
+        try {
+          // Cần thiết cho thông báo nền iOS có âm thanh
+          await messaging().setAutoInitEnabled(true);
+          
+          // Register for remote notifications with full permissions
+          await messaging().registerDeviceForRemoteMessages();
+          
+          // Yêu cầu quyền iOS với âm thanh được bật - đặt criticalAlert thành true
+          const authStatus = await messaging().requestPermission({
+            alert: true,
+            badge: true,
+            sound: true,
+            announcement: true,
+            provisional: true, // Cho phép thông báo tạm thời không cần người dùng chấp nhận
+            criticalAlert: true, // Cho phép âm thanh ngay cả khi điện thoại ở chế độ im lặng
+          });
+          
+          // Đảm bảo có quyền gửi thông báo đặc biệt
+          const permissionResult = await Notifications.requestPermissionsAsync({
+            ios: {
+              allowAlert: true,
+              allowBadge: true,
+              allowSound: true,
+              allowAnnouncements: true,
+              allowCriticalAlerts: true, // Quan trọng cho âm thanh nền
+              provideAppNotificationSettings: true,
+              allowProvisional: true,
+            },
+          });
 
-        console.log('iOS permission status:', authStatus);
+          console.log('iOS permission status:', authStatus);
+          console.log('Expo notification permissions:', permissionResult);
+          
+          // Tạo custom channel cho iOS (mặc dù iOS không sử dụng channel như Android)
+          if (Device.isDevice) {
+            await Notifications.setNotificationChannelAsync('default', {
+              name: 'Default',
+              importance: Notifications.AndroidImportance.MAX,
+              sound: Platform.OS === 'ios' ? IOS_NOTIFICATION_SOUND : 'default',
+              vibrationPattern: [0, 250, 250, 250],
+              lightColor: '#FF231F7C',
+            });
+
+            // Cấu hình thiết lập cho âm thanh nền
+            await Notifications.setNotificationCategoryAsync('order', [
+              {
+                identifier: 'confirm',
+                buttonTitle: 'Xem',
+                options: {
+                  opensAppToForeground: true,
+                }
+              }
+            ], {
+              previewPlaceholder: 'Thông báo đơn hàng'
+            });
+            
+            // Kiểm tra và log các channel thông báo
+            const channels = await Notifications.getNotificationChannelsAsync();
+            console.log('Available notification channels:', channels);
+            
+            // Kiểm tra và log các notification categories
+            const categories = await Notifications.getNotificationCategoriesAsync();
+            console.log('Available notification categories:', categories);
+          }
+        } catch (error) {
+          console.log('Error configuring iOS notifications:', error);
+        }
       }
     };
 
     const fetchToken = async () => {
-      const token = await registerForPushNotificationsAsync();
-      if (token) {
-        setToken(token);
+      // Try to get token from storage first
+      try {
+        const storedToken = getItem<string>(FCM_TOKEN_KEY);
+        if (storedToken) {
+          setToken(storedToken);
+          console.log('Retrieved FCM token from storage');
+        }
+      } catch (e) {
+        console.log('Error retrieving stored token:', e);
+      }
+
+      // Get fresh token
+      const fcmToken = await registerForPushNotificationsAsync();
+      if (fcmToken) {
+        setToken(fcmToken);
+        persistFCMToken(fcmToken);
       }
     };
     
@@ -71,6 +193,13 @@ export const usePushNotifications: any = () => {
     if (Platform.OS === 'ios') {
       configureIOS();
     } else if (Platform.OS === 'android') {
+      // Android specific setup
+      messaging().onTokenRefresh((newToken) => {
+        // When FCM token refreshes, update storage and state
+        setToken(newToken);
+        persistFCMToken(newToken);
+      });
+      
       // Giữ nguyên logic Android hiện tại
       Notifications.getNotificationChannelsAsync().then((value) =>
         setChannels(value ?? [])
@@ -120,27 +249,51 @@ export const usePushNotifications: any = () => {
       console.log('Message handled in the background!', remoteMessage);
       
       try {
-        // iOS requires specific structure for sound to work
+        // Đặc biệt quan trọng cho iOS để phát âm thanh nền
         if (Platform.OS === 'ios') {
-          // Xử lý đặc biệt cho iOS để phát âm thanh thông báo khi ở nền
+          // Tái cấu trúc thông báo cho iOS để đảm bảo âm thanh hoạt động
+          const notificationIdentifier = `ios-notification-${Date.now()}`;
+          
+          // Cấu trúc nội dung thông báo iOS
           await Notifications.scheduleNotificationAsync({
+            identifier: notificationIdentifier,
             content: {
               title: remoteMessage.notification?.title || 'Thông báo mới',
               body: remoteMessage.notification?.body || '',
               data: {
                 ...remoteMessage.data,
-                // iOS cần cấu trúc APS đặc biệt để phát âm thanh
-                aps: {
-                  sound: 'default',
-                  badge: 1,
-                  "content-available": 1
-                }
+                iosCustomData: true,
+                _displayInForeground: true,
+                _sound: IOS_NOTIFICATION_SOUND, // Chỉ định âm thanh qua data
               },
-              sound: 'default', // Quan trọng cho iOS
+              sound: IOS_NOTIFICATION_SOUND, // Sử dụng âm thanh tùy chỉnh
+              badge: 1,
+              sticky: true, // Giữ thông báo 
+              priority: Notifications.AndroidNotificationPriority.MAX, // Ưu tiên cao nhất
+              color: '#FF0000',
+              vibrate: [0, 250, 250, 250],
+              categoryIdentifier: 'order', // Liên kết với category đã tạo
             },
-            trigger: null,
+            trigger: {
+              channelId: 'default',
+              seconds: 0.1, // Chỉ chờ 0.1 giây để hiển thị
+            },
           });
+          
+          console.log('iOS background notification scheduled with ID:', notificationIdentifier);
         } else {
+          // Ensure Android session persistence on background notifications
+          try {
+            const existingSession = getItem<any>(USER_SESSION_KEY);
+            if (existingSession) {
+              existingSession.lastRefreshed = new Date().toISOString();
+              await setItem(USER_SESSION_KEY, existingSession);
+              console.log('Android session refreshed from background');
+            }
+          } catch (e) {
+            console.log('Error refreshing session:', e);
+          }
+          
           // Giữ nguyên xử lý Android
           const notification = {
             title: remoteMessage.notification?.title || '',
@@ -163,26 +316,44 @@ export const usePushNotifications: any = () => {
         queryClient.resetQueries({ queryKey: ['searchOrders'] });
         queryClient.resetQueries({ queryKey: ['getOrderStatusCounters'] });
 
+        // Refresh session on each foreground notification
+        if (Platform.OS === 'android') {
+          try {
+            const existingSession = getItem<any>(USER_SESSION_KEY);
+            if (existingSession) {
+              existingSession.lastRefreshed = new Date().toISOString();
+              await setItem(USER_SESSION_KEY, existingSession);
+              console.log('Android session refreshed from foreground notification');
+            }
+          } catch (e) {
+            console.log('Error refreshing session:', e);
+          }
+        }
+
         // Xử lý riêng cho iOS và Android
         if (Platform.OS === 'ios') {
-          // iOS foreground notifications có cấu trúc đặc biệt 
+          // Tạo thông báo iOS với ID duy nhất
+          const foregroundNotificationId = `ios-foreground-${Date.now()}`;
+          
+          // iOS foreground notifications với cấu trúc tối ưu
           await Notifications.scheduleNotificationAsync({
+            identifier: foregroundNotificationId,
             content: {
               title: remoteMessage.notification?.title || '',
               body: remoteMessage.notification?.body || '',
               data: {
                 ...remoteMessage.data,
-                // Cấu hình âm thanh iOS
-                aps: {
-                  sound: 'default',
-                  badge: 1,
-                  "content-available": 1
-                }
+                _displayInForeground: true,
+                _sound: IOS_NOTIFICATION_SOUND,
               },
-              sound: 'default',
+              sound: IOS_NOTIFICATION_SOUND, // Sử dụng âm thanh tùy chỉnh
+              badge: 1,
+              categoryIdentifier: 'order', // Liên kết với category đã tạo
             },
             trigger: null,
           });
+          
+          console.log('iOS foreground notification scheduled with ID:', foregroundNotificationId);
         } else {
           // Giữ nguyên xử lý Android hiện tại
           const notification = {
@@ -203,12 +374,31 @@ export const usePushNotifications: any = () => {
     // Listen for push notifications when the app is in the foreground
     const unsubscribe = messaging().onMessage(handlePushNotification);
 
+    // Setup periodic session refresh for Android (every 15 minutes)
+    let intervalId: NodeJS.Timeout | null = null;
+    if (Platform.OS === 'android') {
+      intervalId = setInterval(async () => {
+        try {
+          const existingSession = getItem<any>(USER_SESSION_KEY);
+          if (existingSession) {
+            existingSession.lastRefreshed = new Date().toISOString();
+            await setItem(USER_SESSION_KEY, existingSession);
+            console.log('Android session refreshed by interval');
+          }
+        } catch (e) {
+          console.log('Error in periodic session refresh:', e);
+        }
+      }, 15 * 60 * 1000); // 15 minutes
+    }
+
     // Clean up the event listeners
     return () => {
       unsubscribe();
       notificationClickSubscription.remove();
+      subscription.remove();
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [goOrderDetail, queryClient]);
+  }, [goOrderDetail, queryClient, persistFCMToken]);
 
   return {
     token,

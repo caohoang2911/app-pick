@@ -3,6 +3,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
+#import <UserNotifications/UserNotifications.h>
 
 @implementation AppDelegate
 
@@ -16,6 +17,17 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+  
+  // Xin quyền notification
+  if (@available(iOS 10.0, *)) {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionCriticalAlert)
+                          completionHandler:^(BOOL granted, NSError * _Nullable error) {
+      if (error) {
+        NSLog(@"Error requesting notification authorization: %@", error);
+      }
+    }];
+  }
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
@@ -60,6 +72,25 @@
 // Explicitly define remote notification delegates to ensure compatibility with some third-party libraries
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
+  // Xử lý âm thanh cho thông báo nền
+  if (@available(iOS 10.0, *)) {
+    UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+    content.title = userInfo[@"aps"][@"alert"][@"title"] ?: @"Thông báo mới";
+    content.body = userInfo[@"aps"][@"alert"][@"body"] ?: @"";
+    content.sound = [UNNotificationSound soundNamed:@"notification.wav"];
+    
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:@"backgroundSound" 
+                                                                          content:content 
+                                                                          trigger:nil];
+    
+    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
+                                                           withCompletionHandler:^(NSError * _Nullable error) {
+      if (error) {
+        NSLog(@"Error creating background sound notification: %@", error);
+      }
+    }];
+  }
+  
   return [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 
