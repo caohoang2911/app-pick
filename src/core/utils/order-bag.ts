@@ -51,3 +51,26 @@ export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGr
 export const barcodeCondition = (barcode: string = '', refBarcodes: string[] = []) => {
   return refBarcodes.includes(barcode);
 }
+
+export const isValidOrderBagCode = (orderBagCode: string) => {
+  if (!orderBagCode || typeof orderBagCode !== 'string') {
+    return false;
+  }
+  
+  // Check if string starts with "OL"
+  if (!orderBagCode.startsWith("OL")) {
+    return false;
+  }
+  
+  // Check if string contains hyphens
+  if (!orderBagCode.includes("-")) {
+    return false;
+  }
+  
+  // Check if length is exactly 15 characters
+  if (orderBagCode.length !== 15) {
+    return false;
+  }
+  
+  return true;
+};
