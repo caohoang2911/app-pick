@@ -1,5 +1,7 @@
 export const ORDER_COUNTER_STATUS: any = {
   ALL: 'Tất cả',
+  NEW: 'Mới',
+  ASSIGNED: 'Đã phân công',
   CONFIRMED: 'Đã xác nhận',
   STORE_PICKING: 'Đang soạn hàng',
   STORE_PACKED: 'Soạn hàng xong',
@@ -22,6 +24,8 @@ export const ORDER_COUNTER_STATUS_PRIORITY: any = {
 
 export const ORDER_STATUS = {
   ALL: 'ALL',
+  NEW: 'NEW',
+  ASSIGNED: 'ASSIGNED', 
   CONFIRMED: 'CONFIRMED',
   STORE_PICKING: 'STORE_PICKING',
   STORE_PACKED: 'STORE_PACKED',

@@ -73,9 +73,12 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => (
 
 // Error message component
 const WarningMessage = memo(({ errorName }: { errorName: string }) => (
-  <View className="flex gap-1">
-    <View className='flex flex-row bg-orange-100 p-2 gap-2 rounded-md items-center self-end'>
-      <Text className='text-orange-500 text-xs'>{errorName}</Text>
+  <View 
+    className="p-3 rounded-b"
+    style={{ backgroundColor: '#FFA500' }}
+  >
+    <View className='flex'>
+      <Text className='text-white font-semibold text-sm' numberOfLines={1} ellipsizeMode="tail">{errorName}</Text>
     </View>
   </View>
 ));
@@ -296,22 +299,13 @@ const OrderPickProduct = memo(({
             </View>
           </View>
         </View>
-        
-        {pickedErrorName &&
-          <>
-            <View className="border mb-2 border-gray-100 mt-3" />
-            <WarningMessage errorName={pickedErrorName} /> 
-          </>
-        }
-        {isWarningOverQuantity &&
-          <>
-            <View className="border mb-2 border-gray-100 mt-3" />
-            <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} /> 
-          </>
-        }
-
       </View>
-      
+      {Boolean(pickedErrorName || isWarningOverQuantity) && 
+        <View className='flex w-full flex-grow mt-3'>
+          {pickedErrorName && <WarningMessage errorName={pickedErrorName} />}
+          {isWarningOverQuantity && <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} />}
+        </View>
+      }
       {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
     </View>
   );

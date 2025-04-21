@@ -1,13 +1,14 @@
 
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { useRouter } from "expo-router";
 import { toLower } from "lodash";
 import moment from 'moment';
-import React, { useCallback, memo } from "react";
+import React, { memo, useCallback } from "react";
 import { Text, View } from "react-native";
-import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
-import { TouchableOpacity } from "react-native-gesture-handler";
 import Feather from '@expo/vector-icons/Feather';
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { ORDER_STATUS_BADGE_VARIANT } from "~/src/contants/order";
 import { useConfig } from "~/src/core/store/config";
 import { getConfigNameById } from "~/src/core/utils/config";
 import { expectedDeliveryTime } from "~/src/core/utils/moment";
@@ -16,7 +17,6 @@ import { OrderStatus } from "~/src/types/order";
 import { Payment } from "~/src/types/order-detail";
 import { Badge } from "../Badge";
 import MoreActionsBtn from "./more-actions-btn";
-import { ORDER_STATUS_BADGE_VARIANT } from "~/src/contants/order";
 
 const RowWithLabel = memo(({icon, label, value, pickedItemProgress}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number}) => {
   return (
@@ -96,7 +96,7 @@ const OrderItem = ({
 
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1">
-      <View className="rounded-md border-bgPrimary border">
+      <View className="rounded-md border-bgPrimary border overflow-hidden">
         <View className="bg-bgPrimary pl-3 py-4 pr-0 flex flex-row justify-between items-center">
           <View className="flex flex-row items-center gap-2">
             <Text className="font-semibold text-base text-colorPrimary">
@@ -165,17 +165,21 @@ const OrderItem = ({
               })}
             </View>
           }
-          {note && (
-            <View className="flex flex-row gap-1 mt-1">
-              <Text className="text-sm text-orange-500 italic">Note: {note?.trim()}</Text>
-            </View>
-          )}
           {fulfillError?.type && (
-            <View className="flex flex-row items-center gap-1">
-              <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
-            </View>
-          )}
+          <View className="flex flex-row items-center gap-1">
+            <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
+          </View>
+        )}
         </View>
+        {note && (
+          <View 
+            className="p-3 rounded-b"
+            style={{ backgroundColor: '#FFA500' }}
+          >
+            <Text className="text-base font-semibold text-white">Note: {note?.trim()}</Text>
+          </View>
+        )}
+        
       </View>
     </TouchableOpacity>
   );

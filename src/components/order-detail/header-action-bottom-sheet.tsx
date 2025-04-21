@@ -3,7 +3,8 @@ import { router, useGlobalSearchParams } from 'expo-router';
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 
 import { Linking, Pressable, Text, View } from 'react-native';
-import { ORDER_TAGS } from '~/src/contants/order';
+import { showMessage } from 'react-native-flash-message';
+import { ORDER_COUNTER_STATUS_PRIORITY, ORDER_STATUS } from '~/src/contants/order';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import {
   BillLine,
@@ -12,7 +13,6 @@ import {
 } from '~/src/core/svgs';
 import { Badge } from '../Badge';
 import SBottomSheet from '../SBottomSheet';
-import { showMessage } from 'react-native-flash-message';
 
 type Action = {
   key: string;
@@ -49,7 +49,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const [visible, setVisible] = useState(false);
 
     const orderDetail = useOrderPick.use.orderDetail();
-    const { tags } = orderDetail?.header || {};
+    const { status } = orderDetail?.header || {};
 
     const { customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};
@@ -101,7 +101,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           router.push(`orders/order-scan-to-delivery/${code}`);
           break;
         case 'enter-bag-and-tem':
-          router.push(`orders/order-bags/${code}`);
+          if(![ORDER_STATUS.NEW, ORDER_STATUS.ASSIGNED, ORDER_STATUS.CONFIRMED, ORDER_STATUS.STORE_PICKING].includes(status as any)) {
+            router.push(`orders/order-bags/${code}`);
+          } else {
+            showMessage({
+              message: 'Đơn chưa được soạn hàng xong, không thể set kích thước & in tem',
+              type: 'danger',
+            });
+          }
           break;
         default:
           break;
