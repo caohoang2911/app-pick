@@ -94,20 +94,20 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const [appState, setAppState] = useState(AppState.currentState);
 
-  useEffect(() => {  
-    const subscription = AppState.addEventListener('change', nextAppState => {  
-      // Check for the current state of the app  
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {  
-        queryClient.resetQueries();
-      }  
-      setAppState(nextAppState);  
-    });  
+  // useEffect(() => {  
+  //   const subscription = AppState.addEventListener('change', nextAppState => {  
+  //     // Check for the current state of the app  
+  //     if (appState.match(/inactive|background/) && nextAppState === 'active') {  
+  //       queryClient.resetQueries();
+  //     }  
+  //     setAppState(nextAppState);  
+  //   });  
 
-    // Cleanup the subscription on unmount  
-    return () => {  
-      subscription.remove();  
-    };  
-  }, [appState]);  
+  //   // Cleanup the subscription on unmount  
+  //   return () => {  
+  //     subscription.remove();  
+  //   };  
+  // }, [appState]);  
 
   return (
     <Providers>

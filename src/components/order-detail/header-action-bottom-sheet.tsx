@@ -1,9 +1,11 @@
 import Feather from '@expo/vector-icons/Feather';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { router, useGlobalSearchParams } from 'expo-router';
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 
 import { Linking, Pressable, Text, View } from 'react-native';
-import { ORDER_TAGS } from '~/src/contants/order';
+import { showMessage } from 'react-native-flash-message';
+import { ORDER_STATUS } from '~/src/contants/order';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import {
   BillLine,
@@ -12,7 +14,9 @@ import {
 } from '~/src/core/svgs';
 import { Badge } from '../Badge';
 import SBottomSheet from '../SBottomSheet';
-import { showMessage } from 'react-native-flash-message';
+import EmployeeSelection from '../shared/EmployeeSelection';
+import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
+import { queryClient } from '~/src/api/shared/api-provider';
 
 type Action = {
   key: string;
@@ -29,6 +33,11 @@ const actions: Array<Action> = [
     key: 'view-order',
     title: 'Thông tin đơn hàng',
     icon: <BillLine />,
+  },
+  {
+    key: 'assign-order-to-picker',
+    title: 'Gán đơn cho Picker',
+    icon: <SimpleLineIcons name="user-follow" size={22} color="black" />,
   },
   {
     key: 'enter-bag-and-tem',
@@ -48,14 +57,27 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const { code } = useGlobalSearchParams<{ code: string }>();
     const [visible, setVisible] = useState(false);
 
+    const employeeSelectionRef = useRef<any>();
+
     const orderDetail = useOrderPick.use.orderDetail();
-    const { tags } = orderDetail?.header || {};
+    const { status, picker } = orderDetail?.header || {};
+
+    console.log('orderDetail', orderDetail);
 
     const { customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};
     const { rank } = membership || {};
 
     const actionRef = useRef<any>();
+
+    const { mutate: assignOrderToPicker } = useAssignOrderToPicker(() => {
+      actionRef.current?.dismiss();
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      showMessage({
+        message: 'Gán đơn cho Picker thành công',
+        type: 'success',
+      });
+    });
   
     useImperativeHandle(
       ref,
@@ -100,13 +122,25 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         case 'scan-bag':
           router.push(`orders/order-scan-to-delivery/${code}`);
           break;
+        case 'assign-order-to-picker':
+          employeeSelectionRef.current?.present();
+          break;
         case 'enter-bag-and-tem':
-          router.push(`orders/order-bags/${code}`);
+          if(![ORDER_STATUS.NEW, ORDER_STATUS.ASSIGNED, ORDER_STATUS.CONFIRMED, ORDER_STATUS.STORE_PICKING].includes(status as any)) {
+            router.push(`orders/order-bags/${code}`);
+          } else {
+            showMessage({
+              message: 'Đơn chưa được soạn hàng xong, không thể set kích thước & in tem',
+              type: 'danger',
+            });
+          }
           break;
         default:
           break;
       }
-      actionRef.current?.dismiss();
+      setTimeout(() => {
+        actionRef.current?.dismiss();
+      }, 200);
     };
 
     const renderExtraTitle = () => {
@@ -128,26 +162,43 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       );
     };
 
+    const handleSelectEmployee = useCallback((employee: any) => {
+      console.log('employee', employee);
+      assignOrderToPicker({
+        pickerId: employee.id,
+        orderCode: code,
+      });
+    }, [code]);
+
   
     return (
-      <SBottomSheet
-        visible={visible}
-        title="Thao tác"
-        extraTitle={renderExtraTitle()}
-        ref={actionRef}
-        snapPoints={[320]}
-        onClose={() => {
-          setVisible(false);
-        }}
-      >
-        <View className="flex-1">
-          {actions.map((action: Action) => (
-            <React.Fragment key={action.key}>
-              {renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false })}    
-            </React.Fragment>
-          ))}
-        </View>
-      </SBottomSheet>
+      <>
+        <SBottomSheet
+          visible={visible}
+          title="Thao tác"
+          extraTitle={renderExtraTitle()}
+          ref={actionRef}
+          snapPoints={[355]}
+          onClose={() => {
+            setVisible(false);
+          }}
+        >
+          <View className="flex-1">
+            {actions.map((action: Action) => (
+              <React.Fragment key={action.key}>
+                {renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false })}    
+              </React.Fragment>
+            ))}
+          </View>
+        </SBottomSheet>
+        
+        {/* Bottom sheet chọn Picker */}
+        <EmployeeSelection
+          onSelect={handleSelectEmployee}
+          selectedId={''}
+          ref={employeeSelectionRef}
+        />
+      </>
     );
   }
 );
