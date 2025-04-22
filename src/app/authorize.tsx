@@ -50,7 +50,7 @@ const Authorize = () => {
         const { authInfo } = dataParser.data || {};
         const { zas, role } = authInfo || {};
 
-        if (role === 'STORE') {
+        if (role === 'STORE' || role === 'STORE_MANAGER') {
           signIn({ token: zas, userInfo: authInfo });
           
           // Check if there's a pending deep link to navigate to
