@@ -8,7 +8,6 @@ import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { setLoading } from '../core/store/loading';
-import Loading from '../components/Loading';
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();

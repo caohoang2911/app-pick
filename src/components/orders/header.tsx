@@ -25,6 +25,7 @@ import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
+import { Badge } from "../Badge";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -35,10 +36,11 @@ const Header = () => {
 
   const config = useConfig.use.config();
   const stores = config?.stores || [];
-
+  const employeeRoles = config?.employeeRoles || [];
   const storeRef = useRef<any>(null);
   const operationTypeRef = useRef<any>(null);
   const storeName = getConfigNameById(stores, userInfo?.storeCode);
+  const roleName = getConfigNameById(employeeRoles, userInfo?.role);
 
   const { mutate: assignMeToStore } = useAssignMeToStore(() => {
     refreshToken();
@@ -82,10 +84,17 @@ const Header = () => {
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
             </Avatar>
           </TouchableOpacity>
-          <View className="gap-1">
-            <Text className="font-semibold text-lg">
-              {userInfo?.name} - {toUpper(userInfo?.username)}
-            </Text>
+          <View className="flex-grow">
+            <View className="flex flex-row items-center justify-between gap-2 flex-grow">
+              <View className="flex-1 mr-2">
+                <Text className="font-semibold text-lg" numberOfLines={1} ellipsizeMode="tail">
+                  {userInfo?.name} - {toUpper(userInfo?.username)}
+                </Text>
+              </View>
+              <View className="flex-shrink-0">
+                <Badge label={roleName || userInfo?.role} />
+              </View>
+            </View>
             <Pressable
               onPress={() => storeRef.current?.present()}
               className="flex flex-row items-center gap-1">
@@ -106,14 +115,6 @@ const Header = () => {
       </View>
       <View className="flex px-4 flex-row justify-between items-center">
         <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
-        {/* <TouchableOpacity onPress={() => {
-          //  operationTypeRef.current?.present()
-        }}>
-          <View className="flex flex-row items-center gap-1">
-            <Text>{stringUtils.uppercaseFirstCharacter(operationType) || 'Tất cả'}</Text>
-            <ArrowDown width={20} height={20} />
-          </View>
-        </TouchableOpacity> */}
       </View>
       <View className="flex flex-row mt-2 justify-between z-10 items-center gap-3">
         <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
