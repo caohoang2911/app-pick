@@ -2,18 +2,17 @@ import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useGlobalSearchParams } from 'expo-router';
-import { debounce, lowerCase, toLower } from 'lodash';
+import { toLower } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
 import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import { setIsEditManual, setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
-import SearchLine from '~/src/core/svgs/SearchLine';
 import { getConfigNameById } from "~/src/core/utils/config";
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Employee } from '~/src/types/employee';
@@ -21,8 +20,8 @@ import { OrderDetail } from '~/src/types/order-detail';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
-import { GroupShippingInfo } from './group-shipping-info';
 import WaveButton from '../shared/WaveButton';
+import { GroupShippingInfo } from './group-shipping-info';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -77,6 +76,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const keyword = useOrderPick.use.keyword();
   const { code } = useGlobalSearchParams<{ code: string }>();
   const [value, setValue] = useState<string>();
+  const disabled = useCanEditOrderPick();
 
   useEffect(() => {
     setValue(keyword);
@@ -91,9 +91,9 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   }, [code])
 
   const handleSearch = useCallback(
-    debounce((value: string) => {
+    (value: string) => {
       setKeyword(value);
-    }, 400),
+    },
     []
   );
 
@@ -132,12 +132,15 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
       <View className="flex flex-row mt-2 justify-between items-center pb-3 gap-3">
         <Input
           className="flex-grow"
-          placeholder="SKU, tên sản phẩm"
-          prefix={<SearchLine width={20} height={20} />}
+          placeholder="Nhập barcode để pick"
+          prefix={
+            <MaterialCommunityIcons name="barcode" size={24} color="gray" />
+          }
           onChangeText={(value: string) => {
             setValue(value);
             handleSearch(value)
           }}
+          editable={disabled}
           value={value}
           onClear={() => {
             setValue("");

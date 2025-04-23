@@ -1,10 +1,10 @@
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { cn } from '../lib/utils';
-import clsx from 'clsx';
 import { TextInput } from 'react-native-gesture-handler';
 import { CloseLine } from '../core/svgs';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import { cn } from '../lib/utils';
 
 export interface InputProps
   extends React.ComponentPropsWithoutRef<typeof TextInput> {
@@ -52,7 +52,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             className={cn(
               inputClasses,
               'border border-input border-slate-300 py-2.5 pl-3 pr-3 rounded-lg bg-white',
-              clsx({ 'pl-10': prefix }, { 'pr-10': suffix }, { 'bg-gray-100': !editable})
+              clsx({ 'pl-11': prefix }, { 'pr-10': suffix }, { 'bg-gray-100': !editable})
             )}
             editable={editable}
             {...props}

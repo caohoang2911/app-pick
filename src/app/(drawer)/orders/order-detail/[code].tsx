@@ -19,7 +19,7 @@ import {
   useOrderPick
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
-import { barcodeCondition, getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { barcodeCondition, getOrderPickProductsFlat, handleScanBarcode } from '~/src/core/utils/order-bag';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -82,22 +82,12 @@ const OrderPick = () => {
         return;
       }
 
-      let indexOfCodeScanned = -1;
-
-      const barcodeWithPickedTime = orderPickProductsFlat?.findIndex(
-        item => (barcodeCondition(barcode, item?.refBarcodes) && item?.pickedTime)
-      );
-
-      const indexOfCodeScannedWithoutPickedTime = orderPickProductsFlat?.findIndex(
-        item =>  isEditManual ? 
-        item?.id === currentId : 
-        (barcodeCondition(barcode, item?.refBarcodes)) && !item?.pickedTime);
-
-      if(indexOfCodeScannedWithoutPickedTime === -1) {
-        indexOfCodeScanned = barcodeWithPickedTime;
-      } else {
-        indexOfCodeScanned = indexOfCodeScannedWithoutPickedTime;
-      }
+      const indexOfCodeScanned = handleScanBarcode({
+        orderPickProductsFlat,
+        currentId,
+        isEditManual,
+        barcode,
+      });
    
       const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];;
 
