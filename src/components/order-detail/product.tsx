@@ -78,7 +78,7 @@ const WarningMessage = memo(({ errorName }: { errorName: string }) => (
     style={{ backgroundColor: '#FFA500' }}
   >
     <View className='flex'>
-      <Text className='text-white font-semibold text-sm' numberOfLines={1} ellipsizeMode="tail">{errorName}</Text>
+      <Text className='text-white font-semibold text-sm'>{errorName}</Text>
     </View>
   </View>
 ));

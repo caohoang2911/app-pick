@@ -12,4 +12,5 @@ export type Config = {
   orderTags: [],
   orderOperationTypes: [],
   fulfillErrorTypes: [],
+  employeeRoles: [],
 }
