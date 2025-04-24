@@ -52,7 +52,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             className={cn(
               inputClasses,
               'border border-input border-slate-300 py-2.5 pl-3 pr-3 rounded-lg bg-white',
-              clsx({ 'pl-11': prefix }, { 'pr-10': suffix }, { 'bg-gray-100': !editable})
+              clsx({ 'pl-10': prefix }, { 'pr-10': suffix }, { 'bg-gray-100': !editable})
             )}
             editable={editable}
             {...props}

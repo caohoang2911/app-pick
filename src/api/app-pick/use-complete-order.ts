@@ -6,6 +6,7 @@ import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   orderCode: string;
+  proofDeliveryImages: string[];
 };
 
 type Response = { error: string } & AxiosResponse;
