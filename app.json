@@ -32,7 +32,8 @@
           }
         ],
         "UIBackgroundModes": ["remote-notification"]
-      }
+      },
+      "sounds": ["./assets/sounds/ding.mp3"]
     },
     "android": {
       "adaptiveIcon": {

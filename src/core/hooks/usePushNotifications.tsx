@@ -25,6 +25,19 @@ export const usePushNotifications: any = () => {
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
 
+  // Create Android notification channel with sound
+  const createAndroidChannel = async () => {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default_channel_id', {
+        name: 'Default Channel',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+        sound: 'ding.mp3', // This references the sound file in res/raw directory
+      });
+    }
+  };
+
   const goOrderDetail = useCallback((remoteMessage: any) => {
     const { orderCode, targetScr} = remoteMessage || {};
 
@@ -38,6 +51,9 @@ export const usePushNotifications: any = () => {
   }, [router])
 
   useEffect(() => {
+    // Configure Android notification channel
+    createAndroidChannel();
+
     // Chỉ cấu hình đặc biệt cho iOS
     const configureIOS = async () => {
       if (Platform.OS === 'ios') {
@@ -131,21 +147,23 @@ export const usePushNotifications: any = () => {
                 ...remoteMessage.data,
                 // iOS cần cấu trúc APS đặc biệt để phát âm thanh
                 aps: {
-                  sound: 'default',
+                  sound: 'ding.mp3',
                   badge: 1,
                   "content-available": 1
                 }
               },
-              sound: 'default', // Quan trọng cho iOS
+              sound: 'ding.mp3', // Use custom sound instead of default
             },
             trigger: null,
           });
         } else {
-          // Giữ nguyên xử lý Android
+          // Android background notification with sound
           const notification = {
             title: remoteMessage.notification?.title || '',
             body: remoteMessage.notification?.body || '',
             data: remoteMessage.data || {},
+            sound: 'ding.mp3', // Reference to sound file in res/raw
+            channelId: 'default_channel_id',
           };
           await Notifications.scheduleNotificationAsync({
             content: notification,
@@ -174,21 +192,23 @@ export const usePushNotifications: any = () => {
                 ...remoteMessage.data,
                 // Cấu hình âm thanh iOS
                 aps: {
-                  sound: 'default',
+                  sound: 'ding.mp3',
                   badge: 1,
                   "content-available": 1
                 }
               },
-              sound: 'default',
+              sound: 'ding.mp3', // Use custom sound instead of default
             },
             trigger: null,
           });
         } else {
-          // Giữ nguyên xử lý Android hiện tại
+          // Android foreground notification with sound
           const notification = {
             title: remoteMessage.notification?.title || '',
             body: remoteMessage.notification?.body || '',
             data: remoteMessage.data || {},
+            sound: 'ding.mp3', // Reference to sound file in res/raw
+            channelId: 'default_channel_id',
           };
           await Notifications.scheduleNotificationAsync({
             content: notification,
