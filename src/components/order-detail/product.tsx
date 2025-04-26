@@ -193,7 +193,10 @@ const OrderPickProduct = memo(({
     return tags?.includes('Gift');
   }, [tags]);
 
-  const isDisable = useMemo(() => disable && isGift, [disable, isGift]) && isGift;
+  // TODO: 
+  // const isDisable = useMemo(() => disable && isGift, [disable, isGift]) && isGift;
+
+  const isDisable = false;
 
   const orderQuantityNum = Number(orderQuantity);
   const allowedExcess = orderQuantityNum * 0.05; // 5% tolerance
