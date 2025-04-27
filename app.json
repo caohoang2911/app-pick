@@ -3,7 +3,7 @@
     "name": "App Pick Dev",
     "slug": "seedcom-app-pick",
     "scheme": "apppickdev",
-    "version": "1.0.14",
+    "version": "1.0.20",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,7 +20,7 @@
         "applinks:oms.seedcom.vn"
       ],
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "3",
+      "buildNumber": "69",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "Ứng dụng cần quyền truy cập mạng cục bộ để kết nối với máy in",
         "NSBonjourServices": ["_http._tcp"],
@@ -33,7 +33,8 @@
         ],
         "UIBackgroundModes": ["remote-notification"]
       },
-      "sounds": ["./assets/sounds/ding.mp3"]
+      "sounds": ["./assets/sounds/ding.mp3"],
+      "minimumVersion": "16.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -117,7 +118,8 @@
         "expo-build-properties",
         {
           "ios": {
-            "useFrameworks": "static"
+            "useFrameworks": "static",
+            "deploymentTarget": "16.0"
           }
         }
       ],
