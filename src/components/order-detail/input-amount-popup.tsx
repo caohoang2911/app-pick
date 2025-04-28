@@ -1,11 +1,13 @@
 import { Formik } from 'formik';
-import moment from 'moment-timezone';
-import React, { useEffect, useMemo, useRef, useCallback, memo, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
 import { isEmpty } from 'lodash';
+import moment from 'moment-timezone';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Platform, Text, View } from 'react-native';
 
 import { FontAwesome } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentId,
@@ -16,6 +18,7 @@ import {
   toggleShowAmountInput,
   useOrderPick
 } from '~/src/core/store/order-pick';
+import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
 import { barcodeCondition, getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
@@ -23,9 +26,6 @@ import { Button } from '../Button';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
-import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
-import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
-import { useLocalSearchParams } from 'expo-router';
 
 // QuantityControls Component
 const DecrementButton = memo(({ onPress, disabled }: { onPress: () => void, disabled: boolean }) => (
@@ -334,6 +334,7 @@ const InputAmountPopup = () => {
       pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
       pickedNote: values?.pickedNote,
       pickedTime: moment().valueOf(),
+      isAllowEditPickQuantity: true,
     } as Product;
 
     setCurrentPickedProduct(pickedItem);

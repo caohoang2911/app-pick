@@ -9,19 +9,33 @@ import { isValidOrderBagCode } from '../../utils/order-bag';
 interface OrderScanToDeliveryState {
   isScanQrCodeProduct: boolean;
   orderBags: (OrderBagItem)[];
+  uploadedImages: string[];
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => void;
   setOrderBags: (orderBags: (OrderBagItem)[]) => void;
   scanQrCodeSuccess: (result: BarcodeScanningResult, cb?: (orderBags: (OrderBagItem)[]) => void) => void;
+  setUploadedImages: (uploadedImage: string, reset?: boolean) => void;
 }
 
 const _useOrderScanToDelivery = create<OrderScanToDeliveryState>((set, get) => ({
   isScanQrCodeProduct: false,
   orderBags: [],
+  uploadedImages: [],
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => {
     set({ isScanQrCodeProduct });
   },
   setOrderBags: (orderBags: (OrderBagItem)[]) => {
     set({ orderBags });
+  },
+  setUploadedImages: (uploadedImage: string, reset?: boolean) => {
+    if(reset) {
+      set(() => ({ 
+        uploadedImages: [] 
+      }));
+    } else {
+      set((state) => ({
+        uploadedImages: [...state.uploadedImages, uploadedImage],
+      }));
+    }
   },
   scanQrCodeSuccess: (result: BarcodeScanningResult, cb?: (orderBags: (OrderBagItem)[]) => void) => {
     const orderBags = get().orderBags;
@@ -66,4 +80,12 @@ export const scanQrCodeSuccess = (result: BarcodeScanningResult, cb?: (orderBags
 
 export const getIsScanQrCodeProduct = () => {
   return useOrderScanToDelivery((state) => state.isScanQrCodeProduct);
+};
+
+export const getUploadedImages = () => {
+  return useOrderScanToDelivery((state) => state.uploadedImages);
+};
+
+export const setUploadedImages = (uploadedImage: string, reset?: boolean) => {
+  _useOrderScanToDelivery.getState().setUploadedImages(uploadedImage, reset);
 };

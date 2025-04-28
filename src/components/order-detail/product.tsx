@@ -177,6 +177,7 @@ const OrderPickProduct = memo(({
   stockOnhand,
   tags = [],
   pickedTime,
+  isAllowEditPickQuantity,
   pickedError,
   pickedQuantity,
   originOrderQuantity,
@@ -187,7 +188,7 @@ const OrderPickProduct = memo(({
 }: Partial<Product | any>) => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
-  const shouldDisplayEdit = useCanEditOrderPick();
+  const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
 
   const isGift = useMemo(() => {
     return tags?.includes('Gift');

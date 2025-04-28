@@ -1,13 +1,14 @@
 import { BarcodeScanningResult } from 'expo-camera';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
-import { queryClient } from '~/src/api/shared';
+import Box from '~/src/components/Box';
 import { Button } from '~/src/components/Button';
+import ImageUploader from '~/src/components/ImageUploader';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
@@ -16,8 +17,9 @@ import { ORDER_STATUS, ORDER_TAGS } from '~/src/contants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
-import { getIsScanQrCodeProduct, scanQrCodeSuccess, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
+import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-detail';
+  
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -29,7 +31,10 @@ const OrderScanToDelivery = () => {
 
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
   const header = getHeaderOrderDetailOrderPick();
-  const { deliveryType, status, tags} = header as OrderDetailHeader;
+  const { deliveryType, status, tags, proofDeliveryImages } = header as OrderDetailHeader;
+
+  const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
+  
 
   const actionType = deliveryType ? (deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP' ? 'Hoàn tất đơn hàng' : 'Giao cho shipper') : '';
 
@@ -41,19 +46,26 @@ const OrderScanToDelivery = () => {
     setOrderInvoice(data?.data || {});
   }, [data]);
 
+  useEffect(() => {
+    return () => {
+      setUploadedImages('', true);
+    }
+  }, []);
+
   if(data?.error) {
     return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
   }
 
   const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
     setLoading(false);
-    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+    setUploadedImages('', true);
+    router.back();
   });
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
   const handleCheckoutOrderBags = () => {
-    completeOrder({ orderCode: code });
+    completeOrder({ orderCode: code, proofDeliveryImages: uploadedImages });
   }
 
   const  disableByStatus = useMemo(() => {
@@ -77,6 +89,11 @@ const OrderScanToDelivery = () => {
       }
     });
   }
+
+  const handleUploadedImages = (image: string) => {
+    setUploadedImages(image);
+  }
+
   const showAlert = useMemo(() => {
     return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
   }, [tags]);
@@ -99,6 +116,9 @@ const OrderScanToDelivery = () => {
           }
           <View className='flex flex-col gap-4'>
             <InvoiceInfo />
+            <Box>
+              <ImageUploader proofDeliveryImages={proofDeliveryImages} onUploadedImages={handleUploadedImages} />
+            </Box>
             <View className='border-t border-gray-200 pb-3'>
               <Bags />
             </View>
@@ -111,7 +131,7 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingCompleteOrder}
               onPress={handleCheckoutOrderBags}
-              disabled={!isAllDone}
+              disabled={!isAllDone || uploadedImages.length === 0}
               label={actionType}
             />
           </View>

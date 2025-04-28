@@ -1,6 +1,5 @@
 import { OrderBagCode, OrderBagItem, OrderBagLabel, OrderBagType } from "~/src/types/order-bag";
-import { Product } from "~/src/types/product";
-import { ProductItemGroup } from "~/src/types/product";
+import { Product, ProductItemGroup } from "~/src/types/product";
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -74,3 +73,37 @@ export const isValidOrderBagCode = (orderBagCode: string) => {
   
   return true;
 };
+
+export const handleScanBarcode = ({
+  orderPickProductsFlat,
+  currentId,
+  isEditManual,
+  barcode,
+}: {
+  orderPickProductsFlat: Array<Product>;
+  currentId: number | null;
+  isEditManual: boolean;
+  barcode: string;
+}) => {
+  let indexOfCodeScanned = -1;
+
+  const barcodeWithPickedTime = orderPickProductsFlat?.findIndex(
+    item => (barcodeCondition(barcode, item?.refBarcodes) && item?.pickedTime)
+  );
+
+  const indexOfCodeScannedWithoutPickedTime = orderPickProductsFlat?.findIndex(
+    item =>  isEditManual ? 
+    item?.id === currentId : 
+    (barcodeCondition(barcode, item?.refBarcodes)) && !item?.pickedTime);
+
+    console.log('indexOfCodeScannedWithoutPickedTime', indexOfCodeScannedWithoutPickedTime);
+    console.log('barcodeWithPickedTime', barcodeWithPickedTime);
+
+  if(indexOfCodeScannedWithoutPickedTime === -1) {
+    indexOfCodeScanned = barcodeWithPickedTime;
+  } else {
+    indexOfCodeScanned = indexOfCodeScannedWithoutPickedTime;
+  }
+
+  return indexOfCodeScanned;
+}

@@ -4218,6 +4218,13 @@ expo-image-manipulator@~12.0.5:
   dependencies:
     expo-image-loader "~4.7.0"
 
+expo-image-picker@~15.1.0:
+  version "15.1.0"
+  resolved "https://registry.yarnpkg.com/expo-image-picker/-/expo-image-picker-15.1.0.tgz#df64cdf58ed024db0da765ece13fa0333a4ad92c"
+  integrity sha512-6cE10S7d0qG7+pcHtsYukRKuFL44ssOM0/v+5JIBzRwxpIgGA6qokr8PxasFEpxOA9NpN0gwry33jmq1qLXJTg==
+  dependencies:
+    expo-image-loader "~4.7.0"
+
 expo-image@~1.12.13:
   version "1.12.15"
   resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-1.12.15.tgz#86c3d84500d769a5afadca78b2382a0552d29180"
@@ -7152,10 +7159,10 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react-native-avoid-softinput@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-avoid-softinput/-/react-native-avoid-softinput-5.0.0.tgz#651ff4d1d44685bc185ffa0ee49687488a91e3b8"
-  integrity sha512-hpyWhBLiWcMqKbnhH1uQ+xWjv8b9L4sxIUyWiRE4F2O7lk7KlOvMKcpdl7Xxb6cyBOUNQxxtqN0btOAC6hT6oQ==
+react-native-avoid-softinput@^4.0.1:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-avoid-softinput/-/react-native-avoid-softinput-4.0.2.tgz#30825e7666b530c5d3e555a7778bd50f1431d0c3"
+  integrity sha512-/i8xNWGjpu3hEPCVjW2WsWTsM/mC4zTBr3DabOrdPfgw9Ww0Na69YQY1TSXCjbTjJmWwfTToPK5OEVm+ZwHmiQ==
 
 react-native-css-interop@0.0.36:
   version "0.0.36"

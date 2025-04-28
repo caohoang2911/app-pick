@@ -3,8 +3,8 @@ import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, InteractionManager, Platform } from 'react-native';
 
 export enum TargetScreen {
   ORDER_PICK = 'ORDER-PICK',
@@ -24,20 +24,66 @@ export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+  const appState = useRef(AppState.currentState);
+  const navigationInProgress = useRef(false);
+
+  // Create Android notification channel with sound
+  const createAndroidChannel = async () => {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default_channel_id', {
+        name: 'Default Channel',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+        sound: 'ding.mp3', // This references the sound file in res/raw directory
+      });
+    }
+  };
 
   const goOrderDetail = useCallback((remoteMessage: any) => {
     const { orderCode, targetScr} = remoteMessage || {};
 
-    if (orderCode) {
-      if(targetScr === TargetScreen.ORDER_PICK) {
-        router.push(`orders/order-detail/${orderCode}`)  
-      } else {
-        router.push(`orders/order-invoice/${orderCode}`)  
+    if (!orderCode || navigationInProgress.current) return;
+    
+    // Đánh dấu đang trong quá trình chuyển hướng để tránh nhiều lần gọi liên tiếp
+    navigationInProgress.current = true;
+    
+    // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
+    InteractionManager.runAfterInteractions(() => {
+      try {
+        // Thêm timeout ngắn để đảm bảo UI có thời gian chuẩn bị
+        setTimeout(() => {
+          if(targetScr === TargetScreen.ORDER_PICK) {
+            router.replace(`orders/order-detail/${orderCode}`);
+          } else {
+            router.replace(`orders/order-invoice/${orderCode}`);
+          }
+          
+          // Đặt lại cờ sau khi chuyển hướng hoàn tất
+          setTimeout(() => {
+            navigationInProgress.current = false;
+          }, 300);
+        }, 100);
+      } catch (error) {
+        console.error('Navigation error:', error);
+        navigationInProgress.current = false;
       }
-    }
-  }, [router])
+    });
+  }, []);
 
   useEffect(() => {
+    // Theo dõi trạng thái ứng dụng để xử lý đúng khi chuyển từ background sang foreground
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // App vừa được mở lại từ background, reset cờ navigation
+        navigationInProgress.current = false;
+      }
+      appState.current = nextAppState;
+    });
+
+    // Configure Android notification channel
+    createAndroidChannel();
+
     // Chỉ cấu hình đặc biệt cho iOS
     const configureIOS = async () => {
       if (Platform.OS === 'ios') {
@@ -131,21 +177,23 @@ export const usePushNotifications: any = () => {
                 ...remoteMessage.data,
                 // iOS cần cấu trúc APS đặc biệt để phát âm thanh
                 aps: {
-                  sound: 'default',
+                  sound: 'ding.mp3',
                   badge: 1,
                   "content-available": 1
                 }
               },
-              sound: 'default', // Quan trọng cho iOS
+              sound: 'ding.mp3', // Use custom sound instead of default
             },
             trigger: null,
           });
         } else {
-          // Giữ nguyên xử lý Android
+          // Android background notification with sound
           const notification = {
             title: remoteMessage.notification?.title || '',
             body: remoteMessage.notification?.body || '',
             data: remoteMessage.data || {},
+            sound: 'ding.mp3', // Reference to sound file in res/raw
+            channelId: 'default_channel_id',
           };
           await Notifications.scheduleNotificationAsync({
             content: notification,
@@ -174,21 +222,23 @@ export const usePushNotifications: any = () => {
                 ...remoteMessage.data,
                 // Cấu hình âm thanh iOS
                 aps: {
-                  sound: 'default',
+                  sound: 'ding.mp3',
                   badge: 1,
                   "content-available": 1
                 }
               },
-              sound: 'default',
+              sound: 'ding.mp3', // Use custom sound instead of default
             },
             trigger: null,
           });
         } else {
-          // Giữ nguyên xử lý Android hiện tại
+          // Android foreground notification with sound
           const notification = {
             title: remoteMessage.notification?.title || '',
             body: remoteMessage.notification?.body || '',
             data: remoteMessage.data || {},
+            sound: 'ding.mp3', // Reference to sound file in res/raw
+            channelId: 'default_channel_id',
           };
           await Notifications.scheduleNotificationAsync({
             content: notification,
@@ -207,6 +257,7 @@ export const usePushNotifications: any = () => {
     return () => {
       unsubscribe();
       notificationClickSubscription.remove();
+      subscription.remove();
     };
   }, [goOrderDetail, queryClient]);
 

@@ -1,15 +1,19 @@
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import {
+  setCurrentId,
   setInitOrderPickProducts,
+  setKeyword,
   setOrderDetail,
-  useOrderPick,
+  setSuccessForBarcodeScan,
+  toggleShowAmountInput,
+  useOrderPick
 } from '~/src/core/store/order-pick';
-import { stringUtils } from '~/src/core/utils/string';
+import { barcodeCondition, getOrderPickProductsFlat, handleScanBarcode } from '~/src/core/utils/order-bag';
 import { OrderStatus } from '~/src/types/order';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
@@ -66,7 +70,7 @@ const OrderPickProducts = () => {
   
   const keyword = useOrderPick.use.keyword();
   const orderPickProducts = useOrderPick.use.orderPickProducts();
-
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const flatListRef = useRef<FlatList>(null);
   // Query data
   const { 
@@ -96,19 +100,47 @@ const OrderPickProducts = () => {
   }, [data?.data?.delivery?.productItemGroups]);
 
   // Tối ưu hóa filter products bằng useMemo
-  const filteredProducts = useMemo(() => {
-    if (!keyword || !orderPickProducts) return orderPickProducts;
+  const filteredProducts = orderPickProducts;
+  // const filteredProducts = useMemo(() => {
+  //   if (!keyword || !orderPickProducts) return orderPickProducts;
 
-    return orderPickProducts.filter((products: any) => {
-      return products?.elements?.some((product: Product) => {
-        const normalizedKeyword = stringUtils.removeAccents(keyword.toLowerCase());
-        const normalizedName = stringUtils.removeAccents((product.name || '').toLowerCase());
-        const normalizedBarcode = (product.barcode || '').toLowerCase() + (product.baseBarcode || '').toLowerCase();
+  //   return orderPickProducts.filter((products: any) => {
+  //     return products?.elements?.some((product: Product) => {
+  //       const normalizedKeyword = stringUtils.removeAccents(keyword.toLowerCase());
+  //       const normalizedName = stringUtils.removeAccents((product.name || '').toLowerCase());
+  //       const normalizedBarcode = (product.barcode || '').toLowerCase() + (product.baseBarcode || '').toLowerCase();
         
-        return normalizedName.includes(normalizedKeyword) || normalizedBarcode.includes(normalizedKeyword);
+  //       return normalizedName.includes(normalizedKeyword) || normalizedBarcode.includes(normalizedKeyword);
+  //     });
+  //   });
+  // }, [keyword, orderPickProducts]);
+
+  useEffect(() => {
+    if(!keyword) return;
+
+    const keywordUpper = keyword.toUpperCase();
+
+    const productBarcode = orderPickProductsFlat?.find((product: Product) => barcodeCondition(keywordUpper, product?.refBarcodes));
+    if(productBarcode) {
+      const indexOfCodeScanned = handleScanBarcode({
+        orderPickProductsFlat,
+        currentId: productBarcode?.id,
+        isEditManual: true,
+        barcode: keywordUpper,
       });
-    });
-  }, [keyword, orderPickProducts]);
+  
+      const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
+  
+      if(currentProduct) {
+        setSuccessForBarcodeScan(keyword);
+        setCurrentId(currentProduct?.id)
+        toggleShowAmountInput(true, currentProduct?.id)
+        setKeyword("")
+      }
+    }
+    
+  }, [keyword, orderPickProducts, handleScanBarcode]);
+
 
   // Callback cho việc render item
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {

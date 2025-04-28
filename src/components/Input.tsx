@@ -1,10 +1,10 @@
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { cn } from '../lib/utils';
-import clsx from 'clsx';
 import { TextInput } from 'react-native-gesture-handler';
 import { CloseLine } from '../core/svgs';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import { cn } from '../lib/utils';
 
 export interface InputProps
   extends React.ComponentPropsWithoutRef<typeof TextInput> {
@@ -47,6 +47,11 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
           <Text className={cn('text-base', labelClasses)}>{label}</Text>
         )}
         <View className="relative">
+          {prefix && (
+            <View className="absolute left-3 top-0 bottom-0 flex items-center justify-center z-10">
+              {prefix}
+            </View>
+          )}
           <WrapperInput
             ref={ref}
             className={cn(
@@ -58,19 +63,14 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             {...props}
           />
           {suffix && (
-            <View className="absolute top-1/2 right-3 transform -translate-y-1/2">
-              {suffix && suffix}
-            </View>
-          )}
-          {prefix && (
-            <View className="absolute top-1/2 left-3 transform -translate-y-1/2">
-              {prefix && prefix}
+            <View className="absolute right-3 top-0 bottom-0 flex items-center justify-center">
+              {suffix}
             </View>
           )}
           {props.value && allowClear && (
             <Pressable
               onPress={onClear}
-              className="absolute top-1/2 right-2 -translate-y-1/2  "
+              className="absolute top-0 bottom-0 right-2 flex items-center justify-center"
             >
               <View className="rounded-full bg-gray-50">
                 <CloseLine width={20} height={20} color={'#dfdfdf'} />
