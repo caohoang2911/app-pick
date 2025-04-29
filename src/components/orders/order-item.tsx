@@ -18,7 +18,7 @@ import { Payment } from "~/src/types/order-detail";
 import { Badge } from "../Badge";
 import MoreActionsBtn from "./more-actions-btn";
 
-const RowWithLabel = memo(({icon, label, value, pickedItemProgress}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number}) => {
+const RowWithLabel = memo(({icon, label, value, pickedItemProgress, bagsSize}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number, bagsSize?: number}) => {
   return (
     <View className="flex flex-row gap-1">
       <View className="mr-2 -mt-0.5">{icon}</View>
@@ -28,6 +28,11 @@ const RowWithLabel = memo(({icon, label, value, pickedItemProgress}: {icon: Reac
         <View className="flex flex-row ml-auto gap-1 items-center">
           <Text className="text-sm text-gray-500">Pick</Text>
           <Badge label={`${pickedItemProgress}`} variant="warning" />
+        </View>
+      )}
+      {Boolean(bagsSize) && (
+        <View className="flex flex-row ml-auto gap-1 items-center">
+          <Badge label={`${bagsSize} túi`} variant="warning" /> 
         </View>
       )}
     </View>
@@ -52,6 +57,7 @@ const OrderItem = ({
   deliveryAddress,
   picker,
   pickedItemProgress,
+  bagLabels
 }: {
   statusName: string;
   orderTime: string;
@@ -75,6 +81,7 @@ const OrderItem = ({
     name: string;
   };
   pickedItemProgress: number;
+  bagLabels: Array<Record<string, string>>;
 }) => {
   const router = useRouter();
 
@@ -148,6 +155,7 @@ const OrderItem = ({
             icon={<Feather name="calendar" size={18} color="gray" />}
             label="Giao hàng"
             value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'}
+            bagsSize={bagLabels?.length}
           />
           <RowWithLabel
             icon={<Feather name="package" size={18} color="gray" />}

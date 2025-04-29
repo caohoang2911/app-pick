@@ -74,7 +74,6 @@ const InvoiceInfo = () => {
             <Text numberOfLines={1} ellipsizeMode='tail'>{deliveryAddress?.fullAddress}</Text>
           </View>
         </View>
-        <RowInfo label="Tổng số túi" value={bagLabels?.length || 0} />
       </View>
     </Box>
   )

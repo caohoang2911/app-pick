@@ -8,9 +8,10 @@
     // },
     "production": {
       "autoIncrement": true,
+      "developmentClient": false,
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleDebug"
+        "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
         "image": "latest",

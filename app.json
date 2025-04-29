@@ -3,7 +3,7 @@
     "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "version": "1.0.15",
+    "version": "1.0.16",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -119,7 +119,8 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "deploymentTarget": "16.0"
+            "deploymentTarget": "16.0",
+            "sdkVersion": "18.0"
           }
         }
       ],

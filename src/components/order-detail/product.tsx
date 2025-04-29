@@ -35,7 +35,7 @@ const Row = memo(({
 }) => (
   <View className='flex-1 flex-row w-100'>
     <View className='flex-row' style={styles.labelColumn}>
-      <Text>{label}</Text>
+      <Text className='text-gray-500'>{label}</Text>
     </View>
     <View className='flex-row' style={styles.valueColumn}>
       <Text className={`font-medium ${warning ? 'text-red-500' : ''}`} numberOfLines={1}>{value}</Text>
@@ -291,7 +291,7 @@ const OrderPickProduct = memo(({
               {hasSellPrice && (
                 <View className='flex flex-row w-100'>
                   <View style={styles.labelColumn}>
-                    <Text>Giá bán</Text>
+                    <Text className='text-gray-500'>Giá bán</Text>
                   </View>
                   <Text className='font-medium text-left' numberOfLines={1}>
                     {formatCurrency(sellPrice, { unit: true }) || "--"}

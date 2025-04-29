@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, memo, useState, useCallback } from 'react';
-import { View } from 'react-native';
-import Box from '../Box';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { setOrderBags, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { transformOrderBags } from '~/src/core/utils/order-bag';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
+import Box from '../Box';
 import BagType from './bag-type';
-import { setOrderBags, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 
 // Memoize BagType để tránh re-render không cần thiết
 const MemoizedBagType = memo(BagType);
@@ -26,7 +26,7 @@ const Bags = memo(() => {
   useEffect(() => {
     if (bagLabels?.length > 0) {
       // Tránh set lại nếu bagLabels không thay đổi
-      const initializedBags = bagLabels.map(bag => ({ ...bag, isDone: false }));
+      const initializedBags = bagLabels.map((bag: any) => ({ ...bag, isDone: false }));
       setOrderBags(initializedBags);
       setIsInitialized(true);
     }
@@ -70,6 +70,12 @@ const Bags = memo(() => {
   
   return (
     <Box>
+      <View className="flex flex-row gap-2 justify-end">  
+        <View className='pb-3 rounded-md flex flex-row gap-2'>
+          <Text className='text-gray-500'>Tổng</Text>
+          <Text className='font-medium'>{bagLabels?.length} túi</Text>
+        </View>
+      </View>
       <View className="flex flex-col gap-4">
         {shouldRenderDry && <MemoizedBagType {...dryBagProps} />}
         {shouldRenderFrozen && <MemoizedBagType {...frozenBagProps} />}

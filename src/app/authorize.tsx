@@ -9,6 +9,8 @@ import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { setLoading } from '../core/store/loading';
 
+const WHITE_LIST_ROLE = ['STORE', 'STORE_MANAGER', 'ADMIN'];
+
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
 
@@ -49,7 +51,7 @@ const Authorize = () => {
         const { authInfo } = dataParser.data || {};
         const { zas, role } = authInfo || {};
 
-        if (role === 'STORE' || role === 'STORE_MANAGER') {
+        if (WHITE_LIST_ROLE.includes(role)) {
           signIn({ token: zas, userInfo: authInfo });
           
           // Check if there's a pending deep link to navigate to
