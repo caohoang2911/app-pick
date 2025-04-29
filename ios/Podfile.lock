@@ -2739,27 +2739,8 @@ PODS:
     - React-logger (= 0.74.5)
     - React-perflogger (= 0.74.5)
     - React-utils (= 0.74.5)
-  - ReactNativeAvoidSoftinput (5.0.0):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.01.01.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Codegen
+  - ReactNativeAvoidSoftinput (4.0.2):
     - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - RecaptchaInterop (100.0.0)
   - RNFBApp (21.2.0):
     - Firebase/CoreOnly (<= 11.4.0)
@@ -3321,7 +3302,7 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 914607b0f1a58e1a8366c13f8d2efb49c17d57d1
   React-utils: 3c4b8677afc614f15357ad66fcc3e61bc21a42db
   ReactCommon: cfb89afbdafafbf049c719db9cb61ac4d38af434
-  ReactNativeAvoidSoftinput: 3ba4a8ee8af3fca750b81ecda7f866182607674d
+  ReactNativeAvoidSoftinput: fbd41ddcc102ce097b50589189578ef52bcf80fc
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   RNFBApp: 598b2df8ff9014bdd6ebc33a531947629196d576
   RNFBAuth: c53c1fdadc3ddcb8d673552fd8dd0a1082bee5c4
@@ -3340,6 +3321,6 @@ SPEC CHECKSUMS:
   Yoga: 33622183a85805e12703cd618b2c16bfd18bfffb
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: e2f3cb2110dae872247a4dc669e294e265187a52
+PODFILE CHECKSUM: bd8e8ca5b0e6a55a8f31f7a5a4592ec9d64ff170
 
 COCOAPODS: 1.16.2
