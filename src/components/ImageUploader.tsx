@@ -26,7 +26,7 @@ interface ExpoImageUploaderProps {
 }
 
 export default function ExpoImageUploader({
-  title = "Thông tin giao hàng",
+  title = "Bằng chứng giao hàng",
   maxImageSize = 1024, // Default max size 1024x1024
   minImageWidth = 80, // Minimum width of each image in pixels
   proofDeliveryImages,
@@ -352,7 +352,7 @@ export default function ExpoImageUploader({
               {title} <Text style={styles.required}>*</Text>
             </Text>
           )}
-          <Text style={styles.instruction}>
+          <Text style={styles.instruction} className='text-gray-500 mt-1'>
             Tải lên ảnh để hoàn thành đơn hàng
           </Text>
         </View>
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     maxHeight: 400,
   },
   title: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   instruction: {

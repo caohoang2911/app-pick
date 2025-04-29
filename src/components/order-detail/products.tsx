@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
-import { ActivityIndicator, Dimensions, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Keyboard, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import {
@@ -122,6 +122,7 @@ const OrderPickProducts = () => {
 
     const productBarcode = orderPickProductsFlat?.find((product: Product) => barcodeCondition(keywordUpper, product?.refBarcodes));
     if(productBarcode) {
+      Keyboard.dismiss();
       const indexOfCodeScanned = handleScanBarcode({
         orderPickProductsFlat,
         currentId: productBarcode?.id,
