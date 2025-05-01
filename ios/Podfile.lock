@@ -1195,8 +1195,6 @@ PODS:
     - EXImageLoader
     - ExpoModulesCore
     - SDWebImageWebPCoder
-  - ExpoImagePicker (15.1.0):
-    - ExpoModulesCore
   - ExpoKeepAwake (13.0.2):
     - ExpoModulesCore
   - ExpoModulesCore (1.12.24):
@@ -1351,8 +1349,8 @@ PODS:
     - GoogleUtilities/Reachability (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
-  - FirebaseMessagingInterop (11.6.0)
-  - FirebaseRemoteConfigInterop (11.5.0)
+  - FirebaseMessagingInterop (11.11.0)
+  - FirebaseRemoteConfigInterop (11.11.0)
   - FirebaseSessions (11.4.0):
     - FirebaseCore (~> 11.4)
     - FirebaseCoreExtension (~> 11.4)
@@ -2460,6 +2458,27 @@ PODS:
   - React-Mapbuffer (0.74.5):
     - glog
     - React-debug
+  - react-native-image-picker (8.2.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-mmkv (2.12.2):
     - DoubleConversion
     - glog
@@ -2866,7 +2885,6 @@ DEPENDENCIES:
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
   - ExpoImageManipulator (from `../node_modules/expo-image-manipulator/ios`)
-  - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoNetwork (from `../node_modules/expo-network/ios`)
@@ -2914,6 +2932,7 @@ DEPENDENCIES:
   - React-jsitracing (from `../node_modules/react-native/ReactCommon/hermes/executor/`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
@@ -3035,8 +3054,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-image/ios"
   ExpoImageManipulator:
     :path: "../node_modules/expo-image-manipulator/ios"
-  ExpoImagePicker:
-    :path: "../node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
@@ -3108,6 +3125,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
   react-native-safe-area-context:
@@ -3207,7 +3226,6 @@ SPEC CHECKSUMS:
   ExpoHead: 37970100b038694465cc39044cf23f3d1f56fade
   ExpoImage: c2cc25b50fc9e8f49bc6ce0405cf6a61e584d090
   ExpoImageManipulator: eb92d3ac4bad0fe96258f17273b9e295e87447be
-  ExpoImagePicker: 7038c1740853c170002c491de63f9f9780c8139b
   ExpoKeepAwake: dd02e65d49f1cfd9194640028ae2857e536eb1c9
   ExpoModulesCore: cff754cb93fcfa41d2665c50751257ded64cc080
   ExpoNetwork: 3406d873b73ca189fd41c51dff9a1c8625771260
@@ -3228,8 +3246,8 @@ SPEC CHECKSUMS:
   FirebaseFirestoreInternal: 004452c4669d5df8869c9f8f7a24ee0009852d5b
   FirebaseInstallations: 6ef4a1c7eb2a61ee1f74727d7f6ce2e72acf1414
   FirebaseMessaging: f8a160d99c2c2e5babbbcc90c4a3e15db036aee2
-  FirebaseMessagingInterop: d768073b71144b7bceadfec019d3dc49c743d53e
-  FirebaseRemoteConfigInterop: 7a7aebb9342d53913a5c890efa88e289d9e5c1bc
+  FirebaseMessagingInterop: 87d4a0a3a78644576c681974ce895599f9a867c9
+  FirebaseRemoteConfigInterop: 85bdce8babed7814816496bb6f082bc05b0a45e1
   FirebaseSessions: 3f56f177d9e53a85021d16b31f9a111849d1dd8b
   FirebaseSharedSwift: b1d32c3b29a911dc174bcf363f2f70bda9509d2f
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
@@ -3274,6 +3292,7 @@ SPEC CHECKSUMS:
   React-jsitracing: d73503c33d42ae2c0732945338cff966e41cc51e
   React-logger: 780b9ee9cec7d44eabc4093de90107c379078cb6
   React-Mapbuffer: 32481ad50f09c781bdb408b302757e0c9285d6db
+  react-native-image-picker: 6893e4b2b06ed1c2e878e3461872d6cf33223e63
   react-native-mmkv: cbb7cc0f2479caa4d2f5e5a0951b3acb28bec375
   react-native-safe-area-context: df9763c5de6fa38883028e243a0b60123acb8858
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
@@ -3321,6 +3340,6 @@ SPEC CHECKSUMS:
   Yoga: 33622183a85805e12703cd618b2c16bfd18bfffb
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 28a414a8de90a45dbcce97d8d4adfaf1aa2fcb9b
+PODFILE CHECKSUM: 6a18b820d07640782a560c2964e21de974f364f0
 
 COCOAPODS: 1.16.2
