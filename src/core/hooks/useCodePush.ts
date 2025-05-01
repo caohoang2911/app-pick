@@ -1,14 +1,24 @@
+import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 export const useCodepush = () => {
   const [isDoneCodepush, setIsDoneCodepush] = useState(false);
+  const currentVersion = Constants.expoConfig?.version;
+  const buildNumber = Constants.expoConfig?.ios?.buildNumber;
+
+  const allowUpdateByBuildNumber = () => {
+    if (Platform.OS === 'ios') {
+      return Number(buildNumber) >= 69 && currentVersion === "1.0.16";
+    }
+    return true;
+  }
 
   async function onFetchUpdateAsync() {
     try {
       const update = await Updates.checkForUpdateAsync();
-      if (update.isAvailable) {
+      if (update.isAvailable && allowUpdateByBuildNumber()) {
         Alert.alert(
           'Đã có bản cập nhật mới',
           'Bạn có muốn cập nhật không?',

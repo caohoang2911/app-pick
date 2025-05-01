@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Camera } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -9,12 +8,16 @@ import {
   Dimensions,
   Image,
   LayoutChangeEvent,
+  Linking,
+  PermissionsAndroid,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useUploadImages } from '../api/upload/use-upload-images';
 
 interface ExpoImageUploaderProps {
@@ -35,7 +38,6 @@ export default function ExpoImageUploader({
   const [images, setImages] = useState<string[]>([]);
   const [uploadedImages, setUploadedImages] = useState<{[key: string]: string}>({});
   const [currentUploadingUri, setCurrentUploadingUri] = useState<string | null>(null);
-  const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
   const [containerWidth, setContainerWidth] = useState(Dimensions.get('window').width - 32);
   const [imagesPerRow, setImagesPerRow] = useState(3);
   const [itemWidth, setItemWidth] = useState(0);
@@ -95,13 +97,6 @@ export default function ExpoImageUploader({
     const calculatedItemWidth = (containerWidth - totalGapWidth) / adjustedImagesPerRow;
     setItemWidth(calculatedItemWidth);
   }, [containerWidth, minImageWidth]);
-
-  // Request camera permissions
-  const requestCameraPermission = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setCameraPermission(status === 'granted');
-    return status === 'granted';
-  };
 
   // Resize image if needed
   const resizeImageIfNeeded = async (uri: string): Promise<string> => {
@@ -220,33 +215,78 @@ export default function ExpoImageUploader({
 
   // Take a photo using camera
   const takePicture = async () => {
-    // First check/request for permission
-    const hasCameraPermission = cameraPermission || await requestCameraPermission();
-    
-    if (!hasCameraPermission) {
-      Alert.alert('Quyền truy cập', 'Cần cấp quyền truy cập máy ảnh để chụp ảnh.');
-      return;
-    }
-
     try {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Quyền truy cập camera',
+            message: 'Ứng dụng cần quyền truy cập camera để chụp ảnh.',
+            buttonNeutral: 'Hỏi sau',
+            buttonNegative: 'Hủy',
+            buttonPositive: 'Đồng ý',
+          },
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Alert.alert(
+            'Cần quyền truy cập',
+            'Ứng dụng cần quyền truy cập camera để chụp ảnh.',
+            [
+              {
+                text: 'Hủy',
+                style: 'cancel',
+              },
+              {
+                text: 'Cài đặt',
+                onPress: () => Linking.openSettings(),
+              },
+            ]
+          );
+          return;
+        }
+      } else {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert(
+            'Cần quyền truy cập',
+            'Ứng dụng cần quyền truy cập camera để chụp ảnh.',
+            [
+              {
+                text: 'Hủy',
+                style: 'cancel',
+              },
+              {
+                text: 'Cài đặt',
+                onPress: () => Linking.openSettings(),
+              },
+            ]
+          );
+          return;
+        }
+      }
+
+      const result = await launchCamera({
+        mediaType: 'photo',
         quality: 0.8,
-        base64: true,
-        selectionLimit: 1
+        includeBase64: true,
+        saveToPhotos: true,
+        cameraType: 'back',
       });
 
-      if (!result.canceled && result.assets && result.assets[0]) {
+      if (result.didCancel) {
+        return;
+      }
+
+      if (result.errorCode) {
+        Alert.alert('Lỗi', `Không thể chụp ảnh: ${result.errorMessage || 'Lỗi không xác định'}`);
+        return;
+      }
+
+      if (result.assets && result.assets[0]) {
         const uri = result.assets[0].uri;
-        setImages(prev => [...prev, uri]);
-        
-        // Upload immediately
-        try {
+        if (uri) {
+          setImages(prev => [...prev, uri]);
           await uploadImage(uri);
-        } catch (error) {
-          // If there's an error that wasn't caught in uploadImage
-          setImages(prev => prev.filter(img => img !== uri));
-          Alert.alert('Lỗi', 'Không thể tải lên hình ảnh. Ảnh đã bị loại bỏ.');
         }
       }
     } catch (error) {
@@ -258,37 +298,95 @@ export default function ExpoImageUploader({
   // Select photos from gallery
   const pickImages = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
-        quality: 0.8,
-        base64: true,
-        selectionLimit: 1
-      });
-
-      if (!result.canceled && result.assets) {
-        const newImages = result.assets.map(asset => asset.uri);
-        setImages(prev => [...prev, ...newImages]);
-        
-        // Upload each image sequentially
-        for (const uri of newImages) {
-          try {
-            await uploadImage(uri);
-            // Wait for the pending state to clear before proceeding to the next image
-            // This ensures we're tracking the correct image with isPending
-            await new Promise(resolve => {
-              const checkPending = setInterval(() => {
-                if (!isPending) {
-                  clearInterval(checkPending);
-                  resolve(true);
-                }
-              }, 100);
-            });
-          } catch (error) {
-            setImages(prev => prev.filter(img => img !== uri));
+      // Check storage permission for Android
+      if (Platform.OS === 'android') {
+        // For Android 13 (API level 33) and above
+        if (Platform.Version >= 33) {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+            {
+              title: 'Quyền truy cập thư viện',
+              message: 'Ứng dụng cần quyền truy cập thư viện ảnh để chọn ảnh.',
+              buttonNeutral: 'Hỏi sau',
+              buttonNegative: 'Hủy',
+              buttonPositive: 'Đồng ý',
+            },
+          );
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert(
+              'Cần quyền truy cập',
+              'Ứng dụng cần quyền truy cập thư viện ảnh để chọn ảnh.',
+              [
+                {
+                  text: 'Hủy',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Cài đặt',
+                  onPress: () => Linking.openSettings(),
+                },
+              ]
+            );
+            return;
+          }
+        } else {
+          // For Android 12 and below
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            {
+              title: 'Quyền truy cập thư viện',
+              message: 'Ứng dụng cần quyền truy cập thư viện ảnh để chọn ảnh.',
+              buttonNeutral: 'Hỏi sau',
+              buttonNegative: 'Hủy',
+              buttonPositive: 'Đồng ý',
+            },
+          );
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert(
+              'Cần quyền truy cập',
+              'Ứng dụng cần quyền truy cập thư viện ảnh để chọn ảnh.',
+              [
+                {
+                  text: 'Hủy',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Cài đặt',
+                  onPress: () => Linking.openSettings(),
+                },
+              ]
+            );
+            return;
           }
         }
       }
+
+      // Launch image library
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+        includeBase64: true,
+        selectionLimit: 1,
+      });
+
+      // Handle result
+      if (result.didCancel) {
+        return;
+      }
+
+      if (result.errorCode) {
+        Alert.alert('Lỗi', `Không thể chọn ảnh: ${result.errorMessage || 'Lỗi không xác định'}`);
+        return;
+      }
+
+      if (!result.assets || !result.assets[0] || !result.assets[0].uri) {
+        Alert.alert('Lỗi', 'Không thể lấy được ảnh đã chọn');
+        return;
+      }
+
+      const uri = result.assets[0].uri;
+      setImages(prev => [...prev, uri]);
+      await uploadImage(uri);
     } catch (error) {
       console.error('Error picking images:', error);
       Alert.alert('Lỗi', 'Không thể chọn ảnh. Vui lòng thử lại.');
