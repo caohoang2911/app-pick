@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
@@ -13,18 +13,23 @@ import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 
 const actions = [
   {
-    key: 'store-delivery',
-    title: 'Store giao hàng',
+    key: 'start-store-delivery',
+    title: 'Store bắt đầu giao hàng',
+    icon: <TruckLine />,
+  },
+  {
+    key: 'complete-store-delivery',
+    title: 'Store hoàn tất giao hàng',
     icon: <TruckLine />,
   },
   {
     key: 'book-ahamove',
-    title: 'Book AhaMove',
+    title: 'Book tài xế AhaMove',
     icon: <EBikeLine />,
   },
   {
     key: 'cancel-book-shipper',
-    title: 'Cancel Book Shipper',
+    title: 'Huỷ tài xế AhaMove',
     icon: <TruckLine />,
   },
 ];
@@ -78,20 +83,26 @@ const HeaderActionBtn = () => {
       case 'book-ahamove':
         bookAhamoveActionsBottomsheetRef.current?.present();
         break;
-      case 'store-delivery':
-        showAlert({
-          title: 'Xác nhận store giao hàng',
-          loading: isLoadingSelfShipping,
-          onConfirm: () => {
-            if(code) {
-              setLoading(true);
-              selfShipping({
-                orderCode: code,
-              });
-            }
-          },
-        });
+      case 'start-store-delivery':
+        router.push(`/orders/store-start-order-scan-to-delivery/${code}`);
         break;
+      case 'complete-store-delivery':
+        router.push(`/orders/store-complete-order-scan-to-delivery/${code}`);
+        break;
+      // case 'store-delivery':
+      //   showAlert({
+      //     title: 'Xác nhận store giao hàng',
+      //     loading: isLoadingSelfShipping,
+      //     onConfirm: () => {
+      //       if(code) {
+      //         setLoading(true);
+      //         selfShipping({
+      //           orderCode: code,
+      //         });
+      //       }
+      //     },
+      //   });
+      //   break;
       case "complete-order":
         if (!code) return;
 
@@ -128,7 +139,7 @@ const HeaderActionBtn = () => {
         visible={visible}
         title="Thao tác"
         ref={actionRef}
-        snapPoints={[250]}
+        snapPoints={[320]}
         titleAlign="center"
         onClose={() => setVisible(false)}
       >

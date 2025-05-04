@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Camera } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -35,6 +35,7 @@ export default function ExpoImageUploader({
   proofDeliveryImages,
   onUploadedImages,
 }: ExpoImageUploaderProps) {
+  const [isPending, setIsPending] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [uploadedImages, setUploadedImages] = useState<{[key: string]: string}>({});
   const [currentUploadingUri, setCurrentUploadingUri] = useState<string | null>(null);
@@ -42,10 +43,13 @@ export default function ExpoImageUploader({
   const [imagesPerRow, setImagesPerRow] = useState(3);
   const [itemWidth, setItemWidth] = useState(0);
   
-  const { mutate: uploadImages, isPending } = useUploadImages(async (data) => {
+  const refFirstImage = useRef<boolean>(true);
+
+  const { mutate: uploadImages } = useUploadImages(async (data) => {
     console.log('Uploaded images:', data);
     // Mark current image as uploaded on success
     if (currentUploadingUri) {
+      setIsPending(false);
       setUploadedImages(prev => ({
         ...prev,
         [currentUploadingUri]: 'uploaded'
@@ -62,14 +66,17 @@ export default function ExpoImageUploader({
   });
   useEffect(() => {
     if(proofDeliveryImages?.length) {
-      proofDeliveryImages?.map((image) => {
-        setUploadedImages(prev => ({
-          ...prev,
-          [image]: 'uploaded',
-        }));
-        onUploadedImages?.(image);
-      });
-      setImages(proofDeliveryImages || []);
+      if(refFirstImage.current) {
+        refFirstImage.current = false;
+        proofDeliveryImages?.map((image) => {
+            setUploadedImages(prev => ({
+            ...prev,
+            [image]: 'uploaded',
+          }));
+          onUploadedImages?.(image);
+        });
+        setImages(proofDeliveryImages || []);
+      }
     }
   }, [proofDeliveryImages]);
 
@@ -199,6 +206,7 @@ export default function ExpoImageUploader({
       const base64Image = await uriToBase64(resizedUri);
       
       // Upload to server
+      setIsPending(true);
       uploadImages({ imageBase64s: [base64Image] });
 
       return true;

@@ -40,6 +40,18 @@ export default function OrdersLayout() {
           headerShown: false,
         }} 
       />
+      <Stack.Screen
+        name="store-start-order-scan-to-delivery" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen
+        name="store-complete-order-scan-to-delivery" 
+        options={{ 
+          headerShown: false,
+        }} 
+      />
 
       <Stack.Screen
         name="print-preview" 

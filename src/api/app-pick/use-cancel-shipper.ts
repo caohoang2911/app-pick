@@ -11,7 +11,7 @@ type Variables = {
 type Response = { error: string } & AxiosResponse;
 
 const cancelShipper = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/cancelBookShipper', params);
+  return await axiosClient.post('app-pick/cancelAhamoveShipper', params);
 };
 
 export const useCancelShipper = (cb?: () => void) => {
