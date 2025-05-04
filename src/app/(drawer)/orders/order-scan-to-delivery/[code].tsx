@@ -116,9 +116,9 @@ const OrderScanToDelivery = () => {
           }
           <View className='flex flex-col gap-4'>
             <InvoiceInfo />
-            <Box>
+            {/* <Box>
               <ImageUploader proofDeliveryImages={proofDeliveryImages} onUploadedImages={handleUploadedImages} />
-            </Box>
+            </Box> */}
             <View className='border-t border-gray-200 pb-3'>
               <Bags />
             </View>
@@ -131,7 +131,7 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingCompleteOrder}
               onPress={handleCheckoutOrderBags}
-              disabled={!isAllDone || uploadedImages.length === 0}
+              disabled={!isAllDone}
               label={actionType}
             />
           </View>
