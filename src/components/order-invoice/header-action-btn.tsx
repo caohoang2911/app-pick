@@ -161,7 +161,7 @@ const HeaderActionBtn = () => {
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
-        {actions.map((action) => (
+        {actions.map((action: any) => (
           <React.Fragment key={action.key}>
             {renderItem({ ...action, onClickAction: handleClickAction })}
           </React.Fragment>
