@@ -37,6 +37,9 @@ const InvoiceInfo = () => {
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
 
+  const formattedDeliveryTimeRange = deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} ${expectedDeliveryTime(deliveryTimeRange).day}` : "--";
+
+
   return (
     <Box>
       <View className='flex flex-row items-center flex-wrap'>
@@ -65,7 +68,7 @@ const InvoiceInfo = () => {
         <RowInfo label={payment?.methodName || '--'} value={formatCurrency(amount, { unit: true })} />
         <RowInfo label="Khách hàng" value={customer?.name || '' } />
         <RowInfo label="SDT" value={customer?.phone || ''} />
-        <RowInfo label="Giờ giao" value={deliveryTimeRange && expectedDeliveryTime(deliveryTimeRange).hh || ''} />
+        <RowInfo label="Giờ giao" value={formattedDeliveryTimeRange} />
         <View className='flex flex-row'>
           <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className='text-gray-500'>ĐC giao hàng</Text>
