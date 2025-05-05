@@ -19,12 +19,12 @@ export const useCompleteOrder = (cb?: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => completeOrder(params),
     onSuccess: (data: Response) => {
-      cb?.();
       if (!data.error) {
         showMessage({
           message: 'Đã hoàn tất đơn hàng',
           type: 'success',
         });
+        cb?.();
       }
     },
   });
