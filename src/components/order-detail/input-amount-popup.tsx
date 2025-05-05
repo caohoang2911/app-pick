@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNumber } from 'lodash';
 import moment from 'moment-timezone';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
@@ -71,11 +71,15 @@ const QuantitySection = memo(({
   isCampaign,
   currentProduct,
   handleBlur,
+  action,
   setFieldValue,
   quantityInit,
   setQuantityFromBarcode,
   toggleScanQrCodeProduct,
 }: any) => {
+  const editable = useMemo(() => !isCampaign && action !== 'out-of-stock', 
+    [isCampaign, action]);
+
   const handleDecrement = useCallback(() => {
     const valueChange = roundToDecimalDecrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
@@ -86,9 +90,10 @@ const QuantitySection = memo(({
     if (Number(values?.pickedQuantity) >= Number(quantity)) {
       setFieldValue('pickedError', null);
     }
-  }, [values?.pickedQuantity, quantity, setFieldValue]);
+  }, [values?.pickedQuantity, quantity, setFieldValue, editable]);
 
   const handleIncrement = useCallback(() => {
+    if(!editable) return;
     const valueChange = roundToDecimalIncrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
@@ -98,7 +103,7 @@ const QuantitySection = memo(({
     if (Number(values?.pickedQuantity) >= Number(quantity)) {
       setFieldValue('pickedError', null);
     }
-  }, [values?.pickedQuantity, quantity, setFieldValue]);
+  }, [values?.pickedQuantity, quantity, setFieldValue, editable]);
 
   const handleQRScan = useCallback(() => {
     toggleScanQrCodeProduct(true);
@@ -137,7 +142,7 @@ const QuantitySection = memo(({
             inputClasses="text-center"
             keyboardType="decimal-pad"
             onChangeText={handleChangeText}
-            editable={!isCampaign}
+            editable={editable}
             useBottomSheetTextInput
             name="pickedQuantity"
             value={values?.pickedQuantity.toString()}
@@ -166,9 +171,10 @@ const ErrorSection = memo(({
   quantity, 
   setFieldValue,
   quantityInit,
-  setErrors 
+  setErrors,
+  action,
 }: any) => {
-  const isDisabled = useMemo(() => Number(values?.pickedQuantity) >= Number(quantityInit), 
+  const isDisabled = useMemo(() => Number(values?.pickedQuantity) >= Number(quantityInit) || action === 'out-of-stock', 
     [values?.pickedQuantity, quantityInit]);
 
   const handleSelect = useCallback((value: string) => {
@@ -177,8 +183,9 @@ const ErrorSection = memo(({
   }, [setFieldValue, setErrors]);
 
   const handleClear = useCallback(() => {
+    if(isDisabled) return;
     setFieldValue('pickedError', '');
-  }, [setFieldValue]);
+  }, [setFieldValue, isDisabled]);
 
   return (
     <SDropdown
@@ -208,6 +215,7 @@ const FormContent = memo(({
   isCampaign,
   productPickedErrors,
   isError,
+  action,
   quantityInit,
 }: any) => {
   return (
@@ -218,6 +226,7 @@ const FormContent = memo(({
         isCampaign={isCampaign}
         quantityInit={quantityInit}
         currentProduct={currentProduct}
+        action={action}
         handleBlur={handleBlur}
         setFieldValue={setFieldValue}
         setQuantityFromBarcode={setQuantityFromBarcode}
@@ -226,6 +235,7 @@ const FormContent = memo(({
       <ErrorSection
         productPickedErrors={productPickedErrors}
         values={values}
+        action={action}
         quantity={quantity}
         quantityInit={quantityInit}
         setFieldValue={setFieldValue}
@@ -243,6 +253,8 @@ const InputAmountPopup = () => {
   const orderDetail = useOrderPick.use.orderDetail();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const { code } = useLocalSearchParams<{ code: string }>();
+
+  const action = useOrderPick.use.action();
 
   const [currentPickedProduct, setCurrentPickedProduct] = useState<Product>();
   
@@ -293,9 +305,11 @@ const InputAmountPopup = () => {
   // Extract product properties once
   const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
   const displayPickedQuantity = useMemo(() => { 
-    // alert(quantityFromBarcode);
+    if(isNumber(quantityFromBarcode) && action === 'out-of-stock') {
+      return 0;
+    }
     return quantityFromBarcode || pickedQuantity || 0;
-  }, [quantityFromBarcode, pickedQuantity]);
+  }, [quantityFromBarcode, pickedQuantity, action]);
   const productName = currentProduct?.name || '';
 
   // Memoize title component
@@ -364,12 +378,15 @@ const InputAmountPopup = () => {
     >
     {({ values, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
       const isError = values?.pickedQuantity < quantity && !values?.pickedError;
-      
+
       useEffect(() => {
-        if(quantityFromBarcode) {
+        if(action === 'out-of-stock') {
+          setFieldValue('pickedQuantity', 0);
+          setFieldValue('pickedError', 'OUT_OF_STOCK');
+        } else {
           setFieldValue('pickedQuantity', displayPickedQuantity.toString());
         }
-      }, [displayPickedQuantity, setFieldValue]);
+      }, [action, setFieldValue, isShowAmountInput]);
 
       return (
         <SBottomSheet
@@ -389,6 +406,7 @@ const InputAmountPopup = () => {
             quantityInit={currentProduct?.orderQuantity}
             quantity={displayPickedQuantity}
             isCampaign={isCampaign}
+            action={action}
             productPickedErrors={productPickedErrors}
             isError={isError}
           />

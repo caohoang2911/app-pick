@@ -18,8 +18,9 @@ interface OrdersState {
   currentId: number | null;
   isEditManual: boolean;
   isScanMoreProduct: boolean;
+  action: 'out-of-stock' | null;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
-  setIsEditManual: (isEditManual: boolean) => void;
+  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock') => void;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -48,11 +49,12 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   currentId: null,
   isEditManual: false,
   isScanMoreProduct: false,
+  action: null,
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
-  setIsEditManual: (isEditManual: boolean) => {
-    set({ isEditManual });
+  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock') => {
+    set({ isEditManual, action });
   },
   setKeyword: (keyword: string) => {
     set({ keyword });
@@ -148,8 +150,8 @@ export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useO
 
 export const getDeliveryOrderDetailOrderPick = (): OrderDelivery | {} => _useOrderPick.getState().orderDetail?.delivery || {};
 
-export const setIsEditManual = (isEditManual: boolean) =>
-  _useOrderPick.getState().setIsEditManual(isEditManual);
+export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock') =>
+  _useOrderPick.getState().setIsEditManual(isEditManual, action);
 
 export const setScanMoreProduct = (isScanMoreProduct: boolean) =>
   _useOrderPick.getState().setScanMoreProduct(isScanMoreProduct);

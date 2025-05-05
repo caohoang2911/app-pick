@@ -60,9 +60,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const employeeSelectionRef = useRef<any>();
 
     const orderDetail = useOrderPick.use.orderDetail();
-    const { status, picker } = orderDetail?.header || {};
-
-    console.log('orderDetail', orderDetail);
+    const { status } = orderDetail?.header || {};
 
     const { customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};

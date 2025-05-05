@@ -3,11 +3,13 @@ import { Image } from 'expo-image';
 import { isNil } from 'lodash';
 import React, { memo, useCallback, useMemo } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentId,
   setIsEditManual,
+  setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
@@ -234,81 +236,100 @@ const OrderPickProduct = memo(({
     [image]
   );
 
+  const handleConfimationRemoveProductItem = useCallback((id: number) => {
+    if(isDisable) return;
+    toggleShowAmountInput(!isShowAmountInput, id);
+    setSuccessForBarcodeScan(barcode);
+    setCurrentId(id);
+    setIsEditManual(true, 'out-of-stock');
+    setQuantityFromBarcode(0);
+  }, [isShowAmountInput, barcode, isDisable]);
+
   return (
-    <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={styles.box}>
-      <View className="p-3">
-        <ProductHeader 
-          name={name || ''} 
-          pickedTime={pickedTime} 
-          isGift={isGift} 
-          showEdit={shouldDisplayEdit}
-        />
-        <ProductVender vendorName={vendorName} />
-        <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
-          <View className="flex justify-between items-center">
-            <View>
-              <Image
-                style={styles.productImage}
-                source={imageSource}
-                contentFit="cover"
-                allowDownscaling
-                cachePolicy="memory-disk"
-                transition={200}
-              />
-            </View>
-            
-            <BarcodeDisplay 
-              baseBarcode={baseBarcode} 
-              barcode={barcode}
-              hasTags={hasTags}
-              isHiddenTag={isHiddenTag}
+     <Swipeable 
+      renderRightActions={() => 
+        <TouchableOpacity style={{ width: 80 }} onPress={() => handleConfimationRemoveProductItem(id)}>
+          <View className="bg-red-200 p-5 h-full justify-center items-center">
+            {/* <SimpleLineIcons name="trash" size={24} color="red" /> */}
+            <Text className="text-red-500 text-center font-medium">Hết hàng</Text>
+          </View>
+        </TouchableOpacity>
+      }>
+        <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={styles.box}>
+          <View className="p-3">
+            <ProductHeader 
+              name={name || ''} 
+              pickedTime={pickedTime} 
+              isGift={isGift} 
+              showEdit={shouldDisplayEdit}
             />
-          </View>
-          
-          <View className="flex-row justify-between flex-grow h-full">
-            <View className="flex gap-2 flex-1">
-              <Row 
-                label="SL đặt" 
-                value={orderQuantity} 
-                unit={unit} 
-                originOrderQuantity={originOrderQuantity} 
-              />
-              <Row 
-                label="Đã pick" 
-                value={!isNil(pickedQuantity) ? pickedQuantity : "--"} 
-                unit={unit} 
-                warning={Number(pickedQuantity) != Number(orderQuantity)}
-              />
-              <Row 
-                label="Tồn kho" 
-                value={!isNil(stockOnhand) ? stockOnhand : "--"} 
-                unit={unit} 
-              />
-              
-              {hasSellPrice && (
-                <View className='flex flex-row w-100'>
-                  <View style={styles.labelColumn}>
-                    <Text className='text-gray-500'>Giá bán</Text>
-                  </View>
-                  <Text className='font-medium text-left' numberOfLines={1}>
-                    {formatCurrency(sellPrice, { unit: true }) || "--"}
-                  </Text>
+            <ProductVender vendorName={vendorName} />
+            <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
+              <View className="flex justify-between items-center">
+                <View>
+                  <Image
+                    style={styles.productImage}
+                    source={imageSource}
+                    contentFit="cover"
+                    allowDownscaling
+                    cachePolicy="memory-disk"
+                    transition={200}
+                  />
                 </View>
-              )}
+                
+                <BarcodeDisplay 
+                  baseBarcode={baseBarcode} 
+                  barcode={barcode}
+                  hasTags={hasTags}
+                  isHiddenTag={isHiddenTag}
+                />
+              </View>
               
-              {!isHiddenTag && hasTags && <TagsBadges tags={tags} />}
+              <View className="flex-row justify-between flex-grow h-full">
+                <View className="flex gap-2 flex-1">
+                  <Row 
+                    label="SL đặt" 
+                    value={orderQuantity} 
+                    unit={unit} 
+                    originOrderQuantity={originOrderQuantity} 
+                  />
+                  <Row 
+                    label="Đã pick" 
+                    value={!isNil(pickedQuantity) ? pickedQuantity : "--"} 
+                    unit={unit} 
+                    warning={Number(pickedQuantity) != Number(orderQuantity)}
+                  />
+                  <Row 
+                    label="Tồn kho" 
+                    value={!isNil(stockOnhand) ? stockOnhand : "--"} 
+                    unit={unit} 
+                  />
+                  
+                  {hasSellPrice && (
+                    <View className='flex flex-row w-100'>
+                      <View style={styles.labelColumn}>
+                        <Text className='text-gray-500'>Giá bán</Text>
+                      </View>
+                      <Text className='font-medium text-left' numberOfLines={1}>
+                        {formatCurrency(sellPrice, { unit: true }) || "--"}
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {!isHiddenTag && hasTags && <TagsBadges tags={tags} />}
+                </View>
+              </View>
             </View>
           </View>
+          {Boolean(pickedErrorName || isWarningOverQuantity) && 
+            <View className='flex w-full flex-grow mt-3'>
+              {pickedErrorName && <WarningMessage errorName={pickedErrorName} />}
+              {isWarningOverQuantity && <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} />}
+            </View>
+          }
+          {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
         </View>
-      </View>
-      {Boolean(pickedErrorName || isWarningOverQuantity) && 
-        <View className='flex w-full flex-grow mt-3'>
-          {pickedErrorName && <WarningMessage errorName={pickedErrorName} />}
-          {isWarningOverQuantity && <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} />}
-        </View>
-      }
-      {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
-    </View>
+    </Swipeable>
   );
 });
 

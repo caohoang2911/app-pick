@@ -25,6 +25,8 @@ export const useOrderDetailQuery = ({ orderCode }: Variables) => {
     queryFn: () => {
       return getDetailOrder({ orderCode });
     },
-    enabled: true,
+    enabled: !!orderCode,
+    staleTime: 300000,
+    gcTime: Infinity,
   });
 };
