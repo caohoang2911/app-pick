@@ -14,10 +14,13 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
-        "image": "latest",
+        "image": "macos-ventura-13.6-xcode-15.2",
         "resourceClass": "m-medium",
         "prebuildCommand": "./ios/prebuild.sh",
-        "distribution": "store"
+        "distribution": "store",
+        "env": {
+          "COCOAPODS_VERSION": "1.14.3"
+        }
       },
       "channel": "production"
     },
@@ -33,7 +36,10 @@
         "resourceClass": "m-medium",
         "distribution": "store",
         "prebuildCommand": "./ios/prebuild.sh",
-        "simulator": false
+        "simulator": false,
+        "env": {
+          "COCOAPODS_VERSION": "1.14.3"
+        }
       },
       "channel": "development"
     }

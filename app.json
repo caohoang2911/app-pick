@@ -119,8 +119,9 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "deploymentTarget": "15.0",
-            "sdkVersion": "18.0"
+            "podfileProperties": {
+              "use_modular_headers!": true
+            }
           }
         }
       ],
