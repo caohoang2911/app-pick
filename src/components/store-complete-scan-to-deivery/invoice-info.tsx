@@ -5,7 +5,7 @@ import React from 'react'
 import { Text, View } from 'react-native'
 import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order'
 import { useConfig } from '~/src/core/store/config'
-import { useOrderInvoice } from '~/src/core/store/order-invoice'
+import { useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery'
 import { getConfigNameById } from '~/src/core/utils/config'
 import { expectedDeliveryTime } from '~/src/core/utils/moment'
 import { formatCurrency } from '~/src/core/utils/number'
@@ -29,9 +29,9 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  const orderInvoice = useOrderInvoice.use.orderInvoice();
+  const orderInvoice = useStoreStartOrderScanToDelivery.use.orderDetail();
   const { header } = orderInvoice || {};
-  const { status, payment, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags, bagLabels } = header || {};
+  const { status, payment, orderTime, deliveryAddress, statusName, amount, customer, deliveryTimeRange, tags } = header || {};
 
 
   const config = useConfig.use.config();

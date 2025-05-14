@@ -120,33 +120,47 @@ const OrderPickProducts = () => {
 
     const keywordUpper = keyword.toUpperCase();
 
-    const productBarcode = orderPickProductsFlat?.find((product: Product) => barcodeCondition(keywordUpper, product?.refBarcodes));
+    const productBarcode = orderPickProductsFlat?.find((product: Product) => {
+      if (keywordUpper.length >= 6) {
+        const lastSixDigits = keywordUpper.slice(-6);
+        return product?.refBarcodes?.some(refBarcode => 
+          refBarcode.endsWith(lastSixDigits) || 
+          refBarcode.includes(lastSixDigits)
+        );
+      } 
+
+      return barcodeCondition(keywordUpper, product?.refBarcodes);
+    });
     if(productBarcode) {
       Keyboard.dismiss();
       const indexOfCodeScanned = handleScanBarcode({
         orderPickProductsFlat,
         currentId: productBarcode?.id,
-        isEditManual: true,
-        barcode: keywordUpper,
+        isEditManual: false,
+        barcode: productBarcode?.barcode || '',
       });
-  
-      const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
-  
-      if(currentProduct) {
-        setSuccessForBarcodeScan(keyword);
-        setCurrentId(currentProduct?.id)
-        toggleShowAmountInput(true, currentProduct?.id)
-        setKeyword("")
+      
+      if(indexOfCodeScanned != -1) {
+        const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
+    
+        if(currentProduct) {
+          setSuccessForBarcodeScan(productBarcode?.barcode || '');
+          setCurrentId(currentProduct?.id)
+          toggleShowAmountInput(true, currentProduct?.id)
+          setKeyword("")
+        }
       }
     }
     
-  }, [keyword, orderPickProducts, handleScanBarcode]);
+  }, [keyword, orderPickProducts, orderPickProductsFlat, handleScanBarcode]);
 
 
   // Callback cho việc render item
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
     const isLast = index === (filteredProducts?.length || 0) - 1;
-    return <ProductItem item={item} isLast={isLast} />;
+    return <>
+    <ProductItem item={item} isLast={isLast} />
+    </>;
   }, [filteredProducts?.length]);
 
   // Key extractor tối ưu

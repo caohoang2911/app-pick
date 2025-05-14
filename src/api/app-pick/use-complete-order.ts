@@ -6,7 +6,7 @@ import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   orderCode: string;
-  proofDeliveryImages: string[];
+  proofDeliveryImages?: string[];
 };
 
 type Response = { error: string } & AxiosResponse;
@@ -19,12 +19,12 @@ export const useCompleteOrder = (cb?: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => completeOrder(params),
     onSuccess: (data: Response) => {
-      cb?.();
       if (!data.error) {
         showMessage({
           message: 'Đã hoàn tất đơn hàng',
           type: 'success',
         });
+        cb?.();
       }
     },
   });

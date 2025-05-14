@@ -14,12 +14,12 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
-        "image": "macos-ventura-13.6-xcode-15.2",
+        "image": "macos-sonoma-14.6-xcode-16.1",
         "resourceClass": "m-medium",
         "prebuildCommand": "./ios/prebuild.sh",
         "distribution": "store",
         "env": {
-          "COCOAPODS_VERSION": "1.14.3"
+          "COCOAPODS_VERSION": "1.16.2"
         }
       },
       "channel": "production"
@@ -29,16 +29,16 @@
       "developmentClient": false,
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleDebug"
+        "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
-        "image": "latest",
+        "image": "macos-sonoma-14.6-xcode-16.1",
         "resourceClass": "m-medium",
         "distribution": "store",
         "prebuildCommand": "./ios/prebuild.sh",
         "simulator": false,
         "env": {
-          "COCOAPODS_VERSION": "1.14.3"
+          "COCOAPODS_VERSION": "1.16.2"
         }
       },
       "channel": "development"

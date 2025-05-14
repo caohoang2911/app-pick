@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { useLocalSearchParams, router } from 'expo-router';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
@@ -7,27 +7,12 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
-
-const actions = [
-  {
-    key: 'store-delivery',
-    title: 'Store giao hàng',
-    icon: <TruckLine />,
-  },
-  {
-    key: 'book-ahamove',
-    title: 'Book AhaMove',
-    icon: <EBikeLine />,
-  },
-  {
-    key: 'cancel-book-shipper',
-    title: 'Cancel Book Shipper',
-    icon: <TruckLine />,
-  },
-];
+import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { ORDER_STATUS } from '~/src/contants/order';
 
 const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
@@ -35,7 +20,40 @@ const HeaderActionBtn = () => {
   const cancelBookShipperBottomsheetRef = useRef<any>();
   const { code } = useLocalSearchParams<{ code: string }>();
 
+  const orderInvoice = useOrderInvoice.use.orderInvoice();
+  const { header } = orderInvoice || {};
+  const { status, deliveryType } = header || {};
+
+  const isShipping = status === ORDER_STATUS.SHIPPING;
+  const isStorePackaged = status === ORDER_STATUS.STORE_PACKED;  
+
   const actionRef = useRef<any>();
+
+  const actions = useMemo(() => [
+    {
+      key: 'start-store-delivery',
+      title: 'Store bắt đầu giao hàng',
+      disabled: !isStorePackaged,
+      icon: <AntDesign name="user" size={24} color="black" />,
+    },
+    {
+      key: 'complete-store-delivery',
+      title: 'Store hoàn tất giao hàng',
+      disabled: !isShipping,
+      icon: <AntDesign name="user" size={24} color="black" />,
+    },
+    {
+      key: 'book-ahamove',
+      title: 'Book tài xế AhaMove',
+      icon: <EBikeLine />,
+    },
+    {
+      key: 'cancel-book-shipper',
+      title: 'Huỷ tài xế AhaMove',
+      icon: <EBikeLine />,
+    },
+  ], [code, isShipping, isStorePackaged]);
+  
 
   // Store giao hàng
   const { isPending: isLoadingSelfShipping, mutate: selfShipping } = useSelfShipping(() => {
@@ -55,19 +73,26 @@ const HeaderActionBtn = () => {
     key,
     title,
     icon,
+    disabled,
   }: {
     key: string;
     title: string | React.ReactNode;
     icon: React.ReactNode;
+    disabled: boolean;
     onClickAction: (key: string) => void;
   }) => {
     return (
       <Pressable
+        disabled={disabled}
         onPress={() => onClickAction?.(key)}
         className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
+        style={{
+          backgroundColor: disabled ? 'rgba(0, 0, 0, 0.05)' : 'white',
+          opacity: disabled ? 0.3 : 1,
+        }}
       >
         {icon}
-        <Text className="text-gray-300">{title}</Text>
+        <Text className={`text-gray-300`}>{title}</Text>
       </Pressable>
     );
   };
@@ -78,20 +103,26 @@ const HeaderActionBtn = () => {
       case 'book-ahamove':
         bookAhamoveActionsBottomsheetRef.current?.present();
         break;
-      case 'store-delivery':
-        showAlert({
-          title: 'Xác nhận store giao hàng',
-          loading: isLoadingSelfShipping,
-          onConfirm: () => {
-            if(code) {
-              setLoading(true);
-              selfShipping({
-                orderCode: code,
-              });
-            }
-          },
-        });
+      case 'start-store-delivery':
+        router.push(`/orders/store-start-order-scan-to-delivery/${code}`);
         break;
+      case 'complete-store-delivery':
+        router.push(`/orders/store-complete-order-scan-to-delivery/${code}`);
+        break;
+      // case 'store-delivery':
+      //   showAlert({
+      //     title: 'Xác nhận store giao hàng',
+      //     loading: isLoadingSelfShipping,
+      //     onConfirm: () => {
+      //       if(code) {
+      //         setLoading(true);
+      //         selfShipping({
+      //           orderCode: code,
+      //         });
+      //       }
+      //     },
+      //   });
+      //   break;
       case "complete-order":
         if (!code) return;
 
@@ -119,6 +150,14 @@ const HeaderActionBtn = () => {
     }
   }, [visible]);
 
+
+  const actionsByRule = useMemo(() => {
+    if(deliveryType !== 'APARTMENT_COMPLEX_DELIVERY') {
+      return actions.filter((action) => !['start-store-delivery', 'complete-store-delivery'].includes(action.key));
+    }
+    return actions;
+  }, [deliveryType]);
+
   return (
     <>
       <Pressable onPress={() => setVisible(true)} className="px-1">
@@ -128,11 +167,11 @@ const HeaderActionBtn = () => {
         visible={visible}
         title="Thao tác"
         ref={actionRef}
-        snapPoints={[250]}
+        snapPoints={[320]}
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
-        {actions.map((action) => (
+        {actionsByRule.map((action: any) => (
           <React.Fragment key={action.key}>
             {renderItem({ ...action, onClickAction: handleClickAction })}
           </React.Fragment>

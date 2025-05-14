@@ -2,7 +2,7 @@ import { registerForPushNotificationsAsync } from '@/core/utils/notification';
 import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, InteractionManager, Platform } from 'react-native';
 
@@ -26,6 +26,7 @@ export const usePushNotifications: any = () => {
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
   const appState = useRef(AppState.currentState);
   const navigationInProgress = useRef(false);
+  const pathname = usePathname();
 
   // Create Android notification channel with sound
   const createAndroidChannel = async () => {
@@ -51,25 +52,28 @@ export const usePushNotifications: any = () => {
     // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
     InteractionManager.runAfterInteractions(() => {
       try {
-        // Thêm timeout ngắn để đảm bảo UI có thời gian chuẩn bị
-        setTimeout(() => {
-          if(targetScr === TargetScreen.ORDER_PICK) {
-            router.replace(`orders/order-detail/${orderCode}`);
-          } else {
-            router.replace(`orders/order-invoice/${orderCode}`);
-          }
+        const targetPath = targetScr === TargetScreen.ORDER_PICK 
+          ? `orders/order-detail/${orderCode}`
+          : `orders/order-invoice/${orderCode}`;
           
-          // Đặt lại cờ sau khi chuyển hướng hoàn tất
-          setTimeout(() => {
-            navigationInProgress.current = false;
-          }, 300);
-        }, 100);
+        const isOrderDetail = pathname.includes('order-detail');
+        const isOrderInvoice = pathname.includes('order-invoice');
+        
+        if (isOrderDetail || isOrderInvoice) {
+          router.replace(targetPath);
+        } else {
+          router.replace('orders');
+          router.push(targetPath);
+        }
+        
+        // Đặt lại cờ sau khi chuyển hướng hoàn tất
+        navigationInProgress.current = false;
       } catch (error) {
         console.error('Navigation error:', error);
         navigationInProgress.current = false;
       }
     });
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     // Theo dõi trạng thái ứng dụng để xử lý đúng khi chuyển từ background sang foreground
