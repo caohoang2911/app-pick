@@ -7,6 +7,7 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
@@ -21,7 +22,7 @@ const HeaderActionBtn = () => {
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
-  const { status } = header || {};
+  const { status, deliveryType } = header || {};
 
   const isShipping = status === ORDER_STATUS.SHIPPING;
   const isStorePackaged = status === ORDER_STATUS.STORE_PACKED;  
@@ -33,13 +34,13 @@ const HeaderActionBtn = () => {
       key: 'start-store-delivery',
       title: 'Store bắt đầu giao hàng',
       disabled: !isStorePackaged,
-      icon: <TruckLine />,
+      icon: <AntDesign name="user" size={24} color="black" />,
     },
     {
       key: 'complete-store-delivery',
       title: 'Store hoàn tất giao hàng',
       disabled: !isShipping,
-      icon: <TruckLine />,
+      icon: <AntDesign name="user" size={24} color="black" />,
     },
     {
       key: 'book-ahamove',
@@ -49,7 +50,7 @@ const HeaderActionBtn = () => {
     {
       key: 'cancel-book-shipper',
       title: 'Huỷ tài xế AhaMove',
-      icon: <TruckLine />,
+      icon: <EBikeLine />,
     },
   ], [code, isShipping, isStorePackaged]);
   
@@ -87,10 +88,11 @@ const HeaderActionBtn = () => {
         className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
         style={{
           backgroundColor: disabled ? 'rgba(0, 0, 0, 0.05)' : 'white',
+          opacity: disabled ? 0.3 : 1,
         }}
       >
         {icon}
-        <Text className={`text-gray-300 ${disabled ? 'opacity-50' : ''}`}>{title}</Text>
+        <Text className={`text-gray-300`}>{title}</Text>
       </Pressable>
     );
   };
@@ -148,6 +150,14 @@ const HeaderActionBtn = () => {
     }
   }, [visible]);
 
+
+  const actionsByRule = useMemo(() => {
+    if(deliveryType !== 'APARTMENT_COMPLEX_DELIVERY') {
+      return actions.filter((action) => !['start-store-delivery', 'complete-store-delivery'].includes(action.key));
+    }
+    return actions;
+  }, [deliveryType]);
+
   return (
     <>
       <Pressable onPress={() => setVisible(true)} className="px-1">
@@ -161,7 +171,7 @@ const HeaderActionBtn = () => {
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
-        {actions.map((action: any) => (
+        {actionsByRule.map((action: any) => (
           <React.Fragment key={action.key}>
             {renderItem({ ...action, onClickAction: handleClickAction })}
           </React.Fragment>

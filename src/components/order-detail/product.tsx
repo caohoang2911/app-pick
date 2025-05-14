@@ -272,8 +272,8 @@ const OrderPickProduct = memo(({
                     source={imageSource}
                     contentFit="cover"
                     allowDownscaling
-                    cachePolicy="memory-disk"
                     transition={200}
+                    cachePolicy="none"
                   />
                 </View>
                 
@@ -348,6 +348,8 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 1, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: '#dfdfdf',
       },
       android: {
         shadowColor: '#222',
@@ -358,6 +360,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.4,
         shadowRadius: 5.46,
         elevation: 9,
+        borderWidth: 1,
+        borderColor: '#dfdfdf',
       },
     }),
   },

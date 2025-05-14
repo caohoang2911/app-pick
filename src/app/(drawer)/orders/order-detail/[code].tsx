@@ -38,8 +38,6 @@ const OrderPick = () => {
   const isEditManual = useOrderPick.use.isEditManual();
   const currentId = useOrderPick.use.currentId();
 
-  const orderPickProductFlat = getOrderPickProductsFlat(orderPickProducts);
-
   const headerAcrtionRef = useRef<any>();
 
   useLayoutEffect(() => {
@@ -70,6 +68,8 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
+      console.log(orderPickProductsFlat, "orderPickProductsFlat")
+
       const indexWithBarcode = orderPickProductsFlat?.findIndex(
         item => barcodeCondition(barcode, item?.refBarcodes)
       );
@@ -89,7 +89,7 @@ const OrderPick = () => {
         barcode,
       });
    
-      const currentProduct = orderPickProductFlat?.[indexOfCodeScanned];;
+      const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
 
       setCurrentId(currentProduct?.id)
 
@@ -101,7 +101,7 @@ const OrderPick = () => {
 
         setSuccessForBarcodeScan(currentBarcode);
         setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
-        toggleShowAmountInput(true, orderPickProductFlat?.[indexOfCodeScanned]?.id);
+        toggleShowAmountInput(true, orderPickProductsFlat?.[indexOfCodeScanned]?.id);
       }
       
     },
@@ -111,12 +111,10 @@ const OrderPick = () => {
       currentQr,
       toggleShowAmountInput,
       setSuccessForBarcodeScan,
-      orderPickProductFlat,
       isScanMoreProduct,
       currentId,
       isEditManual,
       scannedIds,
-      orderPickProductFlat,
     ]
   );
 

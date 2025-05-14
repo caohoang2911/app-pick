@@ -128,6 +128,7 @@ const OrderPickProducts = () => {
           refBarcode.includes(lastSixDigits)
         );
       } 
+
       return barcodeCondition(keywordUpper, product?.refBarcodes);
     });
     if(productBarcode) {
@@ -135,27 +136,31 @@ const OrderPickProducts = () => {
       const indexOfCodeScanned = handleScanBarcode({
         orderPickProductsFlat,
         currentId: productBarcode?.id,
-        isEditManual: true,
-        barcode: keywordUpper,
+        isEditManual: false,
+        barcode: productBarcode?.barcode || '',
       });
-  
-      const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
-  
-      if(currentProduct) {
-        setSuccessForBarcodeScan(keyword);
-        setCurrentId(currentProduct?.id)
-        toggleShowAmountInput(true, currentProduct?.id)
-        setKeyword("")
+      
+      if(indexOfCodeScanned != -1) {
+        const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
+    
+        if(currentProduct) {
+          setSuccessForBarcodeScan(productBarcode?.barcode || '');
+          setCurrentId(currentProduct?.id)
+          toggleShowAmountInput(true, currentProduct?.id)
+          setKeyword("")
+        }
       }
     }
     
-  }, [keyword, orderPickProducts, handleScanBarcode]);
+  }, [keyword, orderPickProducts, orderPickProductsFlat, handleScanBarcode]);
 
 
   // Callback cho việc render item
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
     const isLast = index === (filteredProducts?.length || 0) - 1;
-    return <ProductItem item={item} isLast={isLast} />;
+    return <>
+    <ProductItem item={item} isLast={isLast} />
+    </>;
   }, [filteredProducts?.length]);
 
   // Key extractor tối ưu

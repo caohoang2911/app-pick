@@ -16,7 +16,8 @@ import {
   setScanMoreProduct,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
-  useOrderPick
+  useOrderPick,
+  setActionProduct
 } from '~/src/core/store/order-pick';
 import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
 import { barcodeCondition, getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
@@ -360,6 +361,7 @@ const InputAmountPopup = () => {
     toggleShowAmountInput(false);
     setCurrentId(null);
     setQuantityFromBarcode(0);
+    setActionProduct(null);
   }, []);
 
   // Memoize initial values

@@ -10,7 +10,8 @@ export const useCodepush = () => {
 
   const allowUpdateByBuildNumber = () => {
     if (Platform.OS === 'ios') {
-      return Number(buildNumber) >= 69 && currentVersion === "1.0.16";
+      // return Number(buildNumber) >= 69 && currentVersion === "1.0.16";
+      return true;
     }
     return true;
   }

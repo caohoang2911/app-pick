@@ -19,6 +19,7 @@ interface OrdersState {
   isEditManual: boolean;
   isScanMoreProduct: boolean;
   action: 'out-of-stock' | null;
+  setAction: (action: 'out-of-stock' | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
   setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock') => void;
   setKeyword: (keyword: string) => void;
@@ -52,6 +53,9 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   action: null,
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
+  },
+  setAction: (action: 'out-of-stock' | null) => {
+    set({ action });
   },
   setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock') => {
     set({ isEditManual, action });
@@ -152,6 +156,9 @@ export const getDeliveryOrderDetailOrderPick = (): OrderDelivery | {} => _useOrd
 
 export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock') =>
   _useOrderPick.getState().setIsEditManual(isEditManual, action);
+
+export const setActionProduct = (action: 'out-of-stock' | null) =>
+  _useOrderPick.getState().setAction(action);
 
 export const setScanMoreProduct = (isScanMoreProduct: boolean) =>
   _useOrderPick.getState().setScanMoreProduct(isScanMoreProduct);
