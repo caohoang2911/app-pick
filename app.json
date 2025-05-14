@@ -3,7 +3,7 @@
     "name": "App Pick Dev",
     "slug": "seedcom-app-pick",
     "scheme": "apppickdev",
-    "version": "1.0.20",
+    "version": "1.0.22",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,9 +32,7 @@
           }
         ],
         "UIBackgroundModes": ["remote-notification"]
-      },
-      "sounds": ["./assets/sounds/ding.mp3"],
-      "minimumVersion": "16.0"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -119,7 +117,10 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "deploymentTarget": "16.0"
+            "deploymentTarget": "15.0",
+            "podfileProperties": {
+              "use_modular_headers!": true
+            }
           }
         }
       ],
@@ -131,7 +132,7 @@
         "projectId": "58d442de-186f-4ce5-a7b4-664b666f2ac0"
       }
     },
-    "runtimeVersion": "1.0.2",
+    "runtimeVersion": "1.0.3",
     "updates": {
       "fallbackToCacheTimeout": 0,
       "checkAutomatically": "NEVER",
