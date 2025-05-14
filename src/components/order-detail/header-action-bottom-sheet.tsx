@@ -1,7 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { router, useGlobalSearchParams } from 'expo-router';
-import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import { Linking, Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
@@ -60,7 +60,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const employeeSelectionRef = useRef<any>();
 
     const orderDetail = useOrderPick.use.orderDetail();
-    const { status } = orderDetail?.header || {};
+    const { status, deliveryType } = orderDetail?.header || {};
 
     const { customer } = orderDetail?.header || {};
     const { name, phone, membership } = customer || {};
@@ -100,7 +100,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       return (
         <Pressable
           onPress={() => onClickAction?.(key)}
-          
           disabled={false}
           style={{ opacity: disabled ? 0.5 : 1 }}
         >
@@ -168,6 +167,13 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       });
     }, [code]);
 
+    const actionsByRule = useMemo(() => {
+      if(deliveryType === 'APARTMENT_COMPLEX_DELIVERY') {
+        return actions.filter((action) => action.key !== 'scan-bag');
+      }
+      return actions;
+    }, [deliveryType]);
+
   
     return (
       <>
@@ -182,7 +188,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           }}
         >
           <View className="flex-1">
-            {actions.map((action: Action) => (
+            {actionsByRule.map((action: Action) => (
               <React.Fragment key={action.key}>
                 {renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false })}    
               </React.Fragment>

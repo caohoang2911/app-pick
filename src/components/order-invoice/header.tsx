@@ -1,16 +1,16 @@
 import ButtonBack from '@/components/ButtonBack';
 import { useGlobalSearchParams } from 'expo-router';
+import { toLower } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
 import { useConfig } from '~/src/core/store/config';
-import { useOrderPick } from '~/src/core/store/order-pick';
+import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { getConfigNameById } from "~/src/core/utils/config";
 import { OrderDetail } from '~/src/types/order-detail';
 import { Badge } from '../Badge';
 import HeaderActionBtn from './header-action-btn';
-import { toLower } from 'lodash';
 
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
@@ -35,7 +35,8 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
 
 const OrderPickHeader = () => {
   const { code } = useGlobalSearchParams<{ code: string }>();
-  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
+  const orderDetail: OrderDetail = useOrderInvoice.use.orderInvoice();
+
   const { header } = orderDetail;
   const { status, statusName,  lastTimeUpdateStatus, tags } = header || {};
 

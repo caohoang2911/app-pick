@@ -48,7 +48,7 @@ export const splitBarcode = ({
 
   return {
     quantity: newQuantity,
-    barcode: newBarcode
+    barcode: newBarcode?.trim()
   };
 }
 

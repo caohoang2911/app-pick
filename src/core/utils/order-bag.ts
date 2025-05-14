@@ -96,9 +96,6 @@ export const handleScanBarcode = ({
     item?.id === currentId : 
     (barcodeCondition(barcode, item?.refBarcodes)) && !item?.pickedTime);
 
-    console.log('indexOfCodeScannedWithoutPickedTime', indexOfCodeScannedWithoutPickedTime);
-    console.log('barcodeWithPickedTime', barcodeWithPickedTime);
-
   if(indexOfCodeScannedWithoutPickedTime === -1) {
     indexOfCodeScanned = barcodeWithPickedTime;
   } else {
