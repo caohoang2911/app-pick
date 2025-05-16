@@ -18,6 +18,7 @@
     "build-development-local": "eas build -p android --profile development --local",
     "build-ios": "eas build -p ios --profile preview",
     "build-prod": "eas build --profile production --platform ios --auto-submit",
+    "build-testflight": "eas build --profile testflight --platform ios --auto-submit",
     "build-dev": "eas build --profile development --platform ios --auto-submit",
     "build-dev-local": "eas build --profile development --platform ios --local --auto-submit",
     "resubmit-dev": "eas submit --platform ios --profile development --latest --verbose",
