@@ -2,7 +2,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
 import { isNil } from 'lodash';
 import React, { memo, useCallback, useMemo } from 'react';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
@@ -20,7 +20,8 @@ import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
-
+import MoreActionsBtn from './more-actions-btn';
+import { useLocalSearchParams } from 'expo-router';
 // Extract Row component and memoize
 const Row = memo(({
   label,
@@ -90,25 +91,34 @@ const ProductHeader = memo(({
   name, 
   pickedTime, 
   isGift, 
-  showEdit 
+  showEdit,
+  code,
+  id,
+  barcode,
 }: { 
   name: string, 
   pickedTime?: number, 
   isGift: boolean,
-  showEdit: boolean 
+  showEdit: boolean,
+  code: string,
+  id: number,
+  barcode: string,
 }) => (
-  <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0 }}>
-    {pickedTime ? (
-      <View className="rounded-full bg-white">
-        <CheckCircleFill color={'green'} />
+  <>
+    <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0}}>
+      {pickedTime ? (
+        <View className="rounded-full bg-white">
+          <CheckCircleFill color={'green'} />
+        </View>
+      ) : null}
+      <View className="flex-1">
+        <Text className="text-lg font-semibold" numberOfLines={1}>
+          {isGift ? "🎁 " : ""}{name}
+        </Text>
       </View>
-    ) : null}
-    <View className="flex-1">
-      <Text className="text-lg font-semibold" numberOfLines={1}>
-        {isGift ? "🎁 " : ""}{name}
-      </Text>
+      <MoreActionsBtn code={code} id={id} barcode={barcode} />
     </View>
-  </View>
+  </>
 ));
 
 const ProductVender = ({ vendorName }: { vendorName: string }) => {
@@ -186,8 +196,8 @@ const OrderPickProduct = memo(({
   isHiddenTag = false,
   vendorName,
   id,
-  disable,
 }: Partial<Product | any>) => {
+  const { code }  = useLocalSearchParams<{ code: string }>();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
@@ -195,6 +205,7 @@ const OrderPickProduct = memo(({
   const isGift = useMemo(() => {
     return tags?.includes('Gift');
   }, [tags]);
+  
 
   // TODO: 
   // const isDisable = useMemo(() => disable && isGift, [disable, isGift]) && isGift;
@@ -253,7 +264,6 @@ const OrderPickProduct = memo(({
       renderRightActions={() => 
         <TouchableOpacity style={{ width: 80 }} onPress={() => handleConfimationRemoveProductItem(id)}>
           <View className="bg-red-200 p-5 h-full justify-center items-center">
-            {/* <SimpleLineIcons name="trash" size={24} color="red" /> */}
             <Text className="text-red-500 text-center font-medium">Hết hàng</Text>
           </View>
         </TouchableOpacity>
@@ -262,9 +272,12 @@ const OrderPickProduct = memo(({
           <View className="p-3">
             <ProductHeader 
               name={name || ''} 
-              pickedTime={pickedTime} 
+              pickedTime={pickedTime}
               isGift={isGift} 
               showEdit={shouldDisplayEdit}
+              code={code}
+              id={id}
+              barcode={barcode}
             />
             <ProductVender vendorName={vendorName} />
             <View className="flex flex-row justify-between gap-4 flex-grow mt-3">

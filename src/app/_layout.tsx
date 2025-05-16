@@ -15,7 +15,7 @@ export { ErrorBoundary } from 'expo-router';
 
 // Import  global CSS file
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
-import { APIProvider, queryClient } from '@/api/shared';
+import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { hydrateAuth, useAuth } from '@/core';
 import { useCodepush } from '@/core/hooks/useCodePush';
@@ -28,11 +28,10 @@ import { initConfigDate, setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect, useState } from 'react';
-import { AppState, StatusBar } from 'react-native';
+import { AppState, StatusBar, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
-import { checkNotificationPermission } from '../core/utils/notificationPermission';
 
 const VERSION = '1.0.41';
 

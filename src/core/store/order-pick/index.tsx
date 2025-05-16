@@ -18,10 +18,10 @@ interface OrdersState {
   currentId: number | null;
   isEditManual: boolean;
   isScanMoreProduct: boolean;
-  action: 'out-of-stock' | null;
-  setAction: (action: 'out-of-stock' | null) => void;
+  action: 'out-of-stock' | 'low-quality' | 'near-date' | null;
+  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
-  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock') => void;
+  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') => void;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -54,10 +54,10 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
-  setAction: (action: 'out-of-stock' | null) => {
+  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | null) => {
     set({ action });
   },
-  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock') => {
+  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') => {
     set({ isEditManual, action });
   },
   setKeyword: (keyword: string) => {
@@ -154,10 +154,10 @@ export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useO
 
 export const getDeliveryOrderDetailOrderPick = (): OrderDelivery | {} => _useOrderPick.getState().orderDetail?.delivery || {};
 
-export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock') =>
+export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') =>
   _useOrderPick.getState().setIsEditManual(isEditManual, action);
 
-export const setActionProduct = (action: 'out-of-stock' | null) =>
+export const setActionProduct = (action: 'out-of-stock' | 'low-quality' | 'near-date' | null) =>
   _useOrderPick.getState().setAction(action);
 
 export const setScanMoreProduct = (isScanMoreProduct: boolean) =>
