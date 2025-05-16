@@ -1,29 +1,5 @@
 {
   "build": {
-    // "preview": {
-    //     "android": {
-    //     "buildType": "apk"
-    //   },
-    //   "channel": "preview"
-    // },
-    "production": {
-      "autoIncrement": true,
-      "developmentClient": false,
-      "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
-      },
-      "ios": {
-        "image": "macos-sonoma-14.6-xcode-16.1",
-        "resourceClass": "m-medium",
-        "prebuildCommand": "./ios/prebuild.sh",
-        "distribution": "store",
-        "env": {
-          "COCOAPODS_VERSION": "1.16.2"
-        }
-      },
-      "channel": "production"
-    },
     "development": {
       "autoIncrement": true,
       "developmentClient": false,
@@ -32,9 +8,9 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
+        "distribution": "internal",
         "image": "macos-sonoma-14.6-xcode-16.1",
         "resourceClass": "m-medium",
-        "distribution": "store",
         "prebuildCommand": "./ios/prebuild.sh",
         "simulator": false,
         "env": {
@@ -42,22 +18,53 @@
         }
       },
       "channel": "development"
+    },
+    "testflight": {
+      "autoIncrement": true,
+      "developmentClient": false,
+      "ios": {
+        "distribution": "store",
+        "image": "macos-sonoma-14.6-xcode-16.1",
+        "resourceClass": "m-medium",
+        "prebuildCommand": "./ios/prebuild.sh",
+        "env": {
+          "COCOAPODS_VERSION": "1.16.2"
+        }
+      },
+      "channel": "testflight"
+    },
+    "production": {
+      "autoIncrement": true,
+      "developmentClient": false,
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "ios": {
+        "distribution": "store",
+        "image": "macos-sonoma-14.6-xcode-16.1",
+        "resourceClass": "m-medium",
+        "prebuildCommand": "./ios/prebuild.sh",
+        "env": {
+          "COCOAPODS_VERSION": "1.16.2"
+        }
+      },
+      "channel": "production"
     }
   },
   "submit": {
     "production": {
       "ios": {
         "appleId": "hongchanphat@gmail.com",
-        "ascAppId": "6736770571",
+        "ascAppId": "6680199998",
         "appleTeamId": "4DT5296LMZ"
       }
     },
-    "development": {
+    "testflight": {
       "ios": {
         "appleId": "hongchanphat@gmail.com",
         "ascAppId": "6736770571",
-        "appleTeamId": "4DT5296LMZ",
-        "sku": "EX1714374689123"
+        "appleTeamId": "4DT5296LMZ"
       }
     }
   },
