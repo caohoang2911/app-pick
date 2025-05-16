@@ -80,6 +80,7 @@ const QuantitySection = memo(({
 }: any) => {
   const editable = useMemo(() => !isCampaign && action !== 'out-of-stock', 
     [isCampaign, action]);
+    
 
   const handleDecrement = useCallback(() => {
     const valueChange = roundToDecimalDecrease(Number(values?.pickedQuantity || 0));
@@ -88,10 +89,10 @@ const QuantitySection = memo(({
       return;
     }
     setFieldValue('pickedQuantity', Number(valueChange));
-    if (Number(values?.pickedQuantity) >= Number(quantity)) {
+    if (Number(values?.pickedQuantity) >= Number(quantity) && !action) {
       setFieldValue('pickedError', null);
     }
-  }, [values?.pickedQuantity, quantity, setFieldValue, editable]);
+  }, [values?.pickedQuantity, quantity, setFieldValue, editable, action]);
 
   const handleIncrement = useCallback(() => {
     if(!editable) return;
@@ -101,10 +102,10 @@ const QuantitySection = memo(({
       return;
     }
     setFieldValue('pickedQuantity', Number(valueChange));
-    if (Number(values?.pickedQuantity) >= Number(quantity)) {
+    if (Number(values?.pickedQuantity) >= Number(quantity) && !action) {
       setFieldValue('pickedError', null);
     }
-  }, [values?.pickedQuantity, quantity, setFieldValue, editable]);
+  }, [values?.pickedQuantity, quantity, setFieldValue, editable, action]);
 
   const handleQRScan = useCallback(() => {
     toggleScanQrCodeProduct(true);
@@ -385,6 +386,10 @@ const InputAmountPopup = () => {
         if(action === 'out-of-stock') {
           setFieldValue('pickedQuantity', 0);
           setFieldValue('pickedError', 'OUT_OF_STOCK');
+        } else if(action === 'low-quality') {
+          setFieldValue('pickedError', 'QUALITY_DECLINE');
+        } else if(action === 'near-date') {
+          setFieldValue('pickedError', 'NEAR_EXPIRED_DATE');
         } else {
           setFieldValue('pickedQuantity', displayPickedQuantity.toString());
         }
