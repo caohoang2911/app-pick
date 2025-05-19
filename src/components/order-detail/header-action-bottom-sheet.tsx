@@ -185,7 +185,10 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'scan-bag',
         title: 'Scan túi - Giao hàng',
-        disabled: (status !== OrderStatusValue.STORE_PACKED && status !== OrderStatusValue.SHIPPING) || deliveryType === "APARTMENT_COMPLEX_DELIVERY",
+        disabled: 
+          (status !== OrderStatusValue.STORE_PACKED && status !== OrderStatusValue.SHIPPING) 
+          || deliveryType === "APARTMENT_COMPLEX_DELIVERY"
+          || deliveryType === "OFFLINE_HOME_DELIVERY",
         icon: <QRScanLine />,
       },
       {
