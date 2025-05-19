@@ -1,9 +1,10 @@
 
-
-import { Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import ButtonBack from "~/src/components/ButtonBack";
 import Header from "~/src/components/shared/Header";
 
 export default function OrderScanToDeliveryLayout() {  
+  const { code } = useLocalSearchParams<{ code: string }>();
   return (
     <Stack>
       <Stack.Screen
@@ -13,6 +14,7 @@ export default function OrderScanToDeliveryLayout() {
           header: () => (
             <Header
               title="Siêu thị giao hàng"
+              headerLeft={<ButtonBack onPress={() => router.dismiss(1)} />}
             />
           )
         }} 

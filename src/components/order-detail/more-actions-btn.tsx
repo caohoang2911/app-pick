@@ -1,29 +1,25 @@
-import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { BillLine, More2Fill } from '~/src/core/svgs';
+import { setActionProduct, setCurrentId, setIsEditManual, setSuccessForBarcodeScan, toggleShowAmountInput } from '~/src/core/store/order-pick';
+import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
-import { setActionProduct, toggleShowAmountInput } from '~/src/core/store/order-pick';
-import { setSuccessForBarcodeScan } from '~/src/core/store/order-pick';
-import { setCurrentId } from '~/src/core/store/order-pick';
-import { setIsEditManual } from '~/src/core/store/order-pick';
-import { setQuantityFromBarcode } from '~/src/core/store/order-pick';
+import AntDesign from '@expo/vector-icons/AntDesign';
 const actions = [
   {
     key: 'out-of-stock',
     title: 'Sản phẩm hết hàng',
-    icon: <BillLine />,
+    icon: <AntDesign name="tago" size={20} color="black" />
   },
   {
     key: 'low-quality',
     title: 'Sản phẩm giảm chất lượng',
-    icon: <BillLine />,
+    icon: <AntDesign name="tago" size={20} color="black" />
   },
   {
     key: 'near-date',
     title: 'Sản phẩm cận date',
-    icon: <BillLine />,
+    icon: <AntDesign name="tago" size={20} color="black" />
   },
 ];
 
