@@ -1,23 +1,22 @@
-import { useLocalSearchParams, router } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import Entypo from '@expo/vector-icons/Entypo';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { setLoading } from '~/src/core/store/loading';
-import { EBikeLine, More2Fill, TruckLine } from '~/src/core/svgs';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import SBottomSheet from '../SBottomSheet';
-import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
-import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { ORDER_STATUS } from '~/src/contants/order';
-
+import { hideAlert } from '~/src/core/store/alert-dialog';
+import { setLoading } from '~/src/core/store/loading';
+import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { More2Fill, QRScanLine } from '~/src/core/svgs';
+import { OrderStatusValue } from '~/src/types/order';
+import SBottomSheet from '../SBottomSheet';
+import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
-  const bookAhamoveActionsBottomsheetRef = useRef<any>();
-  const cancelBookShipperBottomsheetRef = useRef<any>();
+  const [deliverySelectionVisible, setDeliverySelectionVisible] = useState(false);
   const { code } = useLocalSearchParams<{ code: string }>();
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
@@ -31,26 +30,16 @@ const HeaderActionBtn = () => {
 
   const actions = useMemo(() => [
     {
-      key: 'start-store-delivery',
-      title: 'Store bắt đầu giao hàng',
-      disabled: !isStorePackaged,
-      icon: <AntDesign name="user" size={24} color="black" />,
+      key: 'scan-bag',
+      title: 'Scan túi - Giao hàng',
+      disabled: (status !== OrderStatusValue.STORE_PACKED && status !== OrderStatusValue.SHIPPING) || deliveryType === "APARTMENT_COMPLEX_DELIVERY",
+      icon: <QRScanLine />,
     },
     {
-      key: 'complete-store-delivery',
-      title: 'Store hoàn tất giao hàng',
-      disabled: !isShipping,
-      icon: <AntDesign name="user" size={24} color="black" />,
-    },
-    {
-      key: 'book-ahamove',
-      title: 'Book tài xế AhaMove',
-      icon: <EBikeLine />,
-    },
-    {
-      key: 'cancel-book-shipper',
-      title: 'Huỷ tài xế AhaMove',
-      icon: <EBikeLine />,
+      key: 'delivery-order',
+      title: 'Vận chuyển',
+      allowSubmenu: true,
+      icon: <MaterialIcons name="delivery-dining" size={24} color="black" />,
     },
   ], [code, isShipping, isStorePackaged]);
   
@@ -74,11 +63,13 @@ const HeaderActionBtn = () => {
     title,
     icon,
     disabled,
+    allowSubmenu,
   }: {
     key: string;
     title: string | React.ReactNode;
     icon: React.ReactNode;
     disabled: boolean;
+    allowSubmenu: boolean;
     onClickAction: (key: string) => void;
   }) => {
     return (
@@ -91,8 +82,13 @@ const HeaderActionBtn = () => {
           opacity: disabled ? 0.3 : 1,
         }}
       >
-        {icon}
-        <Text className={`text-gray-300`}>{title}</Text>
+        <View className="flex-row items-center gap-4 justify-between flex-1">
+          <View className="flex-row items-center gap-4">
+            {icon}
+            <Text className={`text-gray-300`}>{title}</Text>
+          </View>
+          {allowSubmenu && <Entypo name="chevron-small-right" size={24} color="black" />}
+        </View>
       </Pressable>
     );
   };
@@ -100,44 +96,11 @@ const HeaderActionBtn = () => {
   const handleClickAction = (key: string) => {
     setVisible(false);
     switch (key) {
-      case 'book-ahamove':
-        bookAhamoveActionsBottomsheetRef.current?.present();
+      case 'delivery-order':
+        setDeliverySelectionVisible(true);
         break;
-      case 'start-store-delivery':
-        router.push(`/orders/store-start-order-scan-to-delivery/${code}`);
-        break;
-      case 'complete-store-delivery':
-        router.push(`/orders/store-complete-order-scan-to-delivery/${code}`);
-        break;
-      // case 'store-delivery':
-      //   showAlert({
-      //     title: 'Xác nhận store giao hàng',
-      //     loading: isLoadingSelfShipping,
-      //     onConfirm: () => {
-      //       if(code) {
-      //         setLoading(true);
-      //         selfShipping({
-      //           orderCode: code,
-      //         });
-      //       }
-      //     },
-      //   });
-      //   break;
-      case "complete-order":
-        if (!code) return;
-
-        showAlert({
-          title: 'Xác nhận đã giao hàng',
-          loading: isLoadingCompleteOrder,
-          onConfirm: () => {
-            setLoading(true);
-            completeOrder({ orderCode: code });
-          },
-        });
-       break;
-
-      case "cancel-book-shipper":
-        cancelBookShipperBottomsheetRef.current?.present();
+      case 'scan-bag':
+        router.push(`orders/order-scan-to-delivery/${code}`);
         break;
       default:
         break;
@@ -150,14 +113,6 @@ const HeaderActionBtn = () => {
     }
   }, [visible]);
 
-
-  const actionsByRule = useMemo(() => {
-    if(deliveryType !== 'APARTMENT_COMPLEX_DELIVERY') {
-      return actions.filter((action) => !['start-store-delivery', 'complete-store-delivery'].includes(action.key));
-    }
-    return actions;
-  }, [deliveryType]);
-
   return (
     <>
       <Pressable onPress={() => setVisible(true)} className="px-1">
@@ -167,18 +122,21 @@ const HeaderActionBtn = () => {
         visible={visible}
         title="Thao tác"
         ref={actionRef}
-        snapPoints={[320]}
+        snapPoints={[250]}
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
-        {actionsByRule.map((action: any) => (
+        {actions.map((action: any) => (
           <React.Fragment key={action.key}>
             {renderItem({ ...action, onClickAction: handleClickAction })}
           </React.Fragment>
         ))}
       </SBottomSheet>
-      <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
-      <CancelBookShipperBottomsheet orderCode={code} ref={cancelBookShipperBottomsheetRef} />
+      <DeliverySelectionBottomsheet
+        orderDetail={orderInvoice}
+        visible={deliverySelectionVisible}
+        setVisible={setDeliverySelectionVisible}
+      />
     </>
   )
 }

@@ -6,9 +6,11 @@ import { router } from 'expo-router';
 const ButtonBack = ({
   title,
   className,
+  onPress,
 }: {
   title?: string | React.ReactNode;
   className?: string;
+  onPress?: () => void;
 }) => {
   const goBack = () => {
     if (router.canGoBack()) {
@@ -19,7 +21,7 @@ const ButtonBack = ({
   };
 
   return (
-    <Pressable onPress={goBack} className="text-left -ml-3">
+    <Pressable onPress={onPress || goBack} className="text-left -ml-3">
       <View className='p-1 flex flex-row items-center gap-2'>
         <ArrowLeft />
         {title && <View className='-ml-2'>

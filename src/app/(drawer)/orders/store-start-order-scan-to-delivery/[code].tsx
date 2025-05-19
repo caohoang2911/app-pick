@@ -16,6 +16,7 @@ import { setLoading } from '~/src/core/store/loading';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setStoreStartOrderDetail, toggleStoreStartScanQrCodeProduct, useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-detail';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
+import { queryClient } from '~/src/api/shared/api-provider';
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
@@ -28,7 +29,7 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, status} = orderDetail?.header as OrderDetailHeader || {};
+  const { tags, status } = orderDetail?.header as OrderDetailHeader || {};
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -46,6 +47,7 @@ const OrderScanToDelivery = () => {
   const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } = useStartSelfShipping(() => {
     setLoading(false);
     router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   });
 
   const isAllDone = useMemo(() => {
