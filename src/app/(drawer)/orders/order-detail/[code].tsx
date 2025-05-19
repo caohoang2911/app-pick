@@ -47,7 +47,7 @@ const OrderPick = () => {
         return <Header onClickHeaderAction={openHeaderAction} />;
       },
     });
-  }, []);
+  }, [ orderDetail ]);
 
   const openHeaderAction = () => {
     headerAcrtionRef.current?.present();

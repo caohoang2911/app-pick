@@ -55,6 +55,7 @@ export default function ExpoImageUploader({
         [currentUploadingUri]: 'uploaded'
       }));
       setCurrentUploadingUri(null);
+      refFirstImage.current = false;
       onUploadedImages?.(data?.[0]);
     }
   }, (error) => {

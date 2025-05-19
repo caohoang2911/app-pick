@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useCompleteSelfShipping } from '~/src/api/app-pick/use-complete-self-shipping';
@@ -35,7 +35,6 @@ const OrderScanToDelivery = () => {
 
   const header = getHeaderOrderDetailOrderPick();
   const { tags, status } = header as OrderDetailHeader;
-  
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -66,9 +65,9 @@ const OrderScanToDelivery = () => {
     });
   }
 
-  const handleUploadedImages = (image: string) => {
+  const handleUploadedImages = useCallback((image: string) => {
     setCompleteUploadedImages(image);
-  }
+  }, []);
 
   const isShowAlert = useMemo(() => {
     return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
@@ -76,6 +75,8 @@ const OrderScanToDelivery = () => {
 
 
   const featureAvailable = status === ORDER_STATUS.SHIPPING;
+
+  console.log('proofDeliveryImages', proofDeliveryImages);
 
   return (
     <>
