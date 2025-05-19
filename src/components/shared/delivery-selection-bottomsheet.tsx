@@ -32,7 +32,7 @@ const DeliverySelectionBottomsheet = ({
 
   const actionRef = useRef<any>();
 
-  const isStoreDelivery = deliveryType === "APARTMENT_COMPLEX_DELIVERY";
+  const isStoreDelivery = deliveryType === "APARTMENT_COMPLEX_DELIVERY" || deliveryType === "OFFLINE_HOME_DELIVERY";
 
   const actions =  [
     {
