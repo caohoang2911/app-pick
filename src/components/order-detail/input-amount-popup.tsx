@@ -57,9 +57,9 @@ const ProductUnit = memo(({ unit }: { unit: string }) => (
 ));
 
 // ScanButton Component
-const ScanButton = memo(({ onPress }: { onPress: () => void }) => (
-  <TouchableOpacity onPress={onPress}>
-    <View className="bg-colorPrimary rounded-md size-8 flex flex-row justify-center items-center">
+const ScanButton = memo(({ onPress, disabled }: { onPress: () => void, disabled: boolean }) => (
+  <TouchableOpacity onPress={onPress} disabled={disabled} className={`${disabled ? 'opacity-50' : ''}`}>
+    <View className={`bg-colorPrimary rounded-md size-8 flex flex-row justify-center items-center ${disabled ? 'opacity-50' : ''}`}>
       <FontAwesome name="qrcode" size={18} color="white" />
     </View>
   </TouchableOpacity>
@@ -80,9 +80,12 @@ const QuantitySection = memo(({
 }: any) => {
   const editable = useMemo(() => !isCampaign && action !== 'out-of-stock', 
     [isCampaign, action]);
+
+  
     
 
   const handleDecrement = useCallback(() => {
+    setQuantityFromBarcode(0);
     const valueChange = roundToDecimalDecrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
@@ -96,6 +99,7 @@ const QuantitySection = memo(({
 
   const handleIncrement = useCallback(() => {
     if(!editable) return;
+    setQuantityFromBarcode(0);
     const valueChange = roundToDecimalIncrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
@@ -120,6 +124,7 @@ const QuantitySection = memo(({
   }, [setScanMoreProduct]);
 
   const handleChangeText = useCallback((value: string) => {
+    setQuantityFromBarcode(0);
     setFieldValue('pickedQuantity', formatDecimal(value));
     if (Number(value) >= Number(quantity)) {
       setFieldValue('pickedError', null);
@@ -157,7 +162,7 @@ const QuantitySection = memo(({
         <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 32 : 38, right: 0 }}>
           <View className="flex flex-row items-center gap-2">
             <ProductUnit unit={currentProduct?.unit || ''} />
-            <ScanButton onPress={handleQRScan} />
+            <ScanButton onPress={handleQRScan} disabled={!editable} />
           </View>
         </View>
       </View>
@@ -175,9 +180,9 @@ const ErrorSection = memo(({
   quantityInit,
   setErrors,
   action,
+  quantityFromBarcode,
 }: any) => {
-  const isDisabled = useMemo(() => Number(values?.pickedQuantity) >= Number(quantityInit) || action === 'out-of-stock', 
-    [values?.pickedQuantity, quantityInit]);
+  const isDisabled = ['out-of-stock', 'low-quality', 'near-date'].includes(action);
 
   const handleSelect = useCallback((value: string) => {
     setFieldValue('pickedError', formatDecimal(value));
@@ -219,6 +224,7 @@ const FormContent = memo(({
   isError,
   action,
   quantityInit,
+  quantityFromBarcode,
 }: any) => {
   return (
     <View className="flex-1 px-4 mt-4 pb-4 gap-4">
@@ -242,6 +248,7 @@ const FormContent = memo(({
         quantityInit={quantityInit}
         setFieldValue={setFieldValue}
         setErrors={setErrors}
+        quantityFromBarcode={quantityFromBarcode}
       />
       <Button onPress={handleSubmit} label={'Xác nhận'} disabled={isError} />
     </View>
@@ -416,6 +423,7 @@ const InputAmountPopup = () => {
             action={action}
             productPickedErrors={productPickedErrors}
             isError={isError}
+            quantityFromBarcode={quantityFromBarcode}
           />
         </SBottomSheet>
       );
