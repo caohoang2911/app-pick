@@ -210,7 +210,7 @@ const OrderPickProducts = () => {
   const visibleItems = Math.ceil(height / itemHeight);
 
   return (
-    <View className="flex-1 flex-grow mt-2">
+    <View style={{ flex: 1 }} onLayout={() => flatListRef.current?.scrollToOffset({ offset: 0, animated: false })}>
       <FlatList
         ref={flatListRef}
         className="flex-1"
@@ -223,14 +223,16 @@ const OrderPickProducts = () => {
             onRefresh={handleRefresh} 
           />
         }
+        ListFooterComponent={<View style={{ height: 20 }} />}
         ListHeaderComponent={<UserNote />}
         data={filteredProducts as Array<any>}
-        ListEmptyComponent={isEmpty ? <EmptyProductList /> : null}
+        ListEmptyComponent={isEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />}
         renderItem={renderItem}
         onScrollToIndexFailed={handleScrollToIndexFailed}
-        removeClippedSubviews={true}
+        removeClippedSubviews={false}
         initialNumToRender={visibleItems}
         maxToRenderPerBatch={visibleItems}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
         windowSize={5}
         updateCellsBatchingPeriod={50}
         maintainVisibleContentPosition={{
