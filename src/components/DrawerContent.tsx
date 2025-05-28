@@ -10,7 +10,7 @@ import { colors } from "../ui/colors"
 import { Avatar, AvatarImage } from "./Avatar"
 import { useConfig } from "../core/store/config"
 import { getConfigNameById } from "../core/utils/config"
-
+import { VersionDisplay } from "./VersionDisplay"
 
 export function DrawerContent(drawerProps: DrawerContentComponentProps) {
 
@@ -54,6 +54,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
           </View>
         </Pressable>
       </ScrollView>
+      <VersionDisplay />
       <Pressable onPress={signOut}>
         <View className="flex flex-row gap-2 items-center border-t border-gray-200 py-3 px-3 ml-3">
           <MaterialIcons name="logout" size={20} color={colors.black} />

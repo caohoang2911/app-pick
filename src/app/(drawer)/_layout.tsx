@@ -34,7 +34,7 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
     return <Loading />
   }
 
-  return <>{children}</>;
+  return children;
 };
 
 export default function DrawerLayout() {

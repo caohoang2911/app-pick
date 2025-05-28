@@ -24,9 +24,9 @@
     "resubmit-dev": "eas submit --platform ios --profile development --latest --verbose",
     "build-android": "eas build:run -p android --latest",
     "build-android-local": "eas build --platform android --local",
-    "codepush-preview": "eas update --profile=preview",
-    "codepush-dev": "eas update --profile=development",
-    "codepush-prod": "eas update --profile=production",
+    "codepush-version": "node scripts/codepush-version.js",
+    "codepush-dev-version": "yarn codepush-version && eas update --branch development --message \"Update CodePush version\"",
+    "codepush-prod-version": "yarn codepush-version && eas update --branch production --message \"Update CodePush version\"",
     "list_build": "eas build --list"
   },
   "dependencies": {
