@@ -57,7 +57,7 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [token, status]);
 
   if(!isDoneCodepush && isUpdateAvailable) {
-    return <Loading description="Đang cập nhật..." />
+    return <Loading description="Đang cập nhật phiên bản mới..." />
   }
 
   return (
