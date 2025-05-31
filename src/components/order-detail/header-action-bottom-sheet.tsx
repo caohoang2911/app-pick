@@ -25,7 +25,7 @@ import { OrderStatusValue } from '~/src/types/order';
 type Action = {
   key: string;
   title: string | React.ReactNode;
-  disabled?: boolean;
+  enabled?: boolean;
   icon: React.ReactNode;
   allowSubmenu?: boolean;
 };
@@ -79,14 +79,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       key,
       title,
       icon,
-      disabled,
+      enabled,
       allowSubmenu,
     }: Action & { onClickAction: (key: string) => void }) => {
       return (
         <Pressable
           onPress={() => onClickAction?.(key)}
-          disabled={false}
-          style={{ opacity: disabled ? 0.5 : 1 }}
+          disabled={!enabled}
+          style={{ opacity: enabled ? 1 : 0.5 }}
         >
           <View className='flex flex-row justify-between items-center border border-x-0 border-t-0 border-b-1 border-gray-200'>
             <View className="flex-row items-center px-4 py-4  gap-4">
@@ -170,31 +170,31 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'view-order',
         title: 'Thông tin đơn hàng',
+        enabled: true,
         icon: <BillLine />,
       },
       {
         key: 'assign-order-to-picker',
         title: 'Gán đơn cho Picker',
+        enabled: true,
         icon: <SimpleLineIcons name="user-follow" size={22} color="black" />,
       },
       {
         key: 'enter-bag-and-tem',
         title: 'Set kích thước & In tem',
+        enabled: true,
         icon: <PrintLine />,
       },
       {
         key: 'scan-bag',
         title: 'Scan túi - Giao hàng',
-        // disabled: 
-        //   (status !== OrderStatusValue.STORE_PACKED && status !== OrderStatusValue.SHIPPING) 
-        //   || deliveryType === "APARTMENT_COMPLEX_DELIVERY"
-        //   || deliveryType === "OFFLINE_HOME_DELIVERY",
-        disabled:  deliveryType === "APARTMENT_COMPLEX_DELIVERY" || deliveryType === "OFFLINE_HOME_DELIVERY",
+        enabled: deliveryType === "SHIPPER_DELIVERY" || status === OrderStatusValue.BOOKED_SHIPPER,
         icon: <QRScanLine />,
       },
       {
         key: 'delivery-order',
         title: 'Vận chuyển',
+        enabled: true,
         allowSubmenu: true,
         icon: <MaterialIcons name="delivery-dining" size={24} color="black" />,
       },
@@ -216,7 +216,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           <View className="flex-1">
             {actions.map((action: Action) => (
               <React.Fragment key={action.key}>
-                {renderItem({ ...action, onClickAction: action.disabled ? () => {} : handleClickAction, disabled: action.disabled || false })}    
+                {renderItem({ ...action, onClickAction: handleClickAction, enabled: action.enabled || false })}    
               </React.Fragment>
             ))}
           </View>

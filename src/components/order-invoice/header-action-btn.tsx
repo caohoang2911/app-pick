@@ -32,16 +32,14 @@ const HeaderActionBtn = () => {
     {
       key: 'scan-bag',
       title: 'Scan túi - Giao hàng',
-      // disabled: (status !== OrderStatusValue.STORE_PACKED && status !== OrderStatusValue.SHIPPING) 
-      //   || deliveryType === "APARTMENT_COMPLEX_DELIVERY"
-      //   || deliveryType === "OFFLINE_HOME_DELIVERY",
-      disabled:  deliveryType === "APARTMENT_COMPLEX_DELIVERY" || deliveryType === "OFFLINE_HOME_DELIVERY",
+      enabled: deliveryType === "SHIPPER_DELIVERY" || status === OrderStatusValue.BOOKED_SHIPPER,
       icon: <QRScanLine />,
     },
     {
       key: 'delivery-order',
       title: 'Vận chuyển',
       allowSubmenu: true,
+      enabled: true,
       icon: <MaterialIcons name="delivery-dining" size={24} color="black" />,
     },
   ], [code, isShipping, isStorePackaged]);
@@ -65,24 +63,24 @@ const HeaderActionBtn = () => {
     key,
     title,
     icon,
-    disabled,
+    enabled,
     allowSubmenu,
   }: {
     key: string;
     title: string | React.ReactNode;
     icon: React.ReactNode;
-    disabled: boolean;
+    enabled: boolean;
     allowSubmenu: boolean;
     onClickAction: (key: string) => void;
   }) => {
     return (
       <Pressable
-        disabled={disabled}
+        disabled={!enabled}
         onPress={() => onClickAction?.(key)}
         className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
         style={{
-          backgroundColor: disabled ? 'rgba(0, 0, 0, 0.05)' : 'white',
-          opacity: disabled ? 0.3 : 1,
+          backgroundColor: enabled ? ''  : 'rgba(0, 0, 0, 0.05)',
+          opacity: enabled ? 1 : 0.3,
         }}
       >
         <View className="flex-row items-center gap-4 justify-between flex-1">
