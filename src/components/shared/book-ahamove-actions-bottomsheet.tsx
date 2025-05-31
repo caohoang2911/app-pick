@@ -66,7 +66,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
         <Formik initialValues={{
           scheduleType: scheduleType.ORDER_DELIVERY_TIME,
           packageSize: PackageSize.STANDARD,
-          serivceId: 'SGN-BIKE'
+          serviceId: 'SGN-BIKE'
         }} onSubmit={handleBookShipper}>
           {({ setFieldValue, handleSubmit, values }) => (
             <View className='px-4 py-4'>
@@ -95,7 +95,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                 <Text className='text-base font-semibold mb-1'>Tài xế</Text>
                 <RadioButtonGroup
                   containerStyle={{ marginBottom: 10 }}
-                  selected={values.serivceId}
+                  selected={values.serviceId}
                   size={18}
                   onSelected={(value: string) => {
                     if(!value) return;
@@ -104,7 +104,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                   radioStyle={{ backgroundColor: "white"}}
                   radioBackground="blue"
                 >
-                <RadioButtonItem value={"SGN-BIKE"} label={<Text className='pl-3'>Tài xế Ahamove</Text>} />
+                <RadioButtonItem value={"SGN-BIKE"} label={<Text className='pl-3'>Tài xế Ahamove (Siêu tốc)</Text>} />
                 <View className='py-1' />
                 <RadioButtonItem
                   value={"VNM-PARTNER-KFM-FT"}
