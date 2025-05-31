@@ -20,33 +20,41 @@ export const useCodepush = () => {
     try {
       const update = await Updates.checkForUpdateAsync();
       if (update.isAvailable && allowUpdateByBuildNumber()) {
-        Alert.alert(
-          'Đã có bản cập nhật mới',
-          'Bạn có muốn cập nhật không?',
-          [
-            {
-              text: 'Lần sau',
-              style: 'cancel',
-              onPress: () => {
-                setIsDoneCodepush(true);
-              },
-            },
-            {
-              text: 'Cập nhật',
-              onPress: async () => {
-                try {
-                  await Updates.fetchUpdateAsync();
-                  await Updates.reloadAsync();
-                  setIsDoneCodepush(true);
-                } catch (error) {
-                  setIsDoneCodepush(true);
-                  // alert(`Error fetching latest update: ${error}`);
-                }
-              },
-            },
-          ],
-          { cancelable: false }
-        );
+        // Alert.alert(
+        //   'Đã có bản cập nhật mới',
+        //   'Bạn có muốn cập nhật không?',
+        //   [
+        //     {
+        //       text: 'Lần sau',
+        //       style: 'cancel',
+        //       onPress: () => {
+        //         setIsDoneCodepush(true);
+        //       },
+        //     },
+        //     {
+        //       text: 'Cập nhật',
+        //       onPress: async () => {
+        //         try {
+        //           await Updates.fetchUpdateAsync();
+        //           await Updates.reloadAsync();
+        //           setIsDoneCodepush(true);
+        //         } catch (error) {
+        //           setIsDoneCodepush(true);
+        //           // alert(`Error fetching latest update: ${error}`);
+        //         }
+        //       },
+        //     },
+        //   ],
+        //   { cancelable: false }
+        // );
+        try {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+          setIsDoneCodepush(true);
+        } catch (error) {
+          setIsDoneCodepush(true);
+          // alert(`Error fetching latest update: ${error}`);
+        }
       }
       else {
         setIsDoneCodepush(true);
