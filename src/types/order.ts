@@ -1,12 +1,13 @@
 
 
-export type OrderStatus = 'ALL' | 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED' | 'SHIPPING';
+export type OrderStatus = 'ALL' | 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED' | 'BOOKED_SHIPPER' | 'SHIPPING';
 
 export enum OrderStatusValue {
   ALL = 'ALL',
   CONFIRMED = 'CONFIRMED',
   STORE_PICKING = 'STORE_PICKING',
   STORE_PACKED = 'STORE_PACKED',
+  BOOKED_SHIPPER = 'BOOKED_SHIPPER',
   SHIPPING = 'SHIPPING',
 }
 
