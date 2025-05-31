@@ -82,7 +82,7 @@ function DeliveryType() {
 
       return ({
         label: <TouchableOpacity onPress={() => handleSelect(status)}>
-          <View className={`flex flex-row items-center rounded-full py-2 px-3 ${backgroundColorClass}`}>
+          <View className={`flex flex-row items-center rounded-full py-1 px-2 ${backgroundColorClass}`}>
             <Text numberOfLines={1} className={`${textClasses} font-medium text-sm`}>{shippingMethodName || status}</Text>
             <Text className={`${textClasses} text-lg`}> • </Text>
             <Text className={`${textClasses} font-medium text-sm`}>{counters[status] || 0}</Text>

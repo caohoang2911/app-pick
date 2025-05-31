@@ -12,9 +12,13 @@ const setOrderPrintedBagLabel = async (params: Variables): Promise<Response> => 
   return await axiosClient.post('app-pick/setOrderPrintedBagLabel', params);
 };
 
-export const useSetOrderPrintedBagLabel = () => {
+export const useSetOrderPrintedBagLabel = (cb: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderPrintedBagLabel(params),
-    onSuccess: (response: Response) => {},
+    onSuccess: (response: Response) => {
+      if(!response.error) {
+        cb?.()
+      }
+    },
   });
 };
