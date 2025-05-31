@@ -4,15 +4,16 @@ import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import TcpSocket from 'react-native-tcp-socket';
 import { useGenRongtaPrintData } from '~/src/api/app-pick/use-gen-rongta-print-data';
+import { useSetOrderPrintedBagLabel } from '~/src/api/app-pick/use-set-order-printed-bag-label';
+import { queryClient } from '~/src/api/shared';
 import LabelPrintTemplate from '~/src/components/print-preview/label-print-template';
+import { useAuth } from '~/src/core';
+import { getItem } from '~/src/core/storage';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
+import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderBag } from '~/src/core/store/order-bag';
 import { OrderBagType } from '~/src/types/order-bag';
-import { getItem } from '~/src/core/storage';
-import { useConfig } from '~/src/core/store/config';
-import { useAuth } from '~/src/core';
-import { useSetOrderPrintedBagLabel } from '~/src/api/app-pick/use-set-order-printed-bag-label';
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
 
@@ -30,7 +31,9 @@ function PrintPreview() {
 
   const bagLabelsPrint = bagCode ? [{...findBagLabel}] : orderBagsMerged;
 
-  const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel();
+  const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(() => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  });
 
   const refClient = useRef<any>(null);
 
