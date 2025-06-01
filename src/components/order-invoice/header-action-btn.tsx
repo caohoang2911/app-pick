@@ -32,7 +32,7 @@ const HeaderActionBtn = () => {
     {
       key: 'scan-bag',
       title: 'Scan túi - Giao hàng',
-      enabled: deliveryType === "SHIPPER_DELIVERY" || status === OrderStatusValue.BOOKED_SHIPPER,
+      enabled: deliveryType === "SHIPPER_DELIVERY" || deliveryType == "CUSTOMER_PICKUP" || status === OrderStatusValue.BOOKED_SHIPPER,
       icon: <QRScanLine />,
     },
     {
