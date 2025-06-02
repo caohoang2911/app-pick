@@ -2,13 +2,14 @@ import { DrawerActions } from "@react-navigation/native";
 import { useNavigation } from 'expo-router';
 import { toUpper } from 'lodash';
 import { useRef } from 'react';
-import { Dimensions, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import TabsStatus from '~/src/components/orders/tab-status';
 import { setUser, useAuth } from '~/src/core';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { removeItem } from '~/src/core/storage';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { useConfig } from '~/src/core/store/config';
@@ -46,7 +47,8 @@ const Header = () => {
     refreshToken();
   });
 
-  const { mutate: refreshToken } = useRefreshToken((data) => {
+  const { mutate: refreshToken, isPending } = useRefreshToken((data) => {
+    setLoading(true);
     setToken(data?.data?.zas || '');
     removeItem('ip');
     setTimeout(() => {
@@ -113,8 +115,11 @@ const Header = () => {
           <NotificationOutline />
         </Pressable> */}
       </View>
-      <View className="flex px-4 flex-row justify-between items-center">
+      <View className="flex px-4 flex-row gap-1 items-center">
         <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
+        <Pressable className="flex flex-row items-center gap-1" hitSlop={10} onPress={() => refreshToken()}>
+         {isPending ? <ActivityIndicator size="small" color="#4A7FFF" /> : <MaterialIcons name="refresh" size={18} color="#4A7FFF" />}
+        </Pressable>
       </View>
       <View className="flex flex-row mt-2 justify-between z-10 items-center gap-3">
         <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
