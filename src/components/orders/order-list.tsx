@@ -7,11 +7,16 @@ import {
 } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { queryClient } from '~/src/api/shared';
-import { useAuth } from '~/src/core';
+import { setUser, useAuth } from '~/src/core';
 import { setFromScanQrCode, useOrders } from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
 import OrderItem from './order-item';
+import { setUserInfo } from '~/src/core/store/auth/utils';
+import { setToken } from '~/src/core/store/auth/utils';
+import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
+import { removeItem } from '~/src/core/storage';
+import { setLoading } from '~/src/core/store/loading';
 
 // Tách OrderItem thành component riêng để tránh re-render toàn bộ danh sách
 const MemoizedOrderItem = memo(({ item, selectedOrderCounter }: { item: any, selectedOrderCounter: string }) => (
@@ -80,6 +85,24 @@ const OrderList = () => {
   const isInitialRender = useRef(true);
   const isManualRefreshRef = useRef(false);
   const prevParamsRef = useRef<any>(null);
+
+  const { mutate: refreshToken } = useRefreshToken((data) => {
+    setToken(data?.data?.zas || '');
+    removeItem('ip');
+    setTimeout(() => {
+      setUserInfo({
+        ...userInfo,
+        ...data?.data
+      });
+      setTimeout(() => {
+        setUser({
+          ...userInfo,
+          ...data?.data
+        });
+        setLoading(false);
+      }, 200);
+    }, 1000);
+  });
   
   // State from store
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
@@ -199,6 +222,7 @@ const OrderList = () => {
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(() => {
+    refreshToken();
     // Only perform refresh if storeCode exists
     if (!storeCode) {
       console.log("[Orders] Cannot refresh without storeCode");
