@@ -63,8 +63,13 @@ function PrintPreview() {
   const printArrayData = data?.data || [];
 
   useEffect(() => {
+    if(!host) {
+      showAlertError();
+      return;
+    }
+
     setLoading(true, connected ? "Đang xử lý ..." : "Đang kết nối máy in ...");
-  }, [connected]);
+  }, [connected, host]);
 
   useEffect(() => {
     if(result.length === 0) return;
@@ -75,7 +80,22 @@ function PrintPreview() {
     }
   }, [result, connected]);
 
+  const showAlertError = useCallback(() => {
+    showAlert({ 
+      message: `Chưa cài đặt máy in`,
+      onConfirm: () => {
+        router.back();
+        router.navigate('/settings');
+        hideAlert();
+      },
+      confirmText: 'Cài đặt ngay',
+      isHideCancelButton: true,
+    });
+  }, [host]);
+
   useEffect(() => {
+    if(!host) return;
+
     let timer: any;
     
     try {
@@ -115,7 +135,7 @@ function PrintPreview() {
         clearTimeout(timer);
       }
     }
-  }, []);
+  }, [host]);
 
   useEffect(() => {
     if(data && connected) {
