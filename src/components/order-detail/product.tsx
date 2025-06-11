@@ -1,8 +1,8 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
 import { isNil } from 'lodash';
-import React, { memo, useCallback, useMemo } from 'react';
-import { Button, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { Button, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
@@ -20,6 +20,7 @@ import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
+import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
 import { useLocalSearchParams } from 'expo-router';
 // Extract Row component and memoize
@@ -177,6 +178,39 @@ const EditButton = memo(({
   </View>
 ));
 
+// Add ImagePreviewModal component
+const ImagePreviewModal = memo(({ 
+  visible, 
+  imageSource, 
+  onClose 
+}: { 
+  visible: boolean, 
+  imageSource: any, 
+  onClose: () => void 
+}) => (
+  <Modal
+    visible={visible}
+    transparent={true}
+    animationType="fade"
+    onRequestClose={onClose}
+  >
+    <TouchableOpacity 
+      style={styles.modalOverlay} 
+      activeOpacity={1} 
+      onPress={onClose}
+    >
+      <View style={styles.modalContent}>
+        <Image
+          style={styles.previewImage}
+          source={imageSource}
+          contentFit="contain"
+          transition={200}
+        />
+      </View>
+    </TouchableOpacity>
+  </Modal>
+));
+
 // Main component
 const OrderPickProduct = memo(({
   name,
@@ -201,6 +235,7 @@ const OrderPickProduct = memo(({
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
 
   const isGift = useMemo(() => {
     return tags?.includes('Gift');
@@ -259,6 +294,10 @@ const OrderPickProduct = memo(({
     setQuantityFromBarcode(0);
   }, [isShowAmountInput, barcode, isDisable]);
 
+  const handleImagePress = useCallback(() => {
+    setIsPreviewVisible(true);
+  }, []);
+
   return (
      <Swipeable 
       renderRightActions={() => 
@@ -283,13 +322,14 @@ const OrderPickProduct = memo(({
             <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
               <View className="flex justify-between items-center">
                 <View>
-                  <Image
+                  <SImage
                     style={styles.productImage}
                     source={imageSource}
                     contentFit="cover"
                     allowDownscaling
                     transition={200}
                     cachePolicy="none"
+                    preview={true}
                   />
                 </View>
                 
@@ -345,6 +385,11 @@ const OrderPickProduct = memo(({
           }
           {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
         </View>
+        <ImagePreviewModal
+          visible={isPreviewVisible}
+          imageSource={imageSource}
+          onClose={() => setIsPreviewVisible(false)}
+        />
     </Swipeable>
   );
 });
@@ -389,6 +434,22 @@ const styles = StyleSheet.create({
   valueColumn: { width: "25%" },
   unitColumn: { width: "25%" },
   badgeColumn: { width: "25%" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    height: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
 });
 
 OrderPickProduct.displayName = 'OrderPickProduct';
