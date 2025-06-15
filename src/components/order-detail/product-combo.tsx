@@ -1,15 +1,10 @@
 import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { toggleConfirmationRemoveProductCombo } from '~/src/core/store/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
 import { ProductComboConfirmation } from './product-combo-cofirmation';
 
-const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
-
-  const handleConfimationRemoveProductItem = (product: Product) => {
-    toggleConfirmationRemoveProductCombo(true, product);
-  };
+const ProductCombo = ({combo, pickingBarcode, statusOrder}: {combo: ProductItemGroup, pickingBarcode: string, statusOrder: string}) => {
 
   const { elementRatio }  = combo || {};
 
@@ -20,7 +15,6 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
   const pickedQuantityCombo = useMemo(() => {
     return Math.min(...combo.elements?.filter((product: Product) => product.sellPrice).map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementRatio[product.barcode as string] : 0) || [0]);
   }, [combo.elements, elementRatio]);
-
 
   return (
     <>
@@ -43,7 +37,7 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
             //   </TouchableOpacity>
             // }> // TODO: add swipeable
             <Fragment key={index}>  
-              <OrderPickProduct {...product} isHiddenTag />
+              <OrderPickProduct {...product} statusOrder={statusOrder} isHiddenTag pickingBarcode={pickingBarcode} />
             </Fragment>
             // </Swipeable>
           ))}

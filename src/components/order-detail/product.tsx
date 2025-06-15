@@ -1,15 +1,14 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
+import { useLocalSearchParams } from 'expo-router';
 import { isNil } from 'lodash';
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Button, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Swipeable } from 'react-native-gesture-handler';
+import { Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentId,
   setIsEditManual,
-  setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
@@ -22,7 +21,7 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
-import { useLocalSearchParams } from 'expo-router';
+import { OrderStatus, OrderStatusValue } from '~/src/types/order';
 // Extract Row component and memoize
 const Row = memo(({
   label,
@@ -96,6 +95,7 @@ const ProductHeader = memo(({
   code,
   id,
   barcode,
+  showQuickAction,
 }: { 
   name: string, 
   pickedTime?: number, 
@@ -104,6 +104,7 @@ const ProductHeader = memo(({
   code: string,
   id: number,
   barcode: string,
+  showQuickAction: boolean,
 }) => (
   <>
     <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0}}>
@@ -117,7 +118,7 @@ const ProductHeader = memo(({
           {isGift ? "🎁 " : ""}{name}
         </Text>
       </View>
-      <MoreActionsBtn code={code} id={id} barcode={barcode} />
+      {showQuickAction && <MoreActionsBtn code={code} id={id} barcode={barcode} />}
     </View>
   </>
 ));
@@ -230,6 +231,8 @@ const OrderPickProduct = memo(({
   isHiddenTag = false,
   vendorName,
   id,
+  pickingBarcode,
+  statusOrder,
 }: Partial<Product | any>) => {
   const { code }  = useLocalSearchParams<{ code: string }>();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
@@ -285,29 +288,15 @@ const OrderPickProduct = memo(({
     [image]
   );
 
-  const handleConfimationRemoveProductItem = useCallback((id: number) => {
-    if(isDisable) return;
-    toggleShowAmountInput(!isShowAmountInput, id);
-    setSuccessForBarcodeScan(barcode);
-    setCurrentId(id);
-    setIsEditManual(true, 'out-of-stock');
-    setQuantityFromBarcode(0);
-  }, [isShowAmountInput, barcode, isDisable]);
+  const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
+  const isStatusPacked = statusOrder === OrderStatusValue.STORE_PACKED;
+  const isPicking = barcode === pickingBarcode && isStatusPicking;
 
-  const handleImagePress = useCallback(() => {
-    setIsPreviewVisible(true);
-  }, []);
+  const showQuickAction = isStatusPicking || isStatusPacked
 
   return (
-     <Swipeable 
-      renderRightActions={() => 
-        <TouchableOpacity style={{ width: 80 }} onPress={() => handleConfimationRemoveProductItem(id)}>
-          <View className="bg-red-200 p-5 h-full justify-center items-center">
-            <Text className="text-red-500 text-center font-medium">Hết hàng</Text>
-          </View>
-        </TouchableOpacity>
-      }>
-        <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={styles.box}>
+     <>
+        <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={[styles.box, { borderLeftWidth: isPicking ? 5 : 0, borderLeftColor: '#3B82F6' }]}>
           <View className="p-3">
             <ProductHeader 
               name={name || ''} 
@@ -317,6 +306,7 @@ const OrderPickProduct = memo(({
               code={code}
               id={id}
               barcode={barcode}
+              showQuickAction={showQuickAction}
             />
             <ProductVender vendorName={vendorName} />
             <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
@@ -390,7 +380,7 @@ const OrderPickProduct = memo(({
           imageSource={imageSource}
           onClose={() => setIsPreviewVisible(false)}
         />
-    </Swipeable>
+    </>
   );
 });
 
@@ -402,7 +392,7 @@ const styles = StyleSheet.create({
     right: 6,
   },
   box: {
-    borderRadius: 10,
+    borderRadius: 3,
     ...Platform.select({
       ios: {
         shadowColor: '#222',

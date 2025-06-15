@@ -118,7 +118,6 @@ const OrderPick = () => {
     ]
   );
 
-
   if(!orderDetail) {
     return <SectionAlert><Text>Không tìm thấy đơn hàng</Text></SectionAlert>
   }
