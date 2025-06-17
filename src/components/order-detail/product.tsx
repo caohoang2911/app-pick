@@ -290,13 +290,20 @@ const OrderPickProduct = memo(({
 
   const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
   const isStatusPacked = statusOrder === OrderStatusValue.STORE_PACKED;
-  const isPicking = barcode === pickingBarcode && isStatusPicking;
+  const isPicking = barcode === pickingBarcode && isStatusPicking && !pickedTime;
 
   const showQuickAction = isStatusPicking || isStatusPacked
 
   return (
      <>
-        <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={[styles.box, { borderLeftWidth: isPicking ? 5 : 0, borderLeftColor: '#3B82F6' }]}>
+        <View 
+          className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}
+          style={[styles.box, {
+            borderLeftWidth: isPicking ? 5 : 1,
+            borderLeftColor: isPicking ? 'rgb(59,130,246)' : '#dfdfdf',
+            borderStyle: 'solid',
+          }]}
+          >
           <View className="p-3">
             <ProductHeader 
               name={name || ''} 
@@ -400,7 +407,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 10,
         borderWidth: 1,
-        borderColor: '#dfdfdf',
+        borderTopColor: '#dfdfdf',
+        borderBottomColor: '#dfdfdf',
+        borderLeftColor: '#dfdfdf',
+        borderRightColor: '#dfdfdf',
       },
       android: {
         shadowColor: '#222',
@@ -412,7 +422,10 @@ const styles = StyleSheet.create({
         shadowRadius: 5.46,
         elevation: 9,
         borderWidth: 1,
-        borderColor: '#dfdfdf',
+        borderTopColor: '#dfdfdf',
+        borderBottomColor: '#dfdfdf',
+        borderLeftColor: '#dfdfdf',
+        borderRightColor: '#dfdfdf',
       },
     }),
   },

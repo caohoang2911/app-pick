@@ -209,17 +209,35 @@ const OrderPickProducts = () => {
     })?.barcode || '';
   }, [orderPickProductsFlat]);
 
+  const getBarcodeIndexFilteredProducts = useMemo(() => {
+    return filteredProducts.findIndex((product: any) => {
+      return product.elements?.some((element: Product) => {
+        return element.barcode === getPickingBarcode && !element.pickedTime;
+      });
+    });
+  }, [filteredProducts]);
+
+  
   useEffect(() => {
     if(!getPickingBarcode) return;
 
-    flatListRef.current?.scrollToIndex({
-      animated: true,
-      index: orderPickProductsFlat.findIndex((product: Product) => {
-        return !product.pickedTime;
-      }),
-      viewPosition: 0.5
-    });
-  }, [getPickingBarcode]);
+    const index = getBarcodeIndexFilteredProducts;
+    if(index === -1) return;
+
+    setTimeout(() => {
+      if (flatListRef.current && index >= 0 && index < (filteredProducts?.length || 0)) {
+        try {
+          flatListRef.current.scrollToIndex({
+            animated: true,
+            index,
+            viewPosition: 0.5,
+          });
+        } catch (error) {
+          console.log(JSON.stringify(error))
+        }
+      }
+    }, 100);
+  }, [getPickingBarcode, getBarcodeIndexFilteredProducts, filteredProducts]);
 
   // Render component loading
   if (isPending || isFetching || isLoading) {
