@@ -1,5 +1,5 @@
 import { Button } from '@/components/Button';
-import { useGlobalSearchParams } from 'expo-router';
+import { router, useGlobalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
@@ -23,7 +23,19 @@ const ActionsBottom = () => {
   const {
     mutate: setOrderStatusPacked,
     isPending: isLoadingOrderStatusPacked,
-  } = useSetOrderStatusPacked();
+  } = useSetOrderStatusPacked(() => {
+    showAlertPacked();
+  });
+
+  const showAlertPacked = () => {
+    showAlert({
+      message: 'Đã pick xong, bạn có muốn set kích thước & in tem',
+      onConfirm: () => {
+        router.push(`orders/order-bags/${code}`);
+        hideAlert();
+      }
+    })
+  }
 
   const { code } = useGlobalSearchParams<{ code: string }>();
 

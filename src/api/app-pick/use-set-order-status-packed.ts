@@ -13,16 +13,13 @@ const setOrderStatusPacked = async (params: Variables): Promise<Response> => {
   return await axiosClient.post('app-pick/setOrderStatusPacked', params);
 };
 
-export const useSetOrderStatusPacked = () => {
+export const useSetOrderStatusPacked = (cb?: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderStatusPacked(params),
     onSuccess: (response: Response) => {
       if (!response.error) {
         queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-        showMessage({
-        message: 'Đã đóng gói thành công',
-        type: 'success',
-        });
+        cb?.();
       }
     },
   });
