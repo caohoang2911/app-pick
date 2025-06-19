@@ -46,13 +46,13 @@ const PickedCompleteConfirmation = ({
     >
       <View className="flex-1 px-4 pt-1 mb-4">
         <View className="flex flex-row items-center gap-2">
-        <Text className="text-orange-500 text-base font-bold my-3">SP pick khác số lượng đặt</Text>
+        <Text className="text-orange-500 text-base font-bold my-3">SP pick khác số lượng đặt ({productFulfillError?.length} SP)</Text>
       </View> 
       <View className="flex-1 bg-gray-200" style={{ height: 1 }} />
       <View className="flex gap-4 mt-3">
         {productFulfillError?.map((item: Product, index: number) => (
           <View key={index} className="flex gap-2">
-            <Text className="font-semibold" numberOfLines={1} ellipsizeMode="tail">• {item.name}</Text>
+            <Text className="font-semibold" numberOfLines={1} ellipsizeMode="tail">{index + 1}. {item.name}</Text>
             <View className="flex gap-2 justify-between">
               <Text className="ml-3">
                 <Text numberOfLines={1} className="w-full">Đặt: <Text className="font-bold">{item.quantity || 0} {item.unit}</Text>

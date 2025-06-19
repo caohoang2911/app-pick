@@ -160,7 +160,7 @@ const SBottomSheet = forwardRef<any, Props>(
           keyboardDismissMode="on-drag"
           bounces={true}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
         >
           {children}
         </BottomSheetScrollView>
