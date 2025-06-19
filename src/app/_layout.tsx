@@ -17,14 +17,14 @@ export { ErrorBoundary } from 'expo-router';
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
-import { hydrateAuth, useAuth } from '@/core';
+import { hydrateAuth, signOut, useAuth } from '@/core';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
-import { initConfigDate, setDefaultTimeZone } from '@/core/utils/moment';
+import { initConfigDate, isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -92,21 +92,28 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [appState, setAppState] = useState(AppState.currentState);
+  const { expired } = useAuth.use.userInfo();
 
-  // useEffect(() => {  
-  //   const subscription = AppState.addEventListener('change', nextAppState => {  
-  //     // Check for the current state of the app  
-  //     if (appState.match(/inactive|background/) && nextAppState === 'active') {  
-  //       queryClient.resetQueries();
-  //     }  
-  //     setAppState(nextAppState);  
-  //   });  
+  const isExpired = expired && isTimestampExpired(expired);
 
-  //   // Cleanup the subscription on unmount  
-  //   return () => {  
-  //     subscription.remove();  
-  //   };  
-  // }, [appState]);  
+  console.log(expired, 'IS-EXPIRED');
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {  
+      // Check for the current state of the app  
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {  
+        if(isExpired) {
+          signOut();
+        }
+      }  
+      setAppState(nextAppState);  
+    });  
+
+    // Cleanup the subscription on unmount  
+    return () => {  
+      subscription.remove();  
+    };  
+  }, [appState, isExpired]);  
 
   return (
     <Providers>

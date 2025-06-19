@@ -40,3 +40,8 @@ export const expectedDeliveryTime = (deliveryTimeRange: Array<any>): any => {
       moment(endTime).format('HH:mm'),
   };
 };
+
+export const isTimestampExpired = (timestamp: number): boolean => {
+  const now = Date.now();
+  return timestamp < now;
+};
