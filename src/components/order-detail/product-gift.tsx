@@ -4,10 +4,11 @@ import { GiftPack, Product } from '~/src/types/product';
 import OrderPickProduct from './product';
 import { colors } from '~/src/ui/colors';
 
-const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
+const ProductCombo = ({ giftPack, pickingBarcode, statusOrder }: { giftPack : GiftPack, pickingBarcode: string, statusOrder: string }) => {
   const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
     return product.pickedQuantity === 0 || product.pickedQuantity === null
   });
+
   return (
     <>
       <View className="bg-white border rounded-md " style={{borderColor: colors.purple[200]}}>
@@ -16,7 +17,7 @@ const ProductCombo = ({ giftPack }: { giftPack : GiftPack}) => {
         </View>
         <View className="gap-2 p-2">
           {giftPack.elements?.map((product: Product, index: number) => (
-            <OrderPickProduct {...product} key={product.id} index={index} disable={isHasPickedQuantity} />
+            <OrderPickProduct {...product} key={product.id} index={index} statusOrder={statusOrder} pickingBarcode={pickingBarcode} disable={isHasPickedQuantity} />
           ))}
         </View>
       </View>

@@ -107,7 +107,9 @@ const ScannerBox = ({
           facing={facing}
           onBarcodeScanned={(result: BarcodeScanningResult) => {
             onDestroy?.();
-            onSuccessBarcodeScanned?.(result);
+            setTimeout(() => {
+              onSuccessBarcodeScanned?.(result);
+            }, 100);
           }}
         >
           <ScannerLayout onClose={onDestroy} isQRScanner={isQRScanner} />
