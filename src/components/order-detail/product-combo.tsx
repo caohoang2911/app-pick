@@ -5,7 +5,7 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
 import { ProductComboConfirmation } from './product-combo-cofirmation';
 
-const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
+const ProductCombo = ({combo, statusOrder, pickingBarcode}: {combo: ProductItemGroup, statusOrder: string, pickingBarcode: string}) => {
 
   const handleConfimationRemoveProductItem = (product: Product) => {
     toggleConfirmationRemoveProductCombo(true, product);
@@ -43,7 +43,7 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
             //   </TouchableOpacity>
             // }> // TODO: add swipeable
             <Fragment key={index}>  
-              <OrderPickProduct {...product} isHiddenTag />
+              <OrderPickProduct {...product} isHiddenTag statusOrder={statusOrder} pickingBarcode={pickingBarcode} />
             </Fragment>
             // </Swipeable>
           ))}
