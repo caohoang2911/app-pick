@@ -8,7 +8,8 @@ import {
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import FlashMessage from 'react-native-flash-message';
+import { AppState, StatusBar, Text, TouchableOpacity } from 'react-native';
+import FlashMessage, { hideMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -28,7 +29,6 @@ import { initConfigDate, isTimestampExpired, setDefaultTimeZone } from '@/core/u
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect, useState } from 'react';
-import { AppState, StatusBar, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
@@ -182,7 +182,28 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <FlashMessage
                   position="bottom"
                   duration={5000}
+                  style={{
+                    paddingRight: 34,
+                  }}
                   statusBarHeight={StatusBar.currentHeight}
+                  renderCustomContent={(data) => (
+                    <TouchableOpacity
+                      style={{
+                        position: 'absolute',
+                        right: -15,
+                        top: -10,
+                        paddingTop: 10,               
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      onPress={() => {
+                        hideMessage();
+                      }}
+                    >
+                      <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                        ✕
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 />
               </AuthWrapper>
             </NotificationWrapper>
