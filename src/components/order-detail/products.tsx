@@ -39,22 +39,23 @@ const ProductItem = memo(({
   item, 
   isLast,
   pickingBarcode,
-  statusOrder
+  statusOrder,
+  indexBarcodeWithoutPickedTime,
 }: { 
   item: Product | ProductItemGroup | any, 
   isLast: boolean,
   pickingBarcode: string,
-  statusOrder?: string
+  statusOrder?: string,
+  indexBarcodeWithoutPickedTime?: number,
 }) => {
-  // Xác định loại sản phẩm và render component tương ứng
   const renderProduct = () => {
     if(item.type === "COMBO" && 'elements' in item) {
-      return <ProductCombo statusOrder={statusOrder || ''} pickingBarcode={pickingBarcode} combo={item as ProductItemGroup} />;
+      return <ProductCombo statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} combo={item as ProductItemGroup} />;
     }
     if(item.type === "GIFT_PACK" && 'elements' in item) {
-      return <ProductGift statusOrder={statusOrder || ''} pickingBarcode={pickingBarcode} giftPack={item as ProductItemGroup} />;
+      return <ProductGift statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} giftPack={item as ProductItemGroup} />;
     }
-    return <OrderPickProduct statusOrder={statusOrder || ''} pickingBarcode={pickingBarcode} {...(item.elements?.[0] as Product)} />;
+    return <OrderPickProduct statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} {...(item.elements?.[0] as Product)} />;
   };
 
   return (
@@ -161,11 +162,13 @@ const OrderPickProducts = () => {
   // Callback cho việc render item
   const renderItem = useCallback(({ item, index, statusOrder, pickingBarcode }: { item: any, index: number, statusOrder?: string, pickingBarcode: string }) => {
     const isLast = index === (filteredProducts?.length || 0) - 1;
-    
-    return <>
-    <ProductItem statusOrder={statusOrder} item={item} isLast={isLast} pickingBarcode={pickingBarcode} />
-    </>;
-  }, [filteredProducts?.length]);
+
+    const indexBarcodeWithoutPickedTime = orderPickProductsFlat?.findIndex((item: Product) => {
+      return item.barcode === pickingBarcode && !item.pickedTime;
+    })
+
+    return <ProductItem statusOrder={statusOrder} item={item} isLast={isLast} pickingBarcode={pickingBarcode} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} />;
+  }, [filteredProducts?.length, orderPickProductsFlat]);
 
   // Key extractor tối ưu
   const keyExtractor = useCallback((item: any, index: number) => {

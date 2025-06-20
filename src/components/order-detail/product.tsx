@@ -22,6 +22,7 @@ import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
 import { OrderStatus, OrderStatusValue } from '~/src/types/order';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 // Extract Row component and memoize
 const Row = memo(({
   label,
@@ -215,11 +216,13 @@ const ImagePreviewModal = memo(({
 // Main component
 const OrderPickProduct = memo(({
   name,
+  id,
   image,
   barcode,
   baseBarcode,
   sellPrice,
   unit,
+  indexBarcodeWithoutPickedTime,
   orderQuantity,
   stockOnhand,
   tags = [],
@@ -230,7 +233,6 @@ const OrderPickProduct = memo(({
   originOrderQuantity,
   isHiddenTag = false,
   vendorName,
-  id,
   pickingBarcode,
   statusOrder,
 }: Partial<Product | any>) => {
@@ -239,6 +241,14 @@ const OrderPickProduct = memo(({
   const config = useConfig.use.config();
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+
+  const indexById = orderPickProductsFlat?.findIndex((item: Product) => {
+    return item.id === id
+  });
+
+  const isActive = indexById === indexBarcodeWithoutPickedTime;
 
   const isGift = useMemo(() => {
     return tags?.includes('Gift');
@@ -290,7 +300,7 @@ const OrderPickProduct = memo(({
 
   const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
   const isStatusPacked = statusOrder === OrderStatusValue.STORE_PACKED;
-  const isPicking = barcode === pickingBarcode && isStatusPicking && !pickedTime;
+  const isPicking = barcode === pickingBarcode && isStatusPicking && !pickedTime && isActive;
 
   const showQuickAction = isStatusPicking || isStatusPacked
 

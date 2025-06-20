@@ -35,6 +35,8 @@ const OrderPick = () => {
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
   const orderDetail = useOrderPick.use.orderDetail();
 
+  const isShowAmountInput = useOrderPick.use.isShowAmountInput();
+
   const isEditManual = useOrderPick.use.isEditManual();
   const currentId = useOrderPick.use.currentId();
 
@@ -68,8 +70,6 @@ const OrderPick = () => {
         setCurrentQr('');
       }, 1000);
 
-      console.log(orderPickProductsFlat, "orderPickProductsFlat")
-
       const indexWithBarcode = orderPickProductsFlat?.findIndex(
         item => barcodeCondition(barcode, item?.refBarcodes)
       );
@@ -102,8 +102,12 @@ const OrderPick = () => {
         setSuccessForBarcodeScan(currentBarcode);
         setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
         toggleShowAmountInput(true, orderPickProductsFlat?.[indexOfCodeScanned]?.id);
+      } else {
+        showMessage({
+          message: `Mã currentBarcode không tìm thấy -index: ${indexOfCodeScanned} - statusPopup: ${isShowAmountInput}`,
+          type: 'warning',
+        })
       }
-      
     },
     [
       orderPickProductsFlat,
@@ -115,6 +119,7 @@ const OrderPick = () => {
       currentId,
       isEditManual,
       scannedIds,
+      isShowAmountInput,
     ]
   );
 

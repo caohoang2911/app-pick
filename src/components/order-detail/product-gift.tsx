@@ -4,7 +4,7 @@ import { GiftPack, Product } from '~/src/types/product';
 import OrderPickProduct from './product';
 import { colors } from '~/src/ui/colors';
 
-const ProductCombo = ({ giftPack, statusOrder, pickingBarcode }: { giftPack : GiftPack, statusOrder: string, pickingBarcode: string}) => {
+const ProductCombo = ({ giftPack, statusOrder, pickingBarcode, indexBarcodeWithoutPickedTime }: { giftPack : GiftPack, statusOrder: string, pickingBarcode: string, indexBarcodeWithoutPickedTime?: number}) => {
   const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
     return product.pickedQuantity === 0 || product.pickedQuantity === null
   });
@@ -16,7 +16,7 @@ const ProductCombo = ({ giftPack, statusOrder, pickingBarcode }: { giftPack : Gi
         </View>
         <View className="gap-2 p-2">
           {giftPack.elements?.map((product: Product, index: number) => (
-            <OrderPickProduct {...product} key={product.id} index={index} disable={isHasPickedQuantity} statusOrder={statusOrder} pickingBarcode={pickingBarcode} />
+            <OrderPickProduct {...product} key={product.id} index={index} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} disable={isHasPickedQuantity} statusOrder={statusOrder} pickingBarcode={pickingBarcode} />
           ))}
         </View>
       </View>
