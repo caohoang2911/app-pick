@@ -149,7 +149,7 @@ export interface OrderDetailHeader {
   employeeId?: number;
   assignee?: Employee;
   payStatus?: number;
-  note?: string;
+  pickerNote?: string;
   orderTime?: number;
   isOverdueSLA?: boolean;
   deliveryTimeRange?: Array<number>;

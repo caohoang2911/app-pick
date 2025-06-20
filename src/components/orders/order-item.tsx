@@ -49,7 +49,7 @@ const OrderItem = ({
   deliveryTimeRange,
   amount,
   tags,
-  note,
+  pickerNote,
   type,
   fulfillError,
   groupShippingCode,
@@ -68,7 +68,7 @@ const OrderItem = ({
   deliveryTimeRange?: any;
   amount: number;
   tags: Array<any>;
-  note: string;
+  pickerNote: string;
   type: string;
   groupShippingCode: string;
   fulfillError: any;
@@ -179,12 +179,12 @@ const OrderItem = ({
           </View>
         )}
         </View>
-        {note && (
+        {pickerNote && (
           <View 
             className="p-3 rounded-b"
             style={{ backgroundColor: '#FFA500' }}
           >
-            <Text className="text-base font-semibold text-white">Note: {note?.trim()}</Text>
+            <Text className="text-base font-semibold text-white">Note: {pickerNote?.trim()}</Text>
           </View>
         )}
         
