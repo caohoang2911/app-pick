@@ -85,7 +85,7 @@ const QuantitySection = memo(({
     
 
   const handleDecrement = useCallback(() => {
-    setQuantityFromBarcode(0);
+    // setQuantityFromBarcode(0);
     const valueChange = roundToDecimalDecrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
@@ -99,7 +99,7 @@ const QuantitySection = memo(({
 
   const handleIncrement = useCallback(() => {
     if(!editable) return;
-    setQuantityFromBarcode(0);
+    // setQuantityFromBarcode(0);
     const valueChange = roundToDecimalIncrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
