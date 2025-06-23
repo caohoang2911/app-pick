@@ -175,17 +175,17 @@ const QuantitySection = memo(({
 const ErrorSection = memo(({ 
   productPickedErrors, 
   values, 
-  quantity, 
   setFieldValue,
   quantityInit,
   setErrors,
   action,
-  quantityFromBarcode,
 }: any) => {
-  const isDisabled = ['out-of-stock', 'low-quality', 'near-date'].includes(action);
+  const isError = values?.pickedQuantity >= quantityInit;
+
+  const isDisabled = isError || ['out-of-stock', 'low-quality', 'near-date'].includes(action);
 
   const handleSelect = useCallback((value: string) => {
-    setFieldValue('pickedError', formatDecimal(value));
+    setFieldValue('pickedError', value);
     setErrors({});
   }, [setFieldValue, setErrors]);
 
@@ -244,11 +244,9 @@ const FormContent = memo(({
         productPickedErrors={productPickedErrors}
         values={values}
         action={action}
-        quantity={quantity}
         quantityInit={quantityInit}
         setFieldValue={setFieldValue}
         setErrors={setErrors}
-        quantityFromBarcode={quantityFromBarcode}
       />
       <Button onPress={handleSubmit} label={'Xác nhận'} disabled={isError} />
     </View>

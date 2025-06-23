@@ -82,7 +82,7 @@ const MoreActionsBtn = ({
         break;
     }
     setVisible(false);
-  }, [code]);
+  }, [code, id, barcode]);
 
   useEffect(() => {
     if (visible) {
