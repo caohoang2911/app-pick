@@ -3,7 +3,6 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { ORDER_STATUS } from '~/src/contants/order';
@@ -50,12 +49,6 @@ const HeaderActionBtn = () => {
     hideAlert();
     setLoading(false)
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-  });
-
-  // Hoàn thành đơn hàng
-  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
-    hideAlert();
-    setLoading(false);
   });
 
   const renderItem = ({

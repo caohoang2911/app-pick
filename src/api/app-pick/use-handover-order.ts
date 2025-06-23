@@ -2,22 +2,21 @@ import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
-import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   orderCode: string;
-  proofDeliveryImages?: string[];
+  proofImages?: string[];
 };
 
 type Response = { error: string } & AxiosResponse;
 
-const completeOrder = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/completeOrder', params);
+const handoverOrder = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/handoverOrder', params);
 };
 
-export const useCompleteOrder = (cb?: () => void) => {
+export const useHandoverOrder = (cb?: () => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => completeOrder(params),
+    mutationFn: (params: Variables) => handoverOrder(params),
     onSuccess: (data: Response) => {
       if (!data.error) {
         showMessage({

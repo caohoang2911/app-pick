@@ -3,10 +3,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { ORDER_STATUS } from '~/src/contants/order';
-import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { setLoading } from '~/src/core/store/loading';
 import { EBikeLine } from '~/src/core/svgs';
 import { OrderDetail } from '~/src/types/order-detail';
 import SBottomSheet from '../SBottomSheet';
@@ -53,12 +50,6 @@ const DeliverySelectionBottomsheet = ({
     },
   ];
 
-  // Hoàn thành đơn hàng
-  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
-    hideAlert();
-    setLoading(false);
-  });
-
   const renderItem = ({
     onClickAction,
     key,
@@ -101,36 +92,6 @@ const DeliverySelectionBottomsheet = ({
           router.push(`/orders/store-complete-order-scan-to-delivery/${code}`);
         }
         break;
-      case 'complete-store-delivery':
-        router.push(`/orders/store-complete-order-scan-to-delivery/${code}`);
-        break;
-      // case 'store-delivery':
-      //   showAlert({
-      //     title: 'Xác nhận store giao hàng',
-      //     loading: isLoadingSelfShipping,
-      //     onConfirm: () => {
-      //       if(code) {
-      //         setLoading(true);
-      //         selfShipping({
-      //           orderCode: code,
-      //         });
-      //       }
-      //     },
-      //   });
-      //   break;
-      case "complete-order":
-        if (!code) return;
-
-        showAlert({
-          title: 'Xác nhận đã giao hàng',
-          loading: isLoadingCompleteOrder,
-          onConfirm: () => {
-            setLoading(true);
-            completeOrder({ orderCode: code });
-          },
-        });
-       break;
-
       case "cancel-book-shipper":
         cancelBookShipperBottomsheetRef.current?.present();
         break;
