@@ -2,7 +2,7 @@ import { Formik } from 'formik';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { View } from 'react-native';
 import * as Yup from 'yup';
-import { useCancelShipper } from '~/src/api/app-pick/use-cancel-shipper';
+import { useCancelAhamoveShipper } from '~/src/api/app-pick/use-cancel-ahamove-shipper';
 import { hideAlert } from "~/src/core/store/alert-dialog";
 import { setLoading } from '~/src/core/store/loading';
 import { Button } from '../Button';
@@ -19,7 +19,7 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(({ orderCode }, ref)
   const actionRef = useRef<any>();
 
     // Huỷ book shipper
-    const { isPending: isLoadingCancelShipper, mutate: cancelShipper } = useCancelShipper(() => {
+    const { isPending: isLoadingCancelAhamoveShipper, mutate: cancelAhamoveShipper } = useCancelAhamoveShipper(() => {
       hideAlert();
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['orderDetail', orderCode] });
@@ -48,7 +48,7 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(({ orderCode }, ref)
   const handleCancelShipper = (values: any) => {
     setVisible(false);
     setLoading(true);
-    cancelShipper({
+    cancelAhamoveShipper({
       ...values,
       orderCode,
     });
@@ -100,7 +100,7 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(({ orderCode }, ref)
                 textAlignVertical="top" 
               />
               <Button 
-                loading={isLoadingCancelShipper} 
+                loading={isLoadingCancelAhamoveShipper} 
                 className='mt-4' 
                 label='Huỷ book shipper' 
                 onPress={handleSubmit as any} 

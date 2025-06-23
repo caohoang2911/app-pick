@@ -10,13 +10,13 @@ type Variables = {
 
 type Response = { error: string } & AxiosResponse;
 
-const cancelShipper = async (params: Variables): Promise<Response> => {
+const cancelAhamoveShipper = async (params: Variables): Promise<Response> => {
   return await axiosClient.post('app-pick/cancelAhamoveShipper', params);
 };
 
-export const useCancelShipper = (cb?: () => void) => {
+export const useCancelAhamoveShipper = (cb?: () => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => cancelShipper(params),
+    mutationFn: (params: Variables) => cancelAhamoveShipper(params),
     onSuccess: (data: Response) => {
       cb?.();
       if (!data.error) {
