@@ -183,7 +183,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   position="bottom"
                   duration={5000}
                   style={{
-                    paddingRight: 34,
+                    paddingRight: 36,
                   }}
                   statusBarHeight={StatusBar.currentHeight}
                   renderCustomContent={(data) => (

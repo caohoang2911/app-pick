@@ -97,6 +97,8 @@ const ProductHeader = memo(({
   id,
   barcode,
   showQuickAction,
+  isAllowEditPickQuantity,
+  onEditPress,
 }: { 
   name: string, 
   pickedTime?: number, 
@@ -106,20 +108,22 @@ const ProductHeader = memo(({
   id: number,
   barcode: string,
   showQuickAction: boolean,
+  isAllowEditPickQuantity: boolean,
+  onEditPress: () => void,
 }) => (
   <>
-    <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0}}>
+    <View className='flex flex-row gap-1 items-center'>
       {pickedTime ? (
         <View className="rounded-full bg-white">
           <CheckCircleFill color={'green'} />
         </View>
       ) : null}
       <View className="flex-1">
-        <Text className="text-lg font-semibold" numberOfLines={1}>
+        <Text className="text-base font-semibold" numberOfLines={1}>
           {isGift ? "🎁 " : ""}{name}
         </Text>
       </View>
-      {showQuickAction && <MoreActionsBtn code={code} id={id} barcode={barcode} />}
+      {showQuickAction && <MoreActionsBtn onEditPress={onEditPress} isAllowEditPickQuantity={isAllowEditPickQuantity} code={code} id={id} barcode={barcode} />}
     </View>
   </>
 ));
@@ -138,45 +142,25 @@ const ProductVender = ({ vendorName }: { vendorName: string }) => {
 const BarcodeDisplay = memo(({ 
   baseBarcode, 
   barcode, 
-  hasTags,
-  isHiddenTag,
 }: { 
   baseBarcode?: string, 
   barcode?: string,
-  hasTags: boolean,
-  isHiddenTag: boolean,
 }) => (
-  <View>
+  <View className='flex flex-row gap-1 items-center'>
     <Text
       numberOfLines={1}
-      className={`text-xs text-center mt-2 ${barcode && barcode !== baseBarcode ? 'text-gray-500' : ''}`}
+      className={`text-xs text-center ${barcode && barcode !== baseBarcode ? 'text-gray-500' : ''}`}
     >
       {baseBarcode || '--'}
     </Text>
-    {barcode && barcode !== baseBarcode && (
+    {barcode && barcode !== baseBarcode && ( 
       <Text
         numberOfLines={1}
-        className={`text-xs text-center mt-1 ${hasTags && !isHiddenTag ? 'mb-1' : ''}`}
+        className={`text-xs text-center`}
       >
         {barcode}
       </Text>
     )}
-  </View>
-));
-
-// Edit button component
-const EditButton = memo(({ 
-  onPress 
-}: { 
-  onPress: () => void 
-}) => (
-  <View style={styles.edit}>
-    <TouchableOpacity
-      onPress={onPress}
-      className='p-3'
-    >
-      <EditOutLine width={21} height={21} color={'gray'} />
-    </TouchableOpacity>
   </View>
 ));
 
@@ -323,9 +307,17 @@ const OrderPickProduct = memo(({
               code={code}
               id={id}
               barcode={barcode}
+              isAllowEditPickQuantity={isAllowEditPickQuantity}
               showQuickAction={showQuickAction}
+              onEditPress={handleEditPress}
             />
-            <ProductVender vendorName={vendorName} />
+            <View className='flex flex-row gap-2 items-center mt-1'>
+              <ProductVender vendorName={vendorName} />
+              <BarcodeDisplay 
+                baseBarcode={baseBarcode} 
+                barcode={barcode}
+              />
+            </View>
             <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
               <View className="flex justify-between items-center">
                 <View>
@@ -339,13 +331,6 @@ const OrderPickProduct = memo(({
                     preview={true}
                   />
                 </View>
-                
-                <BarcodeDisplay 
-                  baseBarcode={baseBarcode} 
-                  barcode={barcode}
-                  hasTags={hasTags}
-                  isHiddenTag={isHiddenTag}
-                />
               </View>
               
               <View className="flex-row justify-between flex-grow h-full">
@@ -390,8 +375,7 @@ const OrderPickProduct = memo(({
               {isWarningOverQuantity && <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} />}
             </View>
           }
-          {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
-        </View>
+          </View>
         <ImagePreviewModal
           visible={isPreviewVisible}
           imageSource={imageSource}
@@ -440,13 +424,13 @@ const styles = StyleSheet.create({
     }),
   },
   productImage: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
   },
   labelColumn: { width: "25%" },
-  valueColumn: { width: "25%" },
+  valueColumn: { width: "20%" },
   unitColumn: { width: "25%" },
-  badgeColumn: { width: "25%" },
+  badgeColumn: { width: "30%" },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
