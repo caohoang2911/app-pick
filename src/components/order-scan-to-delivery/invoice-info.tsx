@@ -1,13 +1,12 @@
 import { useLocalSearchParams } from 'expo-router'
 import { toLower } from 'lodash'
-import moment from 'moment'
 import React from 'react'
 import { Text, View } from 'react-native'
 import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order'
 import { useConfig } from '~/src/core/store/config'
 import { useOrderInvoice } from '~/src/core/store/order-invoice'
 import { getConfigNameById } from '~/src/core/utils/config'
-import { expectedDeliveryTime } from '~/src/core/utils/moment'
+import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment'
 import { formatCurrency } from '~/src/core/utils/number'
 import { Badge } from '../Badge'
 import Box from '../Box'
@@ -48,7 +47,7 @@ const InvoiceInfo = () => {
             label={statusName as string}
             extraLabel={
               <Text className="text-xs text-contentPrimary"> | &nbsp;
-                {moment(orderTime).fromNow()}
+                {getRelativeTime(orderTime)}
               </Text>
             } 
             variant={toLower(status as string) as any}

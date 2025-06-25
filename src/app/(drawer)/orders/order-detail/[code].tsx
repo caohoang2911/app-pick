@@ -1,6 +1,6 @@
 import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import ActionsBottom from '~/src/components/order-detail/actions-bottom';
@@ -24,12 +24,9 @@ import { barcodeCondition, getOrderPickProductsFlat, handleScanBarcode } from '~
 const OrderPick = () => {
   const navigation = useNavigation();
 
-  const [currentQr, setCurrentQr] = useState('');
-
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
 
   const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
@@ -41,6 +38,8 @@ const OrderPick = () => {
   const currentId = useOrderPick.use.currentId();
 
   const headerAcrtionRef = useRef<any>();
+
+  const orderPickProductsFlat = useMemo(() => getOrderPickProductsFlat(orderPickProducts), [orderPickProducts]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -55,20 +54,11 @@ const OrderPick = () => {
     headerAcrtionRef.current?.present();
   };
 
-  let timeout: any = useRef(null);
-
   const handleSuccessBarCode = useCallback(
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
 
       const { barcode, quantity } = splitBarcode({ barcode: codeScanned });
-      setCurrentQr(barcode);
-
-      if (timeout.current) clearTimeout(timeout.current);
-
-      timeout.current = setTimeout(() => {
-        setCurrentQr('');
-      }, 1000);
 
       const indexWithBarcode = orderPickProductsFlat?.findIndex(
         item => barcodeCondition(barcode, item?.refBarcodes)
@@ -90,7 +80,6 @@ const OrderPick = () => {
       });
    
       const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
-
       setCurrentId(currentProduct?.id)
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
@@ -104,7 +93,7 @@ const OrderPick = () => {
         toggleShowAmountInput(true, orderPickProductsFlat?.[indexOfCodeScanned]?.id);
       } else {
         showMessage({
-          message: `Mã currentBarcode không tìm thấy -index: ${indexOfCodeScanned} - statusPopup: ${isShowAmountInput}`,
+          message: `codeScanned: ${codeScanned} - indexOfCodeScanned: ${indexOfCodeScanned} - currentBarcode: ${currentBarcode} - barcode: ${barcode}`,
           type: 'warning',
         })
       }
@@ -112,7 +101,6 @@ const OrderPick = () => {
     [
       orderPickProductsFlat,
       quantityFromBarcode,
-      currentQr,
       toggleShowAmountInput,
       setSuccessForBarcodeScan,
       isScanMoreProduct,

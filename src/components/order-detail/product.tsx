@@ -14,15 +14,14 @@ import {
   useOrderPick
 } from '~/src/core/store/order-pick';
 import { CheckCircleFill } from '~/src/core/svgs';
-import EditOutLine from '~/src/core/svgs/EditOutLine';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { OrderStatusValue } from '~/src/types/order';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
-import { OrderStatus, OrderStatusValue } from '~/src/types/order';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 // Extract Row component and memoize
 const Row = memo(({
   label,
@@ -92,7 +91,6 @@ const ProductHeader = memo(({
   name, 
   pickedTime, 
   isGift, 
-  showEdit,
   code,
   id,
   barcode,
@@ -103,7 +101,6 @@ const ProductHeader = memo(({
   name: string, 
   pickedTime?: number, 
   isGift: boolean,
-  showEdit: boolean,
   code: string,
   id: number,
   barcode: string,
@@ -112,14 +109,14 @@ const ProductHeader = memo(({
   onEditPress: () => void,
 }) => (
   <>
-    <View className='flex flex-row gap-1 items-center'>
+    <View className='flex flex-row gap-1'>
       {pickedTime ? (
         <View className="rounded-full bg-white">
           <CheckCircleFill color={'green'} />
         </View>
       ) : null}
       <View className="flex-1">
-        <Text className="text-base font-semibold" numberOfLines={1}>
+        <Text className="text-base font-semibold" numberOfLines={2}>
           {isGift ? "🎁 " : ""}{name}
         </Text>
       </View>
@@ -149,14 +146,14 @@ const BarcodeDisplay = memo(({
   <View className='flex flex-row gap-1 items-center'>
     <Text
       numberOfLines={1}
-      className={`text-xs text-center ${barcode && barcode !== baseBarcode ? 'text-gray-500' : ''}`}
+      className={`text-sm text-gray-500 text-center`}
     >
       {baseBarcode || '--'}
     </Text>
     {barcode && barcode !== baseBarcode && ( 
       <Text
         numberOfLines={1}
-        className={`text-xs text-center`}
+        className={`text-sm text-gray-500 text-center`}
       >
         {barcode}
       </Text>
@@ -223,7 +220,6 @@ const OrderPickProduct = memo(({
   const { code }  = useLocalSearchParams<{ code: string }>();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
-  const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
@@ -303,7 +299,6 @@ const OrderPickProduct = memo(({
               name={name || ''} 
               pickedTime={pickedTime}
               isGift={isGift} 
-              showEdit={shouldDisplayEdit}
               code={code}
               id={id}
               barcode={barcode}
@@ -318,7 +313,7 @@ const OrderPickProduct = memo(({
                 barcode={barcode}
               />
             </View>
-            <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
+            <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
               <View className="flex justify-between items-center">
                 <View>
                   <SImage
@@ -427,10 +422,10 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
   },
-  labelColumn: { width: "25%" },
-  valueColumn: { width: "20%" },
-  unitColumn: { width: "25%" },
-  badgeColumn: { width: "30%" },
+  labelColumn: { width: "30%" },
+  valueColumn: { width: "25%" },
+  unitColumn: { width: "20%" },
+  badgeColumn: { width: "25%" },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
