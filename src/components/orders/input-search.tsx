@@ -1,13 +1,12 @@
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { toLower } from 'lodash';
-import moment from 'moment';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSearchOrdersByKeywork } from '~/src/api/app-pick/use-search-orders-by-keywork';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { useAuth } from '~/src/core/store/auth';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
+import { getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import SearchableDropdown, { SearchableDropdownRef } from '../SearchableDropdown';
@@ -29,7 +28,7 @@ const OrderItem = memo(({ item }: { item: any }) => {
   );
   
   const timeFromNow = useMemo(() => 
-    moment(item.lastTimeUpdateStatus).fromNow(),
+    getRelativeTime(item.lastTimeUpdateStatus),
     [item.lastTimeUpdateStatus]
   );
 

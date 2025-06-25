@@ -25,7 +25,7 @@ import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
-import { initConfigDate, isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
+import { isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -73,7 +73,7 @@ export const unstable_settings = {
 
 hydrateAuth();
 hydrateConfig();
-initConfigDate();
+// initConfigDate();
 setDefaultTimeZone();
 
 SplashScreen.preventAutoHideAsync();

@@ -84,23 +84,26 @@ export const handleScanBarcode = ({
   currentId: number | null;
   isEditManual: boolean;
   barcode: string;
-}) => {
-  let indexOfCodeScanned = -1;
-
-  const barcodeWithPickedTime = orderPickProductsFlat?.findIndex(
-    item => (barcodeCondition(barcode, item?.refBarcodes) && item?.pickedTime)
-  );
-
-  const indexOfCodeScannedWithoutPickedTime = orderPickProductsFlat?.findIndex(
-    item =>  isEditManual ? 
-    item?.id === currentId : 
-    (barcodeCondition(barcode, item?.refBarcodes)) && !item?.pickedTime);
-
-  if(indexOfCodeScannedWithoutPickedTime === -1) {
-    indexOfCodeScanned = barcodeWithPickedTime;
-  } else {
-    indexOfCodeScanned = indexOfCodeScannedWithoutPickedTime;
+}): number => {
+  if (isEditManual && currentId !== null) {
+    return orderPickProductsFlat.findIndex(item => item?.id === currentId);
   }
 
-  return indexOfCodeScanned;
-}
+  const indexWithoutPickedTime = orderPickProductsFlat.findIndex(
+    item =>
+      barcodeCondition(barcode, item?.refBarcodes) &&
+      !item?.pickedTime
+  );
+
+  if (indexWithoutPickedTime !== -1) {
+    return indexWithoutPickedTime;
+  }
+
+  const indexWithPickedTime = orderPickProductsFlat.findIndex(
+    item =>
+      barcodeCondition(barcode, item?.refBarcodes) &&
+      !!item?.pickedTime
+  );
+
+  return indexWithPickedTime;
+};
