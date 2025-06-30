@@ -60,8 +60,6 @@ const OrderPick = () => {
 
       const { barcode, quantity } = splitBarcode({ barcode: codeScanned });
 
-      console.log(orderPickProductsFlat, "orderPickProductsFlat")
-
       const indexWithBarcode = orderPickProductsFlat?.findIndex(
         item => barcodeCondition(barcode, item?.refBarcodes)
       );

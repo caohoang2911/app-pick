@@ -220,7 +220,6 @@ const OrderPickProduct = memo(({
   const { code }  = useLocalSearchParams<{ code: string }>();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
-  const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
@@ -314,7 +313,7 @@ const OrderPickProduct = memo(({
                 barcode={barcode}
               />
             </View>
-            <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
+            <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
               <View className="flex justify-between items-center">
                 <View>
                   <SImage
@@ -424,9 +423,9 @@ const styles = StyleSheet.create({
     height: 120,
   },
   labelColumn: { width: "25%" },
-  valueColumn: { width: "20%" },
+  valueColumn: { width: "25%" },
   unitColumn: { width: "25%" },
-  badgeColumn: { width: "30%" },
+  badgeColumn: { width: "25%" },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
