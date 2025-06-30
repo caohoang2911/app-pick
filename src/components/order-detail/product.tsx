@@ -1,28 +1,27 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
+import { useLocalSearchParams } from 'expo-router';
 import { isNil } from 'lodash';
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Button, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Swipeable } from 'react-native-gesture-handler';
+import { Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentId,
   setIsEditManual,
-  setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
 } from '~/src/core/store/order-pick';
 import { CheckCircleFill } from '~/src/core/svgs';
-import EditOutLine from '~/src/core/svgs/EditOutLine';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { OrderStatusValue } from '~/src/types/order';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
-import { useLocalSearchParams } from 'expo-router';
 // Extract Row component and memoize
 const Row = memo(({
   label,
@@ -92,32 +91,36 @@ const ProductHeader = memo(({
   name, 
   pickedTime, 
   isGift, 
-  showEdit,
   code,
   id,
   barcode,
+  showQuickAction,
+  isAllowEditPickQuantity,
+  onEditPress,
 }: { 
   name: string, 
   pickedTime?: number, 
   isGift: boolean,
-  showEdit: boolean,
   code: string,
   id: number,
   barcode: string,
+  showQuickAction: boolean,
+  isAllowEditPickQuantity: boolean,
+  onEditPress: () => void,
 }) => (
   <>
-    <View className='flex flex-row gap-1 items-center' style={{ paddingRight: showEdit ? 33 : 0}}>
+    <View className='flex flex-row gap-1'>
       {pickedTime ? (
         <View className="rounded-full bg-white">
           <CheckCircleFill color={'green'} />
         </View>
       ) : null}
       <View className="flex-1">
-        <Text className="text-lg font-semibold" numberOfLines={1}>
+        <Text className="text-base font-semibold" numberOfLines={2}>
           {isGift ? "🎁 " : ""}{name}
         </Text>
       </View>
-      <MoreActionsBtn code={code} id={id} barcode={barcode} />
+      {showQuickAction && <MoreActionsBtn onEditPress={onEditPress} isAllowEditPickQuantity={isAllowEditPickQuantity} code={code} id={id} barcode={barcode} />}
     </View>
   </>
 ));
@@ -136,45 +139,25 @@ const ProductVender = ({ vendorName }: { vendorName: string }) => {
 const BarcodeDisplay = memo(({ 
   baseBarcode, 
   barcode, 
-  hasTags,
-  isHiddenTag,
 }: { 
   baseBarcode?: string, 
   barcode?: string,
-  hasTags: boolean,
-  isHiddenTag: boolean,
 }) => (
-  <View>
+  <View className='flex flex-row gap-1 items-center'>
     <Text
       numberOfLines={1}
-      className={`text-xs text-center mt-2 ${barcode && barcode !== baseBarcode ? 'text-gray-500' : ''}`}
+      className={`text-sm text-gray-500 text-center`}
     >
       {baseBarcode || '--'}
     </Text>
-    {barcode && barcode !== baseBarcode && (
+    {barcode && barcode !== baseBarcode && ( 
       <Text
         numberOfLines={1}
-        className={`text-xs text-center mt-1 ${hasTags && !isHiddenTag ? 'mb-1' : ''}`}
+        className={`text-sm text-gray-500 text-center`}
       >
         {barcode}
       </Text>
     )}
-  </View>
-));
-
-// Edit button component
-const EditButton = memo(({ 
-  onPress 
-}: { 
-  onPress: () => void 
-}) => (
-  <View style={styles.edit}>
-    <TouchableOpacity
-      onPress={onPress}
-      className='p-3'
-    >
-      <EditOutLine width={21} height={21} color={'gray'} />
-    </TouchableOpacity>
   </View>
 ));
 
@@ -214,11 +197,13 @@ const ImagePreviewModal = memo(({
 // Main component
 const OrderPickProduct = memo(({
   name,
+  id,
   image,
   barcode,
   baseBarcode,
   sellPrice,
   unit,
+  indexBarcodeWithoutPickedTime,
   orderQuantity,
   stockOnhand,
   tags = [],
@@ -229,13 +214,22 @@ const OrderPickProduct = memo(({
   originOrderQuantity,
   isHiddenTag = false,
   vendorName,
-  id,
+  pickingBarcode,
+  statusOrder,
 }: Partial<Product | any>) => {
   const { code }  = useLocalSearchParams<{ code: string }>();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const config = useConfig.use.config();
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+
+  const indexById = orderPickProductsFlat?.findIndex((item: Product) => {
+    return item.id === id
+  });
+
+  const isActive = indexById === indexBarcodeWithoutPickedTime;
 
   const isGift = useMemo(() => {
     return tags?.includes('Gift');
@@ -285,40 +279,41 @@ const OrderPickProduct = memo(({
     [image]
   );
 
-  const handleConfimationRemoveProductItem = useCallback((id: number) => {
-    if(isDisable) return;
-    toggleShowAmountInput(!isShowAmountInput, id);
-    setSuccessForBarcodeScan(barcode);
-    setCurrentId(id);
-    setIsEditManual(true, 'out-of-stock');
-    setQuantityFromBarcode(0);
-  }, [isShowAmountInput, barcode, isDisable]);
+  const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
+  const isStatusPacked = statusOrder === OrderStatusValue.STORE_PACKED;
+  const isPicking = barcode === pickingBarcode && isStatusPicking && !pickedTime && isActive;
 
-  const handleImagePress = useCallback(() => {
-    setIsPreviewVisible(true);
-  }, []);
+  const showQuickAction = isStatusPicking || isStatusPacked
 
   return (
-     <Swipeable 
-      renderRightActions={() => 
-        <TouchableOpacity style={{ width: 80 }} onPress={() => handleConfimationRemoveProductItem(id)}>
-          <View className="bg-red-200 p-5 h-full justify-center items-center">
-            <Text className="text-red-500 text-center font-medium">Hết hàng</Text>
-          </View>
-        </TouchableOpacity>
-      }>
-        <View className={`bg-white shadow relative ${isDisable && 'opacity-40'}`} style={styles.box}>
+     <>
+        <View 
+          className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}
+          style={[styles.box, {
+            borderLeftWidth: isPicking ? 5 : 1,
+            borderLeftColor: isPicking ? 'rgb(59,130,246)' : '#dfdfdf',
+            borderStyle: 'solid',
+          }]}
+          >
           <View className="p-3">
             <ProductHeader 
               name={name || ''} 
               pickedTime={pickedTime}
               isGift={isGift} 
-              showEdit={shouldDisplayEdit}
               code={code}
               id={id}
               barcode={barcode}
+              isAllowEditPickQuantity={isAllowEditPickQuantity}
+              showQuickAction={showQuickAction}
+              onEditPress={handleEditPress}
             />
-            <ProductVender vendorName={vendorName} />
+            <View className='flex flex-row gap-2 items-center mt-1'>
+              <ProductVender vendorName={vendorName} />
+              <BarcodeDisplay 
+                baseBarcode={baseBarcode} 
+                barcode={barcode}
+              />
+            </View>
             <View className="flex flex-row justify-between gap-4 flex-grow mt-3">
               <View className="flex justify-between items-center">
                 <View>
@@ -332,13 +327,6 @@ const OrderPickProduct = memo(({
                     preview={true}
                   />
                 </View>
-                
-                <BarcodeDisplay 
-                  baseBarcode={baseBarcode} 
-                  barcode={barcode}
-                  hasTags={hasTags}
-                  isHiddenTag={isHiddenTag}
-                />
               </View>
               
               <View className="flex-row justify-between flex-grow h-full">
@@ -383,14 +371,13 @@ const OrderPickProduct = memo(({
               {isWarningOverQuantity && <WarningMessage errorName={"Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng"} />}
             </View>
           }
-          {shouldDisplayEdit && <EditButton onPress={handleEditPress} />}
-        </View>
+          </View>
         <ImagePreviewModal
           visible={isPreviewVisible}
           imageSource={imageSource}
           onClose={() => setIsPreviewVisible(false)}
         />
-    </Swipeable>
+    </>
   );
 });
 
@@ -402,7 +389,7 @@ const styles = StyleSheet.create({
     right: 6,
   },
   box: {
-    borderRadius: 10,
+    borderRadius: 3,
     ...Platform.select({
       ios: {
         shadowColor: '#222',
@@ -410,7 +397,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 10,
         borderWidth: 1,
-        borderColor: '#dfdfdf',
+        borderTopColor: '#dfdfdf',
+        borderBottomColor: '#dfdfdf',
+        borderLeftColor: '#dfdfdf',
+        borderRightColor: '#dfdfdf',
       },
       android: {
         shadowColor: '#222',
@@ -422,18 +412,21 @@ const styles = StyleSheet.create({
         shadowRadius: 5.46,
         elevation: 9,
         borderWidth: 1,
-        borderColor: '#dfdfdf',
+        borderTopColor: '#dfdfdf',
+        borderBottomColor: '#dfdfdf',
+        borderLeftColor: '#dfdfdf',
+        borderRightColor: '#dfdfdf',
       },
     }),
   },
   productImage: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
   },
   labelColumn: { width: "25%" },
-  valueColumn: { width: "25%" },
+  valueColumn: { width: "20%" },
   unitColumn: { width: "25%" },
-  badgeColumn: { width: "25%" },
+  badgeColumn: { width: "30%" },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',

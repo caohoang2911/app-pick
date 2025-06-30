@@ -68,5 +68,13 @@ export const roundToDecimalDecrease = (value: number) => {
 
 
 export const formatDecimal = (value: string) => {
-  return value.replace(/,/g, '.');
+  const formatted = value.replace(/,/g, '.');
+  const cleaned = formatted?.replace(/[^\d.,-]/g, '');
+
+  const parts = cleaned.split(/[,\.]/);
+  if (parts.length > 2) {
+    return parts.slice(0, 2).join('.'); // Giữ phần đầu tiên và phần thập phân
+  }
+
+  return cleaned;
 }

@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useBookShipper } from '~/src/api/app-pick/use-book-shipper';
+import { useBookAhamoveShipper } from '~/src/api/app-pick/use-book-ahamove-shipper';
 import { hideAlert } from "~/src/core/store/alert-dialog";
 import { setLoading } from '~/src/core/store/loading';
 import { PackageSize, scheduleType } from '~/src/types/order';
@@ -20,7 +20,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
 
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { mutate: bookShipper } = useBookShipper(() => {
+  const { mutate: bookAhamoveShipper } = useBookAhamoveShipper(() => {
     hideAlert();
     queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   });
@@ -47,7 +47,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
   const handleBookShipper = (values: any) => {
     setVisible(false);
     setLoading(true);
-    bookShipper({
+    bookAhamoveShipper({
       ...values,
       orderCode: code,
     });

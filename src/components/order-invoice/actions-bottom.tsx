@@ -2,7 +2,7 @@ import { Button } from '@/components/Button';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
+import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { queryClient } from '~/src/api/shared';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
@@ -10,7 +10,7 @@ import { setLoading } from '~/src/core/store/loading';
 const ActionsBottom = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
+  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } = useHandoverOrder(() => {
     hideAlert();
     setLoading(false);
     queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
@@ -21,10 +21,10 @@ const ActionsBottom = () => {
 
     showAlert({
       title: 'Xác nhận đã giao hàng',
-      loading: isLoadingCompleteOrder,
+      loading: isLoadingHandoverOrder,
       onConfirm: () => {
         setLoading(true);
-        completeOrder({ orderCode: code });
+        handoverOrder({ orderCode: code });
       },
     });
   };

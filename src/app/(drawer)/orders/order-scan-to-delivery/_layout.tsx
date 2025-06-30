@@ -13,7 +13,7 @@ export default function OrderScanToDeliveryLayout() {
           headerShown: true,
           header: () => (
             <Header
-              title="Scan túi - Giao cho khách"
+              title={`Scan túi - Giao hàng`}
               headerRight={<HeaderRightAction />}
             />
           )

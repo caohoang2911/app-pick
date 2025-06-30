@@ -6,9 +6,9 @@ import { OrderDetail } from '~/src/types/order-detail';
 const UserNote = () => {
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
   const { header } = orderDetail;
-  const { note } = header || {};
+  const { pickerNote } = header || {};
 
-  if (!note) return null;
+  if (!pickerNote) return null;
 
   return (
     <View 
@@ -16,7 +16,7 @@ const UserNote = () => {
       style={{ backgroundColor: '#FFA500' }}
     >
       <View className='flex'>
-        <Text className='text-white font-semibold text-sm'>{note}</Text>
+        <Text className='text-white font-semibold text-sm'>{pickerNote}</Text>
       </View>
     </View>
   )

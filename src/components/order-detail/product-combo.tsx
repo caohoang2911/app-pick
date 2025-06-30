@@ -5,11 +5,7 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
 import { ProductComboConfirmation } from './product-combo-cofirmation';
 
-const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
-
-  const handleConfimationRemoveProductItem = (product: Product) => {
-    toggleConfirmationRemoveProductCombo(true, product);
-  };
+const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPickedTime}: {combo: ProductItemGroup, statusOrder: string, pickingBarcode: string, indexBarcodeWithoutPickedTime?: number}) => {
 
   const { elementRatio }  = combo || {};
 
@@ -34,18 +30,9 @@ const ProductCombo = ({combo}: {combo: ProductItemGroup}) => {
         </View>
         <View className="gap-2 p-2">
           {combo.elements?.map((product: Product, index: number) => (
-            // <Swipeable 
-            //   renderRightActions={() => 
-            //   <TouchableOpacity onPress={() => handleConfimationRemoveProductItem(product)}>
-            //     <View className="bg-red-200 p-5 h-full justify-center items-center">
-            //       <SimpleLineIcons name="trash" size={24} color="red" />
-            //     </View>
-            //   </TouchableOpacity>
-            // }> // TODO: add swipeable
             <Fragment key={index}>  
-              <OrderPickProduct {...product} isHiddenTag />
+              <OrderPickProduct {...product} isHiddenTag statusOrder={statusOrder} pickingBarcode={pickingBarcode} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} />
             </Fragment>
-            // </Swipeable>
           ))}
         </View>
       </View>

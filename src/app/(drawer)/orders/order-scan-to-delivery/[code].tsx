@@ -3,12 +3,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
-import Box from '~/src/components/Box';
 import { Button } from '~/src/components/Button';
-import ImageUploader from '~/src/components/ImageUploader';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
@@ -20,7 +18,6 @@ import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-detail';
   
-
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const { data, isPending, isFetching } = useOrderDetailQuery({
@@ -31,7 +28,7 @@ const OrderScanToDelivery = () => {
 
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
   const header = getHeaderOrderDetailOrderPick();
-  const { deliveryType, status, tags, proofDeliveryImages } = header as OrderDetailHeader;
+  const { deliveryType, status, tags } = header as OrderDetailHeader;
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
   
@@ -56,7 +53,7 @@ const OrderScanToDelivery = () => {
     return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
   }
 
-  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
+  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } = useHandoverOrder(() => {
     setLoading(false);
     setUploadedImages('', true);
     router.back();
@@ -65,7 +62,7 @@ const OrderScanToDelivery = () => {
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
   const handleCheckoutOrderBags = () => {
-    completeOrder({ orderCode: code, proofDeliveryImages: uploadedImages });
+    handoverOrder({ orderCode: code, proofImages: uploadedImages });
   }
 
   const  disableByStatus = useMemo(() => {
@@ -90,10 +87,6 @@ const OrderScanToDelivery = () => {
     });
   }
 
-  const handleUploadedImages = (image: string) => {
-    setUploadedImages(image);
-  }
-
   const showAlert = useMemo(() => {
     return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
   }, [tags]);
@@ -116,9 +109,6 @@ const OrderScanToDelivery = () => {
           }
           <View className='flex flex-col gap-4'>
             <InvoiceInfo />
-            {/* <Box>
-              <ImageUploader proofDeliveryImages={proofDeliveryImages} onUploadedImages={handleUploadedImages} />
-            </Box> */}
             <View className='border-t border-gray-200 pb-3'>
               <Bags />
             </View>
@@ -129,7 +119,7 @@ const OrderScanToDelivery = () => {
         <View className="border-t border-gray-200 pb-4">
           <View className="px-4 py-3 bg-white ">
             <Button
-              loading={isLoadingCompleteOrder}
+              loading={isLoadingHandoverOrder}
               onPress={handleCheckoutOrderBags}
               disabled={!isAllDone}
               label={actionType}

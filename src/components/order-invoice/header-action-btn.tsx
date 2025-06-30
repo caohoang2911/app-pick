@@ -3,12 +3,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useCompleteOrder } from '~/src/api/app-pick/use-complete-order';
-import { useSelfShipping } from '~/src/api/app-pick/use-self-shipping';
-import { queryClient } from '~/src/api/shared/api-provider';
 import { ORDER_STATUS } from '~/src/contants/order';
-import { hideAlert } from '~/src/core/store/alert-dialog';
-import { setLoading } from '~/src/core/store/loading';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';
 import { OrderStatusValue } from '~/src/types/order';
@@ -44,20 +39,6 @@ const HeaderActionBtn = () => {
     },
   ], [code, isShipping, isStorePackaged]);
   
-
-  // Store giao hàng
-  const { isPending: isLoadingSelfShipping, mutate: selfShipping } = useSelfShipping(() => {
-    hideAlert();
-    setLoading(false)
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-  });
-
-  // Hoàn thành đơn hàng
-  const { isPending: isLoadingCompleteOrder, mutate: completeOrder } = useCompleteOrder(() => {
-    hideAlert();
-    setLoading(false);
-  });
-
   const renderItem = ({
     onClickAction,
     key,

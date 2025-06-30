@@ -8,7 +8,8 @@ import {
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import FlashMessage from 'react-native-flash-message';
+import { AppState, StatusBar, Text, TouchableOpacity } from 'react-native';
+import FlashMessage, { hideMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -17,18 +18,17 @@ export { ErrorBoundary } from 'expo-router';
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
-import { hydrateAuth, useAuth } from '@/core';
+import { hydrateAuth, signOut, useAuth } from '@/core';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
-import { initConfigDate, setDefaultTimeZone } from '@/core/utils/moment';
+import { isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect, useState } from 'react';
-import { AppState, StatusBar, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
@@ -73,7 +73,7 @@ export const unstable_settings = {
 
 hydrateAuth();
 hydrateConfig();
-initConfigDate();
+// initConfigDate();
 setDefaultTimeZone();
 
 SplashScreen.preventAutoHideAsync();
@@ -92,21 +92,28 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [appState, setAppState] = useState(AppState.currentState);
+  const { expired } = useAuth.use.userInfo();
 
-  // useEffect(() => {  
-  //   const subscription = AppState.addEventListener('change', nextAppState => {  
-  //     // Check for the current state of the app  
-  //     if (appState.match(/inactive|background/) && nextAppState === 'active') {  
-  //       queryClient.resetQueries();
-  //     }  
-  //     setAppState(nextAppState);  
-  //   });  
+  const isExpired = expired && isTimestampExpired(expired);
 
-  //   // Cleanup the subscription on unmount  
-  //   return () => {  
-  //     subscription.remove();  
-  //   };  
-  // }, [appState]);  
+  console.log(expired, 'IS-EXPIRED');
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {  
+      // Check for the current state of the app  
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {  
+        if(isExpired) {
+          signOut();
+        }
+      }  
+      setAppState(nextAppState);  
+    });  
+
+    // Cleanup the subscription on unmount  
+    return () => {  
+      subscription.remove();  
+    };  
+  }, [appState, isExpired]);  
 
   return (
     <Providers>
@@ -175,7 +182,28 @@ function Providers({ children }: { children: React.ReactNode }) {
                 <FlashMessage
                   position="bottom"
                   duration={5000}
+                  style={{
+                    paddingRight: 36,
+                  }}
                   statusBarHeight={StatusBar.currentHeight}
+                  renderCustomContent={(data) => (
+                    <TouchableOpacity
+                      style={{
+                        position: 'absolute',
+                        right: -15,
+                        top: -10,
+                        paddingTop: 10,               
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      onPress={() => {
+                        hideMessage();
+                      }}
+                    >
+                      <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                        ✕
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 />
               </AuthWrapper>
             </NotificationWrapper>

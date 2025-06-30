@@ -11,7 +11,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { ORDER_STATUS_BADGE_VARIANT } from "~/src/contants/order";
 import { useConfig } from "~/src/core/store/config";
 import { getConfigNameById } from "~/src/core/utils/config";
-import { expectedDeliveryTime } from "~/src/core/utils/moment";
+import { expectedDeliveryTime, getRelativeTime } from "~/src/core/utils/moment";
 import { formatCurrency } from "~/src/core/utils/number";
 import { OrderStatus } from "~/src/types/order";
 import { Payment } from "~/src/types/order-detail";
@@ -49,7 +49,7 @@ const OrderItem = ({
   deliveryTimeRange,
   amount,
   tags,
-  note,
+  pickerNote,
   type,
   fulfillError,
   groupShippingCode,
@@ -68,7 +68,7 @@ const OrderItem = ({
   deliveryTimeRange?: any;
   amount: number;
   tags: Array<any>;
-  note: string;
+  pickerNote: string;
   type: string;
   groupShippingCode: string;
   fulfillError: any;
@@ -116,7 +116,7 @@ const OrderItem = ({
               label={statusName}
               variant={toLower(status) as any}
               extraLabel={<Text className="text-xs text-contentPrimary ml-3">
-                | {moment(lastTimeUpdateStatus).fromNow()}
+                | {getRelativeTime(lastTimeUpdateStatus)}
               </Text>}
             />
             <View className="mr-1  rounded-full">
@@ -179,12 +179,12 @@ const OrderItem = ({
           </View>
         )}
         </View>
-        {note && (
+        {pickerNote && (
           <View 
             className="p-3 rounded-b"
             style={{ backgroundColor: '#FFA500' }}
           >
-            <Text className="text-base font-semibold text-white">Note: {note?.trim()}</Text>
+            <Text className="text-base font-semibold text-white">Note: {pickerNote?.trim()}</Text>
           </View>
         )}
         

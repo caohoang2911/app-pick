@@ -85,7 +85,7 @@ const QuantitySection = memo(({
     
 
   const handleDecrement = useCallback(() => {
-    setQuantityFromBarcode(0);
+    // setQuantityFromBarcode(0);
     const valueChange = roundToDecimalDecrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
@@ -99,7 +99,7 @@ const QuantitySection = memo(({
 
   const handleIncrement = useCallback(() => {
     if(!editable) return;
-    setQuantityFromBarcode(0);
+    // setQuantityFromBarcode(0);
     const valueChange = roundToDecimalIncrease(Number(values?.pickedQuantity || 0));
     if (Number(valueChange) < 0) {
       setFieldValue('pickedQuantity', 0);
@@ -152,7 +152,7 @@ const QuantitySection = memo(({
             editable={editable}
             useBottomSheetTextInput
             name="pickedQuantity"
-            value={values?.pickedQuantity.toString()}
+            value={values?.pickedQuantity?.toString()}
             onBlur={handleBlur('pickedQuantity')}
             defaultValue="0"
             prefix={<DecrementButton onPress={handleDecrement} disabled={isCampaign} />}
@@ -175,17 +175,18 @@ const QuantitySection = memo(({
 const ErrorSection = memo(({ 
   productPickedErrors, 
   values, 
-  quantity, 
   setFieldValue,
   quantityInit,
   setErrors,
   action,
   quantityFromBarcode,
 }: any) => {
-  const isDisabled = ['out-of-stock', 'low-quality', 'near-date'].includes(action);
+  const isError = values?.pickedQuantity >= quantityInit;
+
+  const isDisabled = isError || ['out-of-stock', 'low-quality', 'near-date'].includes(action);
 
   const handleSelect = useCallback((value: string) => {
-    setFieldValue('pickedError', formatDecimal(value));
+    setFieldValue('pickedError', value);
     setErrors({});
   }, [setFieldValue, setErrors]);
 
@@ -244,7 +245,6 @@ const FormContent = memo(({
         productPickedErrors={productPickedErrors}
         values={values}
         action={action}
-        quantity={quantity}
         quantityInit={quantityInit}
         setFieldValue={setFieldValue}
         setErrors={setErrors}

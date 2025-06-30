@@ -12,13 +12,13 @@ type Variables = {
 
 type Response = { error: string };
 
-const bookShipper = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/bookShipper', params);
+const bookAhamoveShipper = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/bookAhamoveShipper', params);
 };
 
-export const useBookShipper = (cb?: () => void) => {
+export const useBookAhamoveShipper = (cb?: () => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => bookShipper(params),
+    mutationFn: (params: Variables) => bookAhamoveShipper(params),
     onSuccess: (data: Response) => {
       cb?.();
       if (!data.error) {

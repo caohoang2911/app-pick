@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { ActivityIndicator, Dimensions, Keyboard, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
@@ -37,21 +37,25 @@ const EmptyProductList = memo(() => (
 // Memoize các component render item
 const ProductItem = memo(({ 
   item, 
-  isLast 
+  isLast,
+  pickingBarcode,
+  statusOrder,
+  indexBarcodeWithoutPickedTime,
 }: { 
   item: Product | ProductItemGroup | any, 
-  isLast: boolean 
+  isLast: boolean,
+  pickingBarcode: string,
+  statusOrder?: string,
+  indexBarcodeWithoutPickedTime?: number,
 }) => {
-  // Xác định loại sản phẩm và render component tương ứng
-  
   const renderProduct = () => {
     if(item.type === "COMBO" && 'elements' in item) {
-      return <ProductCombo combo={item as ProductItemGroup} />;
+      return <ProductCombo statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} combo={item as ProductItemGroup} />;
     }
     if(item.type === "GIFT_PACK" && 'elements' in item) {
-      return <ProductGift giftPack={item as ProductItemGroup} />;
+      return <ProductGift statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} giftPack={item as ProductItemGroup} />;
     }
-    return <OrderPickProduct {...(item.elements?.[0] as Product)} />;
+    return <OrderPickProduct statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} {...(item.elements?.[0] as Product)} />;
   };
 
   return (
@@ -156,12 +160,15 @@ const OrderPickProducts = () => {
 
 
   // Callback cho việc render item
-  const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
+  const renderItem = useCallback(({ item, index, statusOrder, pickingBarcode }: { item: any, index: number, statusOrder?: string, pickingBarcode: string }) => {
     const isLast = index === (filteredProducts?.length || 0) - 1;
-    return <>
-    <ProductItem item={item} isLast={isLast} />
-    </>;
-  }, [filteredProducts?.length]);
+
+    const indexBarcodeWithoutPickedTime = orderPickProductsFlat?.findIndex((item: Product) => {
+      return item.barcode === pickingBarcode && !item.pickedTime;
+    })
+
+    return <ProductItem statusOrder={statusOrder} item={item} isLast={isLast} pickingBarcode={pickingBarcode} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} />;
+  }, [filteredProducts?.length, orderPickProductsFlat]);
 
   // Key extractor tối ưu
   const keyExtractor = useCallback((item: any, index: number) => {
@@ -199,6 +206,42 @@ const OrderPickProducts = () => {
   const isLoaded = !(isPending || isFetching || isLoading);
   const isEmpty = isLoaded && (!filteredProducts || filteredProducts.length === 0);
 
+  const getPickingBarcode = useMemo(() => {
+    return orderPickProductsFlat.find((product: Product) => {
+      return !product.pickedTime;
+    })?.barcode || '';
+  }, [orderPickProductsFlat]);
+
+  const getBarcodeIndexFilteredProducts = useMemo(() => {
+    return filteredProducts.findIndex((product: any) => {
+      return product.elements?.some((element: Product) => {
+        return element.barcode === getPickingBarcode && !element.pickedTime;
+      });
+    });
+  }, [filteredProducts]);
+
+  
+  useEffect(() => {
+    if(!getPickingBarcode) return;
+
+    const index = getBarcodeIndexFilteredProducts;
+    if(index === -1) return;
+
+    setTimeout(() => {
+      if (flatListRef.current && index >= 0 && index < (filteredProducts?.length || 0)) {
+        try {
+          flatListRef.current.scrollToIndex({
+            animated: true,
+            index,
+            viewPosition: 0.5,
+          });
+        } catch (error) {
+          console.log(JSON.stringify(error))
+        }
+      }
+    }, 100);
+  }, [getPickingBarcode, getBarcodeIndexFilteredProducts, filteredProducts]);
+
   // Render component loading
   if (isPending || isFetching || isLoading) {
     return <LoadingIndicator />;
@@ -227,7 +270,7 @@ const OrderPickProducts = () => {
         ListHeaderComponent={<UserNote />}
         data={filteredProducts as Array<any>}
         ListEmptyComponent={isEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />}
-        renderItem={renderItem}
+        renderItem={({ item, index }) => renderItem({ item, index, statusOrder: data?.data?.header?.status as string, pickingBarcode:  getPickingBarcode })}
         onScrollToIndexFailed={handleScrollToIndexFailed}
         removeClippedSubviews={false}
         initialNumToRender={visibleItems}

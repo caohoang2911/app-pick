@@ -5,7 +5,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
-import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
@@ -14,6 +13,7 @@ import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
 import { setIsEditManual, setKeyword, setSuccessForBarcodeScan, toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import { getConfigNameById } from "~/src/core/utils/config";
+import { getRelativeTime } from '~/src/core/utils/moment';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Employee } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-detail';
@@ -115,7 +115,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
               label={statusName}
               variant={toLower(status as string) as any}
               extraLabel={<Text className="text-xs text-contentPrimary ml-3">
-                | {moment(lastTimeUpdateStatus).fromNow()}
+                | {getRelativeTime(lastTimeUpdateStatus)}
               </Text>}
             />
           )}

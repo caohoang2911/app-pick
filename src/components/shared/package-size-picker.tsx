@@ -6,7 +6,7 @@ import { Pressable, Text, View } from "react-native";
 import { useUpdateShippingPackageSize } from "~/src/api/app-pick/use-update-shipping-package-size";
 import { queryClient } from "~/src/api/shared/api-provider";
 import { setLoading } from "~/src/core/store/loading";
-import { getHeaderOrderDetailOrderPick, useOrderPick } from "~/src/core/store/order-pick";
+import { useOrderPick } from "~/src/core/store/order-pick";
 import { OrderStatusValue, PackageSize, PackageSizeLabel } from "~/src/types/order";
 
 import React from "react";
