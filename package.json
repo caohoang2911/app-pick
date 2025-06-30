@@ -13,7 +13,7 @@
     "clean-ios": "expo prebuild --platform ios  --clean",
     "clean-android": "expo prebuild --platform android  --clean",
     "serve": "npx serve -s dist",
-    "reset": "rm -rf node_modules && rm -rf ios/Pods ios/Podfile.lock && rm -rf android/.gradle && yarn && npx pod-install && expo start --clear",
+    "reset": "watchman watch-del-all && rm -rf node_modules .expo .expo-shared ios/build ios/Pods ios/Podfile.lock android/build android/app/build package-lock.json yarn.lock && rm -rf ~/Library/Developer/Xcode/DerivedData && npm cache clean --force && npm install && cd ios && pod install && cd ..",
     "build-development": "eas build -p android --profile development",
     "build-production": "eas build -p android --profile production",
     "build-development-local": "eas build -p android --profile development --local",
