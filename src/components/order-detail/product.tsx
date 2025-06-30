@@ -422,9 +422,9 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
   },
-  labelColumn: { width: "25%" },
+  labelColumn: { width: "30%" },
   valueColumn: { width: "25%" },
-  unitColumn: { width: "25%" },
+  unitColumn: { width: "20%" },
   badgeColumn: { width: "25%" },
   modalOverlay: {
     flex: 1,
