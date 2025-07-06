@@ -129,7 +129,7 @@ const ProductVender = ({ vendorName }: { vendorName: string }) => {
   if(!vendorName) return null;
 
   return (
-    <View className='flex flex-row gap-2 items-center'>
+    <View className='flex flex-row gap-2 items-center flex-1'>
       <Badge label={vendorName} variant="pink" />
     </View>
   )

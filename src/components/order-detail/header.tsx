@@ -44,7 +44,7 @@ const TimeNow = () => {
   };
 
   return (
-    <View className='flex justify-end flex-row gap-2 absolute top-12 right-4' style={{ opacity: 0.1 }}>
+    <View className='flex justify-end flex-row gap-2 absolute right-4' style={{ opacity: 0.1, top: 38 }}>
       <Text className='text-xs'>
         {formatTime(currentTime)}
       </Text>
