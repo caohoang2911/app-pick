@@ -23,6 +23,35 @@ import { Input } from '../Input';
 import WaveButton from '../shared/WaveButton';
 import { GroupShippingInfo } from './group-shipping-info';
 
+const TimeNow = () => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  return (
+    <View className='flex justify-end flex-row gap-2 absolute top-12 right-4' style={{ opacity: 0.1 }}>
+      <Text className='text-xs'>
+        {formatTime(currentTime)}
+      </Text>
+    </View>
+  )
+}
+
 const HeaderTags = ({tags}: {tags?: string[]}) => {
   const configs = useConfig.use.config();
   const orderTags = configs?.orderTags || [];
@@ -126,6 +155,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           </View>
         </WaveButton>
       </View>
+      <TimeNow />
       <HeaderTags tags={tags} />
       <Picker picker={picker as Employee} />
       {GROUP_SHIPPING_ENABLED && <GroupShippingInfo />}
