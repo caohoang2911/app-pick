@@ -3,8 +3,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { isNil } from 'lodash';
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
+import { Dimensions, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentId,
@@ -22,6 +21,7 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
+const screenWidth = Dimensions.get('window').width;
 // Extract Row component and memoize
 const Row = memo(({
   label,
@@ -125,11 +125,11 @@ const ProductHeader = memo(({
   </>
 ));
 
-const ProductVender = ({ vendorName }: { vendorName: string }) => {
+const ProductVendor = ({ vendorName }: { vendorName: string }) => {
   if(!vendorName) return null;
 
   return (
-    <View className='flex flex-row gap-2 items-center flex-1'>
+    <View style={{ maxWidth: screenWidth/2 }}>
       <Badge label={vendorName} variant="pink" />
     </View>
   )
@@ -143,20 +143,16 @@ const BarcodeDisplay = memo(({
   baseBarcode?: string, 
   barcode?: string,
 }) => (
-  <View className='flex flex-row gap-1 items-center'>
-    <Text
-      numberOfLines={1}
-      className={`text-sm text-gray-500 text-center`}
-    >
-      {baseBarcode || '--'}
-    </Text>
+  <View className='flex flex-wrap flex-row gap-2 items-center' style={{ maxWidth: screenWidth/2 }}>
+    <Badge
+      label={baseBarcode || '--'}
+      variant="pink"
+    />
     {barcode && barcode !== baseBarcode && ( 
-      <Text
-        numberOfLines={1}
-        className={`text-sm text-gray-500 text-center`}
-      >
-        {barcode}
-      </Text>
+      <Badge
+        label={barcode}
+        variant="pink"
+      />
     )}
   </View>
 ));
@@ -306,8 +302,8 @@ const OrderPickProduct = memo(({
               showQuickAction={showQuickAction}
               onEditPress={handleEditPress}
             />
-            <View className='flex flex-row gap-2 items-center mt-1'>
-              <ProductVender vendorName={vendorName} />
+            <View className='flex flex-row mt-1 gap-2'>
+              <ProductVendor vendorName={vendorName} />
               <BarcodeDisplay 
                 baseBarcode={baseBarcode} 
                 barcode={barcode}
