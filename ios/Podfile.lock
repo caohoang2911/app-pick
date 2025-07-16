@@ -1,156 +1,98 @@
 PODS:
-  - abseil/algorithm (1.20240116.2):
-    - abseil/algorithm/algorithm (= 1.20240116.2)
-    - abseil/algorithm/container (= 1.20240116.2)
-  - abseil/algorithm/algorithm (1.20240116.2):
+  - abseil/algorithm (1.20211102.0):
+    - abseil/algorithm/algorithm (= 1.20211102.0)
+    - abseil/algorithm/container (= 1.20211102.0)
+  - abseil/algorithm/algorithm (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/algorithm/container (1.20240116.2):
+  - abseil/algorithm/container (1.20211102.0):
     - abseil/algorithm/algorithm
     - abseil/base/core_headers
-    - abseil/base/nullability
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/base (1.20240116.2):
-    - abseil/base/atomic_hook (= 1.20240116.2)
-    - abseil/base/base (= 1.20240116.2)
-    - abseil/base/base_internal (= 1.20240116.2)
-    - abseil/base/config (= 1.20240116.2)
-    - abseil/base/core_headers (= 1.20240116.2)
-    - abseil/base/cycleclock_internal (= 1.20240116.2)
-    - abseil/base/dynamic_annotations (= 1.20240116.2)
-    - abseil/base/endian (= 1.20240116.2)
-    - abseil/base/errno_saver (= 1.20240116.2)
-    - abseil/base/fast_type_id (= 1.20240116.2)
-    - abseil/base/log_severity (= 1.20240116.2)
-    - abseil/base/malloc_internal (= 1.20240116.2)
-    - abseil/base/no_destructor (= 1.20240116.2)
-    - abseil/base/nullability (= 1.20240116.2)
-    - abseil/base/prefetch (= 1.20240116.2)
-    - abseil/base/pretty_function (= 1.20240116.2)
-    - abseil/base/raw_logging_internal (= 1.20240116.2)
-    - abseil/base/spinlock_wait (= 1.20240116.2)
-    - abseil/base/strerror (= 1.20240116.2)
-    - abseil/base/throw_delegate (= 1.20240116.2)
-  - abseil/base/atomic_hook (1.20240116.2):
+  - abseil/base (1.20211102.0):
+    - abseil/base/atomic_hook (= 1.20211102.0)
+    - abseil/base/base (= 1.20211102.0)
+    - abseil/base/base_internal (= 1.20211102.0)
+    - abseil/base/config (= 1.20211102.0)
+    - abseil/base/core_headers (= 1.20211102.0)
+    - abseil/base/dynamic_annotations (= 1.20211102.0)
+    - abseil/base/endian (= 1.20211102.0)
+    - abseil/base/errno_saver (= 1.20211102.0)
+    - abseil/base/fast_type_id (= 1.20211102.0)
+    - abseil/base/log_severity (= 1.20211102.0)
+    - abseil/base/malloc_internal (= 1.20211102.0)
+    - abseil/base/pretty_function (= 1.20211102.0)
+    - abseil/base/raw_logging_internal (= 1.20211102.0)
+    - abseil/base/spinlock_wait (= 1.20211102.0)
+    - abseil/base/strerror (= 1.20211102.0)
+    - abseil/base/throw_delegate (= 1.20211102.0)
+  - abseil/base/atomic_hook (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/base/base (1.20240116.2):
+  - abseil/base/base (1.20211102.0):
     - abseil/base/atomic_hook
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/cycleclock_internal
     - abseil/base/dynamic_annotations
     - abseil/base/log_severity
-    - abseil/base/nullability
     - abseil/base/raw_logging_internal
     - abseil/base/spinlock_wait
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/base/base_internal (1.20240116.2):
+  - abseil/base/base_internal (1.20211102.0):
     - abseil/base/config
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/base/config (1.20240116.2):
-    - abseil/xcprivacy
-  - abseil/base/core_headers (1.20240116.2):
+  - abseil/base/config (1.20211102.0)
+  - abseil/base/core_headers (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/base/cycleclock_internal (1.20240116.2):
-    - abseil/base/base_internal
-    - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/base/dynamic_annotations (1.20240116.2):
+  - abseil/base/dynamic_annotations (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/base/endian (1.20240116.2):
+  - abseil/base/endian (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/nullability
-    - abseil/xcprivacy
-  - abseil/base/errno_saver (1.20240116.2):
+  - abseil/base/errno_saver (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/base/fast_type_id (1.20240116.2):
+  - abseil/base/fast_type_id (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/base/log_severity (1.20240116.2):
+  - abseil/base/log_severity (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/base/malloc_internal (1.20240116.2):
+  - abseil/base/malloc_internal (1.20211102.0):
     - abseil/base/base
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/dynamic_annotations
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/base/no_destructor (1.20240116.2):
-    - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/base/nullability (1.20240116.2):
-    - abseil/base/core_headers
-    - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/base/prefetch (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/base/pretty_function (1.20240116.2):
-    - abseil/xcprivacy
-  - abseil/base/raw_logging_internal (1.20240116.2):
+  - abseil/base/pretty_function (1.20211102.0)
+  - abseil/base/raw_logging_internal (1.20211102.0):
     - abseil/base/atomic_hook
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/errno_saver
     - abseil/base/log_severity
-    - abseil/xcprivacy
-  - abseil/base/spinlock_wait (1.20240116.2):
+  - abseil/base/spinlock_wait (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/core_headers
     - abseil/base/errno_saver
-    - abseil/xcprivacy
-  - abseil/base/strerror (1.20240116.2):
+  - abseil/base/strerror (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/errno_saver
-    - abseil/xcprivacy
-  - abseil/base/throw_delegate (1.20240116.2):
+  - abseil/base/throw_delegate (1.20211102.0):
     - abseil/base/config
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/cleanup/cleanup (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/cleanup/cleanup_internal
-    - abseil/xcprivacy
-  - abseil/cleanup/cleanup_internal (1.20240116.2):
-    - abseil/base/base_internal
-    - abseil/base/core_headers
-    - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/container/common (1.20240116.2):
+  - abseil/container/common (1.20211102.0):
     - abseil/meta/type_traits
     - abseil/types/optional
-    - abseil/xcprivacy
-  - abseil/container/common_policy_traits (1.20240116.2):
-    - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/container/compressed_tuple (1.20240116.2):
+  - abseil/container/compressed_tuple (1.20211102.0):
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/container/container_memory (1.20240116.2):
+  - abseil/container/container_memory (1.20211102.0):
     - abseil/base/config
     - abseil/memory/memory
     - abseil/meta/type_traits
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/container/fixed_array (1.20240116.2):
+  - abseil/container/fixed_array (1.20211102.0):
     - abseil/algorithm/algorithm
     - abseil/base/config
     - abseil/base/core_headers
@@ -158,166 +100,85 @@ PODS:
     - abseil/base/throw_delegate
     - abseil/container/compressed_tuple
     - abseil/memory/memory
-    - abseil/xcprivacy
-  - abseil/container/flat_hash_map (1.20240116.2):
+  - abseil/container/flat_hash_map (1.20211102.0):
     - abseil/algorithm/container
-    - abseil/base/core_headers
     - abseil/container/container_memory
     - abseil/container/hash_function_defaults
     - abseil/container/raw_hash_map
     - abseil/memory/memory
-    - abseil/xcprivacy
-  - abseil/container/flat_hash_set (1.20240116.2):
-    - abseil/algorithm/container
-    - abseil/base/core_headers
-    - abseil/container/container_memory
-    - abseil/container/hash_function_defaults
-    - abseil/container/raw_hash_set
-    - abseil/memory/memory
-    - abseil/xcprivacy
-  - abseil/container/hash_function_defaults (1.20240116.2):
+  - abseil/container/hash_function_defaults (1.20211102.0):
     - abseil/base/config
     - abseil/hash/hash
     - abseil/strings/cord
     - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/container/hash_policy_traits (1.20240116.2):
-    - abseil/container/common_policy_traits
+  - abseil/container/hash_policy_traits (1.20211102.0):
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/container/hashtable_debug_hooks (1.20240116.2):
+  - abseil/container/hashtable_debug_hooks (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/container/hashtablez_sampler (1.20240116.2):
+  - abseil/container/hashtablez_sampler (1.20211102.0):
     - abseil/base/base
-    - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/raw_logging_internal
+    - abseil/container/have_sse
     - abseil/debugging/stacktrace
     - abseil/memory/memory
     - abseil/profiling/exponential_biased
     - abseil/profiling/sample_recorder
     - abseil/synchronization/synchronization
-    - abseil/time/time
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/container/inlined_vector (1.20240116.2):
+  - abseil/container/have_sse (1.20211102.0)
+  - abseil/container/inlined_vector (1.20211102.0):
     - abseil/algorithm/algorithm
     - abseil/base/core_headers
     - abseil/base/throw_delegate
     - abseil/container/inlined_vector_internal
     - abseil/memory/memory
-    - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/container/inlined_vector_internal (1.20240116.2):
-    - abseil/base/config
+  - abseil/container/inlined_vector_internal (1.20211102.0):
     - abseil/base/core_headers
     - abseil/container/compressed_tuple
     - abseil/memory/memory
     - abseil/meta/type_traits
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/container/layout (1.20240116.2):
+  - abseil/container/layout (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/debugging/demangle_internal
     - abseil/meta/type_traits
     - abseil/strings/strings
     - abseil/types/span
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/container/raw_hash_map (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
+  - abseil/container/raw_hash_map (1.20211102.0):
     - abseil/base/throw_delegate
     - abseil/container/container_memory
     - abseil/container/raw_hash_set
-    - abseil/xcprivacy
-  - abseil/container/raw_hash_set (1.20240116.2):
+  - abseil/container/raw_hash_set (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/dynamic_annotations
     - abseil/base/endian
-    - abseil/base/prefetch
-    - abseil/base/raw_logging_internal
     - abseil/container/common
     - abseil/container/compressed_tuple
     - abseil/container/container_memory
     - abseil/container/hash_policy_traits
     - abseil/container/hashtable_debug_hooks
     - abseil/container/hashtablez_sampler
-    - abseil/hash/hash
+    - abseil/container/have_sse
     - abseil/memory/memory
     - abseil/meta/type_traits
     - abseil/numeric/bits
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/crc/cpu_detect (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/crc/crc32c (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/endian
-    - abseil/base/prefetch
-    - abseil/crc/cpu_detect
-    - abseil/crc/crc_internal
-    - abseil/crc/non_temporal_memcpy
-    - abseil/strings/str_format
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/crc/crc_cord_state (1.20240116.2):
-    - abseil/base/config
-    - abseil/crc/crc32c
-    - abseil/numeric/bits
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/crc/crc_internal (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/endian
-    - abseil/base/prefetch
-    - abseil/base/raw_logging_internal
-    - abseil/crc/cpu_detect
-    - abseil/memory/memory
-    - abseil/numeric/bits
-    - abseil/xcprivacy
-  - abseil/crc/non_temporal_arm_intrinsics (1.20240116.2):
-    - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/crc/non_temporal_memcpy (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/crc/non_temporal_arm_intrinsics
-    - abseil/xcprivacy
-  - abseil/debugging/debugging_internal (1.20240116.2):
+  - abseil/debugging/debugging_internal (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/dynamic_annotations
     - abseil/base/errno_saver
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/debugging/demangle_internal (1.20240116.2):
+  - abseil/debugging/demangle_internal (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/debugging/examine_stack (1.20240116.2):
+  - abseil/debugging/stacktrace (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/raw_logging_internal
-    - abseil/debugging/stacktrace
-    - abseil/debugging/symbolize
-    - abseil/xcprivacy
-  - abseil/debugging/stacktrace (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/dynamic_annotations
-    - abseil/base/raw_logging_internal
     - abseil/debugging/debugging_internal
-    - abseil/xcprivacy
-  - abseil/debugging/symbolize (1.20240116.2):
+  - abseil/debugging/symbolize (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
@@ -327,370 +188,64 @@ PODS:
     - abseil/debugging/debugging_internal
     - abseil/debugging/demangle_internal
     - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/flags/commandlineflag (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/fast_type_id
-    - abseil/flags/commandlineflag_internal
-    - abseil/strings/strings
-    - abseil/types/optional
-    - abseil/xcprivacy
-  - abseil/flags/commandlineflag_internal (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/fast_type_id
-    - abseil/xcprivacy
-  - abseil/flags/config (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/flags/path_util
-    - abseil/flags/program_name
-    - abseil/strings/strings
-    - abseil/synchronization/synchronization
-    - abseil/xcprivacy
-  - abseil/flags/flag (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/flags/config
-    - abseil/flags/flag_internal
-    - abseil/flags/reflection
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/flags/flag_internal (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/dynamic_annotations
-    - abseil/flags/commandlineflag
-    - abseil/flags/commandlineflag_internal
-    - abseil/flags/config
-    - abseil/flags/marshalling
-    - abseil/flags/reflection
-    - abseil/memory/memory
-    - abseil/meta/type_traits
-    - abseil/strings/strings
-    - abseil/synchronization/synchronization
-    - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/flags/marshalling (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/numeric/int128
-    - abseil/strings/str_format
-    - abseil/strings/strings
-    - abseil/types/optional
-    - abseil/xcprivacy
-  - abseil/flags/path_util (1.20240116.2):
-    - abseil/base/config
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/flags/private_handle_accessor (1.20240116.2):
-    - abseil/base/config
-    - abseil/flags/commandlineflag
-    - abseil/flags/commandlineflag_internal
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/flags/program_name (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/flags/path_util
-    - abseil/strings/strings
-    - abseil/synchronization/synchronization
-    - abseil/xcprivacy
-  - abseil/flags/reflection (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/no_destructor
-    - abseil/container/flat_hash_map
-    - abseil/flags/commandlineflag
-    - abseil/flags/commandlineflag_internal
-    - abseil/flags/config
-    - abseil/flags/private_handle_accessor
-    - abseil/strings/strings
-    - abseil/synchronization/synchronization
-    - abseil/xcprivacy
-  - abseil/functional/any_invocable (1.20240116.2):
-    - abseil/base/base_internal
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/meta/type_traits
-    - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/functional/bind_front (1.20240116.2):
+  - abseil/functional/bind_front (1.20211102.0):
     - abseil/base/base_internal
     - abseil/container/compressed_tuple
     - abseil/meta/type_traits
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/functional/function_ref (1.20240116.2):
+  - abseil/functional/function_ref (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/core_headers
-    - abseil/functional/any_invocable
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/hash/city (1.20240116.2):
+  - abseil/hash/city (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/endian
-    - abseil/xcprivacy
-  - abseil/hash/hash (1.20240116.2):
+  - abseil/hash/hash (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/endian
     - abseil/container/fixed_array
-    - abseil/functional/function_ref
     - abseil/hash/city
     - abseil/hash/low_level_hash
     - abseil/meta/type_traits
-    - abseil/numeric/bits
     - abseil/numeric/int128
     - abseil/strings/strings
     - abseil/types/optional
     - abseil/types/variant
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/hash/low_level_hash (1.20240116.2):
+  - abseil/hash/low_level_hash (1.20211102.0):
     - abseil/base/config
     - abseil/base/endian
-    - abseil/base/prefetch
+    - abseil/numeric/bits
     - abseil/numeric/int128
-    - abseil/xcprivacy
-  - abseil/log/absl_check (1.20240116.2):
-    - abseil/log/internal/check_impl
-    - abseil/xcprivacy
-  - abseil/log/absl_log (1.20240116.2):
-    - abseil/log/internal/log_impl
-    - abseil/xcprivacy
-  - abseil/log/absl_vlog_is_on (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/log/internal/vlog_config
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/log/check (1.20240116.2):
-    - abseil/log/internal/check_impl
-    - abseil/log/internal/check_op
-    - abseil/log/internal/conditions
-    - abseil/log/internal/log_message
-    - abseil/log/internal/strip
-    - abseil/xcprivacy
-  - abseil/log/globals (1.20240116.2):
-    - abseil/base/atomic_hook
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/base/raw_logging_internal
-    - abseil/hash/hash
-    - abseil/log/internal/vlog_config
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/log/internal/append_truncated (1.20240116.2):
-    - abseil/base/config
-    - abseil/strings/strings
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/log/internal/check_impl (1.20240116.2):
-    - abseil/base/core_headers
-    - abseil/log/internal/check_op
-    - abseil/log/internal/conditions
-    - abseil/log/internal/log_message
-    - abseil/log/internal/strip
-    - abseil/xcprivacy
-  - abseil/log/internal/check_op (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/log/internal/nullguard
-    - abseil/log/internal/nullstream
-    - abseil/log/internal/strip
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/log/internal/conditions (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/log/internal/voidify
-    - abseil/xcprivacy
-  - abseil/log/internal/config (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/log/internal/fnmatch (1.20240116.2):
-    - abseil/base/config
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/log/internal/format (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/log/internal/append_truncated
-    - abseil/log/internal/config
-    - abseil/log/internal/globals
-    - abseil/strings/str_format
-    - abseil/strings/strings
-    - abseil/time/time
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/log/internal/globals (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/base/raw_logging_internal
-    - abseil/strings/strings
-    - abseil/time/time
-    - abseil/xcprivacy
-  - abseil/log/internal/log_impl (1.20240116.2):
-    - abseil/log/absl_vlog_is_on
-    - abseil/log/internal/conditions
-    - abseil/log/internal/log_message
-    - abseil/log/internal/strip
-    - abseil/xcprivacy
-  - abseil/log/internal/log_message (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/errno_saver
-    - abseil/base/log_severity
-    - abseil/base/raw_logging_internal
-    - abseil/base/strerror
-    - abseil/container/inlined_vector
-    - abseil/debugging/examine_stack
-    - abseil/log/globals
-    - abseil/log/internal/append_truncated
-    - abseil/log/internal/format
-    - abseil/log/internal/globals
-    - abseil/log/internal/log_sink_set
-    - abseil/log/internal/nullguard
-    - abseil/log/internal/proto
-    - abseil/log/log_entry
-    - abseil/log/log_sink
-    - abseil/log/log_sink_registry
-    - abseil/memory/memory
-    - abseil/strings/strings
-    - abseil/time/time
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/log/internal/log_sink_set (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/base/no_destructor
-    - abseil/base/raw_logging_internal
-    - abseil/cleanup/cleanup
-    - abseil/log/globals
-    - abseil/log/internal/config
-    - abseil/log/internal/globals
-    - abseil/log/log_entry
-    - abseil/log/log_sink
-    - abseil/strings/strings
-    - abseil/synchronization/synchronization
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/log/internal/nullguard (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/log/internal/nullstream (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/log/internal/proto (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/strings/strings
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/log/internal/strip (1.20240116.2):
-    - abseil/base/log_severity
-    - abseil/log/internal/log_message
-    - abseil/log/internal/nullstream
-    - abseil/xcprivacy
-  - abseil/log/internal/vlog_config (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/no_destructor
-    - abseil/log/internal/fnmatch
-    - abseil/memory/memory
-    - abseil/strings/strings
-    - abseil/synchronization/synchronization
-    - abseil/types/optional
-    - abseil/xcprivacy
-  - abseil/log/internal/voidify (1.20240116.2):
-    - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/log/log (1.20240116.2):
-    - abseil/log/internal/log_impl
-    - abseil/log/vlog_is_on
-    - abseil/xcprivacy
-  - abseil/log/log_entry (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/log_severity
-    - abseil/log/internal/config
-    - abseil/strings/strings
-    - abseil/time/time
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/log/log_sink (1.20240116.2):
-    - abseil/base/config
-    - abseil/log/log_entry
-    - abseil/xcprivacy
-  - abseil/log/log_sink_registry (1.20240116.2):
-    - abseil/base/config
-    - abseil/log/internal/log_sink_set
-    - abseil/log/log_sink
-    - abseil/xcprivacy
-  - abseil/log/vlog_is_on (1.20240116.2):
-    - abseil/log/absl_vlog_is_on
-    - abseil/xcprivacy
-  - abseil/memory (1.20240116.2):
-    - abseil/memory/memory (= 1.20240116.2)
-  - abseil/memory/memory (1.20240116.2):
+  - abseil/memory (1.20211102.0):
+    - abseil/memory/memory (= 1.20211102.0)
+  - abseil/memory/memory (1.20211102.0):
     - abseil/base/core_headers
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/meta (1.20240116.2):
-    - abseil/meta/type_traits (= 1.20240116.2)
-  - abseil/meta/type_traits (1.20240116.2):
+  - abseil/meta (1.20211102.0):
+    - abseil/meta/type_traits (= 1.20211102.0)
+  - abseil/meta/type_traits (1.20211102.0):
+    - abseil/base/config
+  - abseil/numeric/bits (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/numeric/bits (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/numeric/int128 (1.20240116.2):
+  - abseil/numeric/int128 (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/numeric/bits
-    - abseil/xcprivacy
-  - abseil/numeric/representation (1.20240116.2):
+  - abseil/numeric/representation (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/profiling/exponential_biased (1.20240116.2):
+  - abseil/profiling/exponential_biased (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/xcprivacy
-  - abseil/profiling/sample_recorder (1.20240116.2):
+  - abseil/profiling/sample_recorder (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/synchronization/synchronization
     - abseil/time/time
-    - abseil/xcprivacy
-  - abseil/random/bit_gen_ref (1.20240116.2):
-    - abseil/base/core_headers
-    - abseil/base/fast_type_id
-    - abseil/meta/type_traits
-    - abseil/random/internal/distribution_caller
-    - abseil/random/internal/fast_uniform_bits
-    - abseil/random/random
-    - abseil/xcprivacy
-  - abseil/random/distributions (1.20240116.2):
+  - abseil/random/distributions (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
@@ -705,51 +260,41 @@ PODS:
     - abseil/random/internal/uniform_helper
     - abseil/random/internal/wide_multiply
     - abseil/strings/strings
-    - abseil/xcprivacy
-  - abseil/random/internal/distribution_caller (1.20240116.2):
+  - abseil/random/internal/distribution_caller (1.20211102.0):
     - abseil/base/config
     - abseil/base/fast_type_id
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/random/internal/fast_uniform_bits (1.20240116.2):
+  - abseil/random/internal/fast_uniform_bits (1.20211102.0):
     - abseil/base/config
     - abseil/meta/type_traits
-    - abseil/random/internal/traits
-    - abseil/xcprivacy
-  - abseil/random/internal/fastmath (1.20240116.2):
+  - abseil/random/internal/fastmath (1.20211102.0):
     - abseil/numeric/bits
-    - abseil/xcprivacy
-  - abseil/random/internal/generate_real (1.20240116.2):
+  - abseil/random/internal/generate_real (1.20211102.0):
     - abseil/meta/type_traits
     - abseil/numeric/bits
     - abseil/random/internal/fastmath
     - abseil/random/internal/traits
-    - abseil/xcprivacy
-  - abseil/random/internal/iostream_state_saver (1.20240116.2):
+  - abseil/random/internal/iostream_state_saver (1.20211102.0):
     - abseil/meta/type_traits
     - abseil/numeric/int128
-    - abseil/xcprivacy
-  - abseil/random/internal/nonsecure_base (1.20240116.2):
+  - abseil/random/internal/nonsecure_base (1.20211102.0):
     - abseil/base/core_headers
-    - abseil/container/inlined_vector
     - abseil/meta/type_traits
     - abseil/random/internal/pool_urbg
     - abseil/random/internal/salted_seed_seq
     - abseil/random/internal/seed_material
+    - abseil/types/optional
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/random/internal/pcg_engine (1.20240116.2):
+  - abseil/random/internal/pcg_engine (1.20211102.0):
     - abseil/base/config
     - abseil/meta/type_traits
     - abseil/numeric/bits
     - abseil/numeric/int128
     - abseil/random/internal/fastmath
     - abseil/random/internal/iostream_state_saver
-    - abseil/xcprivacy
-  - abseil/random/internal/platform (1.20240116.2):
+  - abseil/random/internal/platform (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/random/internal/pool_urbg (1.20240116.2):
+  - abseil/random/internal/pool_urbg (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
@@ -760,45 +305,38 @@ PODS:
     - abseil/random/internal/traits
     - abseil/random/seed_gen_exception
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/random/internal/randen (1.20240116.2):
+  - abseil/random/internal/randen (1.20211102.0):
     - abseil/base/raw_logging_internal
     - abseil/random/internal/platform
     - abseil/random/internal/randen_hwaes
     - abseil/random/internal/randen_slow
-    - abseil/xcprivacy
-  - abseil/random/internal/randen_engine (1.20240116.2):
+  - abseil/random/internal/randen_engine (1.20211102.0):
     - abseil/base/endian
     - abseil/meta/type_traits
     - abseil/random/internal/iostream_state_saver
     - abseil/random/internal/randen
-    - abseil/xcprivacy
-  - abseil/random/internal/randen_hwaes (1.20240116.2):
+  - abseil/random/internal/randen_hwaes (1.20211102.0):
     - abseil/base/config
     - abseil/random/internal/platform
     - abseil/random/internal/randen_hwaes_impl
-    - abseil/xcprivacy
-  - abseil/random/internal/randen_hwaes_impl (1.20240116.2):
+  - abseil/random/internal/randen_hwaes_impl (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/numeric/int128
     - abseil/random/internal/platform
-    - abseil/xcprivacy
-  - abseil/random/internal/randen_slow (1.20240116.2):
+  - abseil/random/internal/randen_slow (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/endian
     - abseil/numeric/int128
     - abseil/random/internal/platform
-    - abseil/xcprivacy
-  - abseil/random/internal/salted_seed_seq (1.20240116.2):
+  - abseil/random/internal/salted_seed_seq (1.20211102.0):
     - abseil/container/inlined_vector
     - abseil/meta/type_traits
     - abseil/random/internal/seed_material
     - abseil/types/optional
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/random/internal/seed_material (1.20240116.2):
+  - abseil/random/internal/seed_material (1.20211102.0):
     - abseil/base/core_headers
     - abseil/base/dynamic_annotations
     - abseil/base/raw_logging_internal
@@ -806,93 +344,66 @@ PODS:
     - abseil/strings/strings
     - abseil/types/optional
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/random/internal/traits (1.20240116.2):
+  - abseil/random/internal/traits (1.20211102.0):
     - abseil/base/config
-    - abseil/numeric/bits
-    - abseil/numeric/int128
-    - abseil/xcprivacy
-  - abseil/random/internal/uniform_helper (1.20240116.2):
+  - abseil/random/internal/uniform_helper (1.20211102.0):
     - abseil/base/config
     - abseil/meta/type_traits
-    - abseil/numeric/int128
     - abseil/random/internal/traits
-    - abseil/xcprivacy
-  - abseil/random/internal/wide_multiply (1.20240116.2):
+  - abseil/random/internal/wide_multiply (1.20211102.0):
     - abseil/base/config
     - abseil/numeric/bits
     - abseil/numeric/int128
     - abseil/random/internal/traits
-    - abseil/xcprivacy
-  - abseil/random/random (1.20240116.2):
+  - abseil/random/random (1.20211102.0):
     - abseil/random/distributions
     - abseil/random/internal/nonsecure_base
     - abseil/random/internal/pcg_engine
     - abseil/random/internal/pool_urbg
     - abseil/random/internal/randen_engine
     - abseil/random/seed_sequences
-    - abseil/xcprivacy
-  - abseil/random/seed_gen_exception (1.20240116.2):
+  - abseil/random/seed_gen_exception (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/random/seed_sequences (1.20240116.2):
-    - abseil/base/config
+  - abseil/random/seed_sequences (1.20211102.0):
+    - abseil/container/inlined_vector
+    - abseil/random/internal/nonsecure_base
     - abseil/random/internal/pool_urbg
     - abseil/random/internal/salted_seed_seq
     - abseil/random/internal/seed_material
     - abseil/random/seed_gen_exception
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/status/status (1.20240116.2):
+  - abseil/status/status (1.20211102.0):
     - abseil/base/atomic_hook
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/no_destructor
-    - abseil/base/nullability
     - abseil/base/raw_logging_internal
-    - abseil/base/strerror
     - abseil/container/inlined_vector
     - abseil/debugging/stacktrace
     - abseil/debugging/symbolize
     - abseil/functional/function_ref
-    - abseil/memory/memory
     - abseil/strings/cord
     - abseil/strings/str_format
     - abseil/strings/strings
     - abseil/types/optional
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/status/statusor (1.20240116.2):
+  - abseil/status/statusor (1.20211102.0):
     - abseil/base/base
-    - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/nullability
     - abseil/base/raw_logging_internal
     - abseil/meta/type_traits
     - abseil/status/status
-    - abseil/strings/has_ostream_operator
-    - abseil/strings/str_format
     - abseil/strings/strings
     - abseil/types/variant
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/strings/charset (1.20240116.2):
-    - abseil/base/core_headers
-    - abseil/strings/string_view
-    - abseil/xcprivacy
-  - abseil/strings/cord (1.20240116.2):
+  - abseil/strings/cord (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/endian
-    - abseil/base/nullability
     - abseil/base/raw_logging_internal
+    - abseil/container/fixed_array
     - abseil/container/inlined_vector
-    - abseil/crc/crc32c
-    - abseil/crc/crc_cord_state
     - abseil/functional/function_ref
     - abseil/meta/type_traits
-    - abseil/numeric/bits
     - abseil/strings/cord_internal
     - abseil/strings/cordz_functions
     - abseil/strings/cordz_info
@@ -900,11 +411,10 @@ PODS:
     - abseil/strings/cordz_update_scope
     - abseil/strings/cordz_update_tracker
     - abseil/strings/internal
+    - abseil/strings/str_format
     - abseil/strings/strings
     - abseil/types/optional
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/strings/cord_internal (1.20240116.2):
+  - abseil/strings/cord_internal (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
@@ -912,28 +422,23 @@ PODS:
     - abseil/base/raw_logging_internal
     - abseil/base/throw_delegate
     - abseil/container/compressed_tuple
-    - abseil/container/container_memory
     - abseil/container/inlined_vector
     - abseil/container/layout
-    - abseil/crc/crc_cord_state
     - abseil/functional/function_ref
     - abseil/meta/type_traits
     - abseil/strings/strings
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/strings/cordz_functions (1.20240116.2):
+  - abseil/strings/cordz_functions (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/raw_logging_internal
     - abseil/profiling/exponential_biased
-    - abseil/xcprivacy
-  - abseil/strings/cordz_handle (1.20240116.2):
+  - abseil/strings/cordz_handle (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/raw_logging_internal
     - abseil/synchronization/synchronization
-    - abseil/xcprivacy
-  - abseil/strings/cordz_info (1.20240116.2):
+  - abseil/strings/cordz_info (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
@@ -946,46 +451,29 @@ PODS:
     - abseil/strings/cordz_statistics
     - abseil/strings/cordz_update_tracker
     - abseil/synchronization/synchronization
-    - abseil/time/time
     - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/strings/cordz_statistics (1.20240116.2):
+  - abseil/strings/cordz_statistics (1.20211102.0):
     - abseil/base/config
     - abseil/strings/cordz_update_tracker
-    - abseil/xcprivacy
-  - abseil/strings/cordz_update_scope (1.20240116.2):
+  - abseil/strings/cordz_update_scope (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/strings/cord_internal
     - abseil/strings/cordz_info
     - abseil/strings/cordz_update_tracker
-    - abseil/xcprivacy
-  - abseil/strings/cordz_update_tracker (1.20240116.2):
+  - abseil/strings/cordz_update_tracker (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/strings/has_ostream_operator (1.20240116.2):
-    - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/strings/internal (1.20240116.2):
+  - abseil/strings/internal (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/endian
     - abseil/base/raw_logging_internal
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/strings/str_format (1.20240116.2):
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/nullability
+  - abseil/strings/str_format (1.20211102.0):
     - abseil/strings/str_format_internal
-    - abseil/strings/string_view
-    - abseil/types/span
-    - abseil/xcprivacy
-  - abseil/strings/str_format_internal (1.20240116.2):
+  - abseil/strings/str_format_internal (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/container/fixed_array
-    - abseil/container/inlined_vector
     - abseil/functional/function_ref
     - abseil/meta/type_traits
     - abseil/numeric/bits
@@ -994,47 +482,30 @@ PODS:
     - abseil/strings/strings
     - abseil/types/optional
     - abseil/types/span
-    - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/strings/string_view (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
-    - abseil/base/core_headers
-    - abseil/base/nullability
-    - abseil/base/throw_delegate
-    - abseil/xcprivacy
-  - abseil/strings/strings (1.20240116.2):
+  - abseil/strings/strings (1.20211102.0):
     - abseil/base/base
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/endian
-    - abseil/base/nullability
     - abseil/base/raw_logging_internal
     - abseil/base/throw_delegate
     - abseil/memory/memory
     - abseil/meta/type_traits
     - abseil/numeric/bits
     - abseil/numeric/int128
-    - abseil/strings/charset
     - abseil/strings/internal
-    - abseil/strings/string_view
-    - abseil/xcprivacy
-  - abseil/synchronization/graphcycles_internal (1.20240116.2):
+  - abseil/synchronization/graphcycles_internal (1.20211102.0):
     - abseil/base/base
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/malloc_internal
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/synchronization/kernel_timeout_internal (1.20240116.2):
-    - abseil/base/base
-    - abseil/base/config
+  - abseil/synchronization/kernel_timeout_internal (1.20211102.0):
     - abseil/base/core_headers
     - abseil/base/raw_logging_internal
     - abseil/time/time
-    - abseil/xcprivacy
-  - abseil/synchronization/synchronization (1.20240116.2):
+  - abseil/synchronization/synchronization (1.20211102.0):
     - abseil/base/atomic_hook
     - abseil/base/base
     - abseil/base/base_internal
@@ -1048,110 +519,90 @@ PODS:
     - abseil/synchronization/graphcycles_internal
     - abseil/synchronization/kernel_timeout_internal
     - abseil/time/time
-    - abseil/xcprivacy
-  - abseil/time (1.20240116.2):
-    - abseil/time/internal (= 1.20240116.2)
-    - abseil/time/time (= 1.20240116.2)
-  - abseil/time/internal (1.20240116.2):
-    - abseil/time/internal/cctz (= 1.20240116.2)
-  - abseil/time/internal/cctz (1.20240116.2):
-    - abseil/time/internal/cctz/civil_time (= 1.20240116.2)
-    - abseil/time/internal/cctz/time_zone (= 1.20240116.2)
-  - abseil/time/internal/cctz/civil_time (1.20240116.2):
+  - abseil/time (1.20211102.0):
+    - abseil/time/internal (= 1.20211102.0)
+    - abseil/time/time (= 1.20211102.0)
+  - abseil/time/internal (1.20211102.0):
+    - abseil/time/internal/cctz (= 1.20211102.0)
+  - abseil/time/internal/cctz (1.20211102.0):
+    - abseil/time/internal/cctz/civil_time (= 1.20211102.0)
+    - abseil/time/internal/cctz/time_zone (= 1.20211102.0)
+  - abseil/time/internal/cctz/civil_time (1.20211102.0):
     - abseil/base/config
-    - abseil/xcprivacy
-  - abseil/time/internal/cctz/time_zone (1.20240116.2):
+  - abseil/time/internal/cctz/time_zone (1.20211102.0):
     - abseil/base/config
     - abseil/time/internal/cctz/civil_time
-    - abseil/xcprivacy
-  - abseil/time/time (1.20240116.2):
+  - abseil/time/time (1.20211102.0):
     - abseil/base/base
-    - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/raw_logging_internal
     - abseil/numeric/int128
     - abseil/strings/strings
     - abseil/time/internal/cctz/civil_time
     - abseil/time/internal/cctz/time_zone
-    - abseil/types/optional
-    - abseil/xcprivacy
-  - abseil/types (1.20240116.2):
-    - abseil/types/any (= 1.20240116.2)
-    - abseil/types/bad_any_cast (= 1.20240116.2)
-    - abseil/types/bad_any_cast_impl (= 1.20240116.2)
-    - abseil/types/bad_optional_access (= 1.20240116.2)
-    - abseil/types/bad_variant_access (= 1.20240116.2)
-    - abseil/types/compare (= 1.20240116.2)
-    - abseil/types/optional (= 1.20240116.2)
-    - abseil/types/span (= 1.20240116.2)
-    - abseil/types/variant (= 1.20240116.2)
-  - abseil/types/any (1.20240116.2):
+  - abseil/types (1.20211102.0):
+    - abseil/types/any (= 1.20211102.0)
+    - abseil/types/bad_any_cast (= 1.20211102.0)
+    - abseil/types/bad_any_cast_impl (= 1.20211102.0)
+    - abseil/types/bad_optional_access (= 1.20211102.0)
+    - abseil/types/bad_variant_access (= 1.20211102.0)
+    - abseil/types/compare (= 1.20211102.0)
+    - abseil/types/optional (= 1.20211102.0)
+    - abseil/types/span (= 1.20211102.0)
+    - abseil/types/variant (= 1.20211102.0)
+  - abseil/types/any (1.20211102.0):
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/base/fast_type_id
     - abseil/meta/type_traits
     - abseil/types/bad_any_cast
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/types/bad_any_cast (1.20240116.2):
+  - abseil/types/bad_any_cast (1.20211102.0):
     - abseil/base/config
     - abseil/types/bad_any_cast_impl
-    - abseil/xcprivacy
-  - abseil/types/bad_any_cast_impl (1.20240116.2):
+  - abseil/types/bad_any_cast_impl (1.20211102.0):
     - abseil/base/config
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/types/bad_optional_access (1.20240116.2):
+  - abseil/types/bad_optional_access (1.20211102.0):
     - abseil/base/config
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/types/bad_variant_access (1.20240116.2):
+  - abseil/types/bad_variant_access (1.20211102.0):
     - abseil/base/config
     - abseil/base/raw_logging_internal
-    - abseil/xcprivacy
-  - abseil/types/compare (1.20240116.2):
-    - abseil/base/config
+  - abseil/types/compare (1.20211102.0):
     - abseil/base/core_headers
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/types/optional (1.20240116.2):
+  - abseil/types/optional (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
-    - abseil/base/nullability
     - abseil/memory/memory
     - abseil/meta/type_traits
     - abseil/types/bad_optional_access
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/types/span (1.20240116.2):
+  - abseil/types/span (1.20211102.0):
     - abseil/algorithm/algorithm
     - abseil/base/core_headers
-    - abseil/base/nullability
     - abseil/base/throw_delegate
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/types/variant (1.20240116.2):
+  - abseil/types/variant (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/base/core_headers
     - abseil/meta/type_traits
     - abseil/types/bad_variant_access
     - abseil/utility/utility
-    - abseil/xcprivacy
-  - abseil/utility/utility (1.20240116.2):
+  - abseil/utility/utility (1.20211102.0):
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
-    - abseil/xcprivacy
-  - abseil/xcprivacy (1.20240116.2)
   - boost (1.83.0)
-  - BoringSSL-GRPC (0.0.36):
-    - BoringSSL-GRPC/Implementation (= 0.0.36)
-    - BoringSSL-GRPC/Interface (= 0.0.36)
-  - BoringSSL-GRPC/Implementation (0.0.36):
-    - BoringSSL-GRPC/Interface (= 0.0.36)
-  - BoringSSL-GRPC/Interface (0.0.36)
+  - BoringSSL-GRPC (0.0.24):
+    - BoringSSL-GRPC/Implementation (= 0.0.24)
+    - BoringSSL-GRPC/Interface (= 0.0.24)
+  - BoringSSL-GRPC/Implementation (0.0.24):
+    - BoringSSL-GRPC/Interface (= 0.0.24)
+  - BoringSSL-GRPC/Interface (0.0.24)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
   - EASClient (0.12.0):
@@ -1166,9 +617,9 @@ PODS:
   - EXJSONUtils (0.13.1)
   - EXManifests (0.14.3):
     - ExpoModulesCore
-  - EXNotifications (0.28.17):
+  - EXNotifications (0.28.19):
     - ExpoModulesCore
-  - Expo (51.0.34):
+  - Expo (51.0.39):
     - ExpoModulesCore
   - ExpoAsset (10.0.10):
     - ExpoModulesCore
@@ -1182,7 +633,7 @@ PODS:
     - ExpoModulesCore
   - ExpoFont (12.0.10):
     - ExpoModulesCore
-  - ExpoHead (3.5.23):
+  - ExpoHead (3.5.24):
     - ExpoModulesCore
   - ExpoImage (1.12.15):
     - ExpoModulesCore
@@ -1197,7 +648,7 @@ PODS:
     - SDWebImageWebPCoder
   - ExpoKeepAwake (13.0.2):
     - ExpoModulesCore
-  - ExpoModulesCore (1.12.24):
+  - ExpoModulesCore (1.12.26):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1222,7 +673,7 @@ PODS:
     - Yoga
   - ExpoNetwork (6.0.1):
     - ExpoModulesCore
-  - EXSplashScreen (0.27.5):
+  - EXSplashScreen (0.27.7):
     - DoubleConversion
     - ExpoModulesCore
     - glog
@@ -1245,7 +696,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - EXStructuredHeaders (3.8.0)
-  - EXUpdates (0.25.25):
+  - EXUpdates (0.25.28):
     - DoubleConversion
     - EASClient
     - EXManifests
@@ -1276,227 +727,179 @@ PODS:
   - EXUpdatesInterface (0.16.2):
     - ExpoModulesCore
   - FBLazyVector (0.74.5)
-  - Firebase/Auth (11.4.0):
+  - Firebase/Auth (10.7.0):
     - Firebase/CoreOnly
-    - FirebaseAuth (~> 11.4.0)
-  - Firebase/CoreOnly (11.4.0):
-    - FirebaseCore (= 11.4.0)
-  - Firebase/Crashlytics (11.4.0):
+    - FirebaseAuth (~> 10.7.0)
+  - Firebase/CoreOnly (10.7.0):
+    - FirebaseCore (= 10.7.0)
+  - Firebase/Crashlytics (10.7.0):
     - Firebase/CoreOnly
-    - FirebaseCrashlytics (~> 11.4.0)
-  - Firebase/Messaging (11.4.0):
+    - FirebaseCrashlytics (~> 10.7.0)
+  - Firebase/Messaging (10.7.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 11.4.0)
-  - FirebaseAppCheckInterop (11.12.0)
-  - FirebaseAuth (11.4.0):
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseAuthInterop (~> 11.0)
-    - FirebaseCore (~> 11.4)
-    - FirebaseCoreExtension (~> 11.4)
-    - GoogleUtilities/AppDelegateSwizzler (~> 8.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GTMSessionFetcher/Core (< 5.0, >= 3.4)
-    - RecaptchaInterop (~> 100.0)
-  - FirebaseAuthInterop (11.12.0)
-  - FirebaseCore (11.4.0):
-    - FirebaseCoreInternal (~> 11.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GoogleUtilities/Logger (~> 8.0)
-  - FirebaseCoreExtension (11.4.0):
-    - FirebaseCore (~> 11.0)
-  - FirebaseCoreInternal (11.12.0):
-    - "GoogleUtilities/NSData+zlib (~> 8.0)"
-  - FirebaseCrashlytics (11.4.0):
-    - FirebaseCore (~> 11.4)
-    - FirebaseInstallations (~> 11.0)
-    - FirebaseRemoteConfigInterop (~> 11.0)
-    - FirebaseSessions (~> 11.0)
-    - GoogleDataTransport (~> 10.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - nanopb (~> 3.30910.0)
-    - PromisesObjC (~> 2.4)
-  - FirebaseFirestore (11.4.0):
-    - FirebaseCore (~> 11.4)
-    - FirebaseCoreExtension (~> 11.4)
-    - FirebaseFirestoreInternal (= 11.4.0)
-    - FirebaseSharedSwift (~> 11.0)
-  - FirebaseFirestoreInternal (11.4.0):
-    - abseil/algorithm (~> 1.20240116.1)
-    - abseil/base (~> 1.20240116.1)
-    - abseil/container/flat_hash_map (~> 1.20240116.1)
-    - abseil/memory (~> 1.20240116.1)
-    - abseil/meta (~> 1.20240116.1)
-    - abseil/strings/strings (~> 1.20240116.1)
-    - abseil/time (~> 1.20240116.1)
-    - abseil/types (~> 1.20240116.1)
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseCore (~> 11.0)
-    - "gRPC-C++ (~> 1.65.0)"
-    - gRPC-Core (~> 1.65.0)
+    - FirebaseMessaging (~> 10.7.0)
+  - FirebaseAppCheckInterop (10.7.0)
+  - FirebaseAuth (10.7.0):
+    - FirebaseCore (~> 10.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GTMSessionFetcher/Core (< 4.0, >= 2.1)
+  - FirebaseAuthInterop (10.7.0)
+  - FirebaseCore (10.7.0):
+    - FirebaseCoreInternal (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Logger (~> 7.8)
+  - FirebaseCoreExtension (10.7.0):
+    - FirebaseCore (~> 10.0)
+  - FirebaseCoreInternal (10.7.0):
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseCrashlytics (10.7.0):
+    - FirebaseCore (~> 10.5)
+    - FirebaseInstallations (~> 10.0)
+    - FirebaseSessions (~> 10.5)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/Environment (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - PromisesObjC (~> 2.1)
+  - FirebaseFirestore (10.7.0):
+    - abseil/algorithm (~> 1.20211102.0)
+    - abseil/base (~> 1.20211102.0)
+    - abseil/container/flat_hash_map (~> 1.20211102.0)
+    - abseil/memory (~> 1.20211102.0)
+    - abseil/meta (~> 1.20211102.0)
+    - abseil/strings/strings (~> 1.20211102.0)
+    - abseil/time (~> 1.20211102.0)
+    - abseil/types (~> 1.20211102.0)
+    - FirebaseCore (~> 10.0)
+    - "gRPC-C++ (~> 1.44.0)"
     - leveldb-library (~> 1.22)
-    - nanopb (~> 3.30910.0)
-  - FirebaseInstallations (11.4.0):
-    - FirebaseCore (~> 11.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GoogleUtilities/UserDefaults (~> 8.0)
-    - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (11.4.0):
-    - FirebaseCore (~> 11.0)
-    - FirebaseInstallations (~> 11.0)
-    - GoogleDataTransport (~> 10.0)
-    - GoogleUtilities/AppDelegateSwizzler (~> 8.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GoogleUtilities/Reachability (~> 8.0)
-    - GoogleUtilities/UserDefaults (~> 8.0)
-    - nanopb (~> 3.30910.0)
-  - FirebaseMessagingInterop (11.12.0)
-  - FirebaseRemoteConfigInterop (11.12.0)
-  - FirebaseSessions (11.4.0):
-    - FirebaseCore (~> 11.4)
-    - FirebaseCoreExtension (~> 11.4)
-    - FirebaseInstallations (~> 11.0)
-    - GoogleDataTransport (~> 10.0)
-    - GoogleUtilities/Environment (~> 8.0)
-    - GoogleUtilities/UserDefaults (~> 8.0)
-    - nanopb (~> 3.30910.0)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - FirebaseInstallations (10.29.0):
+    - FirebaseCore (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - PromisesObjC (~> 2.1)
+  - FirebaseMessaging (10.7.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Reachability (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - FirebaseMessagingInterop (10.7.0)
+  - FirebaseSessions (10.29.0):
+    - FirebaseCore (~> 10.5)
+    - FirebaseCoreExtension (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/Environment (~> 7.13)
+    - GoogleUtilities/UserDefaults (~> 7.13)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
     - PromisesSwift (~> 2.1)
-  - FirebaseSharedSwift (11.12.0)
   - fmt (9.1.0)
   - glog (0.3.5)
-  - GoogleDataTransport (10.1.0):
-    - nanopb (~> 3.30910.0)
-    - PromisesObjC (~> 2.4)
-  - GoogleUtilities (8.1.0):
-    - GoogleUtilities/AppDelegateSwizzler (= 8.1.0)
-    - GoogleUtilities/Environment (= 8.1.0)
-    - GoogleUtilities/Logger (= 8.1.0)
-    - GoogleUtilities/MethodSwizzler (= 8.1.0)
-    - GoogleUtilities/Network (= 8.1.0)
-    - "GoogleUtilities/NSData+zlib (= 8.1.0)"
-    - GoogleUtilities/Privacy (= 8.1.0)
-    - GoogleUtilities/Reachability (= 8.1.0)
-    - GoogleUtilities/SwizzlerTestHelpers (= 8.1.0)
-    - GoogleUtilities/UserDefaults (= 8.1.0)
-  - GoogleUtilities/AppDelegateSwizzler (8.1.0):
+  - GoogleDataTransport (9.4.1):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities (7.13.0):
+    - GoogleUtilities/AppDelegateSwizzler (= 7.13.0)
+    - GoogleUtilities/Environment (= 7.13.0)
+    - GoogleUtilities/ISASwizzler (= 7.13.0)
+    - GoogleUtilities/Logger (= 7.13.0)
+    - GoogleUtilities/MethodSwizzler (= 7.13.0)
+    - GoogleUtilities/Network (= 7.13.0)
+    - "GoogleUtilities/NSData+zlib (= 7.13.0)"
+    - GoogleUtilities/Privacy (= 7.13.0)
+    - GoogleUtilities/Reachability (= 7.13.0)
+    - GoogleUtilities/SwizzlerTestHelpers (= 7.13.0)
+    - GoogleUtilities/UserDefaults (= 7.13.0)
+  - GoogleUtilities/AppDelegateSwizzler (7.13.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Environment (8.1.0):
+  - GoogleUtilities/Environment (7.13.0):
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.0):
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/ISASwizzler (7.13.0):
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Logger (7.13.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/MethodSwizzler (8.1.0):
+  - GoogleUtilities/MethodSwizzler (7.13.0):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Network (8.1.0):
+  - GoogleUtilities/Network (7.13.0):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Privacy
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (8.1.0)":
+  - "GoogleUtilities/NSData+zlib (7.13.0)":
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.0)
-  - GoogleUtilities/Reachability (8.1.0):
+  - GoogleUtilities/Privacy (7.13.0)
+  - GoogleUtilities/Reachability (7.13.0):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/SwizzlerTestHelpers (8.1.0):
+  - GoogleUtilities/SwizzlerTestHelpers (7.13.0):
     - GoogleUtilities/MethodSwizzler
-  - GoogleUtilities/UserDefaults (8.1.0):
+  - GoogleUtilities/UserDefaults (7.13.0):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - "gRPC-C++ (1.65.5)":
-    - "gRPC-C++/Implementation (= 1.65.5)"
-    - "gRPC-C++/Interface (= 1.65.5)"
-  - "gRPC-C++/Implementation (1.65.5)":
-    - abseil/algorithm/container (~> 1.20240116.2)
-    - abseil/base/base (~> 1.20240116.2)
-    - abseil/base/config (~> 1.20240116.2)
-    - abseil/base/core_headers (~> 1.20240116.2)
-    - abseil/base/log_severity (~> 1.20240116.2)
-    - abseil/base/no_destructor (~> 1.20240116.2)
-    - abseil/cleanup/cleanup (~> 1.20240116.2)
-    - abseil/container/flat_hash_map (~> 1.20240116.2)
-    - abseil/container/flat_hash_set (~> 1.20240116.2)
-    - abseil/container/inlined_vector (~> 1.20240116.2)
-    - abseil/flags/flag (~> 1.20240116.2)
-    - abseil/flags/marshalling (~> 1.20240116.2)
-    - abseil/functional/any_invocable (~> 1.20240116.2)
-    - abseil/functional/bind_front (~> 1.20240116.2)
-    - abseil/functional/function_ref (~> 1.20240116.2)
-    - abseil/hash/hash (~> 1.20240116.2)
-    - abseil/log/absl_check (~> 1.20240116.2)
-    - abseil/log/absl_log (~> 1.20240116.2)
-    - abseil/log/check (~> 1.20240116.2)
-    - abseil/log/globals (~> 1.20240116.2)
-    - abseil/log/log (~> 1.20240116.2)
-    - abseil/memory/memory (~> 1.20240116.2)
-    - abseil/meta/type_traits (~> 1.20240116.2)
-    - abseil/random/bit_gen_ref (~> 1.20240116.2)
-    - abseil/random/distributions (~> 1.20240116.2)
-    - abseil/random/random (~> 1.20240116.2)
-    - abseil/status/status (~> 1.20240116.2)
-    - abseil/status/statusor (~> 1.20240116.2)
-    - abseil/strings/cord (~> 1.20240116.2)
-    - abseil/strings/str_format (~> 1.20240116.2)
-    - abseil/strings/strings (~> 1.20240116.2)
-    - abseil/synchronization/synchronization (~> 1.20240116.2)
-    - abseil/time/time (~> 1.20240116.2)
-    - abseil/types/optional (~> 1.20240116.2)
-    - abseil/types/span (~> 1.20240116.2)
-    - abseil/types/variant (~> 1.20240116.2)
-    - abseil/utility/utility (~> 1.20240116.2)
-    - "gRPC-C++/Interface (= 1.65.5)"
-    - "gRPC-C++/Privacy (= 1.65.5)"
-    - gRPC-Core (= 1.65.5)
-  - "gRPC-C++/Interface (1.65.5)"
-  - "gRPC-C++/Privacy (1.65.5)"
-  - gRPC-Core (1.65.5):
-    - gRPC-Core/Implementation (= 1.65.5)
-    - gRPC-Core/Interface (= 1.65.5)
-  - gRPC-Core/Implementation (1.65.5):
-    - abseil/algorithm/container (~> 1.20240116.2)
-    - abseil/base/base (~> 1.20240116.2)
-    - abseil/base/config (~> 1.20240116.2)
-    - abseil/base/core_headers (~> 1.20240116.2)
-    - abseil/base/log_severity (~> 1.20240116.2)
-    - abseil/base/no_destructor (~> 1.20240116.2)
-    - abseil/cleanup/cleanup (~> 1.20240116.2)
-    - abseil/container/flat_hash_map (~> 1.20240116.2)
-    - abseil/container/flat_hash_set (~> 1.20240116.2)
-    - abseil/container/inlined_vector (~> 1.20240116.2)
-    - abseil/flags/flag (~> 1.20240116.2)
-    - abseil/flags/marshalling (~> 1.20240116.2)
-    - abseil/functional/any_invocable (~> 1.20240116.2)
-    - abseil/functional/bind_front (~> 1.20240116.2)
-    - abseil/functional/function_ref (~> 1.20240116.2)
-    - abseil/hash/hash (~> 1.20240116.2)
-    - abseil/log/check (~> 1.20240116.2)
-    - abseil/log/globals (~> 1.20240116.2)
-    - abseil/log/log (~> 1.20240116.2)
-    - abseil/memory/memory (~> 1.20240116.2)
-    - abseil/meta/type_traits (~> 1.20240116.2)
-    - abseil/random/bit_gen_ref (~> 1.20240116.2)
-    - abseil/random/distributions (~> 1.20240116.2)
-    - abseil/random/random (~> 1.20240116.2)
-    - abseil/status/status (~> 1.20240116.2)
-    - abseil/status/statusor (~> 1.20240116.2)
-    - abseil/strings/cord (~> 1.20240116.2)
-    - abseil/strings/str_format (~> 1.20240116.2)
-    - abseil/strings/strings (~> 1.20240116.2)
-    - abseil/synchronization/synchronization (~> 1.20240116.2)
-    - abseil/time/time (~> 1.20240116.2)
-    - abseil/types/optional (~> 1.20240116.2)
-    - abseil/types/span (~> 1.20240116.2)
-    - abseil/types/variant (~> 1.20240116.2)
-    - abseil/utility/utility (~> 1.20240116.2)
-    - BoringSSL-GRPC (= 0.0.36)
-    - gRPC-Core/Interface (= 1.65.5)
-    - gRPC-Core/Privacy (= 1.65.5)
-  - gRPC-Core/Interface (1.65.5)
-  - gRPC-Core/Privacy (1.65.5)
-  - GTMSessionFetcher/Core (4.4.0)
+  - "gRPC-C++ (1.44.0)":
+    - "gRPC-C++/Implementation (= 1.44.0)"
+    - "gRPC-C++/Interface (= 1.44.0)"
+  - "gRPC-C++/Implementation (1.44.0)":
+    - abseil/base/base (= 1.20211102.0)
+    - abseil/base/core_headers (= 1.20211102.0)
+    - abseil/container/flat_hash_map (= 1.20211102.0)
+    - abseil/container/inlined_vector (= 1.20211102.0)
+    - abseil/functional/bind_front (= 1.20211102.0)
+    - abseil/hash/hash (= 1.20211102.0)
+    - abseil/memory/memory (= 1.20211102.0)
+    - abseil/random/random (= 1.20211102.0)
+    - abseil/status/status (= 1.20211102.0)
+    - abseil/status/statusor (= 1.20211102.0)
+    - abseil/strings/cord (= 1.20211102.0)
+    - abseil/strings/str_format (= 1.20211102.0)
+    - abseil/strings/strings (= 1.20211102.0)
+    - abseil/synchronization/synchronization (= 1.20211102.0)
+    - abseil/time/time (= 1.20211102.0)
+    - abseil/types/optional (= 1.20211102.0)
+    - abseil/types/variant (= 1.20211102.0)
+    - abseil/utility/utility (= 1.20211102.0)
+    - "gRPC-C++/Interface (= 1.44.0)"
+    - gRPC-Core (= 1.44.0)
+  - "gRPC-C++/Interface (1.44.0)"
+  - gRPC-Core (1.44.0):
+    - gRPC-Core/Implementation (= 1.44.0)
+    - gRPC-Core/Interface (= 1.44.0)
+  - gRPC-Core/Implementation (1.44.0):
+    - abseil/base/base (= 1.20211102.0)
+    - abseil/base/core_headers (= 1.20211102.0)
+    - abseil/container/flat_hash_map (= 1.20211102.0)
+    - abseil/container/inlined_vector (= 1.20211102.0)
+    - abseil/functional/bind_front (= 1.20211102.0)
+    - abseil/hash/hash (= 1.20211102.0)
+    - abseil/memory/memory (= 1.20211102.0)
+    - abseil/random/random (= 1.20211102.0)
+    - abseil/status/status (= 1.20211102.0)
+    - abseil/status/statusor (= 1.20211102.0)
+    - abseil/strings/cord (= 1.20211102.0)
+    - abseil/strings/str_format (= 1.20211102.0)
+    - abseil/strings/strings (= 1.20211102.0)
+    - abseil/synchronization/synchronization (= 1.20211102.0)
+    - abseil/time/time (= 1.20211102.0)
+    - abseil/types/optional (= 1.20211102.0)
+    - abseil/types/variant (= 1.20211102.0)
+    - abseil/utility/utility (= 1.20211102.0)
+    - BoringSSL-GRPC (= 0.0.24)
+    - gRPC-Core/Interface (= 1.44.0)
+    - Libuv-gRPC (= 0.0.10)
+  - gRPC-Core/Interface (1.44.0)
+  - GTMSessionFetcher/Core (3.5.0)
   - hermes-engine (0.74.5):
     - hermes-engine/Pre-built (= 0.74.5)
   - hermes-engine/Pre-built (0.74.5)
@@ -1506,6 +909,12 @@ PODS:
     - libavif/core
     - libdav1d (>= 0.6.0)
   - libdav1d (1.2.0)
+  - Libuv-gRPC (0.0.10):
+    - Libuv-gRPC/Implementation (= 0.0.10)
+    - Libuv-gRPC/Interface (= 0.0.10)
+  - Libuv-gRPC/Implementation (0.0.10):
+    - Libuv-gRPC/Interface (= 0.0.10)
+  - Libuv-gRPC/Interface (0.0.10)
   - libwebp (1.5.0):
     - libwebp/demux (= 1.5.0)
     - libwebp/mux (= 1.5.0)
@@ -1518,14 +927,14 @@ PODS:
   - libwebp/sharpyuv (1.5.0)
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
-  - MMKV (2.2.1):
-    - MMKVCore (~> 2.2.1)
-  - MMKVCore (2.2.1)
-  - nanopb (3.30910.0):
-    - nanopb/decode (= 3.30910.0)
-    - nanopb/encode (= 3.30910.0)
-  - nanopb/decode (3.30910.0)
-  - nanopb/encode (3.30910.0)
+  - MMKV (2.2.2):
+    - MMKVCore (~> 2.2.2)
+  - MMKVCore (2.2.2)
+  - nanopb (2.30909.1):
+    - nanopb/decode (= 2.30909.1)
+    - nanopb/encode (= 2.30909.1)
+  - nanopb/decode (2.30909.1)
+  - nanopb/encode (2.30909.1)
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
@@ -2503,7 +1912,7 @@ PODS:
     - Yoga
   - react-native-safe-area-context (4.10.5):
     - React-Core
-  - react-native-tcp-socket (6.2.0):
+  - react-native-tcp-socket (6.3.0):
     - CocoaAsyncSocket
     - React-Core
   - react-native-view-shot (3.8.0):
@@ -2760,22 +2169,21 @@ PODS:
     - React-utils (= 0.74.5)
   - ReactNativeAvoidSoftinput (4.0.2):
     - React-Core
-  - RecaptchaInterop (100.0.0)
-  - RNFBApp (21.2.0):
-    - Firebase/CoreOnly (<= 11.4.0)
+  - RNFBApp (17.5.0):
+    - Firebase/CoreOnly (= 10.7.0)
     - React-Core
-  - RNFBAuth (21.2.0):
-    - Firebase/Auth (<= 11.4.0)
-    - React-Core
-    - RNFBApp
-  - RNFBCrashlytics (21.2.0):
-    - Firebase/Crashlytics (<= 11.4.0)
-    - FirebaseCoreExtension (<= 11.4.0)
+  - RNFBAuth (17.5.0):
+    - Firebase/Auth (= 10.7.0)
     - React-Core
     - RNFBApp
-  - RNFBMessaging (21.2.0):
-    - Firebase/Messaging (<= 11.4.0)
-    - FirebaseCoreExtension (<= 11.4.0)
+  - RNFBCrashlytics (17.5.0):
+    - Firebase/Crashlytics (= 10.7.0)
+    - FirebaseCoreExtension (= 10.7.0)
+    - React-Core
+    - RNFBApp
+  - RNFBMessaging (17.5.0):
+    - Firebase/Messaging (= 10.7.0)
+    - FirebaseCoreExtension (= 10.7.0)
     - React-Core
     - RNFBApp
   - RNGestureHandler (2.16.2):
@@ -2820,7 +2228,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.34.0):
+  - RNScreens (3.37.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2842,7 +2250,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.10.1):
+  - RNSVG (15.12.0):
     - React-Core
   - SDWebImage (5.19.7):
     - SDWebImage/Core (= 5.19.7)
@@ -2893,18 +2301,18 @@ DEPENDENCIES:
   - EXUpdates (from `../node_modules/expo-updates/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
-  - FirebaseAppCheckInterop
-  - FirebaseAuth
-  - FirebaseAuthInterop
-  - FirebaseCore
-  - FirebaseCoreInternal
-  - FirebaseCrashlytics
-  - FirebaseFirestore
-  - FirebaseMessaging
-  - FirebaseMessagingInterop
+  - FirebaseAppCheckInterop (= 10.7.0)
+  - FirebaseAuth (= 10.7.0)
+  - FirebaseAuthInterop (= 10.7.0)
+  - FirebaseCore (= 10.7.0)
+  - FirebaseCoreInternal (= 10.7.0)
+  - FirebaseCrashlytics (= 10.7.0)
+  - FirebaseFirestore (= 10.7.0)
+  - FirebaseMessaging (= 10.7.0)
+  - FirebaseMessagingInterop (= 10.7.0)
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - GoogleUtilities
+  - GoogleUtilities (= 7.13.0)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -2986,13 +2394,10 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseCrashlytics
     - FirebaseFirestore
-    - FirebaseFirestoreInternal
     - FirebaseInstallations
     - FirebaseMessaging
     - FirebaseMessagingInterop
-    - FirebaseRemoteConfigInterop
     - FirebaseSessions
-    - FirebaseSharedSwift
     - GoogleDataTransport
     - GoogleUtilities
     - "gRPC-C++"
@@ -3001,6 +2406,7 @@ SPEC REPOS:
     - leveldb-library
     - libavif
     - libdav1d
+    - Libuv-gRPC
     - libwebp
     - MMKV
     - MMKVCore
@@ -3008,7 +2414,6 @@ SPEC REPOS:
     - PromisesObjC
     - PromisesSwift
     - ReachabilitySwift
-    - RecaptchaInterop
     - SDWebImage
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
@@ -3205,9 +2610,9 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
+  abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  BoringSSL-GRPC: ca6a8e5d04812fce8ffd6437810c2d46f925eaeb
+  BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   EASClient: 95592393d6d1e60609f0afb373191d918c687b98
@@ -3216,55 +2621,53 @@ SPEC CHECKSUMS:
   EXImageLoader: 1fe96c70cdc78bedc985ec4b1fab5dd8e67dc38b
   EXJSONUtils: 30c17fd9cc364d722c0946a550dfbf1be92ef6a4
   EXManifests: ebb7f551c340c0d06f3ecd9ae662e418bf68417c
-  EXNotifications: 4832d63d2f2435f99dfc8dbb182f1f31d5b8b1c4
-  Expo: 93eccc289186d4ee2ea716657040a92c3e93c36d
+  EXNotifications: 6ce128c0d3d3d161cd68bfd07d593db40e140396
+  Expo: ed0a748eb6be0efd2c3df7f6de3f3158a14464c9
   ExpoAsset: 286fee7ba711ce66bf20b315e68106b13b8629fc
   ExpoCamera: cf49d2d121a9f883be0f98dde15a2185a1dd42be
   ExpoDevice: 84b3ed79df1234c17edfbf335f6ecf3c636f74de
   ExpoFileSystem: 2988caaf68b7cb706e36d382829d99811d9d76a5
   ExpoFont: 38dddf823e32740c2a9f37c926a33aeca736b5c4
-  ExpoHead: 37970100b038694465cc39044cf23f3d1f56fade
+  ExpoHead: 1a1b30c6c1d125e9b8a199ca305c16a1dc041624
   ExpoImage: c2cc25b50fc9e8f49bc6ce0405cf6a61e584d090
   ExpoImageManipulator: eb92d3ac4bad0fe96258f17273b9e295e87447be
   ExpoKeepAwake: dd02e65d49f1cfd9194640028ae2857e536eb1c9
-  ExpoModulesCore: cff754cb93fcfa41d2665c50751257ded64cc080
+  ExpoModulesCore: c11bcbf466b123a92eb66ab2ae9e0eaef61b7e97
   ExpoNetwork: 3406d873b73ca189fd41c51dff9a1c8625771260
-  EXSplashScreen: ef80a68c7a3cb558ada862de6dab5120bf3a5b7a
+  EXSplashScreen: 02d4bb2d7a6b05b4434126e01ee2e6872088f4ae
   EXStructuredHeaders: cb8d1f698e144f4c5547b4c4963e1552f5d2b457
-  EXUpdates: 97518481c0357c377a301474fe7c16fb4712e668
+  EXUpdates: bb1b0790e3b2adfbb193ad6a51c567a4bd2adf9f
   EXUpdatesInterface: c3a9494c2173db6442c7d5ad4e5b984972760fd3
   FBLazyVector: ac12dc084d1c8ec4cc4d7b3cf1b0ebda6dab85af
-  Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
-  FirebaseAppCheckInterop: 73b173e5ec45192e2d522ad43f526a82ad10b852
-  FirebaseAuth: c359af98bd703cbf4293eec107a40de08ede6ce6
-  FirebaseAuthInterop: b583210c039a60ed3f1e48865e1f3da44a796595
-  FirebaseCore: e0510f1523bc0eb21653cac00792e1e2bd6f1771
-  FirebaseCoreExtension: 4445e4cd877e0790c4af33bedca61eaef27b7513
-  FirebaseCoreInternal: 480d23e21f699cc7bcbc3d8eaa301f15d1e3ffaf
-  FirebaseCrashlytics: 41bbdd2b514a8523cede0c217aee6ef7ecf38401
-  FirebaseFirestore: 2ccdf893fd7e175aa8ec58faa06338b346d27db8
-  FirebaseFirestoreInternal: 004452c4669d5df8869c9f8f7a24ee0009852d5b
-  FirebaseInstallations: 6ef4a1c7eb2a61ee1f74727d7f6ce2e72acf1414
-  FirebaseMessaging: f8a160d99c2c2e5babbbcc90c4a3e15db036aee2
-  FirebaseMessagingInterop: f4ed7b2d66b89b53fd7982b9317e403691dbd978
-  FirebaseRemoteConfigInterop: 82b81fd06ee550cbeff40004e2c106daedf73e38
-  FirebaseSessions: 3f56f177d9e53a85021d16b31f9a111849d1dd8b
-  FirebaseSharedSwift: d2475748a2d2a36242ed13baa34b2acda846c925
+  Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
+  FirebaseAppCheckInterop: 8e907eea79958960a8bd2058e067f31e03a7914b
+  FirebaseAuth: dd64c01631df724b09f33e584625775c52f7d71f
+  FirebaseAuthInterop: 46201190fe90ef1f581513eb0f9fa3d7820e7d6d
+  FirebaseCore: e317665b9d744727a97e623edbbed009320afdd7
+  FirebaseCoreExtension: f17247ba8c61e4d3c8d136b5e2de3cb4ac6a85b6
+  FirebaseCoreInternal: 8845798510aae74703467480f71ac613788d0696
+  FirebaseCrashlytics: 35fdd1a433b31e28adcf5c8933f4c526691a1e0b
+  FirebaseFirestore: 3963a6edd1c84b4748dab3e2c62624a29d03eca1
+  FirebaseInstallations: 913cf60d0400ebd5d6b63a28b290372ab44590dd
+  FirebaseMessaging: ac9062bcc35ed56e15a0241d8fd317022499baf8
+  FirebaseMessagingInterop: c49e2766f4059ea4ef9e7c7764ed741a14aaeded
+  FirebaseSessions: dbd14adac65ce996228652c1fc3a3f576bdf3ecc
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
-  GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
-  "gRPC-C++": 2fa52b3141e7789a28a737f251e0c45b4cb20a87
-  gRPC-Core: a27c294d6149e1c39a7d173527119cfbc3375ce4
-  GTMSessionFetcher: 75b671f9e551e4c49153d4c4f8659ef4f559b970
+  GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
+  GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
+  "gRPC-C++": 9675f953ace2b3de7c506039d77be1f2e77a8db2
+  gRPC-Core: 943e491cb0d45598b0b0eb9e910c88080369290b
+  GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 8c1577f3fdb849cbe7729c2e7b5abc4b845e88f8
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
+  Libuv-gRPC: 55e51798e14ef436ad9bc45d12d43b77b49df378
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  MMKV: 383ccfa10ae23ff2a9c0f6130b7136b37b55ac10
-  MMKVCore: b0e4c420da85636d7adaa535a53dfade59a22f5c
-  nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  MMKV: b4802ebd5a7c68fc0c4a5ccb4926fbdfb62d68e0
+  MMKVCore: a255341a3746955f50da2ad9121b18cb2b346e61
+  nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RCT-Folly: 5dc73daec3476616d19e8a53f0156176f7b55461
@@ -3295,7 +2698,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 8e0eee3463521800cbf40016f2137c694efeaff8
   react-native-mmkv: cbb7cc0f2479caa4d2f5e5a0951b3acb28bec375
   react-native-safe-area-context: df9763c5de6fa38883028e243a0b60123acb8858
-  react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
+  react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-view-shot: d1a701eb0719c6dccbd20b4bb43b1069f304cb70
   react-native-webview: f246abd8b2fa884686628a64e791579e66e09d0c
   React-nativeconfig: f326487bc61eba3f0e328da6efb2711533dcac46
@@ -3322,15 +2725,14 @@ SPEC CHECKSUMS:
   React-utils: 3c4b8677afc614f15357ad66fcc3e61bc21a42db
   ReactCommon: cfb89afbdafafbf049c719db9cb61ac4d38af434
   ReactNativeAvoidSoftinput: fbd41ddcc102ce097b50589189578ef52bcf80fc
-  RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
-  RNFBApp: 598b2df8ff9014bdd6ebc33a531947629196d576
-  RNFBAuth: c53c1fdadc3ddcb8d673552fd8dd0a1082bee5c4
-  RNFBCrashlytics: 513ee02a1e6c1224f35081ee035ab12951acf5a8
-  RNFBMessaging: 3323183f2b06939d4abd4dd76299b2b08dae453c
+  RNFBApp: c5526741c2ee14bd3ab6d57bf8e42be8314bca2f
+  RNFBAuth: 9833fcbff61619985781c5590fc08ef4a188d8f8
+  RNFBCrashlytics: 5b736cde5e5b83b28d083968dd0424baea3f904b
+  RNFBMessaging: c05a432d82a2aa730161e62c56b2a53ca3b412f5
   RNGestureHandler: 5d95b0a3cffed8325ed0c181f4f411c1dcd49317
   RNReanimated: b9567ee5ee4e2a5c75d0a385fd4d8d86f5563764
-  RNScreens: fcbb53e181aa978016abbb9012439364d4bdda05
-  RNSVG: 3421710ac15f4f2dc47e5c122f2c2e4282116830
+  RNScreens: 9ffe14a19aa4fecfe49ead4cfea952cba63e02f5
+  RNSVG: ff728783849deecdeb6a270ab35e9cb1db3cbe0f
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
@@ -3340,6 +2742,6 @@ SPEC CHECKSUMS:
   Yoga: 33622183a85805e12703cd618b2c16bfd18bfffb
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 0365bfc1210affcbf6679c9cf9c30199db207096
+PODFILE CHECKSUM: 54760cf09ff15509c4c35f170b5d99170aed9b59
 
 COCOAPODS: 1.16.2
