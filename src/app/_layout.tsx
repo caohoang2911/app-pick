@@ -32,6 +32,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
+import { Button } from 'react-native';
+import { router } from 'expo-router';
 
 const VERSION = '1.0.41';
 
@@ -132,6 +134,7 @@ function RootLayoutNav() {
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        
       </Stack>
     </Providers>
   );
@@ -176,6 +179,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   <NetworkStatus />
                   {loading && <Loading />}
                   {children}
+                  
                   <AlertDialog />
                 </SafeAreaView>
                 <AlertDialog />

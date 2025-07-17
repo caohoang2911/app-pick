@@ -17,10 +17,12 @@ import {
 import { Badge } from '../Badge';
 import SBottomSheet from '../SBottomSheet';
 import EmployeeSelection from '../shared/EmployeeSelection';
+import CallButton from '../shared/CallButton';
 import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
 import { queryClient } from '~/src/api/shared/api-provider';
 import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 import { OrderStatusValue } from '~/src/types/order';
+import { formatPhoneForDisplay } from '~/src/core/utils/phone';
 
 type Action = {
   key: string;
@@ -143,16 +145,34 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
             <Text numberOfLines={1} ellipsizeMode='tail'  >
               <Text className='text-gray-500'>KH </Text>{name}
             </Text>
+            {phone && (
+              <Text className='text-gray-400 text-sm'>
+                {formatPhoneForDisplay(phone)}
+              </Text>
+            )}
             {rank && <Badge label={rank} />}
           </View>
           <View className='flex flex-row gap-2 items-center'>
-            <Pressable onPress={() => {
-              Linking.openURL(`tel:${phone}`);
-            }}>
-              <View className='bg-blue-50 rounded-full p-3'>
-                <Feather name="phone-call" size={16} color="black" />
-              </View>
-            </Pressable>
+            {phone && (
+              <CallButton
+                phoneNumber={"0989633508"}
+                size="small"
+                variant="primary"
+                onCallStart={() => {
+                  actionRef.current?.dismiss();
+                  console.log('Call started to:', phone);
+                }}
+                onCallEnd={() => {
+                  console.log('Call ended');
+                }}
+                onError={(error) => {
+                  showMessage({
+                    message: error,
+                    type: 'danger',
+                  });
+                }}
+              />
+            )}
           </View>
         </View>
       );

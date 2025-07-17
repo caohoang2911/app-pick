@@ -1,0 +1,20 @@
+diff --git a/node_modules/stringee-react-native-v2/src/StringeeVideoView.js b/node_modules/stringee-react-native-v2/src/StringeeVideoView.js
+index c2db0dd..8466572 100644
+--- a/node_modules/stringee-react-native-v2/src/StringeeVideoView.js
++++ b/node_modules/stringee-react-native-v2/src/StringeeVideoView.js
+@@ -7,9 +7,14 @@ import {
+   View,
+ } from 'react-native';
+ import React, {Component} from 'react';
+-import {StringeeVideoScalingType, StringeeVideoTrack} from '../index';
++import { StringeeVideoTrack} from '../index';
+ import {isIOS} from './helpers/StringeeHelper';
+ 
++const StringeeVideoScalingType = {
++  fit: 'fit',
++  fill: 'fill',
++};
++
+ class StringeeVideoView extends Component {
+   uuid: string;
+   local: boolean;

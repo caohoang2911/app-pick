@@ -2,8 +2,9 @@ import Container from '@/components/Container';
 import { useRefreshOnFocus } from '@/core/hooks/useRefreshOnFocus';
 import { setDeliveryType, setFromScanQrCode, setKeyWord, setOperationType, setSelectedOrderCounter, toggleScanQrCode, useOrders } from '@/core/store/orders';
 import { BarcodeScanningResult } from 'expo-camera';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import React, { useCallback, useEffect } from 'react';
+import { Button } from 'react-native';
 import Header from '~/src/components/orders/header';
 import OrderList from '~/src/components/orders/order-list';
 import ScannerBox from '~/src/components/shared/ScannerBox';
@@ -41,6 +42,12 @@ const Orders = () => {
   return (
     <>
       <Container>
+      <Button
+                    title="Stringee"
+                    onPress={() => {
+                      router.push('/stringee');
+                    }}
+                  />
         <OrderList />
       </Container>
       <ScannerBox
