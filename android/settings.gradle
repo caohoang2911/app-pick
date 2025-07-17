@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'App Pick'
+rootProject.name = 'App Pick Dev'
 
 dependencyResolutionManagement {
   versionCatalogs {
