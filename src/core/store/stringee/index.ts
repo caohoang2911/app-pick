@@ -9,9 +9,11 @@ interface CallState {
   isVideoEnabled: boolean;
   isAudioEnabled: boolean;
   remoteUserId: string;
-  signalingCode: number | null;
+  signalingCode: string | null;
   mediaCode: number | null;
   isCallAnswered: boolean;
+  isCallEnded: boolean;
+  customerName: string;
 }
 
 interface StringeeStore {
@@ -20,22 +22,21 @@ interface StringeeStore {
   callRef: any | null;
   
   // Actions
-  setCallState: (state: Partial<CallState>) => void;
   setCallRef: (callRef: any) => void;
-  startCall: (phoneNumber: string, callId: string) => void;
+  startCall: (phoneNumber: string, customerName: string, callId: string) => void;
   endCall: () => void;
   updateCallStatus: (status: string) => void;
-  updateSignalingCode: (code: number) => void;
+  updateSignalingCode: (signalingState: string) => void;
   updateMediaCode: (code: number) => void;
   toggleVideo: () => void;
   toggleAudio: () => void;
-  resetCallState: () => void;
 }
 
 const initialState: CallState = {
   isInCall: false,
   callStatus: '',
   phoneNumber: '',
+  customerName: '',
   callId: null,
   isVideoEnabled: true,
   isAudioEnabled: true,
@@ -43,28 +44,24 @@ const initialState: CallState = {
   signalingCode: null,
   mediaCode: null,
   isCallAnswered: false,
+  isCallEnded: false,
 };
 
 export const useStringeeStore = create<StringeeStore>((set, get) => ({
   callState: initialState,
   callRef: null,
   
-  setCallState: (newState) => {
-    set((state) => ({
-      callState: { ...state.callState, ...newState }
-    }));
-  },
-  
   setCallRef: (callRef) => {
     set({ callRef });
   },
   
-  startCall: (phoneNumber, callId) => {
+  startCall: (phoneNumber, customerName, callId) => {
     set((state) => ({
       callState: {
         ...state.callState,
         isInCall: true,
         phoneNumber,
+        customerName: customerName || '',
         callId,
         callStatus: 'Calling...',
         isVideoEnabled: true,
@@ -109,13 +106,14 @@ export const useStringeeStore = create<StringeeStore>((set, get) => ({
     }));
   },
 
-  updateSignalingCode: (code: number) => {
+  updateSignalingCode: (signalingState: string) => {
     set((state) => ({
       callState: {
         ...state.callState,
-        signalingCode: code,
-        isCallAnswered: code === 2, // code 2 = Answered
-        callStatus: code === 2 ? 'Call answered' : state.callState.callStatus,
+        signalingCode: signalingState,
+        isCallAnswered: signalingState === 'answered', // code 2 = Answered
+        isCallEnded: signalingState === 'ended',
+        callStatus: signalingState,
       }
     }));
   },
@@ -170,7 +168,4 @@ export const useStringeeStore = create<StringeeStore>((set, get) => ({
     }));
   },
   
-  resetCallState: () => {
-    set({ callState: initialState, callRef: null });
-  },
 })); 

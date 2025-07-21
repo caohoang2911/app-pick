@@ -155,7 +155,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           <View className='flex flex-row gap-2 items-center'>
             {phone && (
               <CallButton
-                phoneNumber={"0989633508"}
+                phoneNumber={phone}
+                name={name}
                 size="small"
                 variant="primary"
                 onCallStart={() => {

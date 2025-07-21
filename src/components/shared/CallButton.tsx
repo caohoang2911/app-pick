@@ -11,7 +11,7 @@ import {
 import { useStringeeStore } from '~/src/core/store/stringee';
 import { formatPhoneTo84, isValidPhoneNumber } from '~/src/core/utils/phone';
 
-const TOKEN = 'eyJjdHkiOiJzdHJpbmdlZS1hcGk7dj0xIiwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJTSy4wLm02NlJlTWdDVnlzYWpyVWY4QkJXNTh4QkRrNDlCM0ItMTc1Mjc1NjM4OCIsImlzcyI6IlNLLjAubTY2UmVNZ0NWeXNhanJVZjhCQlc1OHhCRGs0OUIzQiIsImV4cCI6MTc1NTM0ODM4OCwidXNlcklkIjoic2VlZGNvbSJ9.5V0c6uEIXzBMYoG5B_BXyDSmp2Gat8-_DViHbgx2ylM'
+const TOKEN = 'eyJjdHkiOiJzdHJpbmdlZS1hcGk7dj0xIiwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJqdGkiOiJTSy4wLm02NlJlTWdDVnlzYWpyVWY4QkJXNTh4QkRrNDlCM0ItMTc1MjkzODU5MyIsImlzcyI6IlNLLjAubTY2UmVNZ0NWeXNhanJVZjhCQlc1OHhCRGs0OUIzQiIsImV4cCI6MTc1NTUzMDU5MywidXNlcklkIjoic2VlZGNvbSIsImljY19hcGkiOnRydWV9.gA8Uk08SU9ZmOyq36y-Zn_CCUHAl1AoQ0wYednNTejk'
 
 interface CallButtonProps {
   phoneNumber: string;
@@ -22,12 +22,13 @@ interface CallButtonProps {
   onCallEnd?: () => void;
   onError?: (error: string) => void;
   className?: string;
+  name?: string;
 }
 
 const CallButton: React.FC<CallButtonProps> = ({
   phoneNumber,
   size = 'medium',
-  variant = 'primary',
+  name: customerName = '',
   disabled = false,
   onCallStart,
   onCallEnd,
@@ -39,7 +40,9 @@ const CallButton: React.FC<CallButtonProps> = ({
   const pathname = usePathname();
 
   const stringeeClientRef = useRef<StringeeClient | null>(null);
+  const listenerRef = useRef<any>(null);
   const callRef = useRef<any | null>(null);
+
   
   const { startCall, endCall, updateCallStatus, updateSignalingCode, updateMediaCode, setCallRef } = useStringeeStore();
 
@@ -67,33 +70,33 @@ const CallButton: React.FC<CallButtonProps> = ({
       const client = new StringeeClient();
       stringeeClientRef.current = client;
 
-      const listener = new StringeeClientListener();
-      listener.onConnect = (client, userId) => {
+      listenerRef.current = new StringeeClientListener();
+      listenerRef.current.onConnect = (client, userId) => {
         console.log('✅ Connected to Stringee:', userId);
         setIsConnected(true);
         setIsConnecting(false);
       };
-      listener.onDisConnect = () => {
+      listenerRef.current.onDisConnect = () => {
         console.log('🔌 Disconnected from Stringee');
         setIsConnected(false);
         setIsConnecting(false);
         endCall();
       };
-      listener.onFailWithError = (client, code, message) => {
+      listenerRef.current.onFailWithError = (client, code, message) => {
         console.log('❌ Stringee connection failed:', code, message);
         setIsConnected(false);
         setIsConnecting(false);
         const errorMsg = 'Kết nối Stringee thất bại: ' + message;
         onError?.(errorMsg);
       };
-      listener.onRequestAccessToken = () => {
+      listenerRef.current.onRequestAccessToken = () => {
         console.log('🔄 Token expired, need to refresh');
         setIsConnected(false);
         const errorMsg = 'Token đã hết hạn, vui lòng thử lại';
         onError?.(errorMsg);
       };
 
-      client.setListener(listener);
+      client.setListener(listenerRef.current);
 
       console.log('🔄 Connecting to Stringee...');
       setIsConnecting(true);
@@ -146,9 +149,6 @@ const CallButton: React.FC<CallButtonProps> = ({
       const errorMsg = 'Client chưa kết nối';
       onError?.(errorMsg);
       // Only back if currently on stringee screen
-      if (pathname === '/stringee') {
-        router.back();
-      }
       return;
     }
 
@@ -156,9 +156,7 @@ const CallButton: React.FC<CallButtonProps> = ({
       const errorMsg = 'Vui lòng nhập số điện thoại';
       onError?.(errorMsg);
       // Only back if currently on stringee screen
-      if (pathname === '/stringee') {
-        router.back();
-      }
+     
       return;
     }
 
@@ -166,9 +164,7 @@ const CallButton: React.FC<CallButtonProps> = ({
       const errorMsg = 'Số điện thoại không hợp lệ';
       onError?.(errorMsg);
       // Only back if currently on stringee screen
-      if (pathname === '/stringee') {
-        router.back();
-      }
+     
       return;
     }
 
@@ -185,10 +181,12 @@ const CallButton: React.FC<CallButtonProps> = ({
       });
       
       call.isVideoCall = false;
+      // call.icc_api = true;
+
       
       // Add event listeners
-      call.onSignalingStateChange = (call: any, signalingState: any, reason: any, sipCode: any, sipReason: any) => {
-        console.log('📞 SignalingStateChange:', signalingState, reason);
+      listenerRef.current.onChangeSignalingState = (call: any, signalingState: any, reason: any, sipCode: any, sipReason: any) => {
+        console.log('📞 SignalingStateChange:', signalingState);
         
         // Các trạng thái code quan trọng:
         // 0: Calling
@@ -199,15 +197,15 @@ const CallButton: React.FC<CallButtonProps> = ({
         
         updateSignalingCode(signalingState);
 
-        alert(signalingState)
+   
         
         if (signalingState === 2) {
           console.log('✅ Call has been answered');
         }
       };
 
-      call.onMediaStateChange = (call: any, mediaState: any) => {
-        console.log('🎙️ MediaStateChange:', mediaState);
+      listenerRef.current.onChangeMediaState = (call: any, mediaState: any) => {
+        console.log('🎙️ MediaStateChange:', mediaState, "onChangeMediaState");
         // code === 0: Disconnected
         // code === 1: Connected
         updateMediaCode(mediaState);
@@ -217,33 +215,50 @@ const CallButton: React.FC<CallButtonProps> = ({
         }
       };
 
-      call.onLocalStream = (call: any) => {
-        console.log('📞 Local stream ready');
+      listenerRef.current.onReceiveLocalStream = (call: any) => {
+        console.log('📞 Local stream ready', "onReceiveLocalStream");
         updateCallStatus('Local stream ready');
       };
 
-      call.onRemoteStream = (call: any) => {
-        console.log('📞 Remote stream ready');
+      listenerRef.current.onReceiveRemoteStream = (call: any) => {
+        console.log('📞 Remote stream ready', "onReceiveRemoteStream");
         updateCallStatus('Remote stream ready');
       };
 
-      call.onCallInfo = (call: any, callInfo: any) => {
+      listenerRef.current.onReceiveCallInfo = (call: any, callInfo: any) => {
         console.log('📞 Call info:', callInfo);
+        console.log('onReceiveCallInfo');
         updateCallStatus('Call connected');
       };
 
-      call.onCallEnd = (call: any) => {
-        console.log('📞 Call ended');
+      listenerRef.current.onReceiveCallInfo = (call: any) => {
+        console.log('📞 Call onReceiveCallInfo');
         updateCallStatus('Call ended');
         endCall();
         onCallEnd?.();
       };
 
+      listenerRef.current.onHandleOnAnotherDevice = (call: any) => {
+        console.log('📞 Call onHandleOnAnotherDevice');
+        updateCallStatus('Call ended');
+        endCall();
+        onCallEnd?.();
+      };
+
+      listenerRef.current.onAudioDeviceChange = (call: any) => {
+        console.log('📞 Call onAudioDeviceChange');
+        updateCallStatus('Call ended');
+        endCall();
+        onCallEnd?.();
+      };
+
+      call.setListener(listenerRef.current);
+
       const callId = await call.makeCall();
       // Push router to /stringee immediately after starting the call
       router.push('/stringee');
 
-      startCall(formattedNumber, callId);
+      startCall(formattedNumber, customerName || '', callId);
       callRef.current = call;
       setCallRef(call); // Store callRef for use in stringee.tsx
       updateCallStatus('Calling...');
@@ -255,9 +270,7 @@ const CallButton: React.FC<CallButtonProps> = ({
       onError?.(errorMsg);
       updateCallStatus('Call failed');
       // Only back if currently on stringee screen
-      if (pathname === '/stringee') {
-        router.back();
-      }
+     
     }
   };
 
@@ -303,20 +316,9 @@ const CallButton: React.FC<CallButtonProps> = ({
   };
 
   const getGradientColors = () => {
-    const { callState } = useStringeeStore();
-    if (callState.isInCall) {
-      return ['#FF5722', '#F44336']; // Red gradient for hang up
-    }
-    
-    switch (variant) {
-      case 'secondary':
-        return ['#2196F3', '#1976D2'];
-      case 'danger':
-        return ['#FF5722', '#F44336'];
-      default:
-        return ['#4CAF50', '#45a049'];
-    }
-  };
+    return ['#4CAF50', '#45a049'];
+  }
+
 
   const isButtonDisabled = disabled || !isConnected || isConnecting;
 

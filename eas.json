@@ -8,7 +8,7 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
-        "distribution": "internal",
+        "distribution": "store",
         "image": "macos-sonoma-14.6-xcode-16.1",
         "resourceClass": "m-medium",
         "prebuildCommand": "./ios/prebuild.sh",
@@ -18,20 +18,6 @@
         }
       },
       "channel": "development"
-    },
-    "testflight": {
-      "autoIncrement": true,
-      "developmentClient": false,
-      "ios": {
-        "distribution": "store",
-        "image": "macos-sonoma-14.6-xcode-16.1",
-        "resourceClass": "m-medium",
-        "prebuildCommand": "./ios/prebuild.sh",
-        "env": {
-          "COCOAPODS_VERSION": "1.16.2"
-        }
-      },
-      "channel": "testflight"
     },
     "production": {
       "autoIncrement": true,
@@ -53,17 +39,17 @@
     }
   },
   "submit": {
+    "development": {
+      "ios": {
+        "appleId": "hongchanphat@gmail.com",
+        "ascAppId": "6736770571",
+        "appleTeamId": "4DT5296LMZ"
+      }
+    },
     "production": {
       "ios": {
         "appleId": "hongchanphat@gmail.com",
         "ascAppId": "6680199998",
-        "appleTeamId": "4DT5296LMZ"
-      }
-    },
-    "testflight": {
-      "ios": {
-        "appleId": "hongchanphat@gmail.com",
-        "ascAppId": "6736770571",
         "appleTeamId": "4DT5296LMZ"
       }
     }

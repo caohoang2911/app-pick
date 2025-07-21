@@ -45,7 +45,7 @@ const handleAuthError = (message: string) => {
 };
 
 export const axiosClient = axios.create({
-  baseURL: "https://oms-api.seedcom.vn/",
+  baseURL: "https://oms-api-dev.seedcom.vn/",
   headers: {
     accept: 'application/json',
   },

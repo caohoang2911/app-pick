@@ -134,6 +134,7 @@ function RootLayoutNav() {
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="stringee" options={{ headerShown: false }} />
         
       </Stack>
     </Providers>

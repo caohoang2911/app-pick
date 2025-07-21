@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { router } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useStringeeStore } from '~/src/core/store/stringee';
+import { showMessage } from 'react-native-flash-message';
 
 const { width, height } = Dimensions.get('window');
 
@@ -11,15 +12,17 @@ export default function StringeeInCall() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const {
-    callState: { isInCall, callStatus, phoneNumber, isAudioEnabled, isCallAnswered, signalingCode, mediaCode },
+    callState: { isInCall, callStatus, phoneNumber, isAudioEnabled, isCallAnswered, isCallEnded, signalingCode, mediaCode, customerName },
     endCall,
     toggleAudio,
   } = useStringeeStore();
+  
+
 
   // Start countdown timer when call is actually answered (signalingCode === 2)
   useEffect(() => {
     // Only start countdown when call is actually answered
-    const shouldStartCountdown = isInCall && isCallAnswered;
+    const shouldStartCountdown = isCallAnswered;
 
     if (shouldStartCountdown) {
       if (!intervalRef.current) {
@@ -44,6 +47,16 @@ export default function StringeeInCall() {
       }
     };
   }, [isInCall, isCallAnswered]);
+
+  useEffect(() => {
+    if (isCallEnded) {
+      router.back();
+      showMessage({
+        type: 'danger',
+        message: 'Cuộc gọi đã kết thúc',
+      });
+    }
+  }, [isCallEnded]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -75,21 +88,24 @@ export default function StringeeInCall() {
 
       {/* Call Info */}
       <View style={styles.callInfoSection}>
-        <Text style={styles.callDuration}>
-          {isCallAnswered ? formatTime(callDuration) : '00:00'}
-        </Text>
+        <Text style={styles.callerName}>{customerName}</Text>
+        {isCallAnswered && (
+          <Text style={styles.callDuration}>
+            {formatTime(callDuration)}
+          </Text>
+        )}
         <Text style={styles.callerName}>{phoneNumber}</Text>
-        {callStatus && !isCallAnswered && (
+        {/* {callStatus && !isCallAnswered && (
           <Text style={styles.callStatusText}>{callStatus}</Text>
         )}
         
-        {/* Debug Info */}
+
         <Text style={styles.debugText}>Debug: isInCall = {String(isInCall)}</Text>
         <Text style={styles.debugText}>Debug: callStatus = {callStatus}</Text>
         <Text style={styles.debugText}>Debug: isAudioEnabled = {String(isAudioEnabled)}</Text>
         <Text style={styles.debugText}>Debug: isCallAnswered = {String(isCallAnswered)}</Text>
         <Text style={styles.debugText}>Debug: signalingCode = {signalingCode}</Text>
-        <Text style={styles.debugText}>Debug: mediaCode = {mediaCode}</Text>
+        <Text style={styles.debugText}>Debug: mediaCode = {mediaCode}</Text> */}
       </View>
 
       {/* Call Controls */}
