@@ -11,7 +11,6 @@ import { Switch } from '~/src/components/Switch';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
-import { checkPermissionAndSend, confirmAndSendNotification } from '~/src/core/utils/notificationSender';
 
 const Settings = () => {
   const { data } = useGetSettingQuery();

@@ -13,7 +13,7 @@ import { checkNotificationPermission } from '~/src/core/utils/notificationPermis
 const Orders = () => {
   const navigation = useNavigation();
   const isScanQrCode = useOrders.use.isScanQrCode();
-  
+
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -22,6 +22,8 @@ const Orders = () => {
   }, []);
 
   useRefreshOnFocus(async () => {});
+
+  // Check for invite action in query parameters]);
 
   const handleSuccessBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
     setKeyWord(result?.data || '');

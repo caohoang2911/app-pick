@@ -1,4 +1,10 @@
-type Role = 'ADMIN' | 'STORE';
+export enum Role {
+  ADMIN = 'ADMIN',
+  STORE = 'STORE',
+  STORE_MANAGER = 'STORE_MANAGER',
+  INTERNAL_SHIPPER = 'INTERNAL_SHIPPER'
+}
+
 
 export type Employee = {
   employeeId?: string;

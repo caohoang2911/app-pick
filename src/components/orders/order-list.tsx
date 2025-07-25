@@ -1,22 +1,21 @@
 import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef, memo, useState } from 'react';
-import { ActivityIndicator, Text, View, Platform, ToastAndroid } from 'react-native';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import {
   FlatList,
   RefreshControl
 } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
+import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
 import { setUser, useAuth } from '~/src/core';
+import { removeItem } from '~/src/core/storage';
+import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
+import { setLoading } from '~/src/core/store/loading';
 import { setFromScanQrCode, useOrders } from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
 import OrderItem from './order-item';
-import { setUserInfo } from '~/src/core/store/auth/utils';
-import { setToken } from '~/src/core/store/auth/utils';
-import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
-import { removeItem } from '~/src/core/storage';
-import { setLoading } from '~/src/core/store/loading';
 
 // Tách OrderItem thành component riêng để tránh re-render toàn bộ danh sách
 const MemoizedOrderItem = memo(({ item, selectedOrderCounter }: { item: any, selectedOrderCounter: string }) => (

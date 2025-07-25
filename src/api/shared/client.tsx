@@ -3,6 +3,10 @@ import { showMessage } from 'react-native-flash-message';
 import { signOut } from '~/src/core';
 import { getToken } from '~/src/core/store/auth/utils';
 
+const BLACK_LIST_SHOW_MESSAGE = [
+  '/app-pick/getStoreEmployeeProfile',
+];
+
 // Biến toàn cục theo dõi trạng thái auth
 const AUTH_STATE = {
   isAuthError: false,
@@ -45,7 +49,7 @@ const handleAuthError = (message: string) => {
 };
 
 export const axiosClient = axios.create({
-  baseURL: "https://oms-api.seedcom.vn/",
+  baseURL: "https://oms-api-dev.seedcom.vn/",
   headers: {
     accept: 'application/json',
   },
@@ -63,7 +67,7 @@ axiosClient.interceptors.response.use(function (
     ].includes(response?.data?.error)
   ) {
     handleAuthError('Vui lòng đăng nhập để tiếp tục');
-  } else if (response?.data?.error) {
+  } else if (response?.data?.error && !BLACK_LIST_SHOW_MESSAGE.includes(response.config?.url || '')) {
     showMessage({
       message: response?.data?.error,
       type: 'danger',
