@@ -1,11 +1,11 @@
+import Feather from '@expo/vector-icons/Feather';
 import { debounce } from 'lodash';
-import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSuggestStoreEmployeesByKeyword } from '~/src/api/app-pick/use-suggest-store-employees-by-keyword';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { CheckCircleFill } from '~/src/core/svgs';
 import SearchLine from '~/src/core/svgs/SearchLine';
-import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
@@ -35,7 +35,8 @@ const EmployeeItem = memo(({
       disabled={isSelected}
       onPress={handlePress}
     >
-      <View className="p-4 border-b flex-row items-center border-gray-200">
+      <View className="p-4 border-b flex-row items-center gap-2 border-gray-200">
+        <Feather name="user" size={24} color="gray" />
         <View className="flex flex-row items-center gap-1">
           {isSelected && <CheckCircleFill width={15} height={15} color={"green"} />}
           <Text className="text-base font-semibold">{employee.username}</Text>

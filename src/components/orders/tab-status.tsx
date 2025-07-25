@@ -1,7 +1,7 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import clsx from 'clsx';
 import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useRef, memo } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
@@ -64,7 +64,7 @@ const TabsStatus = () => {
     if (index === -1) return;
 
     setTimeout(() => {
-      ref.current?.scrollToIndex({
+      ref.current?.scrollToIndex?.({
         animated: true,
         index: index || 0,
         viewPosition: 0.5,

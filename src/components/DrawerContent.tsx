@@ -1,16 +1,19 @@
-import { MaterialIcons, AntDesign } from "@expo/vector-icons"
+import { AntDesign, MaterialIcons } from "@expo/vector-icons"
 import { DrawerContentComponentProps } from "@react-navigation/drawer"
 import { DrawerActions } from "@react-navigation/native"
 import { router, useNavigation } from "expo-router"
 import { toUpper } from "lodash"
 import { Pressable, ScrollView, Text, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
+import { Role } from "~/src/types/employee"
 import { signOut, useAuth } from "../core"
-import { colors } from "../ui/colors"
-import { Avatar, AvatarImage } from "./Avatar"
 import { useConfig } from "../core/store/config"
 import { getConfigNameById } from "../core/utils/config"
+import { colors } from "../ui/colors"
+import { Avatar, AvatarImage } from "./Avatar"
 import { VersionDisplay } from "./VersionDisplay"
+
+
 
 export function DrawerContent(drawerProps: DrawerContentComponentProps) {
 
@@ -22,6 +25,21 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
   const stores = config?.stores || [];
 
   const storeName = getConfigNameById(stores, userInfo?.storeCode);
+
+  const MENU_ITEMS: { label: string, icon: React.ReactNode, onPress: () => void, enable?: boolean }[] = [
+    {
+      label: 'Cài đặt',
+      icon: <AntDesign name="setting" size={20} color="black" />,
+      onPress: () => router.push('/settings'),
+      enable: true
+    },
+    {
+      label: 'Quản lý NV',
+      icon: <MaterialIcons name="manage-accounts" size={24} color="black" />,
+      onPress: () => router.push('/employee'),
+      enable: [Role.ADMIN, Role.STORE_MANAGER].includes(userInfo?.role as Role)
+    }
+  ]
 
   return (
     <View className="flex-1 overflow-hidden py-4">
@@ -47,12 +65,14 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
       <ScrollView
         showsVerticalScrollIndicator={false}
       >
-        <Pressable onPress={() => router.push('/settings')}>
-          <View className="flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3">
-            <AntDesign name="setting" size={20} color="black" />
-            <Text className="text-md font-body">Cài đặt</Text>
-          </View>
-        </Pressable>
+        {MENU_ITEMS.map((item) => (
+          <Pressable onPress={item.onPress} key={item.label} disabled={!item.enable}>
+            <View className={`flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3 ${!item.enable ? 'opacity-50' : ''}`}>
+              {item.icon}
+              <Text className="text-md font-body">{item.label}</Text>
+            </View>
+          </Pressable>
+        ))}
       </ScrollView>
       <VersionDisplay />
       <Pressable onPress={signOut}>

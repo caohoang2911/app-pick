@@ -14,7 +14,6 @@ import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
-import { checkPermissionAndSend, confirmAndSendNotification } from '~/src/core/utils/notificationSender';
 
 const Settings = () => {
   const { data } = useGetSettingQuery();

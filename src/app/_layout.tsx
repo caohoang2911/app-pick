@@ -32,6 +32,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
+import InviteStoreEmployeeBottomSheet from '../components/shared/invite-store-employee-bottom-sheet';
 
 const VERSION = '1.0.41';
 
@@ -130,6 +131,7 @@ function RootLayoutNav() {
       >
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
+        <Stack.Screen name="employee" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
@@ -177,6 +179,8 @@ function Providers({ children }: { children: React.ReactNode }) {
                   {loading && <Loading />}
                   {children}
                   <AlertDialog />
+                  {/* Invite Store Employee Bottom Sheet */}
+                  <InviteStoreEmployeeBottomSheet />
                 </SafeAreaView>
                 <AlertDialog />
                 <FlashMessage
