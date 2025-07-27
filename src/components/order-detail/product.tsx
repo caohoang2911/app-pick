@@ -47,9 +47,9 @@ const Row = memo(({
       {unit && <Text className={`font-medium ${warning ? 'text-red-500' : ''}`}>{unit}</Text>}
     </View>
     {originOrderQuantity && (
-      <View className='flex-row items-end justify-end' style={styles.badgeColumn}>
+      <View className='absolute right-0 bottom-0'>
         <Badge label={`${originOrderQuantity}`} />
-      </View>
+      </View> 
     )}
   </View>
 ));
@@ -420,8 +420,7 @@ const styles = StyleSheet.create({
   },
   labelColumn: { width: "30%" },
   valueColumn: { width: "25%" },
-  unitColumn: { width: "20%" },
-  badgeColumn: { width: "25%" },
+  unitColumn: { width: "45%" },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
