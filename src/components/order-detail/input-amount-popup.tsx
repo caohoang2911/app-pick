@@ -227,6 +227,10 @@ const FormContent = memo(({
   quantityInit,
   quantityFromBarcode,
 }: any) => {
+  useEffect(() => {
+    setFieldValue('pickedQuantity', quantityFromBarcode);
+  }, []);
+
   return (
     <View className="flex-1 px-4 mt-4 pb-4 gap-4">
       <QuantitySection
@@ -353,7 +357,7 @@ const InputAmountPopup = () => {
     const pickedItem = {
       ...currentProduct,
       barcode: barcodeScanSuccess,
-      pickedQuantity: values?.pickedQuantity || quantityFromBarcode || 0,
+      pickedQuantity: values?.pickedQuantity || 0,
       pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
       pickedNote: values?.pickedNote,
       pickedTime: moment().valueOf(),
@@ -363,7 +367,7 @@ const InputAmountPopup = () => {
     setCurrentPickedProduct(pickedItem);
     setOrderTemToPicked({ pickedItem, orderCode: code});
     reset();
-  }, [productName, currentProduct, barcodeScanSuccess, quantityFromBarcode, quantity, code]);
+  }, [productName, currentProduct, barcodeScanSuccess, quantity, code]);
 
   const reset = useCallback(() => {
     toggleShowAmountInput(false);
