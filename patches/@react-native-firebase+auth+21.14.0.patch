@@ -1,0 +1,20 @@
+diff --git a/node_modules/@react-native-firebase/auth/ios/RNFBAuth/RNFBAuthModule.m b/node_modules/@react-native-firebase/auth/ios/RNFBAuth/RNFBAuthModule.m
+index 0c9c241..be296d5 100644
+--- a/node_modules/@react-native-firebase/auth/ios/RNFBAuth/RNFBAuthModule.m
++++ b/node_modules/@react-native-firebase/auth/ios/RNFBAuth/RNFBAuthModule.m
+@@ -1766,10 +1766,11 @@ RCT_EXPORT_METHOD(useEmulator
+   NSString *url = actionCodeSettings[keyUrl];
+   [settings setURL:[NSURL URLWithString:url]];
+ 
+-  if (actionCodeSettings[keyLinkDomain]) {
+-    NSString *linkDomain = actionCodeSettings[keyLinkDomain];
+-    [settings setLinkDomain:linkDomain];
+-  }
++  // Commented out due to compatibility issue with current Firebase version
++  // if (actionCodeSettings[keyLinkDomain]) {
++  //   NSString *linkDomain = actionCodeSettings[keyLinkDomain];
++  //   [settings setLinkDomain:linkDomain];
++  // }
+ 
+   if (actionCodeSettings[keyHandleCodeInApp]) {
+     BOOL handleCodeInApp = [actionCodeSettings[keyHandleCodeInApp] boolValue];
