@@ -115,7 +115,7 @@ const LabelPrintTemplate = React.memo(({
                 <View>
                   <Text style={styles.customerNameText} allowFontScaling={false}>{customerName}</Text> 
                   <Text style={styles.customerNameText} allowFontScaling={false}>*******{phone?.slice(-3)}</Text> 
-                  <Text style={styles.codText} allowFontScaling={false}>COD: {formatCurrency(codAmount, {unit: true})}</Text> 
+                  {/* <Text style={styles.codText} allowFontScaling={false}>COD: {formatCurrency(codAmount, {unit: true})}</Text>  */}
                 </View>
                 <Text style={styles.codeText} allowFontScaling={false}>{code}</Text>
               </View>

@@ -1,6 +1,7 @@
 import Container from '@/components/Container';
 import { useRefreshOnFocus } from '@/core/hooks/useRefreshOnFocus';
-import { setDeliveryType, setFromScanQrCode, setKeyWord, setOperationType, setSelectedOrderCounter, toggleScanQrCode, useOrders } from '@/core/store/orders';
+import { setDeliveryType, setFromScanQrCode, setKeyWord, setSelectedOrderCounter, toggleScanQrCode, useOrders } from '@/core/store/orders';
+
 import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
 import React, { useCallback, useEffect } from 'react';
@@ -26,7 +27,6 @@ const Orders = () => {
     setKeyWord(result?.data || '');
     setFromScanQrCode(true);
     setDeliveryType('');
-    setOperationType('');
     setSelectedOrderCounter('ALL');
   }, []);
 

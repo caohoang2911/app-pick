@@ -69,7 +69,6 @@ const ScanButton = memo(({ onPress, disabled }: { onPress: () => void, disabled:
 const QuantitySection = memo(({ 
   values,
   quantity,
-  isCampaign,
   currentProduct,
   handleBlur,
   action,
@@ -78,8 +77,8 @@ const QuantitySection = memo(({
   setQuantityFromBarcode,
   toggleScanQrCodeProduct,
 }: any) => {
-  const editable = useMemo(() => !isCampaign && action !== 'out-of-stock', 
-    [isCampaign, action]);
+  const editable = useMemo(() => action !== 'out-of-stock', 
+    [action]);
 
   
     
@@ -155,8 +154,8 @@ const QuantitySection = memo(({
             value={values?.pickedQuantity?.toString()}
             onBlur={handleBlur('pickedQuantity')}
             defaultValue="0"
-            prefix={<DecrementButton onPress={handleDecrement} disabled={isCampaign} />}
-            suffix={<IncrementButton onPress={handleIncrement} disabled={isCampaign} />}
+            prefix={<DecrementButton onPress={handleDecrement} disabled={false} />}
+            suffix={<IncrementButton onPress={handleIncrement} disabled={false} />}
           />
         </View>
         <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 32 : 38, right: 0 }}>
@@ -220,7 +219,6 @@ const FormContent = memo(({
   setErrors,
   currentProduct,
   quantity,
-  isCampaign,
   productPickedErrors,
   isError,
   action,
@@ -236,7 +234,6 @@ const FormContent = memo(({
       <QuantitySection
         values={values}
         quantity={quantity}
-        isCampaign={isCampaign}
         quantityInit={quantityInit}
         currentProduct={currentProduct}
         action={action}
@@ -273,8 +270,6 @@ const InputAmountPopup = () => {
   
   // Extract once to prevent unnecessary re-renders
   const { header } = orderDetail || {};
-  const { operationType } = header || {};
-  const isCampaign = operationType === 'CAMPAIGN';
 
   const { mutate: setOrderTemToPicked } = useSetOrderItemPicked(() => {
     if(currentPickedProduct) {
@@ -423,7 +418,6 @@ const InputAmountPopup = () => {
             currentProduct={currentProduct}
             quantityInit={currentProduct?.orderQuantity}
             quantity={displayPickedQuantity}
-            isCampaign={isCampaign}
             action={action}
             productPickedErrors={productPickedErrors}
             isError={isError}

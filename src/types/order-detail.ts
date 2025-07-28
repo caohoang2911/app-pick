@@ -75,7 +75,6 @@ export interface OrderDetailHeader {
   proofDeliveryImages?: string[];
   isRequireSelectShippingPackageSize?: boolean;
   groupShippingPickedStatues?: {[key: string]: boolean};
-  operationType?: string;
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;

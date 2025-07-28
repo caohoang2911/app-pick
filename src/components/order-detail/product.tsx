@@ -143,7 +143,7 @@ const BarcodeDisplay = memo(({
   baseBarcode?: string, 
   barcode?: string,
 }) => (
-  <View className='flex flex-wrap flex-row gap-2 items-center' style={{ maxWidth: screenWidth/2 }}>
+  <View className='flex flex-row gap-2 flex-wrap items-center'>
     <Badge
       label={baseBarcode || '--'}
       variant="pink"
@@ -304,10 +304,12 @@ const OrderPickProduct = memo(({
             />
             <View className='flex flex-row mt-1 gap-2'>
               <ProductVendor vendorName={vendorName} />
-              <BarcodeDisplay 
-                baseBarcode={baseBarcode} 
-                barcode={barcode}
-              />
+              <View className='flex flex-1 flex-row gap-2 items-center'>
+                <BarcodeDisplay 
+                  baseBarcode={baseBarcode} 
+                  barcode={barcode}
+                />
+              </View>
             </View>
             <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
               <View className="flex justify-between items-center">

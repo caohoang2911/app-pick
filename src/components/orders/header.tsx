@@ -15,14 +15,12 @@ import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import {
-  setOperationType,
   toggleScanQrCode,
   useOrders
 } from '~/src/core/store/orders';
 import ArrowDown from '~/src/core/svgs/ArrowDown';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { Option } from '~/src/types/commons';
-import OperationTypeSelection from '../shared/OperationTypeSelection';
 import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
@@ -31,15 +29,12 @@ import { Badge } from "../Badge";
 const windowWidth = Dimensions.get('window').width;
 
 const Header = () => {
-  const operationType = useOrders.use.operationType();
-
   const userInfo = useAuth.use.userInfo();
 
   const config = useConfig.use.config();
   const stores = config?.stores || [];
   const employeeRoles = config?.employeeRoles || [];
   const storeRef = useRef<any>(null);
-  const operationTypeRef = useRef<any>(null);
   const storeName = getConfigNameById(stores, userInfo?.storeCode);
   const roleName = getConfigNameById(employeeRoles, userInfo?.role);
 
@@ -72,9 +67,6 @@ const Header = () => {
   const handleSelectedStore = (store: Option & { address: string }) => {
     setLoading(true);
     assignMeToStore({ storeCode: store?.id });
-  }
-  const handleSelectedOperationType = (operationType: Option) => {
-    setOperationType(operationType?.id?.toString() || "");
   }
 
   return (
@@ -132,7 +124,6 @@ const Header = () => {
       </View>
       {/* Bottom sheet */}
       <StoreSelection onSelect={handleSelectedStore} ref={storeRef} selectedId={userInfo?.storeCode} />
-      <OperationTypeSelection onSelect={handleSelectedOperationType} ref={operationTypeRef} selectedId={operationType} />
     </View>
   );
 };

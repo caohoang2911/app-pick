@@ -107,7 +107,6 @@ const OrderList = () => {
   // State from store
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const deliveryType = useOrders.use.deliveryType();
-  const operationType = useOrders.use.operationType();
   const fromScanQrCode = useOrders.use.fromScanQrCode();
   const userInfo = useAuth.use.userInfo();
   const { storeCode = '' } = userInfo || {};
@@ -133,10 +132,9 @@ const OrderList = () => {
     return ({
       status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
       deliveryType: fromScanQrCode ? null : deliveryType,
-      operationType: fromScanQrCode ? null : operationType,
       storeCode: storeCode || '',
     })
-  }, [selectedOrderCounter, deliveryType, operationType, storeCode, fromScanQrCode]);
+  }, [selectedOrderCounter, deliveryType, storeCode, fromScanQrCode]);
 
   // Check if params have changed
   const haveParamsChanged = useCallback(() => {
@@ -147,7 +145,6 @@ const OrderList = () => {
     return (
       prevParams.status !== params?.status ||
       prevParams.deliveryType !== params?.deliveryType ||
-      prevParams.operationType !== params?.operationType ||
       prevParams.storeCode !== params?.storeCode
     );
   }, [params]);
@@ -208,7 +205,7 @@ const OrderList = () => {
     } else {
       isInitialRender.current = false;
     }
-  }, [selectedOrderCounter, deliveryType, operationType, goFirstPage, haveParamsChanged, storeCode]);
+  }, [selectedOrderCounter, deliveryType, goFirstPage, haveParamsChanged, storeCode]);
 
   // Refresh on screen focus
   useFocusEffect(
@@ -235,16 +232,16 @@ const OrderList = () => {
     Promise.all([
       goFirstPage(),
       queryClient.invalidateQueries({ 
-        queryKey: ['getOrderStatusCounters', operationType, storeCode] 
+        queryKey: ['getOrderStatusCounters', storeCode] 
       }),
       queryClient.invalidateQueries({ 
-        queryKey: ['getOrderDeliveryTypeCounters', operationType, storeCode, selectedOrderCounter] 
+        queryKey: ['getOrderDeliveryTypeCounters', storeCode, selectedOrderCounter] 
       })
     ]).finally(() => {
       // Hide refresh indicator after all queries complete
       setTimeout(() => setIsRefreshIndicatorVisible(false), 500);
     });
-  }, [goFirstPage, operationType, storeCode, selectedOrderCounter]);
+  }, [goFirstPage, storeCode, selectedOrderCounter]);
 
   // Handle end reached - load more data
   const handleEndReached = useCallback(() => {
