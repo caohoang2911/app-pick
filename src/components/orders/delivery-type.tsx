@@ -32,12 +32,11 @@ function DeliveryType() {
   const refCurrentStatus = useRef<string | null>(null);
 
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
-  const operationType = useOrders.use.operationType();
   const fromScanQrCode = useOrders.use.fromScanQrCode();
 
   const isFirtTime = useRef(true);
 
-  const { data, refetch } = useGetOrderDeliveryTypeCounters({ operationType, storeCode, status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
+  const { data, refetch } = useGetOrderDeliveryTypeCounters({ storeCode, status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
 
   const counters = data?.data ? { ...cachingShippingMethods.current, ...data.data } : {};
 
@@ -58,11 +57,11 @@ function DeliveryType() {
 
   useEffect(() => {
     refetch();
-  }, [fromScanQrCode, selectedOrderCounter, operationType, storeCode])
+  }, [fromScanQrCode, selectedOrderCounter, storeCode])
 
 
   const handleSelect = (value: string) => {
-    queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', operationType, storeCode] });
+    queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', storeCode] });
     if(refCurrentStatus.current === value) {
       setDeliveryType(null);
       refCurrentStatus.current = null;

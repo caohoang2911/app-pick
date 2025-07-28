@@ -5,14 +5,11 @@ import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
 import { useTestSendNoti } from '~/src/api/app-pick/test-send-noti';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
-import { useUpdateSetting } from '~/src/api/app-pick/use-update-setting';
-import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
 import { Input } from '~/src/components/Input';
 import { Switch } from '~/src/components/Switch';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
-import { setLoading } from '~/src/core/store/loading';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
 
 const Settings = () => {
@@ -32,9 +29,7 @@ const Settings = () => {
   const [ip, setIp] = useState<string>(getItem('ip') || printerIp || '');
   const [isLoadingPrint, setIsLoadingPrint] = useState<boolean>(false);
   
-  const { mutate: updateSetting, isPending } = useUpdateSetting(() => {
-    queryClient.invalidateQueries({ queryKey: ['getSetting'] });
-  });
+
 
   const { mutate: testSendNoti, isPending: isPendingTestSendNoti } = useTestSendNoti();
 
@@ -47,11 +42,6 @@ const Settings = () => {
     setIsSubcribeOrderCustomerPickup(noti?.isSubcribeOrderCustomerPickup);
     setIsSubcribeOrderShipperDelivery(noti?.isSubcribeOrderShipperDelivery);
   }, [noti]);
-
-  const handleUpdateSetting = () => {
-    setLoading(true);
-    updateSetting({ data: { noti: { isSubcribeOrderStoreDelivery, isSubcribeOrderCustomerPickup, isSubcribeOrderShipperDelivery } } });
-  };
 
   const handleResetIp = () => {
     setItem('ip', printerIp);
@@ -142,15 +132,14 @@ const Settings = () => {
         </View>
         <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
           <Text numberOfLines={1} className="text-base font-bold">Máy in - {name}</Text>
-          <View className="flex flex-row gap-2 mt-3 items-center justify-between">
+          <View className="flex flex-row gap-2 my-3">
             <Input value={ip} className="flex-1" placeholder="Nhập IP máy in" onChangeText={setIp} />
+          </View>
+          <View className="flex flex-row justify-end gap-2">
             <Button loading={isLoadingPrint} label="Lưu" onPress={handleSaveIp} />
             <Button variant="warning" label="Reset" onPress={handleResetIp} />
           </View>
         </View>
-      </View>
-      <View className="px-4" style={{ paddingBottom: 30 }}>
-        <Button label="Cập nhật" loading={isPending} onPress={handleUpdateSetting} />
       </View>
     </View>
   );

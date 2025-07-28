@@ -3,20 +3,17 @@ import { createSelectors } from '../../utils/browser';
 import { OrderStatus } from '~/src/types/order';
 
 const TAB_STATUS_DEFAULT = 'CONFIRMED';
-const OPERATION_TYPE_DEFAULT = 'EXPRESS';
 
 interface OrdersState {
   isScanQrCode: boolean;
   selectedOrderCounter: OrderStatus;
   keyword: string;
   deliveryType: string | null;
-  operationType: string;
   fromScanQrCode: boolean;
   toggleScanQrCode: (status: boolean) => void;
   setSelectedOrderCounter: (status: OrderStatus) => void;
   setKeyWord: (keyword?: string) => void;
   setFromScanQrCode: (fromScanQrCode: boolean) => void;
-  setOperationType: (operationType: string | null) => void;
   setDeliveryType: (deliveryType: string | null) => void;
   reset: () => void;
 }
@@ -26,7 +23,6 @@ const _useOrders = create<OrdersState>((set, get) => ({
   selectedOrderCounter: TAB_STATUS_DEFAULT,
   keyword: '',
   deliveryType: null,
-  operationType: OPERATION_TYPE_DEFAULT,
   fromScanQrCode: false,
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });
@@ -40,9 +36,6 @@ const _useOrders = create<OrdersState>((set, get) => ({
   setKeyWord: (keyword?: string) => {
     set({ keyword });
   },
-  setOperationType: (operationType: string | any) => {
-    set((state) => ({ ...state, operationType }));
-  },
   setDeliveryType: (deliveryType: string | null) => {
     set((state) => ({ ...state, deliveryType }));
   },
@@ -51,7 +44,6 @@ const _useOrders = create<OrdersState>((set, get) => ({
       isScanQrCode: false,
       selectedOrderCounter: 'ALL',
       keyword: '',
-      operationType: OPERATION_TYPE_DEFAULT,
       deliveryType: '',
     });
   },
@@ -71,8 +63,7 @@ export const setKeyWord = (keyword?: string) =>
 export const setDeliveryType = (deliveryType: string | null) =>
   _useOrders.getState().setDeliveryType(deliveryType);
 
-export const setOperationType = (operationType: string | null) =>
-  _useOrders.getState().setOperationType(operationType);
+
 
 export const setFromScanQrCode = (fromScanQrCode: boolean) =>
   _useOrders.getState().setFromScanQrCode(fromScanQrCode);

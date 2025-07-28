@@ -10,7 +10,6 @@ export type Config = {
   orderDeliveryTypes: [],
   productPickedErrors: [],
   orderTags: [],
-  orderOperationTypes: [],
   fulfillErrorTypes: [],
   employeeRoles: [],
 }
