@@ -121,6 +121,181 @@ export const INJECTED_SCRIPT = `
     callbackEvent: function (event, data) {
       var customEvent = new CustomEvent(event, { detail: data });
       window.dispatchEvent(customEvent);
+    },
+    
+    // === CONTENT READING METHODS ===
+    
+    // Đọc HTML content của page hoặc element
+    getHTML: function (selector) {
+      try {
+        if (!selector) {
+          return document.documentElement.outerHTML;
+        }
+        const element = document.querySelector(selector);
+        return element ? element.outerHTML : null;
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc text content của element
+    getText: function (selector) {
+      try {
+        if (!selector) {
+          return document.body.textContent || document.body.innerText;
+        }
+        const element = document.querySelector(selector);
+        return element ? (element.textContent || element.innerText) : null;
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc giá trị của input/form fields
+    getFieldValue: function (selector) {
+      try {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        
+        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') {
+          return element.value;
+        }
+        return element.textContent || element.innerText;
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc tất cả form data
+    getFormData: function (formSelector) {
+      try {
+        const form = formSelector ? document.querySelector(formSelector) : document.querySelector('form');
+        if (!form) return null;
+        
+        const formData = {};
+        const inputs = form.querySelectorAll('input, textarea, select');
+        
+        inputs.forEach(function(input) {
+          if (input.name) {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+              if (input.checked) {
+                formData[input.name] = input.value;
+              }
+            } else {
+              formData[input.name] = input.value;
+            }
+          }
+        });
+        
+        return formData;
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc localStorage
+    getLocalStorage: function (key) {
+      try {
+        if (!key) {
+          // Trả về tất cả localStorage
+          const storage = {};
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            storage[k] = localStorage.getItem(k);
+          }
+          return storage;
+        }
+        return localStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc sessionStorage
+    getSessionStorage: function (key) {
+      try {
+        if (!key) {
+          // Trả về tất cả sessionStorage
+          const storage = {};
+          for (let i = 0; i < sessionStorage.length; i++) {
+            const k = sessionStorage.key(i);
+            storage[k] = sessionStorage.getItem(k);
+          }
+          return storage;
+        }
+        return sessionStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc cookies
+    getCookies: function () {
+      try {
+        const cookies = {};
+        document.cookie.split(';').forEach(function(cookie) {
+          const parts = cookie.trim().split('=');
+          if (parts.length === 2) {
+            cookies[parts[0]] = decodeURIComponent(parts[1]);
+          }
+        });
+        return cookies;
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Query elements và trả về thông tin
+    queryElements: function (selector) {
+      try {
+        const elements = document.querySelectorAll(selector);
+        const result = [];
+        
+        elements.forEach(function(el, index) {
+          result.push({
+            index: index,
+            tagName: el.tagName,
+            id: el.id || null,
+            className: el.className || null,
+            textContent: el.textContent || el.innerText || null,
+            value: el.value || null,
+            href: el.href || null,
+            src: el.src || null
+          });
+        });
+        
+        return result;
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Đọc page info tổng quát
+    getPageInfo: function () {
+      try {
+        return {
+          title: document.title,
+          url: window.location.href,
+          domain: window.location.hostname,
+          pathname: window.location.pathname,
+          search: window.location.search,
+          hash: window.location.hash,
+          userAgent: navigator.userAgent,
+          referrer: document.referrer || null,
+          readyState: document.readyState
+        };
+      } catch (e) {
+        return null;
+      }
+    },
+    
+    // Gửi content lên React Native với event type cụ thể
+    sendContent: function (contentType, data) {
+      this.sendEvent('content', {
+        type: contentType,
+        data: data,
+        timestamp: new Date().getTime()
+      });
     }
   };
 })();
@@ -171,4 +346,26 @@ export const parseEventData = (message: string) => {
     data,
     responseId,
   };
+};
+
+// === HELPER FUNCTIONS ĐỂ ĐỌC CONTENT TỪ WEBVIEW ===
+
+export interface WebViewRef {
+  injectJavaScript: (script: string) => void;
+}
+
+export const WebViewContentReader = {
+  // === CHỈ GIỮ LẠI CÁC METHOD CẦN THIẾT ===
+
+  // Đọc text của element cụ thể
+  getElementText: (webViewRef: WebViewRef, selector: string) => {
+    const script = `
+      (function() {
+        const elementText = window.SeedcomBrowser?.getText?.('${selector}');
+        window.SeedcomBrowser?.sendContent?.('elementText', { selector: '${selector}', text: elementText });
+        return true;
+      })();
+    `;
+    webViewRef.injectJavaScript(script);
+  },
 };

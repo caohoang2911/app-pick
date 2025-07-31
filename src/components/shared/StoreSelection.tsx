@@ -10,6 +10,11 @@ import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import Empty from './Empty';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
+import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
+import { setLoading } from '~/src/core/store/loading';
+import { useAuth } from '~/src/core/store/auth';
+import { hideAlert, showAlert } from '@/core/store/alert-dialog';
+import { showMessage } from 'react-native-flash-message';
 
 type StoreType = Option & { address: string };
 
@@ -60,7 +65,7 @@ const SearchBar = memo(
     useImperativeHandle(ref, () => ({
       focus: () => {
         inputRef.current?.focus();
-      }
+      },
     }), []);
     
     // Debounce search để tránh filter quá nhiều lần
@@ -100,15 +105,24 @@ const SearchBar = memo(
 type Props = {
   onSelect: (store: StoreType) => void;
   selectedId: string;
+  code?: string | null;
+  newbie?: boolean;
 };
 
 const StoreSelection = forwardRef<any, Props>(
-  ({ onSelect, selectedId }, ref) => {
+  ({ onSelect, selectedId, code, newbie }, ref) => {
     const [visible, setVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const actionRef = useRef<any>();
     const searchBarRef = useRef<any>(null);
     const { stores } = useConfig.use.config();
+    const { mutate: requestAssignMeToStore } = useRequestAssignMeToStore(newbie, () => {
+      setVisible(false);
+    });
+    
+    const userInfo = useAuth.use.userInfo();
+
+    const { username: userCode, role } = userInfo || {};
     
     const isKeyboardVisible = useKeyboardVisible();
 
@@ -156,9 +170,25 @@ const StoreSelection = forwardRef<any, Props>(
     }, []);
 
     const handleSelect = useCallback((store: StoreType) => {
-      setVisible(false);
-      onSelect?.(store);
-    }, [onSelect]);
+      if(role === 'STORE_MANAGER') {
+        setVisible(false);
+        onSelect?.(store);
+        return;
+      }
+      showAlert({
+        title: 'Yêu cầu cấp quyền siêu thị',
+        message: `Bạn có muốn yêu cầu cấp quyền siêu thị ${store.name} không?`,
+        onConfirm: () => {
+          setLoading(true)
+          requestAssignMeToStore({
+            storeCode: store.id.toString(),
+            employeeCode: code || userCode || ''
+          })
+
+          hideAlert()
+        },
+      })
+    }, [onSelect, code, userCode]);
 
     const handleSearch = useCallback((text: string) => {
       setSearchQuery(text);
@@ -188,6 +218,7 @@ const StoreSelection = forwardRef<any, Props>(
       }
     }, [visible]);
 
+
     return (
       <SBottomSheet
         visible={visible}
@@ -202,22 +233,17 @@ const StoreSelection = forwardRef<any, Props>(
           ref={searchBarRef}
           onSearch={handleSearch} 
         />
-        
+      
         <FlatList
           data={filteredStores}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           initialNumToRender={15}
           maxToRenderPerBatch={10}
-          windowSize={5}
+          windowSize={10}
           removeClippedSubviews={true}
           ListEmptyComponent={ListEmptyComponent}
           keyboardShouldPersistTaps="handled"
-          getItemLayout={(data, index) => ({
-            length: 80,
-            offset: 80 * index,
-            index
-          })}
           scrollEnabled={false}
         />
       </SBottomSheet>

@@ -7,6 +7,8 @@ const BLACK_LIST_SHOW_MESSAGE = [
   '/app-pick/getStoreEmployeeProfile',
 ];
 
+const DUMMY_TOKEN = "4kkgCYTSGyU4hc50sSNRYiCAZ2KxQPQzUClPl-cMi8EKduxy1jLs1OweKInfH7etwjBZBWE5HV7ZAbi_3J8_BA"
+
 // Biến toàn cục theo dõi trạng thái auth
 const AUTH_STATE = {
   isAuthError: false,
@@ -91,6 +93,8 @@ axiosClient.interceptors.request.use(function (config: any) {
 
   if (token) {
     config.headers.zas = token;
+  } else {
+    config.headers.zas = DUMMY_TOKEN;
   }
 
   if (config.data instanceof FormData) {
