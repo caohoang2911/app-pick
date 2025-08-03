@@ -12,12 +12,19 @@ interface OrderBagState {
     FROZEN: Array<any>;
     FRESH: Array<any>;
   };
+  previousOrderBags?: {
+    DRY: Array<any>;
+    FROZEN: Array<any>;
+    FRESH: Array<any>;
+  };
   header?: any;
   isLoadingDeliveryOrderDetail: boolean;
   setOrderBags: (values: OrderBagItem) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   addOrderBag: (values: OrderBagItem) => void;
   removeOrderBag: (code: string, type: OrderBagType) => void;
+  undoLastChange: () => void;
+  savePreviousState: () => void;
 }
 
 const _useOrderBag = create<OrderBagState>((set, get) => ({
@@ -36,8 +43,11 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
     set({ orderBags: values, });
   },
   addOrderBag: (values: OrderBagItem) => {
+    // Save previous state before making changes
+    const currentState = get().orderBags;
     set({ 
       hasUpdateOrderBagLabels: true,
+      previousOrderBags: currentState,
       orderBags: { 
         ...get().orderBags,
         [values.type]: [...get().orderBags[values.type], { ...values}],
@@ -45,8 +55,11 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
     });
   },
   removeOrderBag: (code: string, type: OrderBagType) => {
+    // Save previous state before making changes
+    const currentState = get().orderBags;
     set({ 
-      hasUpdateOrderBagLabels: true, 
+      hasUpdateOrderBagLabels: true,
+      previousOrderBags: currentState,
       orderBags: { 
         ...get().orderBags, 
         [type]: get().orderBags[type]
@@ -54,6 +67,20 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
           .map((item: OrderBagItem, index: number) => ({ ...item, name: generateBagName(type, index + 1) }))
       }
     });
+  },
+  savePreviousState: () => {
+    const currentState = get().orderBags;
+    set({ previousOrderBags: currentState });
+  },
+  undoLastChange: () => {
+    const previousState = get().previousOrderBags;
+    if (previousState) {
+      set({ 
+        orderBags: previousState,
+        hasUpdateOrderBagLabels: false,
+        previousOrderBags: undefined
+      });
+    }
   },
 }));
 
@@ -73,4 +100,12 @@ export const addOrderBag = (values: OrderBagItem) => {
 
 export const removeOrderBag = (code: string, type: OrderBagType) => {
   useOrderBag.getState().removeOrderBag(code, type);
+};
+
+export const undoLastChange = () => {
+  useOrderBag.getState().undoLastChange();
+};
+
+export const savePreviousState = () => {
+  useOrderBag.getState().savePreviousState();
 };

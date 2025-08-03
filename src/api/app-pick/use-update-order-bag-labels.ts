@@ -21,7 +21,11 @@ export const useUpdateOrderBagLabels = (cb?: (error?: string) => void) => {
   return useMutation({
     mutationFn: (params: Variables) => updateOrderBagLabels(params),
     onSuccess: (data: Response) => {
-      cb?.(data?.error);
+      if (data?.error) {
+        cb?.(data.error);
+      } else {
+        cb?.(); // No error, success case
+      }
       setLoading(false);
     },
   });
