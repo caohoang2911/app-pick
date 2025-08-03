@@ -12,7 +12,7 @@ import HeaderBag from '~/src/components/order-bags/header-bag';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
 import { setLoading } from '~/src/core/store/loading';
-import { setOrderDetail, useOrderBag } from '~/src/core/store/order-bag';
+import { setOrderDetail, undoLastChange, useOrderBag } from '~/src/core/store/order-bag';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-detail';
 const OrderBags = () => {
@@ -23,29 +23,42 @@ const OrderBags = () => {
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
+  
   const orderBags = useOrderBag.use.orderBags();
+  
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true);
 
   const deliveryType = orderDetail?.header?.deliveryType;
 
   const isShowPackageSizePicker = deliveryType !== 'CUSTOMER_PICKUP';
-  
+
+
+
   const { mutate: updateOrderBagLabels } = useUpdateOrderBagLabels((error) => {
     if(error) {
+      setLoading(false);
+      // Fallback: Undo the last change when there's an error
+      undoLastChange();
       queryClient.invalidateQueries({ queryKey: ['order-detail'] });
       showMessage({
-        message: error,
+        message: `Lỗi cập nhật: ${error}. Đã hoàn tác thay đổi vừa thực hiện.`,
         type: 'danger',
+        duration: 4000,
       });
+    } else {
+      // Success case
     }
   });
 
-  useEffect(() => {
-    setLoading(isPending || isFetching);
-  }, [isPending, isFetching]);
+
 
   useEffect(() => {
     setOrderDetail(data?.data || {});
-  }, [data]);
+    
+    if (data && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [data, isInitialLoad]);
 
   if(data?.error) {
     return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
@@ -63,15 +76,15 @@ const OrderBags = () => {
   }
 
   useEffect(() => {
-    if(hasUpdateOrderBagLabels) {
+    if(hasUpdateOrderBagLabels && !isInitialLoad) {
       const mergedOrderBags = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];
-
+      setLoading(true);
       updateOrderBagLabels({
         data: mergedOrderBags,
         orderCode: code,
       });
     }
-  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN]);
+  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN, isInitialLoad]);
 
   return (
     <View className='flex-1 mb-4'>
@@ -87,6 +100,7 @@ const OrderBags = () => {
           <Button label='In tất cả' onPress={handlePrintAll} />
         </View>
       </View>
+      
     </View>
   )
 }
