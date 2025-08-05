@@ -46,4 +46,8 @@ export type Product = {
   extraConversionQuantity?: number;
   categoryType?: string;
   vendorName?: string;
+  pickedExtraQuantities?: {
+    fullBoxQuantity?: number;
+    openedBoxQuantity?: number;
+  }
 };

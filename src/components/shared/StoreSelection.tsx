@@ -170,7 +170,8 @@ const StoreSelection = forwardRef<any, Props>(
     }, []);
 
     const handleSelect = useCallback((store: StoreType) => {
-      if(role === 'STORE_MANAGER') {
+      if(!role) return;
+      if(['STORE_MANAGER', 'ADMIN'].includes(role)) {
         setVisible(false);
         onSelect?.(store);
         return;
