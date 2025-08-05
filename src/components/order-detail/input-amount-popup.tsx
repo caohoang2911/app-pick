@@ -137,7 +137,7 @@ const QuantitySection = memo(({
   }, [values?.pickedQuantity, values?.pickedError, quantityInit]);
 
   return (
-    <View className="flex gap-2" style={{ position: 'relative' }}>
+    <View className="flex gap-2 flex-1" style={{ position: 'relative' }}>
       <View className="flex-1">
         <View className="flex-1" style={{ marginRight: 113 }}>
           <Input
@@ -170,15 +170,14 @@ const QuantitySection = memo(({
   );
 });
 
-// ErrorSection Component
-const ErrorSection = memo(({ 
+// ReasonDropdown Component
+const ReasonDropdown = memo(({ 
   productPickedErrors, 
   values, 
   setFieldValue,
   quantityInit,
   setErrors,
   action,
-  quantityFromBarcode,
 }: any) => {
   const isError = values?.pickedQuantity >= quantityInit;
 
@@ -210,6 +209,74 @@ const ErrorSection = memo(({
   );
 });
 
+// Pack input
+const BoxInput = memo(({
+  values,
+  setFieldValue,
+  handleBlur,
+}: any) => {
+  const handleChangeText = useCallback((name: string, value: string) => {
+    setFieldValue(name, parseInt(value || '0'));
+  }, [setFieldValue]);
+
+  const handleDecrement = useCallback((name: string) => {
+    const valueChange = roundToDecimalDecrease(Number(values?.[name] || 0));
+    if (Number(valueChange) < 0) {
+      setFieldValue(name, 0);
+      return;
+    }
+
+    setFieldValue(name, Number(valueChange));
+  }, [setFieldValue, values]);
+
+  const handleIncrement = useCallback((name: string) => {
+    const valueChange = roundToDecimalIncrease(Number(values?.[name] || 0));
+    if (Number(valueChange) < 0) {
+      setFieldValue(name, 0);
+      return;
+    }
+
+    setFieldValue(name, Number(valueChange));
+  }, [setFieldValue, values]);
+
+  return (
+    <View className="flex-1 flex-row gap-2">
+      <View className="flex-1">
+        <Input
+          label={<Text className="font-medium text-gray-500">Thùng nguyên</Text>}
+          placeholder="Nhập số lượng"
+          value={values?.fullBoxQuantity?.toString()}
+          onChangeText={(value: string) => handleChangeText('fullBoxQuantity', value)}
+          keyboardType="decimal-pad"
+          inputClasses="text-center"
+          useBottomSheetTextInput
+          name="fullBoxQuantity"
+          onBlur={handleBlur('fullBoxQuantity')}
+          defaultValue="0"
+          prefix={<DecrementButton onPress={() => handleDecrement('fullBoxQuantity')} disabled={false} />}
+          suffix={<IncrementButton onPress={() => handleIncrement('fullBoxQuantity')} disabled={false} />}
+        />
+      </View>
+      <View className="flex-1">
+        <Input
+          label={<Text className="font-medium text-gray-500">Thùng lẻ</Text>}
+          placeholder="Nhập số lượng"
+          value={values?.openedBoxQuantity?.toString()}
+          onChangeText={(value: string) => handleChangeText('openedBoxQuantity', value)}
+          keyboardType="decimal-pad"
+          inputClasses="text-center"
+          useBottomSheetTextInput
+          name="openedBoxQuantity"
+          onBlur={handleBlur('openedBoxQuantity')}
+          defaultValue="0"
+          suffix={<IncrementButton onPress={() => handleIncrement('openedBoxQuantity')} disabled={false} />}
+          prefix={<DecrementButton onPress={() => handleDecrement('openedBoxQuantity')} disabled={false} />}
+        />
+      </View>
+    </View>
+  );
+});
+
 // FormContent Component
 const FormContent = memo(({ 
   values,
@@ -225,9 +292,14 @@ const FormContent = memo(({
   quantityInit,
   quantityFromBarcode,
 }: any) => {
+
   useEffect(() => {
-    setFieldValue('pickedQuantity', quantityFromBarcode);
+    setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
+    setFieldValue('fullBoxQuantity', (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity || 0);
+    setFieldValue('openedBoxQuantity', (currentProduct as Product)?.pickedExtraQuantities?.openedBoxQuantity || 0);
   }, []);
+
+  const shoudShowBoxInput = currentProduct?.unit?.toLowerCase().startsWith('thùng');
 
   return (
     <View className="flex-1 px-4 mt-4 pb-4 gap-4">
@@ -242,7 +314,14 @@ const FormContent = memo(({
         setQuantityFromBarcode={setQuantityFromBarcode}
         toggleScanQrCodeProduct={toggleScanQrCodeProduct}
       />
-      <ErrorSection
+      {shoudShowBoxInput && (
+        <BoxInput
+          values={values}
+          setFieldValue={setFieldValue}
+          handleBlur={handleBlur}
+        />
+      )}
+      <ReasonDropdown
         productPickedErrors={productPickedErrors}
         values={values}
         action={action}
@@ -345,6 +424,9 @@ const InputAmountPopup = () => {
     }
   }, [isShowAmountInput]);
 
+  const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
+
+
   // Memoized callbacks
   const onSubmit = useCallback((values: any) => {
     if (!productName) return;
@@ -357,12 +439,18 @@ const InputAmountPopup = () => {
       pickedNote: values?.pickedNote,
       pickedTime: moment().valueOf(),
       isAllowEditPickQuantity: true,
+      ...(isUnitBox && {
+        pickedExtraQuantities: {
+          fullBoxQuantity: values?.fullBoxQuantity || 0,
+          openedBoxQuantity: values?.openedBoxQuantity || 0,
+        }
+      })
     } as Product;
 
     setCurrentPickedProduct(pickedItem);
     setOrderTemToPicked({ pickedItem, orderCode: code});
     reset();
-  }, [productName, currentProduct, barcodeScanSuccess, quantity, code]);
+  }, [productName, currentProduct, barcodeScanSuccess, quantity, code, isUnitBox]);
 
   const reset = useCallback(() => {
     toggleShowAmountInput(false);
@@ -374,9 +462,13 @@ const InputAmountPopup = () => {
   // Memoize initial values
   const initialValues = useMemo(() => ({
     pickedQuantity: displayPickedQuantity, 
-    pickedError: (currentProduct as any)?.pickedError || '', 
-    pickedNote: (currentProduct as any)?.pickedNote || ''
-  }), [displayPickedQuantity, currentProduct]);
+    pickedError: (currentProduct as Product)?.pickedError || '', 
+    pickedNote: (currentProduct as Product)?.pickedNote || '',
+    ...(isUnitBox && {
+      fullBoxQuantity: (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity || 0,
+      openedBoxQuantity: (currentProduct as Product)?.pickedExtraQuantities?.openedBoxQuantity || 0,
+    })
+  }), [displayPickedQuantity, currentProduct, isUnitBox]);
 
   return (
     <Formik
@@ -405,7 +497,7 @@ const InputAmountPopup = () => {
         <SBottomSheet
           renderTitle={renderTitle}
           ref={inputBottomSheetRef}
-          snapPoints={[370]}
+          snapPoints={[isUnitBox ? 440 : 370]}
           onClose={reset}
           visible={isShowAmountInput}
         > 
