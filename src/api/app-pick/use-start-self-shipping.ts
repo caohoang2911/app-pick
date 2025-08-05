@@ -19,7 +19,7 @@ export const useStartSelfShipping = (cb: () => void) => {
       if (!response.error) {
         queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
         showMessage({
-          message: 'Bắt đầu giao hàng thành công',
+          message: 'Đơn hàng bắt đầu giao hàng',
           type: 'success',
         });
         cb?.();
