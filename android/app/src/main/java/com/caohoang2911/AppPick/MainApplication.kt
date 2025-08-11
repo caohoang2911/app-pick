@@ -2,6 +2,9 @@ package com.caohoang2911.AppPick
 
 import android.app.Application
 import android.content.res.Configuration
+import android.media.AudioManager
+import android.media.AudioAttributes
+import android.content.Intent
 
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -46,6 +49,42 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
+    
+    // Configure audio session for notification sounds
+    configureAudioSession()
+    
+    // Start audio service for background notification sounds
+    startAudioService()
+  }
+
+  private fun configureAudioSession() {
+    try {
+      val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+      
+      // Set audio mode for notification sounds
+      audioManager.mode = AudioManager.MODE_NORMAL
+      
+      // Configure audio attributes for notification sounds
+      val audioAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+      
+      // Set audio attributes for notification channel
+      audioManager.setAudioAttributes(audioAttributes)
+      
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
+  }
+  
+  private fun startAudioService() {
+    try {
+      val intent = Intent(this, AudioService::class.java)
+      startService(intent)
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {

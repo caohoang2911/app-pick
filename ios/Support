@@ -1,3 +1,0 @@
-#define _isKeyDown isKeyDownReplacement
-#define _modifiedInput modifiedInputReplacement
-#define _modifierFlags modifierFlagsReplacement
