@@ -7,6 +7,7 @@ import ActionsBottom from '~/src/components/order-detail/actions-bottom';
 import Header from '~/src/components/order-detail/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-detail/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-detail/input-amount-popup';
+import ReplacePickedProducts from '~/src/components/order-detail/replace-picked-products';
 import OrderPickProducts from '~/src/components/order-detail/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
@@ -31,7 +32,7 @@ const OrderPick = () => {
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
   const orderDetail = useOrderPick.use.orderDetail();
-
+  
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const isEditManual = useOrderPick.use.isEditManual();
@@ -137,6 +138,7 @@ const OrderPick = () => {
         ref={headerAcrtionRef}
       />
       <InputAmountPopup />
+      <ReplacePickedProducts  />
     </>
   );
 };
