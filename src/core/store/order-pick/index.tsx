@@ -33,6 +33,10 @@ interface OrdersState {
   toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => void;
   setQuantityFromBarcode: (quantity: number) => void;
   setCurrentId: (id: number | null) => void;
+  setReplacePickedProductId: (id: number) => void;
+  setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => void; 
+  replacePickedProductId: number | null;
+  isVisibleReplaceProduct: boolean;
 }
 
 const _useOrderPick = create<OrdersState>((set, get) => ({
@@ -51,6 +55,8 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   isEditManual: false,
   isScanMoreProduct: false,
   action: null,
+  replacePickedProductId: null,
+  isVisibleReplaceProduct: false,
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
@@ -110,6 +116,12 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       orderPickProducts: [...newOrderPickProducts],
     });
   },
+  setReplacePickedProductId: (id: number) => {
+    set({ replacePickedProductId: id});
+  },
+  setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => {
+    set({ isVisibleReplaceProduct });
+  },
 }));
 
 export const useOrderPick = createSelectors(_useOrderPick);
@@ -162,3 +174,9 @@ export const setActionProduct = (action: 'out-of-stock' | 'low-quality' | 'near-
 
 export const setScanMoreProduct = (isScanMoreProduct: boolean) =>
   _useOrderPick.getState().setScanMoreProduct(isScanMoreProduct);
+
+export const setIsVisibleReplaceProduct = (isVisibleReplaceProduct: boolean) =>
+  _useOrderPick.getState().setIsVisibleReplaceProduct(isVisibleReplaceProduct);
+
+export const setReplacePickedProductId = (id: number) =>
+  _useOrderPick.getState().setReplacePickedProductId(id);

@@ -8,6 +8,7 @@ import { useConfig } from '~/src/core/store/config';
 import {
   setCurrentId,
   setIsEditManual,
+  setReplacePickedProductId,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick
@@ -97,6 +98,7 @@ const ProductHeader = memo(({
   showQuickAction,
   isAllowEditPickQuantity,
   onEditPress,
+  onReplaceProduct,
 }: { 
   name: string, 
   pickedTime?: number, 
@@ -107,6 +109,7 @@ const ProductHeader = memo(({
   showQuickAction: boolean,
   isAllowEditPickQuantity: boolean,
   onEditPress: () => void,
+  onReplaceProduct: () => void,
 }) => (
   <>
     <View className='flex flex-row gap-1'>
@@ -120,7 +123,14 @@ const ProductHeader = memo(({
           {isGift ? "🎁 " : ""}{name}
         </Text>
       </View>
-      {showQuickAction && <MoreActionsBtn onEditPress={onEditPress} isAllowEditPickQuantity={isAllowEditPickQuantity} code={code} id={id} barcode={barcode} />}
+      {showQuickAction && <MoreActionsBtn 
+        onReplaceProduct={onReplaceProduct}
+        onEditPress={onEditPress}
+        isAllowEditPickQuantity={isAllowEditPickQuantity} 
+        code={code} 
+        id={id}
+        barcode={barcode} 
+      />}
     </View>
   </>
 ));
@@ -280,6 +290,10 @@ const OrderPickProduct = memo(({
 
   const showQuickAction = isStatusPicking || isStatusPacked
 
+  const handleReplaceProduct = useCallback(() => {
+    setReplacePickedProductId(id);
+  }, []);
+
   return (
      <>
         <View 
@@ -301,6 +315,7 @@ const OrderPickProduct = memo(({
               isAllowEditPickQuantity={isAllowEditPickQuantity}
               showQuickAction={showQuickAction}
               onEditPress={handleEditPress}
+              onReplaceProduct={handleReplaceProduct}
             />
             <View className='flex flex-row mt-1 gap-2'>
               <ProductVendor vendorName={vendorName} />

@@ -1,11 +1,14 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
-import { setActionProduct, setCurrentId, setIsEditManual, setSuccessForBarcodeScan, toggleShowAmountInput } from '~/src/core/store/order-pick';
+import { setActionProduct, setCurrentId, setIsEditManual, setIsVisibleReplaceProduct, setSuccessForBarcodeScan, toggleShowAmountInput, useOrderPick } from '~/src/core/store/order-pick';
 import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
+import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { Product } from '~/src/types/product';
 
 const actions = [
   {
@@ -31,6 +34,7 @@ interface MoreActionsBtnProps {
   barcode: string;
   isAllowEditPickQuantity: boolean;
   onEditPress: () => void;
+  onReplaceProduct: () => void;
 }
 
 const MoreActionsBtn = ({
@@ -39,9 +43,24 @@ const MoreActionsBtn = ({
   barcode,
   isAllowEditPickQuantity,
   onEditPress,
+  onReplaceProduct,
 }: MoreActionsBtnProps) => {
   const [visible, setVisible] = useState(false);
   const actionRef = useRef<any>();
+
+  const orderPickProducts = useOrderPick.use.orderPickProducts();
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  
+  const currentProduct = orderPickProductsFlat.find((product: Product) => Number(product.id) === Number(id));
+
+  console.log('currentProduct', currentProduct);
+
+  const { tags } = currentProduct || {};
+
+
+  const shouldEnableReplaceProduct = useMemo(() => {
+    return tags?.includes('SP Thay thế');
+  }, [tags]);
 
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
 
@@ -75,6 +94,12 @@ const MoreActionsBtn = ({
       return;
     }
 
+    if(key === 'replace-product') {
+      setIsVisibleReplaceProduct(true);
+      onReplaceProduct();
+      return;
+    }
+
     toggleShowAmountInput(true, id);
     setSuccessForBarcodeScan(barcode);
     setCurrentId(id);
@@ -100,6 +125,7 @@ const MoreActionsBtn = ({
     }
   }, [visible]);
 
+
   return (
     <>
       <TouchableOpacity onPress={() => setVisible(true)}>
@@ -113,7 +139,7 @@ const MoreActionsBtn = ({
           visible={visible} 
           onClose={() => setVisible(false)} 
           ref={actionRef}
-          snapPoints={[310]}
+          snapPoints={[350]}
         >
           {renderItem({
             key: 'edit-pick-quantity',
@@ -122,9 +148,16 @@ const MoreActionsBtn = ({
             onClickAction: onEditPress,
             enable: shouldDisplayEdit,
           })}
+          {renderItem({
+            key: 'replace-product',
+            title: 'Thay thế sản phẩm',
+            icon: <Ionicons name="swap-horizontal" size={20} color="black" />,
+            onClickAction: handleClickAction,
+            enable: shouldEnableReplaceProduct,
+          })}
           {actions.map((item) => (
             <React.Fragment key={item.key}>
-              {renderItem({...item, onClickAction: handleClickAction })}
+              {renderItem({...item, onClickAction: handleClickAction})}
             </React.Fragment>
           ))}
         </SBottomSheet>

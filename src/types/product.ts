@@ -22,6 +22,7 @@ export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 export type Product = {
   type?: "GIFT";
   id: number;
+  substituteItems?: Array<Product>;
   pickedError?: string;
   pickedNote?: string;
   pickedQuantity?: number;
