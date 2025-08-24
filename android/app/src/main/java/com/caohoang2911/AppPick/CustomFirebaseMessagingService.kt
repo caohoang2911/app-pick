@@ -1,4 +1,4 @@
-package com.caohoang2911.AppPickDev
+package com.caohoang2911.AppPick
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -38,11 +38,11 @@ class CustomFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         // Check if message contains a notification payload
-        remoteMessage.notification?.let {
-            Log.d(TAG, "Message Notification Body: ${it.body}")
+        remoteMessage.notification?.let { notification ->
+            Log.d(TAG, "Message Notification Body: ${notification.body}")
             sendNotification(
-                it.title ?: "New Message",
-                it.body ?: "",
+                notification.title ?: "New Message",
+                notification.body ?: "",
                 remoteMessage.data
             )
         }
@@ -57,7 +57,7 @@ class CustomFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun sendNotification(title: String, messageBody: String, data: Map<String, String>) {
         // Create a pending intent for the activity - using the package's main activity
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent(this, applicationContext.javaClass)
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent(this, MainActivity::class.java)
         
         launchIntent.apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

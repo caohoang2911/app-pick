@@ -30,7 +30,7 @@ PODS:
     - ExpoModulesCore
   - ExpoHead (3.5.24):
     - ExpoModulesCore
-  - ExpoImage (1.12.15):
+  - ExpoImage (1.13.0):
     - ExpoModulesCore
     - libavif/libdav1d
     - SDWebImage (~> 5.19.1)
@@ -1509,7 +1509,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.14.0):
+  - RNReanimated (3.10.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1530,7 +1530,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.37.0):
+  - RNScreens (3.31.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1552,7 +1552,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.12.1):
+  - RNSVG (15.2.0):
     - React-Core
   - SDWebImage (5.19.7):
     - SDWebImage/Core (= 5.19.7)
@@ -1905,7 +1905,7 @@ SPEC CHECKSUMS:
   ExpoFileSystem: 2988caaf68b7cb706e36d382829d99811d9d76a5
   ExpoFont: 38dddf823e32740c2a9f37c926a33aeca736b5c4
   ExpoHead: 1a1b30c6c1d125e9b8a199ca305c16a1dc041624
-  ExpoImage: c2cc25b50fc9e8f49bc6ce0405cf6a61e584d090
+  ExpoImage: 8fe3bbd2cae98bc004efec6fc4387837c9d30e10
   ExpoImageManipulator: eb92d3ac4bad0fe96258f17273b9e295e87447be
   ExpoKeepAwake: dd02e65d49f1cfd9194640028ae2857e536eb1c9
   ExpoModulesCore: c11bcbf466b123a92eb66ab2ae9e0eaef61b7e97
@@ -1998,9 +1998,9 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: 5b736cde5e5b83b28d083968dd0424baea3f904b
   RNFBMessaging: c05a432d82a2aa730161e62c56b2a53ca3b412f5
   RNGestureHandler: 5d95b0a3cffed8325ed0c181f4f411c1dcd49317
-  RNReanimated: b9567ee5ee4e2a5c75d0a385fd4d8d86f5563764
-  RNScreens: 9ffe14a19aa4fecfe49ead4cfea952cba63e02f5
-  RNSVG: d39a9be65c439dfb061955f7615f1f71a51ecede
+  RNReanimated: f6c3a3aa35de5a312c01b9256a61f23eed660b34
+  RNScreens: 5b35d863db10f9be81da4e8f4e08096ee7644f8c
+  RNSVG: 0e7deccab0678200815104223aadd5ca734dd41d
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c

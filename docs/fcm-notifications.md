@@ -98,7 +98,8 @@ To send notifications to both platforms at once:
 
 1. **Android Sound Files**: 
    - The custom sound file must be located in `android/app/src/main/res/raw/ding.mp3`
-   - In the payload, you should reference it without the file extension: `"sound": "ding"`
+   - In the payload and code, you should reference it without the file extension: `"sound": "ding"`
+   - **Important**: Android requires the sound file name without the `.mp3` extension in both notification channels and payloads
 
 2. **iOS Sound Files**:
    - The custom sound file must be added to the Xcode project bundle
@@ -116,6 +117,43 @@ To send notifications to both platforms at once:
    - For notifications to play sound when the app is completely closed, the server payload must include the sound configuration as shown above
    - Android requires the channel_id and sound name to match what's configured in the app
    - iOS requires the sound file name in the aps payload
+
+## Troubleshooting Android Notification Sounds
+
+If the `ding.mp3` sound is not playing on Android, check the following:
+
+1. **Sound File Reference**: Ensure the sound is referenced as `"ding"` (without `.mp3` extension) in both:
+   - Notification channel configuration
+   - FCM payload
+   - Local notification scheduling
+
+2. **File Location**: Verify the sound file is in the correct location:
+   ```
+   android/app/src/main/res/raw/ding.mp3
+   ```
+
+3. **Permissions**: Ensure these permissions are in `AndroidManifest.xml`:
+   ```xml
+   <uses-permission android:name="android.permission.VIBRATE"/>
+   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+   <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+   ```
+
+4. **Device Settings**: Check that:
+   - App notifications are enabled in device settings
+   - Sound is enabled for the app
+   - Device is not in silent mode
+
+5. **Testing**: Use the test function in `src/core/utils/testNotificationSound.ts` to debug:
+   ```typescript
+   import { testNotificationSound, checkSoundFile } from '../core/utils/testNotificationSound';
+   
+   // Test the sound
+   await testNotificationSound();
+   
+   // Check channel configuration
+   await checkSoundFile();
+   ```
 
 ## Testing FCM Notifications
 

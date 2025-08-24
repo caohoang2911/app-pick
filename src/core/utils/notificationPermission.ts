@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import * as Device from 'expo-device';
+// import * as Device from 'expo-device';
 import * as Linking from 'expo-linking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 
@@ -11,10 +11,10 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
  */
 export const checkNotificationPermission = async (onPermissionGranted?: () => void): Promise<boolean> => {
   // Check if physical device (notifications won't work on simulators)
-  if (!Device.isDevice) {
-    console.log('Notifications not available on simulator/emulator');
-    return false;
-  }
+  // if (!Device.isDevice) {
+  //   console.log('Notifications not available on simulator/emulator');
+  //   return false;
+  // }
 
   // Check current permission status
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
