@@ -91,7 +91,7 @@ axiosClient.interceptors.request.use(function (config: any) {
   if (token) {
     config.headers.zas = token;
   } else {
-    // config.headers.zas = DUMMY_TOKEN;
+    config.headers.zas = DUMMY_TOKEN;
   }
 
   if (config.data instanceof FormData) {
