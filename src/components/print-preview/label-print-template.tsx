@@ -47,14 +47,12 @@ const LabelPrintTemplate = React.memo(({
 
   // Phương pháp 1: Sử dụng onLayout để biết khi nào layout đã hoàn thành
   const handleLayout = () => {
-    console.log(`[${index}] Layout hoàn thành`);
     setIsLayoutComplete(true);
   };
 
   useEffect(() => {
     let timer: any;
     if (isLayoutComplete) {
-      console.log(`[${index}] Tất cả điều kiện đã thỏa mãn, component đã sẵn sàng`);
 
       try {
         captureRef(ref, {

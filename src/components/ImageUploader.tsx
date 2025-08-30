@@ -46,7 +46,6 @@ export default function ExpoImageUploader({
   const refFirstImage = useRef<boolean>(true);
 
   const { mutate: uploadImages } = useUploadImages(async (data) => {
-    console.log('Uploaded images:', data);
     // Mark current image as uploaded on success
     if (currentUploadingUri) {
       setIsPending(false);

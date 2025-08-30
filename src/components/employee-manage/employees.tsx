@@ -54,8 +54,6 @@ const Employees = () => {
     limit: 20,
   });
 
-  console.log('employeeResponse', employeeResponse);
-
   // Transform API data to match our Employee interface
   const employees = useMemo(() => {
     if (!employeeResponse?.data?.list) return [];

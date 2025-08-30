@@ -53,8 +53,6 @@ const MoreActionsBtn = ({
   
   const currentProduct = orderPickProductsFlat.find((product: Product) => Number(product.id) === Number(id));
 
-  console.log('currentProduct', currentProduct);
-
   const { tags } = currentProduct || {};
 
 

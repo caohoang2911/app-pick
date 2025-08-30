@@ -52,7 +52,6 @@ export const usePushNotifications: any = () => {
   }, []);
 
   const handleGoScreen = useCallback((remoteMessage: any) => {
-    console.log('remoteMessage---3333', remoteMessage)
     const { orderCode, targetScr, action, inviteToken, storeCode } = remoteMessage || {};
 
     // if (!orderCode || navigationInProgress.current) return;

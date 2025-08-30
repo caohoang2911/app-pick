@@ -117,7 +117,6 @@ const OrderList = () => {
   useEffect(() => {
     if (storeCode && !isStoreReady) {
       setIsStoreReady(true);
-      console.log("Store code is now available:", storeCode);
     }
   }, [storeCode, isStoreReady]);
 
@@ -185,7 +184,6 @@ const OrderList = () => {
   const goFirstPage = useCallback(async () => {
     // Only reset and refetch if storeCode exists
     if (!storeCode) {
-      console.log("[Orders] Cannot fetch without storeCode");
       return Promise.resolve();
     }
 
@@ -221,7 +219,6 @@ const OrderList = () => {
     refreshToken();
     // Only perform refresh if storeCode exists
     if (!storeCode) {
-      console.log("[Orders] Cannot refresh without storeCode");
       return;
     }
 
