@@ -34,12 +34,6 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
       onPress: () => router.push('/settings'),
       enable: true
     },
-    {
-      label: 'Quản lý NV',
-      icon: <MaterialIcons name="manage-accounts" size={24} color="black" />,
-      onPress: () => router.push('/employee'),
-      enable: [Role.ADMIN, Role.STORE_MANAGER].includes(userInfo?.role as Role)
-    }
   ]
 
   return (
