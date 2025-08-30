@@ -1,7 +1,12 @@
+import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { debounce } from 'lodash';
-import React, { forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState, useEffect } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { FlatList, Linking, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
+import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
+import { useAuth } from '~/src/core/store/auth';
 import { useConfig } from '~/src/core/store/config';
+import { setLoading } from '~/src/core/store/loading';
 import { CheckCircleFill } from '~/src/core/svgs';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { stringUtils } from '~/src/core/utils/string';
@@ -9,11 +14,6 @@ import { Option } from '~/src/types/commons';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import Empty from './Empty';
-import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
-import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
-import { setLoading } from '~/src/core/store/loading';
-import { useAuth } from '~/src/core/store/auth';
-import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { showMessage } from 'react-native-flash-message';
 
 type StoreType = Option & { address: string };
@@ -118,6 +118,17 @@ const StoreSelection = forwardRef<any, Props>(
     const { stores } = useConfig.use.config() || {};
     const { mutate: requestAssignMeToStore } = useRequestAssignMeToStore(newbie, () => {
       setVisible(false);
+      showMessage({
+        message: '',
+        type: 'success',
+        duration: 10000,
+        renderCustomContent: (_) => (
+          <Text> 
+            <Text className='mr-1 text-white'>Yêu cầu cấp quyền thành công, vui lòng đăng nhập lại sau vài phút. Vui lòng tham gia nhóm để cập nhật thông báo</Text> 
+            <Text className='underline text-blue-500' onPress={() => Linking.openURL('https://t.me/+3BgB-1UkLUUyMWU1')}> https://t.me/+3BgB-1UkLUUyMWU1</Text>
+          </Text>
+        )
+      });
     });
     
     const userInfo = useAuth.use.userInfo();
@@ -170,8 +181,7 @@ const StoreSelection = forwardRef<any, Props>(
     }, []);
 
     const handleSelect = useCallback((store: StoreType) => {
-      if(!role) return;
-      if(['STORE_MANAGER', 'ADMIN'].includes(role)) {
+      if(['STORE_MANAGER', 'ADMIN'].includes(role as string)) {
         setVisible(false);
         onSelect?.(store);
         return;

@@ -24,11 +24,6 @@ export const useRequestAssignMeToStore = (newbie?: boolean, cb?: () => void) => 
     onSuccess: (data: Response) => {
       setLoading(false);
       if (!data.error) {
-
-        showMessage({
-          message: 'Gửi yêu cầu cấp quyền siêu thị thành công',
-          type: 'success',
-        });
         cb?.();
         if(newbie) {
           router.replace('/login')
