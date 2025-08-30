@@ -250,21 +250,13 @@ const OrderList = () => {
   // Memoize item renderer to prevent unnecessary re-renders
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
     // Fast path: Chỉ render các items gần viewport
-    // if (isItemInViewport(index)) {
-      return (
-        <MemoizedOrderItem 
-          item={item} 
-          selectedOrderCounter={selectedOrderCounter} 
-        />
-      );
-    // }
-    
-    // Nếu item ở xa viewport, render placeholder hoặc item đơn giản hơn
     return (
-      <View className="my-3 h-24 bg-gray-50 rounded-md" 
-            style={{height: getItemLayout(null, index).length}} />
+      <MemoizedOrderItem 
+        item={item} 
+        selectedOrderCounter={selectedOrderCounter} 
+      />
     );
-  }, [selectedOrderCounter, visibleIndices]);
+  }, [selectedOrderCounter]);
 
   // Optimize list performance with getItemLayout
   const getItemLayout = useCallback((_: any, index: number) => ({
@@ -275,24 +267,6 @@ const OrderList = () => {
 
   // Optimize key extraction
   const keyExtractor = useCallback((item: any, index: number) => `${item.code}-${index}`, []);
-
-  // Thêm hàm này để theo dõi các items đang hiển thị
-  const isItemInViewport = useCallback((index: number) => {
-    return visibleIndices.includes(index) || 
-           visibleIndices.includes(index - 1) || 
-           visibleIndices.includes(index + 1);
-  }, [visibleIndices]);
-
-  // Thêm prop onViewableItemsChanged cho FlatList
-  const handleViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: any }) => {
-    setVisibleIndices(viewableItems.map((item: any) => item.index));
-  }, []);
-
-  // Cấu hình viewability
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 10,
-    minimumViewTime: 300,
-  }).current;
 
   // Conditional rendering based on state
   if (isLoading) {
@@ -330,20 +304,11 @@ const OrderList = () => {
         }
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        // getItemLayout={getItemLayout}
-        // removeClippedSubviews={true}
+        removeClippedSubviews={true}
         initialNumToRender={5}
         maxToRenderPerBatch={3}
         updateCellsBatchingPeriod={75}
         windowSize={3}
-        // progressViewOffset={10}
-        // maintainVisibleContentPosition={{
-        //   minIndexForVisible: 0,
-        //   autoscrollToTopThreshold: 3
-        // }}
-        // legacyImplementation={Platform.OS === 'android'}
-        // onViewableItemsChanged={handleViewableItemsChanged}
-        // viewabilityConfig={viewabilityConfig}
       />
     </View>
   );

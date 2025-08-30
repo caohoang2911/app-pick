@@ -219,14 +219,13 @@ const StoreSelection = forwardRef<any, Props>(
       }
     }, [visible]);
 
-
     return (
       <SBottomSheet
         visible={visible}
         title="Chọn cửa hàng"
         ref={actionRef}
         maintainPositionOnKeyboard={false}
-        snapPoints={[isKeyboardVisible ? 600 : 400, "80%"]}
+        snapPoints={[isKeyboardVisible ? 600 : 500, "80%"]}
         onClose={handleClose}
         keyboardBehavior="extend"
       >
@@ -246,6 +245,7 @@ const StoreSelection = forwardRef<any, Props>(
           ListEmptyComponent={ListEmptyComponent}
           keyboardShouldPersistTaps="handled"
           scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
         />
       </SBottomSheet>
     );

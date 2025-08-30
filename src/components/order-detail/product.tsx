@@ -140,7 +140,7 @@ const ProductVendor = ({ vendorName }: { vendorName: string }) => {
 
   return (
     <View style={{ maxWidth: screenWidth/2 }}>
-      <Badge label={vendorName} variant="pink" />
+      <Badge label={vendorName} variant="default" />
     </View>
   )
 }
@@ -154,24 +154,26 @@ const BarcodeDisplay = memo(({
   barcode?: string,
 }) => { 
   if(!barcode && !baseBarcode) return null;
+  const shouldShowBarcode = barcode && barcode !== baseBarcode;
+
+  const wrapperClassName = shouldShowBarcode ? 'w-full' : '';
   return (
-    <View className='flex-1 flex-wrap flex-row gap-1 items-center justify-end'>
-      <View className='flex-1'>
-        <Badge
-          label={baseBarcode || '--'}
-          variant="pink"
-          className='flex-1 w-full'
-        />
-      </View>
-      <View className=''>
-        {barcode && barcode !== baseBarcode && ( 
+    <View className='flex-row gap-1 items-center flex-1'>
+        <View className='w-auto'>
           <Badge
-            label={barcode}
+            label={baseBarcode || '--'}
             variant="pink"
-            className='flex-1 w-full'
+            className='d-block'
           />
-        )}
-      </View>
+        </View> 
+        <View className='flex-shrink'>
+          {barcode && barcode !== baseBarcode && ( 
+            <Badge
+              label={barcode}
+              variant="pink"
+            />
+          )}
+        </View>
     </View>
  );
 });
