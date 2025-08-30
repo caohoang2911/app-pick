@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { isEmpty, isNumber } from 'lodash';
+import { isEmpty, isNumber, toLower } from 'lodash';
 import moment from 'moment-timezone';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
@@ -178,8 +178,10 @@ const ReasonDropdown = memo(({
   quantityInit,
   setErrors,
   action,
+  currentProduct,
 }: any) => {
   const isError = values?.pickedQuantity >= quantityInit;
+  const { unit } = currentProduct || {};
 
   const isDisabled = isError || ['out-of-stock', 'low-quality', 'near-date'].includes(action);
 
@@ -193,9 +195,16 @@ const ReasonDropdown = memo(({
     setFieldValue('pickedError', '');
   }, [setFieldValue, isDisabled]);
 
+  const productPickedErrorsWithUnit = useMemo(() => {
+
+      // return productPickedErrors.map((item: any) => item.id !== 'INCORRECT_ORDERED_WEIGHT');
+      return productPickedErrors.map((item: any) => item.id === 'INCORRECT_ORDERED_WEIGHT' ? { ...item, disabled: toLower(unit) !== 'kg' } : item);
+
+  }, [productPickedErrors, unit]);
+
   return (
     <SDropdown
-      data={productPickedErrors}
+      data={productPickedErrorsWithUnit}
       label="Chọn lý do"
       labelClasses="font-medium"
       dropdownPosition="top"
@@ -328,6 +337,7 @@ const FormContent = memo(({
         quantityInit={quantityInit}
         setFieldValue={setFieldValue}
         setErrors={setErrors}
+        currentProduct={currentProduct}
         quantityFromBarcode={quantityFromBarcode}
       />
       <Button onPress={handleSubmit} label={'Xác nhận'} disabled={isError} />
@@ -346,9 +356,6 @@ const InputAmountPopup = () => {
   const action = useOrderPick.use.action();
 
   const [currentPickedProduct, setCurrentPickedProduct] = useState<Product>();
-  
-  // Extract once to prevent unnecessary re-renders
-  const { header } = orderDetail || {};
 
   const { mutate: setOrderTemToPicked } = useSetOrderItemPicked(() => {
     if(currentPickedProduct) {
