@@ -23,7 +23,7 @@ import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
-import { hydrateConfig, useConfig } from '@/core/store/config';
+import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
 import { isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
@@ -32,8 +32,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
-import InviteStoreEmployeeBottomSheet from '../components/shared/invite-store-employee-bottom-sheet';
-import { removeItem } from '../core/storage';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -128,7 +126,7 @@ function RootLayoutNav() {
       >
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
-        <Stack.Screen name="employee" options={{ headerShown: false }} />
+
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
@@ -176,8 +174,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   {loading && <Loading />}
                   {children}
                   <AlertDialog />
-                  {/* Invite Store Employee Bottom Sheet */}
-                  <InviteStoreEmployeeBottomSheet />
+
                 </SafeAreaView>
                 <AlertDialog />
                 <FlashMessage

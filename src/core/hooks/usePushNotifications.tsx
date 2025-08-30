@@ -5,7 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { router, usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, InteractionManager, Platform } from 'react-native';
-import { setInviteBottomSheetVisible } from '../store/employee-manage';
+
 
 export enum TargetScreen {
   ORDER_PICK = 'ORDER-PICK',
@@ -239,7 +239,7 @@ export const usePushNotifications: any = () => {
 
         switch (action) {
           case ActionFromNotification.SHOW_POPUP_INVITE_STORE_EMPLOYEE:
-            setInviteBottomSheetVisible(true)
+            // Employee management removed - handle differently if needed
             router.setParams({
               inviteToken: inviteToken,
               storeCode: storeCode,
