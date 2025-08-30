@@ -25,8 +25,6 @@ const handleAuthError = (message: string) => {
     AUTH_STATE.isAuthError = true;
     AUTH_STATE.lastErrorTime = now;
     
-    console.log('Xử lý lỗi xác thực:', message);
-    
     // Hiển thị thông báo
     showMessage({
       message: message || 'Phiên đăng nhập đã hết hạn',
@@ -46,7 +44,6 @@ const handleAuthError = (message: string) => {
     return true;
   }
   
-  console.log('Bỏ qua lỗi xác thực (đã đang xử lý)');
   return false;
 };
 

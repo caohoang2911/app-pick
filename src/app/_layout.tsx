@@ -58,8 +58,6 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 
   const config = useConfig.use.config();
 
-  console.log(config, 'CONFIG');
-
   useEffect(() => {
     if (token && status === 'signIn') {
       setFCMRegistrationToken({ token: token });
@@ -105,8 +103,6 @@ function RootLayoutNav() {
   const { expired } = useAuth.use.userInfo();
 
   const isExpired = expired && isTimestampExpired(expired);
-
-  console.log(expired, 'IS-EXPIRED');
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {  

@@ -159,7 +159,6 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     };
 
     const handleSelectEmployee = useCallback((employee: any) => {
-      console.log('employee', employee);
       assignOrderToPicker({
         pickerId: employee.id,
         orderCode: code,
