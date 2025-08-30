@@ -17,21 +17,34 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   
   useEffect(() => { 
     if(status === 'signIn'){
-      refetch();
+      if(isEmpty(config)){
+        refetch();
+      }
     }
-  }, [status]);
+  }, [status, config, isDone]);
+  
+  useEffect(() => {
+    if(!isEmpty(config)){
+      setIsDone(true);
+    }
+  }, [config]);  
 
   useEffect(() => {
     if (data?.error) return;
     if (data?.data) {
       setConfig(data.data as ConfigResponse);
     } 
-    setIsDone(true);
 
   }, [data]);
+  
 
   if (isFetching || !isDone) {
     return <Loading />
+  }
+
+  // Không render gì nếu chưa đăng nhập
+  if (status === 'signOut') {
+    return null;
   }
 
   return children;

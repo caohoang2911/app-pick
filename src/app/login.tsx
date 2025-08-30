@@ -118,7 +118,7 @@ export default function Login() {
                     }}
                   />  
                   <View className="mt-3">
-                    <Button loading={isPendingRegular} variant={'warning'} onPress={handleSubmit as any} size="lg" label="Đăng nhập" />
+                    <Button loading={isPendingRegular} variant={'warning'} onPress={handleSubmit as any} size="md" label="Đăng nhập" />
                   </View>
                 </View>
             )}}
@@ -128,7 +128,7 @@ export default function Login() {
         <View className="flex flex-col gap-2 mt-6">
           <View className="px-3 w-auto " style={{ marginTop: -11 }}>
             <View className="flex flex-row gap-2 border-b border-gray-200" />
-            <Text className="text-center w-auto text-sm bg-white self-center px-3 text-gray-500" style={{ marginTop: -11 }}>
+            <Text className="text-center w-auto text-xs bg-white self-center px-3 text-gray-500" style={{ marginTop: -11 }}>
               Hoặc đăng nhập bằng
             </Text>
           </View>
@@ -137,7 +137,7 @@ export default function Login() {
           <Button
             loading={isPending}
             onPress={handleLogin}
-            size="lg"
+            size="md"
             className="w-full"
             label={'Đăng nhập bằng Harawork '}
           />

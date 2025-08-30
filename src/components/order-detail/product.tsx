@@ -152,20 +152,29 @@ const BarcodeDisplay = memo(({
 }: { 
   baseBarcode?: string, 
   barcode?: string,
-}) => (
-  <View className='flex flex-row gap-2 flex-wrap items-center'>
-    <Badge
-      label={baseBarcode || '--'}
-      variant="pink"
-    />
-    {barcode && barcode !== baseBarcode && ( 
-      <Badge
-        label={barcode}
-        variant="pink"
-      />
-    )}
-  </View>
-));
+}) => { 
+  if(!barcode && !baseBarcode) return null;
+  return (
+    <View className='flex-1 flex-wrap flex-row gap-1 items-center justify-end'>
+      <View className='flex-1'>
+        <Badge
+          label={baseBarcode || '--'}
+          variant="pink"
+          className='flex-1 w-full'
+        />
+      </View>
+      <View className=''>
+        {barcode && barcode !== baseBarcode && ( 
+          <Badge
+            label={barcode}
+            variant="pink"
+            className='flex-1 w-full'
+          />
+        )}
+      </View>
+    </View>
+ );
+});
 
 // Add ImagePreviewModal component
 const ImagePreviewModal = memo(({ 
