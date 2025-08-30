@@ -12,6 +12,7 @@ import { getConfigNameById } from "../core/utils/config"
 import { colors } from "../ui/colors"
 import { Avatar, AvatarImage } from "./Avatar"
 import { VersionDisplay } from "./VersionDisplay"
+import { Images } from "~/assets"
 
 
 
@@ -46,7 +47,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
       <View className="flex flex-row gap-2 items-center border-b border-gray-200 pb-2 px-3">
         <TouchableOpacity onPress={toggleMenu}>
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+            <AvatarImage source={Images.avatar_default} alt="@shadcn" />
           </Avatar>
         </TouchableOpacity>
         <View className="gap-1">

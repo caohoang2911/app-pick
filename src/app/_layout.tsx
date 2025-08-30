@@ -23,7 +23,7 @@ import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
-import { hydrateConfig, setConfig, useConfig } from '@/core/store/config';
+import { hydrateConfig, useConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
 import { isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
@@ -34,8 +34,6 @@ import AlertDialog from '../components/AlertDialog';
 import NetworkStatus from '../components/NetWorkStatus';
 import InviteStoreEmployeeBottomSheet from '../components/shared/invite-store-employee-bottom-sheet';
 import { removeItem } from '../core/storage';
-
-const VERSION = '1.0.41';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -49,14 +47,8 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
-
-  console.log(data, 'TOKEN-data');
-
-  useEffect(() => {
-    removeItem("config")
-  }, [data]);
-
-  const config = useConfig.use.config();
+  
+    console.log(data, 'TOKEN-data');
 
   useEffect(() => {
     if (token && status === 'signIn') {

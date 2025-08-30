@@ -390,7 +390,7 @@ const InputAmountPopup = () => {
   }, [orderPickProductsFlat, isEditManual, currentId, barcodeScanSuccess]);
 
   // Extract product properties once
-  const { pickedQuantity, quantity } = currentProduct || { pickedQuantity: 0, quantity: 0 };
+  const { pickedQuantity, quantity, orderQuantity } = currentProduct || { pickedQuantity: 0, quantity: 0, orderQuantity: 0 };
   const displayPickedQuantity = useMemo(() => { 
     if(isNumber(quantityFromBarcode) && action === 'out-of-stock') {
       return 0;
@@ -478,8 +478,8 @@ const InputAmountPopup = () => {
       enableReinitialize={true}
     >
     {({ values, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
-      const isError = values?.pickedQuantity < quantity && !values?.pickedError;
-
+      const isError = values?.pickedQuantity < orderQuantity && !values?.pickedError;
+      
       useEffect(() => {
         if(action === 'out-of-stock') {
           setFieldValue('pickedQuantity', 0);

@@ -77,7 +77,7 @@ function Badge({
 }: BadgeProps) {
   return (
     <View
-      className={`${badgeVariants({ variant })} rounded-full items-center ${className}`}
+      className={`${badgeVariants({ variant })} rounded-full items-center w-auto ${className}`}
       {...props}
     >
       {icon}

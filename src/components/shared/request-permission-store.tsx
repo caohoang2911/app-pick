@@ -1,7 +1,12 @@
-import React, { useRef } from 'react'
-import StoreSelection from './StoreSelection'
-import { View } from 'react-native'
-import { Button } from '../Button'
+import { isEmpty } from 'lodash';
+import React, { useEffect, useRef } from 'react';
+import { View } from 'react-native';
+import { useGetConfig } from '~/src/api/config/useGetConfig';
+import { useConfig } from '~/src/core/store/config';
+import { Button } from '../Button';
+import Loading from '../Loading';
+import StoreSelection from './StoreSelection';
+import { setLoading } from '~/src/core/store/loading';
 
 interface Props {
   code?: string | null;
@@ -9,11 +14,27 @@ interface Props {
 
 const RequestPermissionStore = ({ code }: Props) => {
   const ref = useRef<any>(null)
+  const version = useConfig.use.version();
+  const config = useConfig.use.config();
+  
+  const { refetch, isFetching } = useGetConfig({ version: !isEmpty(config) ? version : "" });
 
   const handleRequestPermission = () => {
-    ref.current.present()
+    ref.current.present() 
   }
-  
+
+  useEffect(() => {
+    if(isEmpty(config)){
+      refetch();
+    }
+  }, [config]);
+
+  useEffect(() => {
+    setLoading(isFetching);
+  }, [isFetching]);
+
+  if(isFetching) return null;
+
   return (
     <View className='flex-1 bg-white justify-center items-center'>
       <Button label='Yêu cầu cấp quyền siêu thị' onPress={handleRequestPermission} />

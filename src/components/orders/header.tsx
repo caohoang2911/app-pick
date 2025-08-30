@@ -25,6 +25,7 @@ import StoreSelection from '../shared/StoreSelection';
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
 import { Badge } from "../Badge";
+import { Images } from "~/assets";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -75,7 +76,7 @@ const Header = () => {
         <View className="flex flex-row gap-2 items-center">
           <TouchableOpacity onPress={toggleMenu}>
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarImage source={Images.avatar_default} alt="@shadcn" />
             </Avatar>
           </TouchableOpacity>
           <View className="flex-grow">
