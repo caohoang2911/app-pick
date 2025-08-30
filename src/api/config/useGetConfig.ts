@@ -7,7 +7,7 @@ type Variables = {
 };
 
 export type ConfigResponse = {
-  allConfig: Config;
+  allConfig?: Config | null;
   version?: string;
 }
 
@@ -23,5 +23,5 @@ export const useGetConfig = ({ version }: Variables) =>
   useQuery({
     queryKey: ['configs', version],
     queryFn: () => getAll({version}), 
-    enabled: false
+    enabled: false,
   });

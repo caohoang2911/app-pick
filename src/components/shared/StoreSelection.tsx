@@ -115,7 +115,7 @@ const StoreSelection = forwardRef<any, Props>(
     const [searchQuery, setSearchQuery] = useState('');
     const actionRef = useRef<any>();
     const searchBarRef = useRef<any>(null);
-    const { stores } = useConfig.use.config();
+    const { stores } = useConfig.use.config() || {};
     const { mutate: requestAssignMeToStore } = useRequestAssignMeToStore(newbie, () => {
       setVisible(false);
     });

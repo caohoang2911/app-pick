@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-
+import { queryClient } from '../../../api/shared/api-provider';
 import { createSelectors } from '../../utils/browser';
 import type { TokenType, UserInfo } from './utils';
 import {
@@ -45,9 +45,23 @@ const _useAuth = create<AuthState>((set, get) => ({
     set({ status: 'signIn', token, userInfo });
   },
   signOut: () => {
+    // Hủy tất cả các queries trước khi xóa token và userInfo
+    queryClient.cancelQueries();
+    queryClient.clear();
+    
+    // Xóa token và userInfo
     removeToken();
     removeUserInfo();
-    set({ status: 'signOut', token: null });
+    
+    // Reset các states
+    set({ 
+      status: 'signOut', 
+      token: null,
+      userInfo: {
+        storeCode: '',
+        storeName: ''
+      }
+    });
     resetOrdersState();
   },
   hydrate: () => {

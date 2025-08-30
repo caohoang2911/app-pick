@@ -82,10 +82,14 @@ const Header = () => {
             <View className="flex flex-row items-center justify-between gap-2 flex-grow">
               <View className="flex-1 mr-2">
                 <Text className="font-semibold text-lg" numberOfLines={1} ellipsizeMode="tail">
-                  {userInfo?.name} - {toUpper(userInfo?.username)}
+                  {userInfo?.name} - {toUpper(userInfo?.username)} 
                 </Text>
               </View>
-              <View className="flex-shrink-0">
+
+              <View className="flex-shrink-0 flex-row gap-3 justify-center items-center">
+                <Pressable className="flex flex-row items-center gap-1" hitSlop={10} onPress={() => refreshToken()}>
+                {isPending ? <ActivityIndicator size="small" color="#4A7FFF" /> : <MaterialIcons name="refresh" size={18} color="#4A7FFF" />}
+                </Pressable>
                 <Badge label={roleName || userInfo?.role} />
               </View>
             </View>
@@ -106,12 +110,6 @@ const Header = () => {
         {/* <Pressable onPress={() => operationTypeRef.current?.present()}>
           <NotificationOutline />
         </Pressable> */}
-      </View>
-      <View className="flex px-4 flex-row gap-1 items-center">
-        <Text className="font-heading text-xl">Danh sách đơn hàng</Text>
-        <Pressable className="flex flex-row items-center gap-1" hitSlop={10} onPress={() => refreshToken()}>
-         {isPending ? <ActivityIndicator size="small" color="#4A7FFF" /> : <MaterialIcons name="refresh" size={18} color="#4A7FFF" />}
-        </Pressable>
       </View>
       <View className="flex flex-row mt-2 justify-between z-10 items-center gap-3">
         <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
