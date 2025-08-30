@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { cn } from '@/lib/utils';
-import { CloseLine } from '../core/svgs';
+import { CheckCircleFill, CloseLine } from '../core/svgs';
 import ArrowDown from '../core/svgs/ArrowDown';
 
 export interface SDropdownProps {
@@ -38,11 +38,28 @@ const SDropdown = ({
   ...rests
 }: SDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
+  const ref = useRef<any>(null);
+
+  const renderItem = (item: any) => {
+    return (
+      <TouchableOpacity 
+        style={[styles.item, item.disabled && { opacity: 0.5 }]} onPress={() => {
+        if(item.disabled) return;
+        onSelect?.(item?.[valueField]);
+        setIsFocus(false);
+        ref.current?.close();
+      }}>
+        <Text>{item[labelField]}
+        </Text>{ value === item?.[valueField] && <CheckCircleFill width={20} height={20} color="green" />}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View className={cn('flex flex-col gap-1.5')} style={styles.container}>
       {label && <Text className={cn('text-base', labelClasses)}>{label}</Text>}
       <Dropdown
+        ref={ref}
         style={[
           styles.dropdown,
           isFocus && { borderColor: '	border-color: rgb(203 213 225)' },
@@ -62,6 +79,7 @@ const SDropdown = ({
         value={value}
         containerStyle={styles.containerStyle}
         onFocus={() => setIsFocus(true)}
+        selectedTextProps={{ numberOfLines: 1, ellipsizeMode: 'tail' }}
         renderRightIcon={() => 
           <View className='flex items-center justify-center gap-1 flex-row'>
             {allowClear && value && <Pressable className='bg-gray-50 rounded-full p-1' onPress={() => {
@@ -74,6 +92,7 @@ const SDropdown = ({
             <ArrowDown width={20} height={20} color="#999999"  />
           </View>
         }
+        renderItem={(item: any) => renderItem(item)}
         onBlur={() => setIsFocus(false)}
         onChange={(item: any) => {
           onSelect?.(item?.[valueField]);
@@ -107,6 +126,8 @@ const styles = StyleSheet.create({
   containerStyle: {
     borderRadius: 5,
     overflow: 'hidden',
+    borderColor: '#ddd',
+    borderWidth: 1,
     marginBottom: 7,
   },
   placeholderStyle: {
@@ -123,5 +144,14 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+  item: {
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
