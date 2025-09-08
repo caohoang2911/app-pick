@@ -59,7 +59,8 @@ const ActionsBottom = () => {
       onConfirm: () => {
         router.push(`orders/order-bags/${code}`);
         hideAlert();
-      }
+      },
+      isHideCancelButton: true,
     })
   }
 
