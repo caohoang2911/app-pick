@@ -30,7 +30,9 @@ const _useAuth = create<AuthState>((set, get) => ({
   urlRedirect: '',
   userInfo: {
     storeCode: '',
-    storeName: ''
+    storeName: '',
+    driverAssignedStoreCodes: [],
+    driverOrderAssignStatus: 'DISABLE',
   },
   setRedirectUrl: (url: string) => {
     set({ urlRedirect: url });

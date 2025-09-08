@@ -7,20 +7,24 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
 import {
   ORDER_COUNTER_STATUS,
+  ORDER_COUNTER_STATUS_DRIVER,
   ORDER_COUNTER_STATUS_PRIORITY,
+  ORDER_COUNTER_STATUS_PRIORITY_DRIVER,
 } from '~/src/contants/order';
 import { useAuth } from '~/src/core';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
+import { Role } from '~/src/types/employee';
 
 const TabsStatus = () => {
   const ref = useRef<any>();
   const cachingOrderStatusCounters = useRef<any>(null);
 
-  const { storeCode } = useAuth.use.userInfo();
+  const { storeCode, role} = useAuth.use.userInfo();
   const { data, refetch } = useGetOrderStatusCounters();
   const orderStatusCounters = data?.data ? { ...cachingOrderStatusCounters.current, ...data.data } : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+
 
   useEffect(() => {
     cachingOrderStatusCounters.current = orderStatusCounters;
@@ -44,12 +48,15 @@ const TabsStatus = () => {
   }, [storeCode])
 
   const dataStatusCounters = useMemo(() => {
-    return Object.keys(orderStatusCounters)?.filter(key => ORDER_COUNTER_STATUS_PRIORITY[key] !== undefined)?.map(
+    const priority = role === Role.DRIVER ? ORDER_COUNTER_STATUS_PRIORITY_DRIVER : ORDER_COUNTER_STATUS_PRIORITY;
+    const labels = role === Role.DRIVER ? ORDER_COUNTER_STATUS_DRIVER : ORDER_COUNTER_STATUS;
+    
+    return Object.keys(orderStatusCounters)?.filter(key => priority[key] !== undefined)?.map(
       (key: string) => {
         return {
           id: key,
-          label: ORDER_COUNTER_STATUS[key],
-          priority: ORDER_COUNTER_STATUS_PRIORITY[key],
+          label: labels[key],
+          priority: priority[key],
           number: (orderStatusCounters as any)[key],
         };
       }

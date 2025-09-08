@@ -1,6 +1,7 @@
 
 
 export type OrderStatus = 'ALL' | 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED' | 'BOOKED_SHIPPER' | 'SHIPPING';
+export type OrderStatusDriver = 'UPCOMING_DELIVERY' | 'ON_TIME_DELIVERY' | 'OVERDUE_DELIVERY';
 
 export enum OrderStatusValue {
   ALL = 'ALL',

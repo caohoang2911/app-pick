@@ -1,8 +1,12 @@
 
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
+import { useRole } from '~/src/core/hooks/useRole';
+import { Role } from '~/src/types/employee';
 
-type Variables = {};
+type Variables = {
+  role: Role;
+};
 
 export type OrderCounterResponse = {
   ALL?: number;
@@ -18,14 +22,20 @@ type Response = { error: string } & {
   data: OrderCounterResponse;
 };
 
-const getCounter = async (): Promise<Response> => {
-  return await axiosClient.get('app-pick/getOrderStatusCounters');
+const getCounter = async (role: Role): Promise<Response> => {
+  const contextPath = role === Role.DRIVER ? 'app-pick-driver' : 'app-pick';
+  
+  return await axiosClient.get(`${contextPath}/getOrderStatusCounters`);
 };
-export const useGetOrderStatusCounters = () =>
-  useQuery({
+export const useGetOrderStatusCounters = () => {
+
+  const role = useRole();
+  
+  return  useQuery({
     queryKey: ['getOrderStatusCounters'],
     queryFn: () => {
-      return getCounter();
+      return getCounter(role as Role);
     },
     enabled: true
   });
+}
