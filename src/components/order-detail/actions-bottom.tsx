@@ -83,7 +83,7 @@ const ActionsBottom = () => {
 
   const isShowScanButton = () => {
     if (status === 'CONFIRMED') return false;
-    if (canCompletePick && status === 'STORE_PICKING' &&  shipping?.packageSize) return false;
+    if (canCompletePick && status === 'STORE_PICKING') return false;
 
     return true;
   };
