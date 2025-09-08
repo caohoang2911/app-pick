@@ -1,4 +1,5 @@
 import { getItem, removeItem, setItem } from '@/core/storage';
+import { Role } from '~/src/types/employee';
 
 const TOKEN = 'token';
 const USER_INFO = 'user_info';
@@ -9,10 +10,12 @@ export type UserInfo = {
   expired?: number;
   username?: string;
   company?: string;
-  role?: string;
+  role?: Role;
   storeCode: string;
   storeName: string;
   zas?: string;
+  driverAssignedStoreCodes: string[];
+  driverOrderAssignStatus: "ENABLE" | "DISABLE";
 };
 
 export type TokenType = {

@@ -9,10 +9,11 @@ import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
 import { setUser, useAuth } from '~/src/core';
+import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { removeItem } from '~/src/core/storage';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { setLoading } from '~/src/core/store/loading';
-import { setFromScanQrCode, useOrders } from '~/src/core/store/orders';
+import { setFromScanQrCode, setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
 import OrderItem from './order-item';
@@ -78,6 +79,22 @@ const EmptyComponent = memo(({ isFetching }: { isFetching: boolean }) => {
   return null;
 });
 
+// Component to handle default tab initialization based on user role
+const DefaultTabInitializer = memo(() => {
+  const isDriver = useRoleDriver();
+  const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+
+  useEffect(() => {
+    if (isDriver) {
+      setSelectedOrderCounter("ALL");
+    } else if (!isDriver) {
+      setSelectedOrderCounter('CONFIRMED');
+    }
+  }, [isDriver]);
+
+  return null; // This component doesn't render anything
+});
+
 const OrderList = () => {
   // References
   const flatListRef = useRef<FlatList>(null);
@@ -110,6 +127,17 @@ const OrderList = () => {
   const deliveryType = useOrders.use.deliveryType();
   const fromScanQrCode = useOrders.use.fromScanQrCode();
 
+  const isDriver = useRoleDriver();
+
+  // Initialize default tab based on user role
+  useEffect(() => {
+    if (isDriver ) {
+      setSelectedOrderCounter("ALL");
+    } else if (!isDriver) {
+      setSelectedOrderCounter('CONFIRMED');
+    }
+  }, [isDriver]);
+
   // State
   const [isRefreshIndicatorVisible, setIsRefreshIndicatorVisible] = useState(false);
 
@@ -119,6 +147,7 @@ const OrderList = () => {
     return ({
       status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
       deliveryType: fromScanQrCode ? null : deliveryType,
+
     })
   }, [selectedOrderCounter, deliveryType, fromScanQrCode]);
 

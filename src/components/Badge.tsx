@@ -13,7 +13,7 @@ const badgeVariants = cva(
         danger: 'bg-red-50',
         pink: 'bg-pink-50',
         destructive: 'bg-destructive',
-        success: 'bg-green-500 dark:bg-green-700',
+        success: 'bg-green-50',
         // 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED';
         confirmed: 'bg-blue-50',
         store_picking: 'bg-orange-50',
@@ -40,7 +40,7 @@ const badgeTextVariants = cva('font-medium text-center text-xs', {
       destructive: 'text-destructive-foreground',
       pink: 'text-pink-600',
       danger: 'text-red-600',
-      success: 'text-green-100',
+      success: 'text-green-600',
       warning: 'text-orange-600',
       confirmed: 'text-blue-600',
       store_picking: 'text-orange-600',

@@ -1,13 +1,16 @@
 import { axiosClient } from '@/api/shared';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { OrderStatus } from '~/src/types/order';
+import { useRole } from '~/src/core/hooks/useRole';
+import { OrderStatus, OrderStatusDriver } from '~/src/types/order';
+import { Role } from '~/src/types/employee';
 
 type Variables = {
-  status?: OrderStatus;
+  status?: OrderStatus | OrderStatusDriver;
   keyword?: string;
   pageIndex?: number;
   expectedDeliveryTime?: string;
   deliveryType?: string | null;
+  role?: Role;
 };
 
 export type SearchOrdersResponse = {
@@ -34,14 +37,17 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
     filter: JSON.stringify({ ...filterCopy }),
   };
 
-  return await axiosClient.get('app-pick/searchOrders', { params });
+  const contextPath = filter?.role === Role.DRIVER ? 'app-pick-driver' : 'app-pick';
+
+  return await axiosClient.get(`${contextPath}/searchOrders`, { params });
 };
 
-export const useSearchOrders = (params?: Variables, options?: any, queryKey?: string) =>
-  useInfiniteQuery({
+export const useSearchOrders = (params?: Omit<Variables, 'role'>, options?: any, queryKey?: string) => {
+  const role  = useRole();
+  return useInfiniteQuery({
     queryKey: [queryKey || 'searchOrders', params],
     queryFn: ({ pageParam = 0 }) => {
-      return searchOrders({ ...params, pageIndex: pageParam as number });
+      return searchOrders({ ...params, pageIndex: pageParam as number, role: role as Role });
     },
     getNextPageParam: (lastPage, allPages) => {
       const pageIndex = lastPage.data?.pageIndex;
@@ -57,3 +63,4 @@ export const useSearchOrders = (params?: Variables, options?: any, queryKey?: st
     initialPageParam: 1,
     ...options,
   });
+}

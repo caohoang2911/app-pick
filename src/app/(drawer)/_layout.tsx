@@ -12,14 +12,12 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   const status = useAuth.use.status();
   const version = useConfig.use.version();
   const config = useConfig.use.config();
+
   const { data, refetch, isFetching } = useGetConfig({ version: !isEmpty(config) ? version : "" });
   
   useEffect(() => { 
     if(status === 'signIn'){
-
-      if(isEmpty(config)){
-        refetch();
-      }
+      refetch();
     }
   }, [status, config, isDone]);
   
