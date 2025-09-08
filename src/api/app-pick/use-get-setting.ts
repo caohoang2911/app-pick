@@ -22,6 +22,6 @@ export const useGetSettingQuery = () => {
     queryFn: () => {
       return getSetting();
     },
-    enabled: true,
+    enabled: false,
   });
 };

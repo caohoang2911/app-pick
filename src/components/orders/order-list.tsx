@@ -85,6 +85,8 @@ const OrderList = () => {
   const isManualRefreshRef = useRef(false);
   const prevParamsRef = useRef<any>(null);
 
+  const userInfo = useAuth.use.userInfo();
+
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setToken(data?.data?.zas || '');
     removeItem('ip');
@@ -107,22 +109,9 @@ const OrderList = () => {
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const deliveryType = useOrders.use.deliveryType();
   const fromScanQrCode = useOrders.use.fromScanQrCode();
-  const userInfo = useAuth.use.userInfo();
-  const { storeCode = '' } = userInfo || {};
-
-  // Add verification for store code
-  const [isStoreReady, setIsStoreReady] = useState(!!storeCode);
-
-  // Check if store code is available
-  useEffect(() => {
-    if (storeCode && !isStoreReady) {
-      setIsStoreReady(true);
-    }
-  }, [storeCode, isStoreReady]);
 
   // State
   const [isRefreshIndicatorVisible, setIsRefreshIndicatorVisible] = useState(false);
-  const [visibleIndices, setVisibleIndices] = useState<number[]>([]);
 
   // Memoize search params
   const params = useMemo(() =>{
@@ -130,9 +119,8 @@ const OrderList = () => {
     return ({
       status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
       deliveryType: fromScanQrCode ? null : deliveryType,
-      storeCode: storeCode || '',
     })
-  }, [selectedOrderCounter, deliveryType, storeCode, fromScanQrCode]);
+  }, [selectedOrderCounter, deliveryType, fromScanQrCode]);
 
   // Check if params have changed
   const haveParamsChanged = useCallback(() => {
@@ -142,8 +130,7 @@ const OrderList = () => {
     const prevParams = prevParamsRef.current;
     return (
       prevParams.status !== params?.status ||
-      prevParams.deliveryType !== params?.deliveryType ||
-      prevParams.storeCode !== params?.storeCode
+      prevParams.deliveryType !== params?.deliveryType
     );
   }, [params]);
 
@@ -163,15 +150,12 @@ const OrderList = () => {
     hasPreviousPage,
     isSuccess,
     isPending
-  } = useSearchOrders(
-    // Only pass params when storeCode exists to prevent unnecessary API calls
-    isStoreReady && storeCode ? params : undefined
-  );
+  } = useSearchOrders(params);
 
   const orderList = useMemo(() => ordersResponse?.pages || [], [ordersResponse?.pages]);
   const hasItems = orderList.length > 0;
   const hasError = !!(ordersResponse as any)?.error;
-  const isLoading = (!hasPreviousPage && isPending && !isManualRefreshRef.current) || !isStoreReady;
+  const isLoading = (!hasPreviousPage && isPending && !isManualRefreshRef.current);
 
   // Reset scan QR flag after successful fetch
   useEffect(() => {
@@ -182,45 +166,36 @@ const OrderList = () => {
 
   // First page reset function - memoized
   const goFirstPage = useCallback(async () => {
-    // Only reset and refetch if storeCode exists
-    if (!storeCode) {
-      return Promise.resolve();
-    }
-
     await queryClient.setQueryData(['searchOrders', params], () => ({
       pages: [],
       pageParams: 1,
     }));
     return refetch();
-  }, [params, refetch, storeCode]);
+  }, [params, refetch]);
 
   // Reset page on filter changes
   useEffect(() => {
-    if (!isInitialRender.current && haveParamsChanged() && storeCode) {
+    if (!isInitialRender.current && haveParamsChanged()) {
       isManualRefreshRef.current = false;
       goFirstPage();
     } else {
       isInitialRender.current = false;
     }
-  }, [selectedOrderCounter, deliveryType, goFirstPage, haveParamsChanged, storeCode]);
+  }, [selectedOrderCounter, deliveryType, goFirstPage, haveParamsChanged]);
 
   // Refresh on screen focus
   useFocusEffect(
     useCallback(() => {
-      if (!isInitialRender.current && storeCode) {
+      if (!isInitialRender.current) {
         refetch();
       }
       return () => {};
-    }, [refetch, storeCode])
+    }, [refetch])
   );
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(() => {
     refreshToken();
-    // Only perform refresh if storeCode exists
-    if (!storeCode) {
-      return;
-    }
 
     isManualRefreshRef.current = true;
     setIsRefreshIndicatorVisible(true);
@@ -228,24 +203,24 @@ const OrderList = () => {
     Promise.all([
       goFirstPage(),
       queryClient.invalidateQueries({ 
-        queryKey: ['getOrderStatusCounters', storeCode] 
+        queryKey: ['getOrderStatusCounters'] 
       }),
       queryClient.invalidateQueries({ 
-        queryKey: ['getOrderDeliveryTypeCounters', storeCode, selectedOrderCounter] 
+        queryKey: ['getOrderDeliveryTypeCounters', selectedOrderCounter] 
       })
     ]).finally(() => {
       // Hide refresh indicator after all queries complete
       setTimeout(() => setIsRefreshIndicatorVisible(false), 500);
     });
-  }, [goFirstPage, storeCode, selectedOrderCounter]);
+  }, [goFirstPage, selectedOrderCounter]);
 
   // Handle end reached - load more data
   const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetching && !isFetchingNextPage && storeCode) {
+    if (hasNextPage && !isFetching && !isFetchingNextPage) {
       isManualRefreshRef.current = false;
       fetchNextPage();
     }
-  }, [hasNextPage, isFetching, isFetchingNextPage, fetchNextPage, storeCode]);
+  }, [hasNextPage, isFetching, isFetchingNextPage, fetchNextPage]);
 
   // Memoize item renderer to prevent unnecessary re-renders
   const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {

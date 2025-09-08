@@ -17,7 +17,7 @@ const TabsStatus = () => {
   const cachingOrderStatusCounters = useRef<any>(null);
 
   const { storeCode } = useAuth.use.userInfo();
-  const { data, refetch } = useGetOrderStatusCounters({ storeCode });
+  const { data, refetch } = useGetOrderStatusCounters();
   const orderStatusCounters = data?.data ? { ...cachingOrderStatusCounters.current, ...data.data } : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();

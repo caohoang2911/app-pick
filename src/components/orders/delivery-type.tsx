@@ -36,7 +36,7 @@ function DeliveryType() {
 
   const isFirtTime = useRef(true);
 
-  const { data, refetch } = useGetOrderDeliveryTypeCounters({ storeCode, status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
+  const { data, refetch } = useGetOrderDeliveryTypeCounters({ status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
 
   const counters = data?.data ? { ...cachingShippingMethods.current, ...data.data } : {};
 
@@ -61,7 +61,7 @@ function DeliveryType() {
 
 
   const handleSelect = (value: string) => {
-    queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters', storeCode] });
+    queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters'] });
     if(refCurrentStatus.current === value) {
       setDeliveryType(null);
       refCurrentStatus.current = null;
