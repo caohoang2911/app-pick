@@ -15,10 +15,10 @@ import { setLoading } from '~/src/core/store/loading';
 import { setOrderDetail, undoLastChange, useOrderBag } from '~/src/core/store/order-bag';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-detail';
+
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const orderDetail = useOrderPick.use.orderDetail();
-  const { isRequireSelectShippingPackageSize } = orderDetail?.header as OrderDetailHeader;
   const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -32,6 +32,7 @@ const OrderBags = () => {
 
   const isShowPackageSizePicker = deliveryType !== 'CUSTOMER_PICKUP';
 
+  const isDisabledPrintAll = orderBags.DRY.length === 0 && orderBags.FRESH.length === 0 && orderBags.FROZEN.length === 0;
 
 
   const { mutate: updateOrderBagLabels } = useUpdateOrderBagLabels((error) => {
@@ -50,8 +51,6 @@ const OrderBags = () => {
     }
   });
 
-
-
   useEffect(() => {
     setOrderDetail(data?.data || {});
     
@@ -64,15 +63,22 @@ const OrderBags = () => {
     return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
   }
 
+  const { shipping } = orderDetail?.header as OrderDetailHeader;
+  const { packageSize } = shipping || {};
+
   const handlePrintAll = () => {
-    if(!isRequireSelectShippingPackageSize) {
-      router.push(`/orders/print-preview?code=${code}`);
-    } else {
+    const messagePackageSize = !packageSize && 'Vui lòng chọn kích thước gói hàng';
+    const message = isDisabledPrintAll ? 'Vui lòng thêm tem' : messagePackageSize;
+    if(message) {
       showMessage({
-        message: 'Vui lòng chọn kích thước gói hàng',
+        message,
         type: 'danger',
       });
+
+      return;
     }
+
+    router.push(`/orders/print-preview?code=${code}`);
   }
 
   useEffect(() => {
@@ -85,6 +91,14 @@ const OrderBags = () => {
       });
     }
   }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN, isInitialLoad]);
+
+  useEffect(() => {
+    if(isPending || isFetching) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [isPending, isFetching]);
 
   return (
     <View className='flex-1 mb-4'>
@@ -100,7 +114,6 @@ const OrderBags = () => {
           <Button label='In tất cả' onPress={handlePrintAll} />
         </View>
       </View>
-      
     </View>
   )
 }

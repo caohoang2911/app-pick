@@ -33,10 +33,12 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
   const [visible, setVisible] = useState(false);
   const orderDetail = useOrderPick.use.orderDetail();
 
-  const header = orderDetail?.header;
+  const header = orderDetail?.header || {};
 
-  const { shipping, status, isRequireSelectShippingPackageSize } = header as OrderDetailHeader;
+  const { shipping, status } = header as OrderDetailHeader;
   const actionRef = useRef<BottomSheetModal>(null);
+  
+  const { packageSize } = shipping || {};
 
   const { code: orderCode } = useLocalSearchParams<{ code: string }>();
 
@@ -50,7 +52,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
     {
       key: PackageSize.STANDARD,
       title: PackageSizeLabel.STANDARD,
-      active: (!isRequireSelectShippingPackageSize && shipping?.packageSize === PackageSize.STANDARD) || false,
+      active: shipping?.packageSize === PackageSize.STANDARD,
     },
     {
       key: PackageSize.SIZE_1,
@@ -67,7 +69,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
       title: PackageSizeLabel.SIZE_3,
       active: shipping?.packageSize === PackageSize.SIZE_3,
     },
-  ], [shipping?.packageSize, isRequireSelectShippingPackageSize]);
+  ], [shipping?.packageSize]);
 
   const renderItem = ({
     onClickAction,
@@ -129,9 +131,9 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({  }) => {
         <Box className="flex-row items-center justify-between">
           <View className="">
             <Text 
-              className={`font-bold text-base  ${isRequireSelectShippingPackageSize && `text-orange-500`}`}>Kích thước gói hàng</Text>
+              className={`font-bold text-base  ${`text-orange-500`}`}>Kích thước gói hàng</Text>
             <Text className="text-gray-300 font-bold text-xs">
-              {shipping?.packageSize && !isRequireSelectShippingPackageSize ? PackageSizeLabel[shipping.packageSize as keyof typeof PackageSizeLabel] : 'Vui lòng chọn'}</Text>
+              {packageSize ? PackageSizeLabel[packageSize as keyof typeof PackageSizeLabel] : 'Vui lòng chọn'}</Text>
           </View>
           {isEditPackageSize && <AntDesign name="right" size={18} color="black" />}
         </Box>
