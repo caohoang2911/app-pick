@@ -29,7 +29,7 @@ import { Badge } from "../Badge";
 import { Images } from "~/assets";
 import { Role } from "~/src/types/employee";
 import { useRole, useRoleDriver } from "~/src/core/hooks/useRole";
-import { useSetMyOrderAssignStatus } from "~/src/api/app-pick-driver/useSetMyOrderAssignStatus";
+import { useAssignOrderShippingToMe } from "~/src/api/app-pick-driver/useAssignOrderShippingToMe";
 import OrderStatusBottomSheet from "./order-status-bottom-sheet";
 import AssignStoreBottomSheet from "./assign-store-bottom-sheet";
 
