@@ -7,13 +7,13 @@ type Variables = {
 
 type Response = { error: string } & {};
 
-const setMyOrderAssignStatus = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick-driver/setMyOrderAssignStatus', params);
+const assignOrderShippingToMe = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick-driver/assignOrderShippingToMe', params);
 };
 
-export const useSetMyOrderAssignStatus = (cb?: () => void, cbError?: (error: string) => void) => {
+export const useAssignOrderShippingToMe = (cb?: () => void, cbError?: (error: string) => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => setMyOrderAssignStatus(params),
+    mutationFn: (params: Variables) => assignOrderShippingToMe(params),
     onSuccess: (data: Response) => {
       if(!data.error) {
         cb?.();

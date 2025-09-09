@@ -4,7 +4,7 @@ import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
 import { setUser, useAuth } from '~/src/core/store/auth';
-import { useSetMyOrderAssignStatus } from '~/src/api/app-pick-driver/useSetMyOrderAssignStatus';
+import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/useAssignOrderShippingToMe';
 import { setUserInfo } from '~/src/core/store/auth/utils';
 
 interface OrderStatusModalProps {
@@ -20,7 +20,7 @@ const OrderStatusBottomSheet = forwardRef<OrderStatusModalRef, OrderStatusModalP
   ({ onClose, currentStatus = 'ENABLE' }, ref) => {
     const userInfo = useAuth.use.userInfo();
 
-    const { mutate: setMyOrderAssignStatus } = useSetMyOrderAssignStatus(() => {
+    const { mutate: setMyOrderAssignStatus } = useAssignOrderShippingToMe(() => {
       const newDriverOrderAssignStatus = userInfo.driverOrderAssignStatus === "ENABLE" ? "DISABLE" : "ENABLE";
   
       setUserInfo({

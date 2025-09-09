@@ -17,6 +17,7 @@ import { OrderStatus } from "~/src/types/order";
 import { Payment } from "~/src/types/order-detail";
 import { Badge } from "../Badge";
 import MoreActionsBtn from "./more-actions-btn";
+import { useRoleDriver } from "~/src/core/hooks/useRole";
 
 const RowWithLabel = memo(({icon, label, value, pickedItemProgress, bagsSize}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number, bagsSize?: number}) => {
   return (
@@ -91,13 +92,15 @@ const OrderItem = ({
   const fulfillErrorTypes = config?.fulfillErrorTypes || [];
   const fulfillErrorTypeDisplay = getConfigNameById(fulfillErrorTypes, fulfillError?.type);
 
+  const isDriver = useRoleDriver();
+
   const handlePress = useCallback(() => {
-    if(type === 'STORE_DELIVERY') {
+    if(type === 'STORE_DELIVERY' || isDriver) {
       router.push(`orders/order-invoice/${code}`);
     } else {
       router.push({ pathname: `orders/order-detail/${code}`, params: { status } });
     }
-  }, [type, code, status, router]);
+  }, [type, code, status, isDriver, router]);
 
   const shouldShowassignee = picker?.username && picker?.name;
 

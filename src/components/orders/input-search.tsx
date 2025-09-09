@@ -10,17 +10,20 @@ import { getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import SearchableDropdown, { SearchableDropdownRef } from '../SearchableDropdown';
+import { useRoleDriver } from "~/src/core/hooks/useRole";
 
 const MIN_LENGTH_SEARCH = 3;
 
 const OrderItem = memo(({ item }: { item: any }) => {
+  const isDriver = useRoleDriver();
+
   const handleSelect = useCallback(() => {
-    if(item.type === 'STORE_DELIVERY') {
+    if(item.type === 'STORE_DELIVERY' || isDriver) {
       router.push(`orders/order-invoice/${item.code}`);
     } else {
       router.push({ pathname: `orders/order-detail/${item.code}`, params: { status: item.status } });
     }
-  }, [item.code, item.status, item.type]);
+  }, [item.code, item.status, item.type, isDriver]);
 
   const formattedAmount = useMemo(() => 
     formatCurrency(item.amount, {unit: true}), 
