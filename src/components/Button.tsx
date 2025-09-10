@@ -13,7 +13,7 @@ const buttonVariants = cva(
         secondary: 'bg-secondary border border-gray-400',
         destructive: 'bg-destructive',
         ghost: 'bg-slate-700',
-        warning: 'bg-orange-500',
+        warning: 'bg-yellow-500',
         danger: 'bg-red-500',
         link: 'text-primary underline-offset-4',
         text: 'bg-transparent',

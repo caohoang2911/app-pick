@@ -5,15 +5,15 @@ import { router, useNavigation } from "expo-router"
 import { toUpper } from "lodash"
 import { Dimensions, Pressable, ScrollView, Text, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import { Role } from "~/src/types/employee"
-import { signOut, useAuth } from "../core"
+import { Images } from "~/assets"
+import { useRoleDriver } from "~/src/core/hooks/useRole"
+import { useSignOut } from "~/src/core/hooks/useSignOut"
+import { useAuth } from "../core"
 import { useConfig } from "../core/store/config"
 import { getConfigNameById } from "../core/utils/config"
 import { colors } from "../ui/colors"
 import { Avatar, AvatarImage } from "./Avatar"
 import { VersionDisplay } from "./VersionDisplay"
-import { Images } from "~/assets"
-import { useRoleDriver } from "~/src/core/hooks/useRole"
 
 
 
@@ -28,6 +28,9 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
   const roleName = getConfigNameById(employeeRoles, userInfo?.role);
 
   const isDriver = useRoleDriver();
+
+
+  const triggerSignOut = useSignOut();
 
 
   const MENU_ITEMS: { label: string, icon: React.ReactNode, onPress: () => void, enable?: boolean, show?: boolean }[] = [
@@ -80,7 +83,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
         )}
       </ScrollView>
       <VersionDisplay />
-      <Pressable onPress={signOut}>
+      <Pressable onPress={triggerSignOut}>
         <View className="flex flex-row gap-2 items-center border-t border-gray-200 py-3 px-3 ml-3">
           <MaterialIcons name="logout" size={20} color={colors.black} />
           <Text className="text-md font-body">Logout</Text>

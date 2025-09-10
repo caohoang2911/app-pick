@@ -67,7 +67,7 @@ const OrderBags = () => {
   const { packageSize } = shipping || {};
 
   const handlePrintAll = () => {
-    const messagePackageSize = !packageSize && 'Vui lòng chọn kích thước gói hàng';
+    const messagePackageSize = !packageSize && isShowPackageSizePicker && 'Vui lòng chọn kích thước gói hàng';
     const message = isDisabledPrintAll ? 'Vui lòng thêm tem' : messagePackageSize;
     if(message) {
       showMessage({

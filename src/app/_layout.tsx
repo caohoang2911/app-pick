@@ -8,7 +8,7 @@ import {
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { AppState, StatusBar, Text, TouchableOpacity } from 'react-native';
+import { StatusBar, Text, TouchableOpacity } from 'react-native';
 import FlashMessage, { hideMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -18,19 +18,20 @@ export { ErrorBoundary } from 'expo-router';
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
-import { hydrateAuth, signOut, useAuth } from '@/core';
+import { hydrateAuth, useAuth } from '@/core';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
-import { isTimestampExpired, setDefaultTimeZone } from '@/core/utils/moment';
+import { setDefaultTimeZone } from '@/core/utils/moment';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
+import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -89,28 +90,6 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const [appState, setAppState] = useState(AppState.currentState);
-  const { expired } = useAuth.use.userInfo();
-
-  const isExpired = expired && isTimestampExpired(expired);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {  
-      // Check for the current state of the app  
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {  
-        if(isExpired) {
-          signOut();
-        }
-      }  
-      setAppState(nextAppState);  
-    });  
-
-    // Cleanup the subscription on unmount  
-    return () => {  
-      subscription.remove();  
-    };  
-  }, [appState, isExpired]);  
-
   return (
     <Providers>
       <Stack
@@ -205,6 +184,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                 />
               </AuthWrapper>
             </NotificationWrapper>
+            <AppStateEffect />
           </APIProvider>
         </PortalProvider>
       </GestureHandlerRootView>
