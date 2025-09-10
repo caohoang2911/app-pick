@@ -9,6 +9,16 @@ const BLACK_LIST_SHOW_MESSAGE = [
 
 const DUMMY_TOKEN = "4kkgCYTSGyU4hc50sSNRYiCAZ2KxQPQzUClPl-cMi8EKduxy1jLs1OweKInfH7etwjBZBWE5HV7ZAbi_3J8_BA"
 
+// Function để gọi API logout
+const callLogoutAPI = async () => {
+  try {
+    await axiosClient.post('auth/logout');
+  } catch (error) {
+    // Bỏ qua lỗi API logout, vẫn sẽ clear state local
+    console.log('Logout API failed:', error);
+  }
+};
+
 // Biến toàn cục theo dõi trạng thái auth
 const AUTH_STATE = {
   isAuthError: false,
@@ -32,7 +42,11 @@ const handleAuthError = (message: string) => {
     });
     
     // Logout sau một khoảng thời gian ngắn
-    setTimeout(() => {
+    setTimeout(async () => {
+      // Gọi API logout trước
+      await callLogoutAPI();
+      
+      // Sau đó clear state local
       signOut();
       
       // Reset trạng thái sau 1 giây

@@ -1,3 +1,4 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo } from 'react';
@@ -91,6 +92,24 @@ const OrderScanToDelivery = () => {
     return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
   }, [tags]);
 
+  const renderAction = useMemo(() => {
+    if(!orderBags.length && isPending) return null;
+    return isAllDone ? (
+      <Button
+        loading={isLoadingHandoverOrder}
+        onPress={handleCheckoutOrderBags}
+        label={actionType}
+        variant='warning'
+      />
+    ) : (
+      <Button
+        onPress={() => toggleScanQrCodeProduct(true)}
+        icon={<FontAwesome name="qrcode" size={20} color="white" /> }
+        label={'Scan túi'}
+      />
+    )
+  }, [isAllDone, orderBags, isLoadingHandoverOrder, handleCheckoutOrderBags, actionType, isPending]);
+
   return (
     <>
       <View className='flex-1 mt-3'>
@@ -98,7 +117,7 @@ const OrderScanToDelivery = () => {
           {showAlert && (
               <View className='px-4' style={{ marginBottom: 10 }}>
                 <SectionAlert 
-                    style={{ backgroundColor: '#FFA500' }}
+                    className='bg-yellow-500'
                     >
                     <Text className='text-white font-semibold'>
                       Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng
@@ -118,12 +137,7 @@ const OrderScanToDelivery = () => {
       {actionType && 
         <View className="border-t border-gray-200 pb-4">
           <View className="px-4 py-3 bg-white ">
-            <Button
-              loading={isLoadingHandoverOrder}
-              onPress={handleCheckoutOrderBags}
-              disabled={!isAllDone}
-              label={actionType}
-            />
+            {renderAction}
           </View>
         </View>
       }

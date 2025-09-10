@@ -28,6 +28,10 @@ const OrderInvoice = () => {
     return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
   }
 
+  if(!data ) {
+    return null;
+  }
+
   return (
     <>
       <ScrollView className='flex-1 pt-3 mb-7'>

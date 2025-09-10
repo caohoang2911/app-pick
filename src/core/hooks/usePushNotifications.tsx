@@ -47,18 +47,19 @@ export const usePushNotifications: any = () => {
     }
   };
 
-  const handleShowPopupInviteStoreEmployee = useCallback((inviteToken: string, storeCode: string, action: ActionFromNotification) => {
-    
-  }, []);
-
   const handleGoScreen = useCallback((remoteMessage: any) => {
+    
     const { orderCode, targetScr, action, inviteToken, storeCode } = remoteMessage || {};
 
-    // if (!orderCode || navigationInProgress.current) return;
-    
-    // Đánh dấu đang trong quá trình chuyển hướng để tránh nhiều lần gọi liên tiếp
+    // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
+    if(navigationInProgress.current) {
+      console.log('Navigation already in progress, skipping...');
+      return;
+    }
+
+    // Đánh dấu đang trong quá trình chuyển hướng
     navigationInProgress.current = true;
-    
+
     // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
     InteractionManager.runAfterInteractions(() => {
       try {
@@ -70,8 +71,6 @@ export const usePushNotifications: any = () => {
               router.push(`/orders/order-invoice/${orderCode}`);
               break;
             case TargetScreen.ORDER_LISTING:
-              // For invite actions, navigate to orders first, then set params
-              // router.replace('/orders');
               if (action === ActionFromNotification.SHOW_POPUP_INVITE_STORE_EMPLOYEE) {
                 // Set params after navigation with a small delay to ensure component is mounted
                 setTimeout(() => {
@@ -80,22 +79,26 @@ export const usePushNotifications: any = () => {
                     storeCode: storeCode,
                     action: action
                   });
+                  navigationInProgress.current = false;
                 }, 100);
+              } else {
+                navigationInProgress.current = false;
               }
               break;
             default:
               break;
           }
-      
-        
-        // Đặt lại cờ sau khi chuyển hướng hoàn tất
-        navigationInProgress.current = false;
+
+          setTimeout(() => {
+            navigationInProgress.current = false;
+          }, 500);
       } catch (error) {
-        console.error('Navigation error:', error);
-        navigationInProgress.current = false;
+        setTimeout(() => {
+          navigationInProgress.current = false;
+        }, 500);
       }
     });
-  }, [pathname]);
+  }, []); 
 
   useEffect(() => {
     // Theo dõi trạng thái ứng dụng để xử lý đúng khi chuyển từ background sang foreground

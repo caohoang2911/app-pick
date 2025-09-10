@@ -69,6 +69,7 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => (
             </View>
         }
         label={tag}
+        variant={tag?.includes('SP Thay thế') ? 'danger' : 'default'}
         style={{ maxWidth: 180 }}
       />
     ))}
@@ -154,9 +155,6 @@ const BarcodeDisplay = memo(({
   barcode?: string,
 }) => { 
   if(!barcode && !baseBarcode) return null;
-  const shouldShowBarcode = barcode && barcode !== baseBarcode;
-
-  const wrapperClassName = shouldShowBarcode ? 'w-full' : '';
   return (
     <View className='flex-row gap-1 items-center flex-1'>
         <View className='w-auto'>
