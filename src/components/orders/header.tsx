@@ -1,37 +1,34 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { DrawerActions } from "@react-navigation/native";
 import { useNavigation } from 'expo-router';
 import { toUpper } from 'lodash';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMemo, useRef } from 'react';
 import { ActivityIndicator, Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Images } from "~/assets";
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
+import { queryClient } from "~/src/api/shared";
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import TabsStatus from '~/src/components/orders/tab-status';
-import { setUser, useAuth } from '~/src/core';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { removeItem } from '~/src/core/storage';
-import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
+import { useAuth } from '~/src/core';
+import { useRole, useRoleDriver } from "~/src/core/hooks/useRole";
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import {
-  toggleScanQrCode,
-  useOrders
+  toggleScanQrCode
 } from '~/src/core/store/orders';
 import ArrowDown from '~/src/core/svgs/ArrowDown';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { Option } from '~/src/types/commons';
+import { Role } from "~/src/types/employee";
+import { Badge } from "../Badge";
 import StoreSelection from '../shared/StoreSelection';
+import AssignStoreBottomSheet from "./assign-store-bottom-sheet";
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
-import { Badge } from "../Badge";
-import { Images } from "~/assets";
-import { Role } from "~/src/types/employee";
-import { useRole, useRoleDriver } from "~/src/core/hooks/useRole";
-import { useAssignOrderShippingToMe } from "~/src/api/app-pick-driver/useAssignOrderShippingToMe";
 import OrderStatusBottomSheet from "./order-status-bottom-sheet";
-import AssignStoreBottomSheet from "./assign-store-bottom-sheet";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -70,22 +67,7 @@ const Header = () => {
   });
 
   const { mutate: refreshToken, isPending } = useRefreshToken((data) => {
-    setLoading(true);
-    setToken(data?.data?.zas || '');
-    removeItem('ip');
-    setTimeout(() => {
-      setUserInfo({
-        ...userInfo,
-        ...data?.data
-      });
-      setTimeout(() => {
-        setUser({
-          ...userInfo,
-          ...data?.data
-        });
-        setLoading(false);
-      }, 200);
-    }, 1000);
+    queryClient.invalidateQueries({ predicate: () => true });
   });
 
   const navigation = useNavigation()

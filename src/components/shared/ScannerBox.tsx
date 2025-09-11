@@ -1,11 +1,13 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Portal } from '@gorhom/portal';
 import { BarcodeScanningResult, BarcodeType, CameraView } from 'expo-camera';
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { Dimensions, Linking, Platform, Pressable, StyleSheet, Text, View, Animated } from 'react-native';
 import { Defs, Mask, Rect, Svg } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
 import { Button } from '../Button';
+
+const codeAvailable = ['aztec', 'ean13', 'ean8', 'qr', 'pdf417', 'upc_e', 'datamatrix', 'code39', 'code93', 'itf14', 'codabar', 'code128', 'upc_a'];
 
 type Props = {
   visible?: boolean;
@@ -78,6 +80,14 @@ const ScannerBox = ({
     }
   }, []);
 
+  const codeAvailableForScanner = useMemo(() => {
+    if(isQRScanner) {
+      return ['qr'];
+    }
+
+    return codeAvailable.filter((type) => type !== 'qr');
+  }, [isQRScanner]);
+
   if (!visible) return <></>;
 
   if (!permission) {
@@ -110,6 +120,9 @@ const ScannerBox = ({
             setTimeout(() => {
               onSuccessBarcodeScanned?.(result);
             }, 100);
+          }}
+          barcodeScannerSettings={{
+            barcodeTypes: codeAvailableForScanner as BarcodeType[],
           }}
         >
           <ScannerLayout onClose={onDestroy} isQRScanner={isQRScanner} />
@@ -162,6 +175,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: deviceWidth,
     height: deviceHeight,
+    backgroundColor: 'transparent',
     zIndex: 3,
   }
 });

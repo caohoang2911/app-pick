@@ -36,9 +36,8 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
       }, 1000);
       if (!data.error) {
         cb?.(data);
-      } else {
-        setLoading(false);
-      }
+      } 
+      setLoading(false);
     },
   });
 };
