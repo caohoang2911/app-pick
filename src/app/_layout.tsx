@@ -33,6 +33,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
+import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -80,6 +81,7 @@ SplashScreen.preventAutoHideAsync();
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
   useHandleDeepLink();
+  useWatchResponse();
   return <>{children}</>;
 };
 

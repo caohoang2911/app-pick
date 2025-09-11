@@ -80,7 +80,10 @@ axiosClient.interceptors.response.use(function (
     ].includes(response?.data?.error)
   ) {
     handleAuthError('Vui lòng đăng nhập để tiếp tục');
-  } else if (response?.data?.error && !BLACK_LIST_SHOW_MESSAGE.includes(response.config?.url || '')) {
+  } else if (
+    response?.data?.error 
+    && response?.data?.error !== 'ERROR_EMPLOYEE_STORE_OUT_OF_DATE'
+    && !BLACK_LIST_SHOW_MESSAGE.includes(response.config?.url || '')) {
     showMessage({
       message: response?.data?.error,
       type: 'danger',

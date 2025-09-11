@@ -128,7 +128,7 @@ const HeaderActionBtn = () => {
       case 'assign-order-to-me':
         showAlert({
           title: 'Gán đơn cho tôi',
-          message: 'Bạn có chắc chắn muốn gán đơn cho mình không?',
+          message: 'Bạn có muốn gán đơn cho mình không?',
           onConfirm: () => {
             hideAlert();
             setLoading(true);
@@ -139,7 +139,7 @@ const HeaderActionBtn = () => {
       case 'unassign-order-to-me':
         showAlert({
           title: 'Huỷ gán đơn cho tôi',
-          message: 'Bạn có chắc chắn muốn huỷ gán đơn book AhaMove không?',
+          message: 'Bạn có muốn huỷ gán đơn, để book AhaMove không?',
           onConfirm: () => {
             setLoading(true);
             hideAlert();

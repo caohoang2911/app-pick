@@ -5,6 +5,7 @@ import { toLower } from "lodash";
 import moment from 'moment';
 import React, { memo, useCallback } from "react";
 import { Text, View } from "react-native";
+import Octicons from '@expo/vector-icons/Octicons';
 
 import Feather from '@expo/vector-icons/Feather';
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -58,7 +59,8 @@ const OrderItem = ({
   deliveryAddress,
   picker,
   pickedItemProgress,
-  bagLabels
+  bagLabels,
+  storeCode
 }: {
   statusName: string;
   orderTime: string;
@@ -74,6 +76,7 @@ const OrderItem = ({
   groupShippingCode: string;
   fulfillError: any;
   lastTimeUpdateStatus: string;
+  storeCode: string;
   deliveryAddress: {
     fullAddress: string;
   };
@@ -103,6 +106,9 @@ const OrderItem = ({
   }, [type, code, status, isDriver, router]);
 
   const shouldShowassignee = picker?.username && picker?.name;
+  const stores = config?.stores || [];
+
+  const storeName = getConfigNameById(stores, storeCode);
 
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1">
@@ -145,8 +151,13 @@ const OrderItem = ({
               />
             </View>
           </View>
+          {isDriver && <RowWithLabel 
+            icon={<Octicons name="home" size={18} color="gray" />}
+            label="Cửa hàng"
+            value={storeName || ''} />
+          }
           <RowWithLabel 
-            icon={<SimpleLineIcons name="location-pin" size={18} color="gray" />}
+            icon={<SimpleLineIcons name="location-pin" size={17} color="gray" />}
             label="ĐC giao"
             value={deliveryAddress?.fullAddress} />
           <RowWithLabel

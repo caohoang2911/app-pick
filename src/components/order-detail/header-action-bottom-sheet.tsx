@@ -193,7 +193,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
       {
         key: 'delivery-order',
         title: 'Vận chuyển',
-        enabled: true,
+        enabled: deliveryType !== "CUSTOMER_PICKUP",
         allowSubmenu: true,
         icon: <MaterialIcons name="delivery-dining" size={24} color="black" />,
       },
