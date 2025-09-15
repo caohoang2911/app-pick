@@ -20,12 +20,12 @@ import { Badge } from "../Badge";
 import MoreActionsBtn from "./more-actions-btn";
 import { useRoleDriver } from "~/src/core/hooks/useRole";
 
-const RowWithLabel = memo(({icon, label, value, pickedItemProgress, bagsSize}: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number, bagsSize?: number}) => {
+const RowWithLabel = memo(({icon, label, value, pickedItemProgress, bagsSize, numberOfLines }: {icon: React.ReactNode, label: string, value: string, pickedItemProgress?: number, bagsSize?: number, numberOfLines?: number}) => {
   return (
     <View className="flex flex-row gap-1">
       <View className="mr-2 -mt-0.5">{icon}</View>
       <View style={{width: 72}}><Text className="text-gray-500">{label}</Text></View>
-      <Text className="font-medium" numberOfLines={1} style={{ maxWidth: pickedItemProgress ? "60%" : "68%" }} ellipsizeMode="tail">{value}</Text>
+      <Text className="font-medium" numberOfLines={numberOfLines || 1} style={{ maxWidth: pickedItemProgress ? "60%" : "68%" }} ellipsizeMode="tail">{value}</Text>
       {pickedItemProgress && (
         <View className="flex flex-row ml-auto gap-1 items-center">
           <Text className="text-sm text-gray-500">Pick</Text>
@@ -152,14 +152,17 @@ const OrderItem = ({
             </View>
           </View>
           {isDriver && <RowWithLabel 
-            icon={<Octicons name="home" size={18} color="gray" />}
-            label="Cửa hàng"
-            value={storeName || ''} />
+              icon={<Octicons name="home" size={18} color="gray" />}
+              label="Siêu thị"
+              value={storeName || ''} 
+            />
           }
           <RowWithLabel 
-            icon={<SimpleLineIcons name="location-pin" size={17} color="gray" />}
+            icon={<Feather name="map-pin" size={17} color="gray" />}
             label="ĐC giao"
-            value={deliveryAddress?.fullAddress} />
+            value={deliveryAddress?.fullAddress} 
+            numberOfLines={isDriver ? 2 : 1}
+          />
           <RowWithLabel
             icon={<Feather name="calendar" size={18} color="gray" />}
             label="Ngày đặt"
@@ -167,7 +170,7 @@ const OrderItem = ({
           />
           <RowWithLabel
             icon={<Feather name="calendar" size={18} color="gray" />}
-            label="Giao hàng"
+            label="Ngày giao"
             value={deliveryTimeRange ? `${expectedDeliveryTime(deliveryTimeRange).hh} ${expectedDeliveryTime(deliveryTimeRange).day}` : '--'}
             bagsSize={bagLabels?.length}
           />
@@ -188,10 +191,10 @@ const OrderItem = ({
             </View>
           }
           {fulfillError?.type && (
-          <View className="flex flex-row items-center gap-1">
-            <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
-          </View>
-        )}
+            <View className="flex flex-row items-center gap-1">
+              <Text className="text-sm text-red-500 italic">{fulfillErrorTypeDisplay}</Text>
+            </View>
+          )}
         </View>
         {pickerNote && (
           <View 

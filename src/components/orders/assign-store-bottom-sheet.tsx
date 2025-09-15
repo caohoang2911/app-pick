@@ -1,9 +1,9 @@
+import { Ionicons, Octicons } from '@expo/vector-icons';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Pressable, Text, View, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import SBottomSheet from '../SBottomSheet';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
 import { Option } from '~/src/types/commons';
+import SBottomSheet from '../SBottomSheet';
 
 interface Store {
   id: string;
@@ -61,7 +61,7 @@ const AssignStoreBottomSheet = forwardRef<ServingStoresModalRef, ServingStoresMo
         className="flex flex-row items-center gap-3 py-4 border-b border-gray-100"
       >
         <View className="w-8 h-8 items-center justify-center">
-          <Ionicons name="home-outline" size={20} color="#6B7280" />
+          <Octicons name="home" size={18} color="gray" />
         </View>
         <View className="flex-1">
           <Text className="text-base font-medium text-gray-800 mb-1">
