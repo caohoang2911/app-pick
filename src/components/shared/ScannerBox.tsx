@@ -1,9 +1,9 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Portal } from '@gorhom/portal';
 import { BarcodeScanningResult, BarcodeType, CameraView } from 'expo-camera';
-import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
-import { Dimensions, Linking, Platform, Pressable, StyleSheet, Text, View, Animated } from 'react-native';
-import { Defs, Mask, Rect, Svg } from 'react-native-svg';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Dimensions, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { ClipPath, Defs, Rect } from "react-native-svg";
 import useCarmera from '~/src/core/hooks/useCarmera';
 import { Button } from '../Button';
 
@@ -16,8 +16,8 @@ type Props = {
   types?: BarcodeType[];
 };
 
-const deviceWidth = Dimensions.get('window').width;
-const deviceHeight = Dimensions.get('window').height;
+const deviceWidth = Dimensions.get('screen').width;
+const deviceHeight = Dimensions.get('screen').height;
 
 const SCAN_SQUARE_SIZE = deviceWidth - 150;
 
@@ -28,27 +28,41 @@ const ScannerLayout = ({
   onClose: any;
   isQRScanner?: boolean;
 }) => {
+  const holeWidth = SCAN_SQUARE_SIZE;
+  const holeHeight = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
+  const holeX = deviceWidth / 2 - holeWidth / 2;
+  const holeY = deviceHeight / 2 - holeHeight / 2;
   return (
     <View style={styles.layout}>
       <Svg height="100%" width="100%">
-        <Defs>
-          <Mask id="mask" x="0" y="0" height="100%" width="100%">
-            <Rect height="100%" width="100%" fill="white" opacity={0.5} />
-            <Rect
-              x={deviceWidth / 2 - SCAN_SQUARE_SIZE / 2}
-              y={deviceHeight / 2 - SCAN_SQUARE_SIZE / 2}
-              // rx="5"
-              // ry="5"
-              width={SCAN_SQUARE_SIZE}
-              height={SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2)}
-              stroke="white"
-              strokeWidth="3"
-              fill-opacity="0"
-            />
-          </Mask>
-        </Defs>
-        <Rect height="100%" width="100%" mask="url(#mask)" fill="white" />
-      </Svg>
+      <Defs>
+        <ClipPath id="clip">
+          {/* phủ toàn màn hình */}
+          <Rect width="100%" height="100%" />
+          {/* lỗ quét */}
+          <Rect x={holeX} y={holeY} width={holeWidth} height={holeHeight} />
+        </ClipPath>
+      </Defs>
+
+      {/* overlay */}
+      <Rect
+        width="100%"
+        height="100%"
+        fill="rgba(0,0,0,0.6)"
+        clipPath="url(#clip)"
+      />
+
+      {/* viền trắng quanh lỗ */}
+      <Rect
+        x={holeX}
+        y={holeY}
+        width={holeWidth}
+        height={holeHeight}
+        stroke="white"
+        strokeWidth={3}
+        fill="transparent"
+      />
+    </Svg>
       <View className="ml-auto absolute top-14 right-5 z-10">
         <Pressable onPress={onClose}>
           <AntDesign name="closecircleo" size={20} color="white" />
@@ -111,9 +125,9 @@ const ScannerBox = ({
 
   return (
     <Portal>
-      <Animated.View style={{ flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}}>
+      <View style={styles.fullScreenContainer}>
         <CameraView
-          style={[styles.camera, { display: visible ? 'flex' : 'none' }]}
+          style={styles.camera}
           facing={facing}
           onBarcodeScanned={(result: BarcodeScanningResult) => {
             onDestroy?.();
@@ -127,12 +141,22 @@ const ScannerBox = ({
         >
           <ScannerLayout onClose={onDestroy} isQRScanner={isQRScanner} />
         </CameraView>
-      </Animated.View>
+      </View>
     </Portal>
   );
 };
 
 const styles = StyleSheet.create({
+  fullScreenContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 9999,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -146,14 +170,9 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    width: '100%',
     height: '100%',
-    backgroundColor: 'red',
-    zIndex: 10,
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
+    backgroundColor: 'transparent',
   },
   buttonContainer: {
     flex: 1,
@@ -176,7 +195,7 @@ const styles = StyleSheet.create({
     width: deviceWidth,
     height: deviceHeight,
     backgroundColor: 'transparent',
-    zIndex: 3,
+    zIndex: 15,
   }
 });
 
