@@ -14,8 +14,8 @@ export type UserInfo = {
   storeCode: string;
   storeName: string;
   zas?: string;
-  driverAssignedStoreCodes: string[];
-  driverOrderAssignStatus: "ENABLE" | "DISABLE";
+  driverAssignedStoreCodes?: string[];
+  driverOrderAssignStatus?: "ENABLE" | "DISABLE";
 };
 
 export type TokenType = {

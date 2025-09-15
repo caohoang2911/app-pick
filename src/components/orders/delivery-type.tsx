@@ -8,6 +8,7 @@ import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { setDeliveryType, useOrders } from '~/src/core/store/orders';
 import { getConfigNameById } from '~/src/core/utils/config';
+import { OrderStatus } from '~/src/types/order';
 
 type DeliveryTypeOption = {
   label: React.ReactNode | string;
@@ -26,6 +27,7 @@ function DeliveryType() {
 
   const deliveryType = useOrders.use.deliveryType();
   const { storeCode } = useAuth.use.userInfo();
+  const authStatus = useAuth.use.status();
 
   const config = useConfig.use.config();
   const orderDeliveryTypes = config?.orderDeliveryTypes || [];
@@ -36,7 +38,7 @@ function DeliveryType() {
 
   const isFirtTime = useRef(true);
 
-  const { data, refetch } = useGetOrderDeliveryTypeCounters({ status: fromScanQrCode ? 'ALL' : selectedOrderCounter });
+  const { data, refetch } = useGetOrderDeliveryTypeCounters({ status: fromScanQrCode ? 'ALL' : selectedOrderCounter as OrderStatus });
 
   const counters = data?.data ? { ...cachingShippingMethods.current, ...data.data } : {};
 
@@ -46,18 +48,20 @@ function DeliveryType() {
 
   useFocusEffect(
     useCallback(() => {
-      if (!isFirtTime.current) {
+      if (!isFirtTime.current && authStatus === 'signIn') {
         refetch();
       }
       return () => {
         isFirtTime.current = false;
       };
-    }, [])
+    }, [authStatus])
   );
 
   useEffect(() => {
-    refetch();
-  }, [fromScanQrCode, selectedOrderCounter, storeCode])
+    if (authStatus === 'signIn') {
+      refetch();
+    }
+  }, [fromScanQrCode, selectedOrderCounter, authStatus])
 
 
   const handleSelect = (value: string) => {
