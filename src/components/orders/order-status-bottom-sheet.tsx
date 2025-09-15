@@ -1,11 +1,11 @@
+import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
+import { useDriverSetMyOrderAssignStatus } from '~/src/api/app-pick-driver/useDriverSetMyOrderAssignStatus';
+import { setUser, useAuth } from '~/src/core/store/auth';
+import { setUserInfo } from '~/src/core/store/auth/utils';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
-import { setUser, useAuth } from '~/src/core/store/auth';
-import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/useAssignOrderShippingToMe';
-import { setUserInfo } from '~/src/core/store/auth/utils';
 
 interface OrderStatusModalProps {
   currentStatus?: 'ENABLE' | 'DISABLE';
@@ -20,7 +20,7 @@ const OrderStatusBottomSheet = forwardRef<OrderStatusModalRef, OrderStatusModalP
   ({ onClose, currentStatus = 'ENABLE' }, ref) => {
     const userInfo = useAuth.use.userInfo();
 
-    const { mutate: setMyOrderAssignStatus } = useAssignOrderShippingToMe(() => {
+    const { mutate: setMyOrderAssignStatus } = useDriverSetMyOrderAssignStatus(() => {
       const newDriverOrderAssignStatus = userInfo.driverOrderAssignStatus === "ENABLE" ? "DISABLE" : "ENABLE";
   
       setUserInfo({

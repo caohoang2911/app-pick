@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
-import { useDriverAssignOrderToMe } from '~/src/api/app-pick-driver/useDriverAssignOrderToMe';
+import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/useAssignOrderShippingToMe';
 import { useDriverCancelMyOrderShipping } from '~/src/api/app-pick-driver/useDriverCancelMyOrderShipping';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { ORDER_STATUS } from '~/src/contants/order';
@@ -22,8 +22,8 @@ const HeaderActionBtn = () => {
   const [deliverySelectionVisible, setDeliverySelectionVisible] = useState(false);
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { mutate: assignOrderToMe } = useDriverAssignOrderToMe(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderInvoice'] });
+  const { mutate: assignOrderToMe } = useAssignOrderShippingToMe(() => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     showMessage({
       message: 'Gán đơn cho tôi thành công',
       type: 'success',
@@ -31,7 +31,7 @@ const HeaderActionBtn = () => {
   });
 
   const { mutate: cancelMyOrder } = useDriverCancelMyOrderShipping(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderInvoice'] });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     showMessage({
       message: 'Huỷ gán đơn cho tôi thành công',
       type: 'success',
