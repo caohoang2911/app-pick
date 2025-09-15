@@ -1,5 +1,6 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
+import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   status: "ENABLE" | "DISABLE";
@@ -8,6 +9,7 @@ type Variables = {
 type Response = { error: string } & {};
 
 const assignOrderShippingToMe = async (params: Variables): Promise<Response> => {
+  console.log('params', params);
   return await axiosClient.post('app-pick-driver/assignOrderShippingToMe', params);
 };
 
@@ -20,6 +22,7 @@ export const useAssignOrderShippingToMe = (cb?: () => void, cbError?: (error: st
       } else {
         cbError?.(data.error);
       }
+      setLoading(false);
     },
    
   });
