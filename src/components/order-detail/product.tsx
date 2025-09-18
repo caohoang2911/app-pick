@@ -56,25 +56,33 @@ const Row = memo(({
 ));
 
 // Memoize expensive Badge components
-const TagsBadges = memo(({ tags }: { tags: string[] }) => (
-  <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
-    {tags?.map((tag: string, index: number) => (
-      <Badge 
-        key={`${tag}-${index}`} 
-        className="self-start" 
-        icon={
-          tag?.toUpperCase() == 'GIFT' &&
-            <View className='mr-1 -mt-0.5'>
-              <AntDesign name="gift" size={13} color="orange" />
-            </View>
-        }
-        label={tag}
-        variant={tag?.includes('SP Thay thế') ? 'danger' : 'default'}
-        style={{ maxWidth: 180 }}
-      />
-    ))}
-  </View>
-));
+const TagsBadges = memo(({ tags }: { tags: string[] }) => {
+  const configs = useConfig.use.config();
+  const orderProductItemTags = configs?.orderProductItemTags || [];
+
+  return (
+    <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
+      {tags?.map((tag: string, index: number) => {
+      const tagName = getConfigNameById(orderProductItemTags, tag);        
+        return (
+          <Badge 
+            key={`${tag}-${index}`} 
+            className="self-start" 
+            icon={
+              tagName == 'GIFT' &&
+                <View className='mr-1 -mt-0.5'>
+                  <AntDesign name="gift" size={13} color="orange" />
+                </View>
+            }
+            label={tagName}
+            variant={tag?.includes('SUBSTITUTE') ? 'danger' : 'default'}
+            style={{ maxWidth: 180 }}
+          />
+        )}
+      )}
+    </View>
+  );
+});
 
 // Error message component
 const WarningMessage = memo(({ errorName }: { errorName: string }) => (
@@ -246,7 +254,7 @@ const OrderPickProduct = memo(({
   const isActive = indexById === indexBarcodeWithoutPickedTime;
 
   const isGift = useMemo(() => {
-    return tags?.includes('Gift');
+    return tags?.includes('GIFT');
   }, [tags]);
   
 
