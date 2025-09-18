@@ -13,10 +13,6 @@ export enum TargetScreen {
   ORDER_LISTING = 'ORDER-LISTING',
 }
 
-export enum ActionFromNotification {
-  SHOW_POPUP_INVITE_STORE_EMPLOYEE = 'SHOW_POPUP_INVITE_STORE_EMPLOYEE',
-}
-
 // Set notification handler outside component for global configuration
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -69,21 +65,6 @@ export const usePushNotifications: any = () => {
               break;
             case TargetScreen.ORDER_INVOICE:
               router.push(`/orders/order-invoice/${orderCode}`);
-              break;
-            case TargetScreen.ORDER_LISTING:
-              if (action === ActionFromNotification.SHOW_POPUP_INVITE_STORE_EMPLOYEE) {
-                // Set params after navigation with a small delay to ensure component is mounted
-                setTimeout(() => {
-                  router.setParams({
-                    inviteToken: inviteToken,
-                    storeCode: storeCode,
-                    action: action
-                  });
-                  navigationInProgress.current = false;
-                }, 100);
-              } else {
-                navigationInProgress.current = false;
-              }
               break;
             default:
               break;
@@ -239,19 +220,6 @@ export const usePushNotifications: any = () => {
       try {
         // Handle foreground notifications by setting params like background clicks
         const { action, inviteToken, storeCode } = remoteMessage.data || {};
-
-        switch (action) {
-          case ActionFromNotification.SHOW_POPUP_INVITE_STORE_EMPLOYEE:
-            // Employee management removed - handle differently if needed
-            router.setParams({
-              inviteToken: inviteToken,
-              storeCode: storeCode,
-              action: action
-            });
-            break;
-          default:
-            break;
-        }
 
         queryClient.resetQueries({ queryKey: ['searchOrders'] });
         queryClient.resetQueries({ queryKey: ['getOrderStatusCounters'] });
