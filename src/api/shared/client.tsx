@@ -105,8 +105,6 @@ axiosClient.interceptors.response.use(function (
 axiosClient.interceptors.request.use(function (config: any) {
   const token = getToken();
 
-  console.log('config.url', config.url);
-
   if (token) {
     config.headers.zas = token;
   } else {

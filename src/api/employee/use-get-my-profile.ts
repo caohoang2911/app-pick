@@ -39,7 +39,7 @@ export const useGetMyProfile = () => {
           setUser({
             ...userInfo,
             ...driverOrderAssignSetting,
-            driverOrderAssignStatus: driverOrderAssignSetting.status,
+            driverOrderAssignStatus: driverOrderAssignSetting?.status,
           });
           setLoading(false);
         }, 200);
