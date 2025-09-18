@@ -30,11 +30,11 @@ import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
+import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
-import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
-import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -48,8 +48,6 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
-  
-    console.log(data, 'TOKEN-data');
 
   useEffect(() => {
     if (token && status === 'signIn') {

@@ -9,6 +9,7 @@ import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { setLoading } from '../core/store/loading';
 import RequestPermissionStore from '../components/shared/request-permission-store';
+import { useSetAppVersionWithAutoInfo } from '../api/app-pick/use-set-app-version';
 
 const WHITE_LIST_ROLE = ['STORE', 'STORE_MANAGER', 'ADMIN'];
 
@@ -16,6 +17,8 @@ const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
   const [isRequestPermission, setIsRequestPermission] = useState(false)
   const [extractedCode, setExtractedCode] = useState<string | null>(null)
+
+  const { setVersionWithAutoInfo } = useSetAppVersionWithAutoInfo();
 
   const intervalRef = useRef<NodeJS.Timeout>();
 
@@ -81,6 +84,7 @@ const Authorize = () => {
           } else {
             router.replace('/orders');
           }
+          setVersionWithAutoInfo();
         } else {
           router.back();
           showAlert({
