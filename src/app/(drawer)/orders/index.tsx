@@ -46,7 +46,6 @@ const Orders = () => {
         <OrderList />
       </Container>
       <ScannerBox
-        types={["qr"]}
         visible={isScanQrCode}
         onSuccessBarcodeScanned={handleSuccessBarcodeScanned}
         onDestroy={handleDestroy}

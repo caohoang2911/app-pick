@@ -13,7 +13,7 @@ type Props = {
   visible?: boolean;
   onDestroy?: () => void;
   onSuccessBarcodeScanned?: (result: BarcodeScanningResult) => void;
-  types?: BarcodeType[];
+  isQRScanner?: boolean;
 };
 
 const deviceWidth = Dimensions.get('screen').width;
@@ -76,11 +76,9 @@ const ScannerBox = ({
   visible,
   onDestroy,
   onSuccessBarcodeScanned,
-  types,
+  isQRScanner = true,
 }: Props) => {
   const { permission, facing, requestPermission }  = useCarmera();
-
-  const isQRScanner = types?.includes('qr');
 
   useEffect(() => {
     // Reset state when visibility changes

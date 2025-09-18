@@ -126,7 +126,7 @@ const OrderPick = () => {
       {/* bottomshet */}
       {/* {isScanQrCodeProduct && ( */}
         <ScannerBox
-          types={['codabar', 'code128']}
+          isQRScanner={false}
           visible={isScanQrCodeProduct}
           onSuccessBarcodeScanned={handleSuccessBarCode}
           onDestroy={() => {
