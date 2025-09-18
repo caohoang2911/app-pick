@@ -190,14 +190,20 @@ const OrderPickProducts = () => {
     const offset = info.averageItemLength * info.index;
     flatListRef.current?.scrollToOffset({ offset, animated: true });
     
-    // Thử lại sau một khoảng thời gian ngắn
+    // Thử lại sau một khoảng thời gian ngắn với error handling
     setTimeout(() => {
       if (flatListRef.current) {
-        flatListRef.current.scrollToIndex({
-          animated: true,
-          index: info.index,
-          viewPosition: 0.5
-        });
+        try {
+          flatListRef.current.scrollToIndex({
+            animated: true,
+            index: info.index,
+            viewPosition: 0.5
+          });
+        } catch (retryError) {
+          // Final fallback - use scrollToOffset with more precise calculation
+          const finalOffset = info.averageItemLength * info.index;
+          flatListRef.current.scrollToOffset({ offset: finalOffset, animated: true });
+        }
       }
     }, 100);
   }, []);
@@ -236,7 +242,6 @@ const OrderPickProducts = () => {
             viewPosition: 0.5,
           });
         } catch (error) {
-          console.log(JSON.stringify(error))
         }
       }
     }, 100);

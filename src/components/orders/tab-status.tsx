@@ -73,14 +73,39 @@ const TabsStatus = () => {
     );
     if (index === -1) return;
 
+    // Validate index before scrolling
+    if (index < 0 || index >= (sortedDataStatusCounters?.length || 0)) {
+      console.warn('Invalid scroll index:', index);
+      return;
+    }
+
     setTimeout(() => {
-      ref.current?.scrollToIndex?.({
-        animated: true,
-        index: index || 0,
-        viewPosition: 0.5,
-      });
+      if (ref.current) {
+        try {
+          ref.current.scrollToIndex({
+            animated: true,
+            index: index || 0,
+            viewPosition: 0.5,
+          });
+        } catch (error) {
+          // Fallback to scrollToOffset if scrollToIndex fails
+          const estimatedOffset = index * 120; // Estimate tab width
+          ref.current.scrollToOffset({ offset: estimatedOffset, animated: true });
+        }
+      }
     }, 500);
   }, [selectedOrderCounter, sortedDataStatusCounters])
+
+  // Handle scroll failure
+  const handleScrollToIndexFailed = useCallback((info: {
+    index: number;
+    highestMeasuredFrameIndex: number;
+    averageItemLength: number;
+  }) => {
+    // Calculate scroll offset based on average item length
+    const offset = info.averageItemLength * info.index;
+    ref.current?.scrollToOffset({ offset, animated: true });
+  }, []);
 
   useEffect(() => {
     goTabSelected(selectedOrderCounter);
@@ -141,6 +166,7 @@ const TabsStatus = () => {
       data={sortedDataStatusCounters}
       renderItem={renderTabItem}
       keyExtractor={(item) => item.id}
+      onScrollToIndexFailed={handleScrollToIndexFailed}
       horizontal
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}

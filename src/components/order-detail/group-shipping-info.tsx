@@ -23,15 +23,39 @@ function OrderGroups({
 }) {
   const ref = useRef<any>();
   const goTabSelected = useCallback((index: number) => {
+    // Validate index before scrolling
+    if (index < 0 || index >= (groupShippingOrderCodes?.length || 0)) {
+      console.warn('Invalid scroll index:', index);
+      return;
+    }
 
     setTimeout(() => {
-      ref.current?.scrollToIndex({
-        animated: true,
-        index: index || 0,
-        viewPosition: 0.5,
-      });
+      if (ref.current) {
+        try {
+          ref.current.scrollToIndex({
+            animated: true,
+            index: index || 0,
+            viewPosition: 0.5,
+          });
+        } catch (error) {
+          // Fallback to scrollToOffset if scrollToIndex fails
+          const estimatedOffset = index * 100; // Estimate item width
+          ref.current.scrollToOffset({ offset: estimatedOffset, animated: true });
+        }
+      }
     }, 200);
-  }, [])
+  }, [groupShippingOrderCodes?.length])
+
+  // Handle scroll failure
+  const handleScrollToIndexFailed = useCallback((info: {
+    index: number;
+    highestMeasuredFrameIndex: number;
+    averageItemLength: number;
+  }) => {
+    // Calculate scroll offset based on average item length
+    const offset = info.averageItemLength * info.index;
+    ref.current?.scrollToOffset({ offset, animated: true });
+  }, []);
 
   useEffect(() => {
     const index = groupShippingOrderCodes?.findIndex((item) => item === code);
@@ -47,6 +71,7 @@ function OrderGroups({
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
       data={groupShippingOrderCodes || []}
+      onScrollToIndexFailed={handleScrollToIndexFailed}
       renderItem={({ item, index }: { item: any; index: number }) => {
         const isOrderCodeSeleted = item === code;
         const isFirst = index === 0;
