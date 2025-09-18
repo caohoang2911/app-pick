@@ -19,7 +19,7 @@ const PickedCompleteConfirmation = ({
   productFulfillError: Product[];
 }) => {
   const config = useConfig.use.config();
-  const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]) as any[];
+  const productPickedErrorTypes = useMemo(() => config?.productPickedErrorTypes || [], [config]) as any[];
 
 
   return (
@@ -58,10 +58,10 @@ const PickedCompleteConfirmation = ({
                 <Text numberOfLines={1} className="w-full">Đặt: <Text className="font-bold">{item.quantity || 0} {item.unit}</Text>
                 , Pick: <Text className="font-bold">{item.pickedQuantity || 0} {item.unit}</Text></Text>
               </Text>
-              {item.pickedError && 
+              {item.pickedErrorType && 
                 <View className="flex-1 flex-row gap-2">
                   <Text className="ml-3 italic text-orange-500" numberOfLines={1} ellipsizeMode="tail">
-                    {productPickedErrors.find((error: any) => error.id === item.pickedError)?.name}
+                    {productPickedErrorTypes.find((error: any) => error.id === item.pickedErrorType)?.name}
                   </Text>
                 </View>
               }

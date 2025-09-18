@@ -23,7 +23,7 @@ export type Product = {
   type?: "GIFT";
   id: number;
   substituteItems?: Array<Product>;
-  pickedError?: string;
+  pickedErrorType?: string;
   pickedNote?: string;
   pickedQuantity?: number;
   unitType?: string;

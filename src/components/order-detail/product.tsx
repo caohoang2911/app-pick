@@ -232,7 +232,7 @@ const OrderPickProduct = memo(({
   tags = [],
   pickedTime,
   isAllowEditPickQuantity,
-  pickedError,
+  pickedErrorType,
   pickedQuantity,
   originOrderQuantity,
   isHiddenTag = false,
@@ -271,10 +271,10 @@ const OrderPickProduct = memo(({
   }, [pickedQuantity, orderQuantity]);
 
   // Memoize expensive calculations
-  const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]);
+  const productPickedErrorTypes = useMemo(() => config?.productPickedErrorTypes || [], [config]);
   const pickedErrorName = useMemo(() => 
-    getConfigNameById(productPickedErrors, pickedError), 
-    [productPickedErrors, pickedError]
+    getConfigNameById(productPickedErrorTypes, pickedErrorType), 
+    [productPickedErrorTypes, pickedErrorType]
   );
   // const isGift = useMemo(() => type === "GIFT", [type]);
   const hasSellPrice = useMemo(() => 

@@ -92,7 +92,7 @@ const QuantitySection = memo(({
     }
     setFieldValue('pickedQuantity', Number(valueChange));
     if (Number(values?.pickedQuantity) >= Number(quantity) && !action) {
-      setFieldValue('pickedError', null);
+      setFieldValue('pickedErrorType', null);
     }
   }, [values?.pickedQuantity, quantity, setFieldValue, editable, action]);
 
@@ -106,7 +106,7 @@ const QuantitySection = memo(({
     }
     setFieldValue('pickedQuantity', Number(valueChange));
     if (Number(values?.pickedQuantity) >= Number(quantity) && !action) {
-      setFieldValue('pickedError', null);
+      setFieldValue('pickedErrorType', null);
     }
   }, [values?.pickedQuantity, quantity, setFieldValue, editable, action]);
 
@@ -126,15 +126,15 @@ const QuantitySection = memo(({
     setQuantityFromBarcode(0);
     setFieldValue('pickedQuantity', formatDecimal(value));
     if (Number(value) >= Number(quantity)) {
-      setFieldValue('pickedError', null);
+      setFieldValue('pickedErrorType', null);
     }
   }, [quantity, setFieldValue]);
 
   const errorMessage = useMemo(() => {
-    return (Number(values?.pickedQuantity) < Number(quantityInit) && !values?.pickedError) 
+    return (Number(values?.pickedQuantity) < Number(quantityInit) && !values?.pickedErrorType) 
       ? "SL pick nhỏ hơn SL đặt. Vui lòng chọn lý do" 
       : undefined;
-  }, [values?.pickedQuantity, values?.pickedError, quantityInit]);
+  }, [values?.pickedQuantity, values?.pickedErrorType, quantityInit]);
 
   return (
     <View className="flex gap-2 flex-1" style={{ position: 'relative' }}>
@@ -172,7 +172,7 @@ const QuantitySection = memo(({
 
 // ReasonDropdown Component
 const ReasonDropdown = memo(({ 
-  productPickedErrors, 
+  productPickedErrorTypes, 
   values, 
   setFieldValue,
   quantityInit,
@@ -186,21 +186,21 @@ const ReasonDropdown = memo(({
   const isDisabled = isError || ['out-of-stock', 'low-quality', 'near-date'].includes(action);
 
   const handleSelect = useCallback((value: string) => {
-    setFieldValue('pickedError', value);
+    setFieldValue('pickedErrorType', value);
     setErrors({});
   }, [setFieldValue, setErrors]);
 
   const handleClear = useCallback(() => {
     if(isDisabled) return;
-    setFieldValue('pickedError', '');
+    setFieldValue('pickedErrorType', '');
   }, [setFieldValue, isDisabled]);
 
   const productPickedErrorsWithUnit = useMemo(() => {
 
-      // return productPickedErrors.map((item: any) => item.id !== 'INCORRECT_ORDERED_WEIGHT');
-      return productPickedErrors.map((item: any) => item.id === 'INCORRECT_ORDERED_WEIGHT' ? { ...item, disabled: toLower(unit) !== 'kg' } : item);
+      // return productPickedErrorTypes.map((item: any) => item.id !== 'INCORRECT_ORDERED_WEIGHT');
+      return productPickedErrorTypes.map((item: any) => item.id === 'INCORRECT_ORDERED_WEIGHT' ? { ...item, disabled: toLower(unit) !== 'kg' } : item);
 
-  }, [productPickedErrors, unit]);
+  }, [productPickedErrorTypes, unit]);
 
   return (
     <SDropdown
@@ -211,7 +211,7 @@ const ReasonDropdown = memo(({
       placeholder="Vui lòng chọn"
       allowClear={true}
       disabled={isDisabled}
-      value={values?.pickedError}
+      value={values?.pickedErrorType}
       onSelect={handleSelect}
       onClear={handleClear}
     />
@@ -295,7 +295,7 @@ const FormContent = memo(({
   setErrors,
   currentProduct,
   quantity,
-  productPickedErrors,
+  productPickedErrorTypes,
   isError,
   action,
   quantityInit,
@@ -331,7 +331,7 @@ const FormContent = memo(({
         />
       )}
       <ReasonDropdown
-        productPickedErrors={productPickedErrors}
+        productPickedErrorTypes={productPickedErrorTypes}
         values={values}
         action={action}
         quantityInit={quantityInit}
@@ -365,7 +365,7 @@ const InputAmountPopup = () => {
     setQuantityFromBarcode(0);
   });
   const config = useConfig.use.config();
-  const productPickedErrors = useMemo(() => config?.productPickedErrors || [], [config]);
+  const productPickedErrorTypes = useMemo(() => config?.productPickedErrorTypes || [], [config]);
 
   const inputBottomSheetRef = useRef<any>(null);
   
@@ -442,7 +442,7 @@ const InputAmountPopup = () => {
       ...currentProduct,
       barcode: barcodeScanSuccess,
       pickedQuantity: values?.pickedQuantity || 0,
-      pickedError: quantity <= values?.pickedQuantity ? '' : values?.pickedError,
+      pickedErrorType: quantity <= values?.pickedQuantity ? '' : values?.pickedErrorType,
       pickedNote: values?.pickedNote,
       pickedTime: moment().valueOf(),
       isAllowEditPickQuantity: true,
@@ -469,7 +469,7 @@ const InputAmountPopup = () => {
   // Memoize initial values
   const initialValues = useMemo(() => ({
     pickedQuantity: displayPickedQuantity, 
-    pickedError: (currentProduct as Product)?.pickedError || '', 
+    pickedErrorType: (currentProduct as Product)?.pickedErrorType || '', 
     pickedNote: (currentProduct as Product)?.pickedNote || '',
     ...(isUnitBox && {
       fullBoxQuantity: (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity || 0,
@@ -485,16 +485,16 @@ const InputAmountPopup = () => {
       enableReinitialize={true}
     >
     {({ values, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
-      const isError = values?.pickedQuantity < orderQuantity && !values?.pickedError;
+      const isError = values?.pickedQuantity < orderQuantity && !values?.pickedErrorType;
       
       useEffect(() => {
         if(action === 'out-of-stock') {
           setFieldValue('pickedQuantity', 0);
-          setFieldValue('pickedError', 'OUT_OF_STOCK');
+          setFieldValue('pickedErrorType', 'OUT_OF_STOCK');
         } else if(action === 'low-quality') {
-          setFieldValue('pickedError', 'QUALITY_DECLINE');
+          setFieldValue('pickedErrorType', 'QUALITY_DECLINE');
         } else if(action === 'near-date') {
-          setFieldValue('pickedError', 'NEAR_EXPIRED_DATE');
+          setFieldValue('pickedErrorType', 'NEAR_EXPIRED_DATE');
         } else {
           setFieldValue('pickedQuantity', displayPickedQuantity.toString());
         }
@@ -518,7 +518,7 @@ const InputAmountPopup = () => {
             quantityInit={currentProduct?.orderQuantity}
             quantity={displayPickedQuantity}
             action={action}
-            productPickedErrors={productPickedErrors}
+            productPickedErrorTypes={productPickedErrorTypes}
             isError={isError}
             quantityFromBarcode={quantityFromBarcode}
           />
