@@ -34,6 +34,7 @@ import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
+import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -82,6 +83,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
   useHandleDeepLink();
   useWatchResponse();
+  useGetMyProfile();
   return <>{children}</>;
 };
 

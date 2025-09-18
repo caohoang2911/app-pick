@@ -5,12 +5,17 @@ import * as Notifications from 'expo-notifications';
 import { router, usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, InteractionManager, Platform } from 'react-native';
+import { useAuth } from '~/src/core';
 
 
 export enum TargetScreen {
   ORDER_PICK = 'ORDER-PICK',
   ORDER_INVOICE = 'ORDER-INVOICE',
   ORDER_LISTING = 'ORDER-LISTING',
+}
+
+export enum ActionFromNotification {
+  ENABLE_DRIVER_ORDER_ASSIGN_STATUS = 'ENABLE_DRIVER_ORDER_ASSIGN_STATUS',
 }
 
 // Set notification handler outside component for global configuration
@@ -24,6 +29,7 @@ Notifications.setNotificationHandler({
 
 export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();
+  const userInfo = useAuth.use.userInfo();
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
   const appState = useRef(AppState.currentState);
@@ -45,7 +51,7 @@ export const usePushNotifications: any = () => {
 
   const handleGoScreen = useCallback((remoteMessage: any) => {
     
-    const { orderCode, targetScr, action, inviteToken, storeCode } = remoteMessage || {};
+    const { orderCode, targetScr} = remoteMessage || {};
 
     // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
     if(navigationInProgress.current) {
@@ -219,11 +225,18 @@ export const usePushNotifications: any = () => {
     const handlePushNotification = async (remoteMessage: any) => {
       try {
         // Handle foreground notifications by setting params like background clicks
-        const { action, inviteToken, storeCode } = remoteMessage.data || {};
+        const { action } = remoteMessage.data || {};
+
+        if(action === ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS) {
+          queryClient.resetQueries({ queryKey: ['getMyProfile'] });
+        }
 
         queryClient.resetQueries({ queryKey: ['searchOrders'] });
         queryClient.resetQueries({ queryKey: ['getOrderStatusCounters'] });
-
+        
+        if(action !== ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS) {
+          queryClient.resetQueries({ queryKey: ['getOrderDeliveryTypeCounters'] });
+        }
 
         // Xử lý riêng cho iOS và Android
         if (Platform.OS === 'ios') {

@@ -1,7 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Text, TextStyle, TouchableOpacity, View, LayoutChangeEvent } from 'react-native';
+import { LayoutChangeEvent, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useGetOrderDeliveryTypeCounters } from '~/src/api/app-pick/use-get-order-delivery-type-counters';
 import { queryClient } from '~/src/api/shared';
 import { useAuth } from '~/src/core';
@@ -26,7 +25,6 @@ function DeliveryType() {
   const cachingShippingMethods = useRef<any>(null);
 
   const deliveryType = useOrders.use.deliveryType();
-  const { storeCode } = useAuth.use.userInfo();
   const authStatus = useAuth.use.status();
 
   const config = useConfig.use.config();
