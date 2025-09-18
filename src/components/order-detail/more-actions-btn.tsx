@@ -57,7 +57,7 @@ const MoreActionsBtn = ({
 
 
   const shouldEnableReplaceProduct = useMemo(() => {
-    return tags?.includes('SP Thay thế');
+    return tags?.includes('SUBSTITUTE');
   }, [tags]);
 
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
