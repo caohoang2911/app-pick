@@ -35,6 +35,7 @@ import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
+import { useAppState } from '../core/hooks/useAppState';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -44,7 +45,9 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
     isUpdateAvailable,
   } = Updates.useUpdates();
 
-  const { isDoneCodepush} = useCodepush();
+  const { isDoneCodepush, onFetchUpdateAsync} = useCodepush();
+
+  const appState = useAppState();
 
   const { mutate: setFCMRegistrationToken, data } =
     useSetFCMRegistrationToken();
@@ -54,6 +57,13 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
       setFCMRegistrationToken({ token: token });
     }
   }, [token, status]);
+
+  useEffect(() => {
+    if (appState === 'active') {
+      onFetchUpdateAsync();
+    }
+  }, [appState]);
+  
 
   if(!isDoneCodepush && isUpdateAvailable) {
     return <Loading description="Đang cập nhật phiên bản mới..." />
