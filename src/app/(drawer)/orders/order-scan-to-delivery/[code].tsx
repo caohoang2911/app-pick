@@ -18,6 +18,13 @@ import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-detail';
+
+const ACTION_TYPE = {
+  CUSTOMER_PICKUP: 'Xác nhận đã giao cho khách',
+  OFFLINE_HOME_DELIVERY: 'Xác nhận đã giao cho khách',
+  APARTMENT_COMPLEX_DELIVERY: 'Xác nhận đã giao cho khách',
+  SHIPPER_DELIVERY: 'Xác nhận đã giao cho tài xế',
+}
   
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -33,8 +40,7 @@ const OrderScanToDelivery = () => {
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
   
-
-  const actionType = deliveryType ? (deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP' ? 'Hoàn tất đơn hàng' : 'Giao cho shipper') : '';
+  const actionType = ACTION_TYPE[deliveryType as keyof typeof ACTION_TYPE];
 
   useEffect(() => {
     setLoading(isPending || isFetching);

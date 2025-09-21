@@ -67,7 +67,9 @@ const Header = () => {
   });
 
   const { mutate: refreshToken, isPending } = useRefreshToken((data) => {
-    queryClient.invalidateQueries({ predicate: () => true });
+    queryClient.invalidateQueries({ 
+      predicate: (query) => query.queryKey[0] !== 'getMyProfile'
+    });
   });
 
   const navigation = useNavigation()

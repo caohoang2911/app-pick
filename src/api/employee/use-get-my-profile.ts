@@ -52,7 +52,6 @@ export const useGetMyProfile = () => {
   const originalRefetch = query.refetch;
   const safeRefetch = () => {
     if (authStatus === 'signIn') {
-      alert(4)
       return originalRefetch();
     }
     return Promise.resolve({ data: null, error: null, isError: false, isLoading: false });
