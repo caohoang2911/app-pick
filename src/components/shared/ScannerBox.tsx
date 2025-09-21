@@ -1,13 +1,37 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Portal } from '@gorhom/portal';
 import { BarcodeScanningResult, BarcodeType, CameraView } from 'expo-camera';
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { Dimensions, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { ClipPath, Defs, Rect } from "react-native-svg";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+import {
+  Dimensions,
+  Linking,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import Svg, { ClipPath, Defs, Rect } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
 import { Button } from '../Button';
 
-const codeAvailable = ['aztec', 'ean13', 'ean8', 'qr', 'pdf417', 'upc_e', 'datamatrix', 'code39', 'code93', 'itf14', 'codabar', 'code128', 'upc_a'];
+const codeAvailable = [
+  'aztec',
+  'ean13',
+  'ean8',
+  'qr',
+  'pdf417',
+  'upc_e',
+  'datamatrix',
+  'code39',
+  'code93',
+  'itf14',
+  'codabar',
+  'code128',
+  'upc_a',
+];
 
 type Props = {
   visible?: boolean;
@@ -24,9 +48,11 @@ const SCAN_SQUARE_SIZE = deviceWidth - 150;
 const ScannerLayout = ({
   onClose,
   isQRScanner,
+  onToggleScanner,
 }: {
   onClose: any;
   isQRScanner?: boolean;
+  onToggleScanner?: () => void;
 }) => {
   const holeWidth = SCAN_SQUARE_SIZE;
   const holeHeight = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
@@ -35,37 +61,58 @@ const ScannerLayout = ({
   return (
     <View style={styles.layout}>
       <Svg height="100%" width="100%">
-      <Defs>
-        <ClipPath id="clip">
-          {/* phủ toàn màn hình */}
-          <Rect width="100%" height="100%" />
-          {/* lỗ quét */}
-          <Rect x={holeX} y={holeY} width={holeWidth} height={holeHeight} />
-        </ClipPath>
-      </Defs>
+        <Defs>
+          <ClipPath id="clip">
+            {/* phủ toàn màn hình */}
+            <Rect width="100%" height="100%" />
+            {/* lỗ quét */}
+            <Rect x={holeX} y={holeY} width={holeWidth} height={holeHeight} />
+          </ClipPath>
+        </Defs>
 
-      {/* overlay */}
-      <Rect
-        width="100%"
-        height="100%"
-        fill="rgba(0,0,0,0.6)"
-        clipPath="url(#clip)"
-      />
+        {/* overlay */}
+        <Rect
+          width="100%"
+          height="100%"
+          fill="rgba(0,0,0,0.6)"
+          clipPath="url(#clip)"
+        />
 
-      {/* viền trắng quanh lỗ */}
-      <Rect
-        x={holeX}
-        y={holeY}
-        width={holeWidth}
-        height={holeHeight}
-        stroke="white"
-        strokeWidth={3}
-        fill="transparent"
-      />
-    </Svg>
+         {/* viền trắng quanh lỗ */}
+         <Rect
+           x={holeX}
+           y={holeY}
+           width={holeWidth}
+           height={holeHeight}
+           stroke="white"
+           strokeWidth={3}
+           fill="transparent"
+         />
+       </Svg>
+
+       {/* Text hiển thị loại scanner hiện tại */}
+       <View style={[styles.currentScannerTextContainer, { top: holeY + holeHeight + 10 }]}>
+         <Text style={styles.currentScannerText}>
+           {isQRScanner ? 'QR Code' : 'Barcode'}
+         </Text>
+       </View>
+
+      {/* Nút đóng */}
       <View className="ml-auto absolute top-14 right-5 z-10">
         <Pressable onPress={onClose}>
           <AntDesign name="closecircleo" size={20} color="white" />
+        </Pressable>
+      </View>
+
+      {/* Nút chuyển đổi scanner */}
+      <View className="absolute left-1/2 -translate-x-1/2 bottom-14 z-10">
+        <Pressable onPress={onToggleScanner} style={styles.toggleButton}>
+          <View style={styles.toggleButtonContent}>
+            <Ionicons name="swap-horizontal" size={16} color="white" />
+            <Text style={styles.toggleButtonText}>
+              {isQRScanner ? 'Chuyển sang Barcode' : 'Chuyển sang QR Code'}
+            </Text>
+          </View>
         </Pressable>
       </View>
     </View>
@@ -78,27 +125,33 @@ const ScannerBox = ({
   onSuccessBarcodeScanned,
   isQRScanner = true,
 }: Props) => {
-  const { permission, facing, requestPermission }  = useCarmera();
+  const { permission, facing, requestPermission } = useCarmera();
+  const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
 
   useEffect(() => {
     // Reset state when visibility changes
-  }, [visible]);
+    setCurrentScannerType(isQRScanner);
+  }, [visible, isQRScanner]);
 
   const handleRequestPermission = useCallback(() => {
-    if(Platform.OS=='ios' && permission?.granted){
-      Linking.openURL('app-settings:')
+    if (Platform.OS == 'ios' && permission?.granted) {
+      Linking.openURL('app-settings:');
     } else {
       requestPermission();
     }
   }, []);
 
+  const handleToggleScanner = useCallback(() => {
+    setCurrentScannerType((prev) => !prev);
+  }, []);
+
   const codeAvailableForScanner = useMemo(() => {
-    if(isQRScanner) {
+    if (currentScannerType) {
       return ['qr'];
     }
 
     return codeAvailable.filter((type) => type !== 'qr');
-  }, [isQRScanner]);
+  }, [currentScannerType]);
 
   if (!visible) return <></>;
 
@@ -137,7 +190,11 @@ const ScannerBox = ({
             barcodeTypes: codeAvailableForScanner as BarcodeType[],
           }}
         >
-          <ScannerLayout onClose={onDestroy} isQRScanner={isQRScanner} />
+          <ScannerLayout
+            onClose={onDestroy}
+            isQRScanner={currentScannerType}
+            onToggleScanner={handleToggleScanner}
+          />
         </CameraView>
       </View>
     </Portal>
@@ -194,7 +251,41 @@ const styles = StyleSheet.create({
     height: deviceHeight,
     backgroundColor: 'transparent',
     zIndex: 15,
-  }
+  },
+  toggleButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'white',
+  },
+  toggleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  toggleButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  currentScannerTextContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  currentScannerText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
 });
 
 export default React.memo(ScannerBox);

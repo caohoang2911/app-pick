@@ -4,6 +4,7 @@ import { router, useGlobalSearchParams } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Entypo from '@expo/vector-icons/Entypo';
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Linking, Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
@@ -21,6 +22,7 @@ import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-p
 import { queryClient } from '~/src/api/shared/api-provider';
 import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 import { OrderStatusValue } from '~/src/types/order';
+import OrderDeliveryTypeBottomSheet from './order-delivery-type-bottom-sheet';
 
 type Action = {
   key: string;
@@ -40,6 +42,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
     const { code } = useGlobalSearchParams<{ code: string }>();
     const [visible, setVisible] = useState(false);
     const [deliverySelectionVisible, setDeliverySelectionVisible] = useState(false);
+    const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] = useState(false);
 
     const employeeSelectionRef = useRef<any>();
 
@@ -124,6 +127,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
             });
           }
           break;
+        case 'change-delivery-type':
+          setOrderDeliveryTypeVisible(true);
+          break;
         case 'delivery-order':
           setDeliverySelectionVisible(true);
           break;
@@ -191,6 +197,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
         icon: <QRScanLine />,
       },
       {
+        key: 'change-delivery-type',
+        title: 'Đổi phương thức giao hàng',
+        enabled: true,
+        icon: <Ionicons name="swap-horizontal" size={24} color="black" />
+      },
+      {
         key: 'delivery-order',
         title: 'Vận chuyển',
         enabled: deliveryType !== "CUSTOMER_PICKUP",
@@ -207,7 +219,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           title="Thao tác"
           extraTitle={renderExtraTitle()}
           ref={actionRef}
-          snapPoints={[420]}
+          snapPoints={[470]}
           onClose={() => {
             setVisible(false);
           }}
@@ -231,6 +243,11 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(
           orderDetail={orderDetail}
           visible={deliverySelectionVisible}
           setVisible={setDeliverySelectionVisible}
+        />
+        <OrderDeliveryTypeBottomSheet
+          setVisible={setOrderDeliveryTypeVisible}
+          visible={orderDeliveryTypeVisible}
+          deliveryType={deliveryType || null}
         />
       </>
     );

@@ -2,9 +2,13 @@ import { MMKV } from 'react-native-mmkv';
 
 export const storage = new MMKV();
 
-export function getItem<T>(key: string): T {
+export function getItem<T>(key: string): T | null {
   const value = storage.getString(key);
-  return value ? JSON.parse(value) || null : null;
+  try {
+    return JSON.parse(value as string) as T;
+  } catch (error) {
+    return value as T || null;
+  }
 }
 
 export async function setItem<T>(key: string, value: T) {

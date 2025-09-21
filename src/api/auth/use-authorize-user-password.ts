@@ -16,7 +16,9 @@ export const useAuthorizeUserPassword = (cb?: (data: Response) => void) => {
   return useMutation({
   mutationFn: (params: Variables) => authorizeUserPassword(params),
   onSuccess: (data: Response) => {
-    setVersionWithAutoInfo();
+    if(!data.error) {
+      setVersionWithAutoInfo();
+    }
     cb?.(data);
   },
 });
