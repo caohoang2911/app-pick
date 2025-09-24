@@ -1,7 +1,7 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Portal } from '@gorhom/portal';
 import { BarcodeScanningResult, BarcodeType, CameraView } from 'expo-camera';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import {
@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Animated,
 } from 'react-native';
 import Svg, { ClipPath, Defs, Rect } from 'react-native-svg';
 import useCarmera from '~/src/core/hooks/useCarmera';
@@ -58,11 +59,14 @@ const ScannerLayout = ({
   const holeHeight = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
   const holeX = deviceWidth / 2 - holeWidth / 2;
   const holeY = deviceHeight / 2 - holeHeight / 2;
+  
+  // Create unique ID for ClipPath to force re-render on Android
+  const clipPathId = `clip-${isQRScanner ? 'qr' : 'barcode'}-${Date.now()}`;
   return (
     <View style={styles.layout}>
       <Svg height="100%" width="100%">
         <Defs>
-          <ClipPath id="clip">
+          <ClipPath id={clipPathId}>
             {/* phủ toàn màn hình */}
             <Rect width="100%" height="100%" />
             {/* lỗ quét */}
@@ -75,7 +79,7 @@ const ScannerLayout = ({
           width="100%"
           height="100%"
           fill="rgba(0,0,0,0.6)"
-          clipPath="url(#clip)"
+          clipPath={`url(#${clipPathId})`}
         />
 
          {/* viền trắng quanh lỗ */}
@@ -99,7 +103,7 @@ const ScannerLayout = ({
 
       {/* Nút đóng */}
       <View className="ml-auto absolute top-14 right-5 z-10">
-        <Pressable onPress={onClose}>
+        <Pressable onPress={onClose} hitSlop={15}>
           <AntDesign name="closecircleo" size={20} color="white" />
         </Pressable>
       </View>
@@ -127,11 +131,48 @@ const ScannerBox = ({
 }: Props) => {
   const { permission, facing, requestPermission } = useCarmera();
   const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
+  const [scannerKey, setScannerKey] = useState(0);
+  const cameraRef = useRef<CameraView>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
   useEffect(() => {
     // Reset state when visibility changes
     setCurrentScannerType(isQRScanner);
+    if (visible) {
+      setShowLoading(true);
+      setIsCameraReady(false);
+    }
   }, [visible, isQRScanner]);
+
+  // Preload camera when component mounts
+  useEffect(() => {
+    if (visible && permission?.granted) {
+      // Small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        setIsCameraReady(true);
+        setShowLoading(false);
+        
+        // Animate camera appearance
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.spring(scaleAnim, {
+            toValue: 1,
+            tension: 50,
+            friction: 7,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [visible, permission?.granted, fadeAnim, scaleAnim]);
 
   const handleRequestPermission = useCallback(() => {
     if (Platform.OS == 'ios' && permission?.granted) {
@@ -143,6 +184,8 @@ const ScannerBox = ({
 
   const handleToggleScanner = useCallback(() => {
     setCurrentScannerType((prev) => !prev);
+    // Force re-render of ScannerLayout on Android
+    setScannerKey((prev) => prev + 1);
   }, []);
 
   const codeAvailableForScanner = useMemo(() => {
@@ -152,6 +195,18 @@ const ScannerBox = ({
 
     return codeAvailable.filter((type) => type !== 'qr');
   }, [currentScannerType]);
+
+  const handleCameraReady = useCallback(() => {
+    setIsCameraReady(true);
+    setShowLoading(false);
+  }, []);
+
+  const handleBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
+    onDestroy?.();
+    setTimeout(() => {
+      onSuccessBarcodeScanned?.(result);
+    }, 100);
+  }, [onDestroy, onSuccessBarcodeScanned]);
 
   if (!visible) return <></>;
 
@@ -177,25 +232,40 @@ const ScannerBox = ({
   return (
     <Portal>
       <View style={styles.fullScreenContainer}>
-        <CameraView
-          style={styles.camera}
-          facing={facing}
-          onBarcodeScanned={(result: BarcodeScanningResult) => {
-            onDestroy?.();
-            setTimeout(() => {
-              onSuccessBarcodeScanned?.(result);
-            }, 100);
-          }}
-          barcodeScannerSettings={{
-            barcodeTypes: codeAvailableForScanner as BarcodeType[],
-          }}
-        >
-          <ScannerLayout
-            onClose={onDestroy}
-            isQRScanner={currentScannerType}
-            onToggleScanner={handleToggleScanner}
-          />
-        </CameraView>
+        {showLoading && (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Đang khởi tạo camera...</Text>
+          </View>
+        )}
+        {isCameraReady && (
+          <Animated.View
+            style={[
+              styles.cameraContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }],
+              },
+            ]}
+          >
+            <CameraView
+              ref={cameraRef}
+              style={styles.camera}
+              facing={facing}
+              onBarcodeScanned={handleBarcodeScanned}
+              onCameraReady={handleCameraReady}
+              barcodeScannerSettings={{
+                barcodeTypes: codeAvailableForScanner as BarcodeType[],
+              }}
+            >
+              <ScannerLayout
+                key={`scanner-${currentScannerType ? 'qr' : 'barcode'}-${scannerKey}`}
+                onClose={onDestroy}
+                isQRScanner={currentScannerType}
+                onToggleScanner={handleToggleScanner}
+              />
+            </CameraView>
+          </Animated.View>
+        )}
       </View>
     </Portal>
   );
@@ -222,6 +292,11 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     bottom: 0,
+  },
+  cameraContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   camera: {
     flex: 1,
@@ -282,9 +357,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: "transparent",
     paddingHorizontal: 16,
     paddingVertical: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  loadingText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
