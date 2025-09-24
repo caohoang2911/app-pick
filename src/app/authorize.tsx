@@ -10,8 +10,9 @@ import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { setLoading } from '../core/store/loading';
 import RequestPermissionStore from '../components/shared/request-permission-store';
 import { useSetAppVersionWithAutoInfo } from '../api/app-pick/use-set-app-version';
+import { EmployeeRole } from '~/src/types/employee';
 
-const WHITE_LIST_ROLE = ['STORE', 'STORE_MANAGER', 'ADMIN'];
+const WHITE_LIST_ROLE = [EmployeeRole.STORE, EmployeeRole.STORE_MANAGER, EmployeeRole.ADMIN, EmployeeRole.DRIVER  ];
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();

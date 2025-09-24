@@ -264,7 +264,7 @@ const OrderItem = ({
           <View className="px-3 py-2 flex flex-row items-center gap-1 bg-orange-400">
             <Ionicons
               name="information-circle-outline"
-              size={20}
+              size={18}
               color="white"
             />
             <Text className="text-base font-semibold text-white">
@@ -274,7 +274,7 @@ const OrderItem = ({
         )}
         {fulfillError?.type && (
           <View className="px-3 py-2 rounded-b flex flex-row items-center gap-1 bg-red-400 mt-1">
-            <Ionicons name="warning-outline" size={20} color="white" />
+            <Ionicons name="warning-outline" size={18} color="white" />
             <Text className="text-base font-semibold text-white">
               {fulfillErrorTypeDisplay}
             </Text>

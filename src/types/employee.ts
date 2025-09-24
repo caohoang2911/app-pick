@@ -30,3 +30,10 @@ export type Customer = {
   spend: number;
   points: number;
 };
+
+export enum EmployeeRole {
+  STORE = 'STORE',
+  STORE_MANAGER = 'STORE_MANAGER',
+  ADMIN = 'ADMIN',
+  DRIVER = 'DRIVER'
+}
