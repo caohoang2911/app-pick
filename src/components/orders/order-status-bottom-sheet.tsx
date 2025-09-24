@@ -68,7 +68,7 @@ const OrderStatusBottomSheet = forwardRef<OrderStatusModalRef, OrderStatusModalP
         visible={visible}
         onClose={() => setVisible(false)}
         title="Trạng thái nhận đơn"
-        snapPoints={[220]}
+        snapPoints={[250]}
       >
         <View className="px-4 mt-4">
           <RadioButtonGroup
@@ -86,14 +86,14 @@ const OrderStatusBottomSheet = forwardRef<OrderStatusModalRef, OrderStatusModalP
               value="ENABLE" 
               label={<Text className='pl-2'>Bật nhận đơn</Text>} 
             />
-            <View className='py-2' />
+            <View className='py-4' />
             <RadioButtonItem
               value="DISABLE"
               label={<Text className='pl-2'>Tắt nhận đơn</Text>}
             />
           </RadioButtonGroup>
           
-          <View className="mt-3">
+          <View className="mt-5">
             <Button
               onPress={handleConfirm}
               className="bg-blue-500"

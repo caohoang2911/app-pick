@@ -122,11 +122,6 @@ const ProductHeader = memo(({
 }) => (
   <>
     <View className='flex flex-row gap-1'>
-      {pickedTime ? (
-        <View className="rounded-full bg-white">
-          <CheckCircleFill color={'green'} />
-        </View>
-      ) : null}
       <View className="flex-1">
         <Text className="text-base font-semibold" numberOfLines={2}>
           {isGift ? "🎁 " : ""}{name}
@@ -343,7 +338,7 @@ const OrderPickProduct = memo(({
             </View>
             <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
               <View className="flex justify-between items-center">
-                <View>
+                <View className="relative">
                   <SImage
                     style={styles.productImage}
                     source={imageSource}
@@ -353,6 +348,11 @@ const OrderPickProduct = memo(({
                     cachePolicy="none"
                     preview={true}
                   />
+                  {pickedTime ? (
+                    <View className="rounded-full bg-white border-solid shadow-md absolute left-0 top-0" style={{ borderColor: 'green', borderWidth: 1}}>
+                      <CheckCircleFill color={'green'}  />
+                    </View>
+                  ) : null}
                 </View>
               </View>
               

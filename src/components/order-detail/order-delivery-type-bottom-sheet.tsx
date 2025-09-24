@@ -89,7 +89,7 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
       visible={visible}
       onClose={() => setVisible(false)}
       title="Phương thức giao hàng"
-      snapPoints={[290]}
+      snapPoints={[350]}
     >
       <View className="px-4 mt-2">
         {orderDeliveryTypes.length > 0 ? (
@@ -110,7 +110,7 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
               <RadioButtonItem
                 value={String(deliveryType.id)}
                 label={
-                  <Text className="pl-2 py-2">
+                  <Text className="pl-2 py-4">
                     {deliveryType.name}
                   </Text>
                 }
@@ -124,7 +124,7 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
             </Text>
           </View>
         )}
-        <View className="mt-2">
+        <View className="mt-5">
           <Button
             onPress={handleConfirm}
             className="bg-blue-500"
