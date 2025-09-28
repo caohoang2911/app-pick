@@ -32,6 +32,9 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '13.4'
 install! 'cocoapods',
   :deterministic_uuids => false
 
+# Specify the Xcode project path
+project 'AppPick.xcodeproj'
+
 prepare_react_native_project!
 
 target 'AppPick' do

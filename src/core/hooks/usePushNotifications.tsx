@@ -227,6 +227,8 @@ export const usePushNotifications: any = () => {
         // Handle foreground notifications by setting params like background clicks
         const { action } = remoteMessage.data || {};
 
+        console.log(remoteMessage, "remoteMessage")
+
         if(action === ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS) {
           queryClient.resetQueries({ queryKey: ['getMyProfile'] });
         }

@@ -161,6 +161,7 @@ function Providers({ children }: { children: React.ReactNode }) {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <PortalProvider>
           <APIProvider>
+            
             <NotificationWrapper>
               <AuthWrapper>
                 <SafeAreaView edges={['top']} style={{ flex: 1 }}>
@@ -169,7 +170,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                   {children}
                   <AlertDialog />
                   {shouldPreload && <CameraPreloader />}
-
                 </SafeAreaView>
                 <AlertDialog />
                 <FlashMessage

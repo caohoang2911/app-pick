@@ -11,7 +11,7 @@
         "./src/*"
       ],
       "@env": [
-        "./src/core/env.js"
+        "./env.ts"
       ]
     },
     "esModuleInterop": true,

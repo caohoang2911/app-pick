@@ -1,21 +1,15 @@
 /*
- * This file should not be modified; use `env.js` in the project root to add your client environment variables.
+ * Environment configuration for different environments
+ * This file manages environment variables for dev and production
  * If you import `Env` from `@env`, this is the file that will be loaded.
- * You can only access the client environment variables here.
- * NOTE: We use js file so we can load the client env types
  */
 
 import Constants from 'expo-constants';
 
 // Get environment from app.config.ts extra field
-const getEnvironmentFromConfig = () => {
+const getEnvironmentFromConfig = (): 'dev' | 'prod' => {
   const extra = Constants.expoConfig?.extra;
-  const env = extra?.env || 'dev';
-  
-  console.log('🔍 App Config Extra:', extra);
-  console.log('🔍 Environment from config:', env);
-  
-  return env;
+  return (extra?.env || 'dev') as 'dev' | 'prod';
 };
 
 const environment = getEnvironmentFromConfig();
@@ -29,12 +23,9 @@ const configs = {
     APP_VERSION: '1.0.0-dev',
     DEBUG_MODE: true,
     LOG_LEVEL: 'debug',
-    FIREBASE_PROJECT_ID: 'your-dev-project-id',
     ENABLE_ANALYTICS: false,
     ENABLE_CRASH_REPORTING: false,
     ENABLE_DEBUG_TOOLS: true,
-    SENTRY_DSN: '',
-    GOOGLE_ANALYTICS_ID: '',
   },
   prod: {
     API_BASE_URL: 'https://oms-api.seedcom.vn/',
@@ -43,21 +34,17 @@ const configs = {
     APP_VERSION: '1.0.0',
     DEBUG_MODE: false,
     LOG_LEVEL: 'error',
-    FIREBASE_PROJECT_ID: 'your-prod-project-id',
     ENABLE_ANALYTICS: true,
     ENABLE_CRASH_REPORTING: true,
     ENABLE_DEBUG_TOOLS: false,
-    SENTRY_DSN: 'your-prod-sentry-dsn',
-    GOOGLE_ANALYTICS_ID: 'your-prod-ga-id',
   }
 };
 
-const currentConfig = configs[environment] || configs.dev;
+const currentConfig = configs[environment as keyof typeof configs] || configs.dev;
 
 /**
- *  @type {typeof import('../../env.js').ClientEnv}
+ * Environment configuration object
  */
-//@ts-ignore // Don't worry about TypeScript here; we know we're passing the correct environment variables to `extra` in `app.config.ts`.
 export const Env = {
   ENVIRONMENT: environment === 'prod' ? 'production' : 'development',
   IS_DEVELOPMENT: environment !== 'prod',
@@ -69,10 +56,7 @@ export const Env = {
   APP_VERSION: currentConfig.APP_VERSION,
   DEBUG_MODE: currentConfig.DEBUG_MODE,
   LOG_LEVEL: currentConfig.LOG_LEVEL,
-  FIREBASE_PROJECT_ID: currentConfig.FIREBASE_PROJECT_ID,
   ENABLE_ANALYTICS: currentConfig.ENABLE_ANALYTICS,
   ENABLE_CRASH_REPORTING: currentConfig.ENABLE_CRASH_REPORTING,
   ENABLE_DEBUG_TOOLS: currentConfig.ENABLE_DEBUG_TOOLS,
-  SENTRY_DSN: currentConfig.SENTRY_DSN,
-  GOOGLE_ANALYTICS_ID: currentConfig.GOOGLE_ANALYTICS_ID,
 };

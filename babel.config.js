@@ -25,6 +25,8 @@ module.exports = function (api) {
           ],
         },
       ],
+      // Temporarily disabled due to _toString error
+      // 'react-native-worklets/plugin',
       'react-native-reanimated/plugin',
     ],
   };

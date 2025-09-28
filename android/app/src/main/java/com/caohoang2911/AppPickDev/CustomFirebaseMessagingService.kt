@@ -1,4 +1,4 @@
-package com.caohoang2911.AppPick
+package com.caohoang2911.AppPickDev
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

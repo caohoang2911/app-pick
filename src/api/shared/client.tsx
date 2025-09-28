@@ -2,6 +2,8 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
 import { signOut } from '~/src/core';
 import { getToken } from '~/src/core/store/auth/utils';
+import { Env } from '~/env';
+import { isDevelopment } from '~/src/core/env';
 
 const BLACK_LIST_SHOW_MESSAGE = [
   '/app-pick/getStoreEmployeeProfile',
@@ -62,15 +64,39 @@ const handleAuthError = (message: string) => {
 };
 
 export const axiosClient = axios.create({
-  baseURL: "https://oms-api.seedcom.vn/",
+  baseURL: Env.API_BASE_URL,
+  timeout: Env.API_TIMEOUT,
   headers: {
     accept: 'application/json',
   },
 });
 
+// Log API configuration
+if (isDevelopment()) {
+  console.log('🌐 API Configuration:', {
+    baseURL: Env.API_BASE_URL,
+    timeout: Env.API_TIMEOUT,
+    environment: Env.ENVIRONMENT,
+    isDevelopment: Env.IS_DEVELOPMENT,
+    isProduction: Env.IS_PRODUCTION,
+  });
+}
+
 axiosClient.interceptors.response.use(function (
   response: AxiosResponse & { error?: string }
 ): AxiosResponse & { error?: string } {
+  // Log API responses in development
+  if (isDevelopment()) {
+    console.log('📥 API Response:', {
+      status: response.status,
+      url: response.config?.url,
+      method: response.config?.method?.toUpperCase(),
+      hasError: !!response?.data?.error,
+      error: response?.data?.error,
+      dataKeys: response?.data ? Object.keys(response.data) : []
+    });
+  }
+
   if (
     response &&
     [
@@ -96,6 +122,17 @@ axiosClient.interceptors.response.use(function (
 
   return response;
 }, (error: AxiosError) => {
+  // Log API errors in development
+  if (isDevelopment()) {
+    console.log('❌ API Error:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      method: error.config?.method?.toUpperCase(),
+      message: error.message,
+      data: error.response?.data
+    });
+  }
+
   if (error.response?.status === 401 || error.response?.status === 403) {
     handleAuthError('Phiên đăng nhập đã hết hạn');
   }
@@ -114,5 +151,21 @@ axiosClient.interceptors.request.use(function (config: any) {
   if (config.data instanceof FormData) {
     config.headers['Content-Type'] = 'multipart/form-data';
   }
+
+  // Log API requests in development
+  if (isDevelopment()) {
+    console.log('📤 API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      hasToken: !!token,
+      headers: {
+        'Content-Type': config.headers['Content-Type'],
+        'zas': config.headers.zas ? '***' : 'none'
+      }
+    });
+  }
+
   return config;
 });

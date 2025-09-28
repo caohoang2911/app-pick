@@ -3,7 +3,7 @@
     "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
         "applinks:expo.dev",
         "applinks:oms.seedcom.vn"
       ],
-      "googleServicesFile": "./GoogleService-Info.plist",
+      "googleServicesFile": "./GoogleService-Info-prod.plist",
       "buildNumber": "69",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Ứng dụng cần truy cập thư viện ảnh để người dùng có thể chọn và tải ảnh lên.",
@@ -45,7 +45,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "./google-services-prod.json",
       "intentFilters": [
         {
           "action": "VIEW",
