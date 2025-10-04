@@ -1,44 +1,27 @@
-import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { MaterialIcons } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
-import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/useAssignOrderShippingToMe';
-import { useDriverCancelMyOrderShipping } from '~/src/api/app-pick-driver/useDriverCancelMyOrderShipping';
-import { queryClient } from '~/src/api/shared/api-provider';
 import { ORDER_STATUS } from '~/src/contants/order';
-import { useRoleDriver } from "~/src/core/hooks/useRole";
-import { setLoading } from '~/src/core/store/loading';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';
 import { OrderStatusValue } from '~/src/types/order';
 import SBottomSheet from '../SBottomSheet';
 import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
+import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 
 const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
   const [deliverySelectionVisible, setDeliverySelectionVisible] = useState(false);
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { mutate: assignOrderToMe } = useAssignOrderShippingToMe(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-    showMessage({
-      message: 'Gán đơn cho tôi thành công',
-      type: 'success',
-    });
-  });
-
-  const { mutate: cancelMyOrder } = useDriverCancelMyOrderShipping(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-    showMessage({
-      message: 'Huỷ gán đơn cho tôi thành công',
-      type: 'success',
-    });
-  });
-
-  const isDriver = useRoleDriver();
+  const {
+    isDriver,
+    handleScanBagDelivery,
+    handleAssignOrder,
+    handleUnassignOrder,
+  } = useDriverOrderActions(code);
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
@@ -123,31 +106,13 @@ const HeaderActionBtn = () => {
         setDeliverySelectionVisible(true);
         break;
       case 'scan-bag':
-        router.push(`orders/order-scan-to-delivery/${code}`);
+        handleScanBagDelivery();
         break;
       case 'assign-order-to-me':
-        showAlert({
-          title: 'Gán đơn cho tôi',
-          message: 'Bạn có muốn gán đơn cho mình không?',
-          onConfirm: () => {
-            hideAlert();
-            setLoading(true);
-            assignOrderToMe({ orderCode: code });
-          },
-        });
+        handleAssignOrder();
         break;
       case 'unassign-order-to-me':
-        showAlert({
-          title: 'Huỷ gán đơn cho tôi',
-          message: 'Bạn có muốn huỷ gán đơn, để book AhaMove không?',
-          onConfirm: () => {
-            setLoading(true);
-            hideAlert();
-            cancelMyOrder({ orderCode: code });
-          },
-        });
-        break;
-      case 'unassign-order-to-me':
+        handleUnassignOrder();
         break;
       default:
         break;

@@ -19,6 +19,7 @@ interface OrderDeliveryTypeModalProps {
   setVisible: (visible: boolean) => void;
   deliveryType: string | null;
   visible: boolean;
+  orderCode?: string;
 }
 
 export interface OrderDeliveryTypeModalRef {
@@ -28,7 +29,7 @@ export interface OrderDeliveryTypeModalRef {
 const OrderDeliveryTypeBottomSheet = forwardRef<
   OrderDeliveryTypeModalRef,
   OrderDeliveryTypeModalProps
->(({ setVisible, visible, deliveryType }, ref) => {
+>(({ setVisible, visible, orderCode, deliveryType }, ref) => {
   const config = useConfig.use.config();
   const orderDeliveryTypes = config?.orderDeliveryTypes || [];
   const { code } = useGlobalSearchParams<{ code: string }>();
@@ -80,7 +81,7 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
 
   const handleConfirm = () => {
     if (!orderDeliveryType) return;
-    updateOrderDeliveryType({ type: orderDeliveryType, orderCode: code });
+    updateOrderDeliveryType({ type: orderDeliveryType, orderCode: code || orderCode || "" });
   };
 
   return (

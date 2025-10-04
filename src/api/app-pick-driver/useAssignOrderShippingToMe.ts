@@ -4,12 +4,12 @@ import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   status: "ENABLE" | "DISABLE";
+  orderCode: string;
 };
 
 type Response = { error: string } & {};
 
 const assignOrderShippingToMe = async (params: Variables): Promise<Response> => {
-  console.log('params', params);
   return await axiosClient.post('app-pick-driver/assignOrderShippingToMe', params);
 };
 

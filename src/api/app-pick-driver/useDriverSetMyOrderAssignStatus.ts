@@ -5,6 +5,7 @@ import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {
   status : "ENABLE" | "DISABLE";
+  orderCode: string;
 };
 
 type Response = { error: string } & {};

@@ -1,5 +1,4 @@
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { toLower } from 'lodash';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -10,20 +9,22 @@ import { getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import SearchableDropdown, { SearchableDropdownRef } from '../SearchableDropdown';
-import { useRoleDriver } from "~/src/core/hooks/useRole";
+import OrderActionsBottomSheet, { OrderActionsBottomSheetRef } from './order-actions-bottom-sheet';
 
 const MIN_LENGTH_SEARCH = 3;
 
 const OrderItem = memo(({ item }: { item: any }) => {
-  const isDriver = useRoleDriver();
+  const [showActionsBottomSheet, setShowActionsBottomSheet] = useState(false);
+  const actionsBottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
 
   const handleSelect = useCallback(() => {
-    if(item.type === 'STORE_DELIVERY' || isDriver) {
-      router.push(`orders/order-invoice/${item.code}`);
-    } else {
-      router.push({ pathname: `orders/order-detail/${item.code}`, params: { status: item.status } });
-    }
-  }, [item.code, item.status, item.type, isDriver]);
+    setShowActionsBottomSheet(true);
+    actionsBottomSheetRef.current?.present();
+  }, []);
+
+  const handleCloseActionsBottomSheet = useCallback(() => {
+    setShowActionsBottomSheet(false);
+  }, []);
 
   const formattedAmount = useMemo(() => 
     formatCurrency(item.amount, {unit: true}), 
@@ -36,38 +37,50 @@ const OrderItem = memo(({ item }: { item: any }) => {
   );
 
   return (
-    <TouchableOpacity 
-      className="py-3 px-2"
-      style={{borderTopWidth: 1, borderColor: '#E0E0E0'}}
-      onPress={handleSelect}>
-      <View className="flex flex-row items-center justify-between">
-        <Text className="font-semibold">{item.code}</Text>
-        <Badge
-          label={item.statusName}
-          variant={toLower(item.status) as any}
-          extraLabel={<Text className="text-xs text-contentPrimary ml-3">
-            | {timeFromNow}
-          </Text>}
-        />
-      </View>
-      <View className="flex flex-row gap-2 items-center justify-between mt-2">
-        <View className="flex flex-row gap-2 items-center flex-1">
-          <View className="-mt-0.5">
-            <Feather name="user" size={18} color="black" />
-          </View>
-          <Text className="text-sm font-semibold" style={{width: '85%'}} numberOfLines={1} ellipsizeMode="tail">
-            {item.customer?.name}
-          </Text>
+    <>
+      <TouchableOpacity 
+        className="py-3 px-2"
+        style={{borderTopWidth: 1, borderColor: '#E0E0E0'}}
+        onPress={handleSelect}>
+        <View className="flex flex-row items-center justify-between">
+          <Text className="font-semibold">{item.code}</Text>
+          <Badge
+            label={item.statusName}
+            variant={toLower(item.status) as any}
+            extraLabel={<Text className="text-xs text-contentPrimary ml-3">
+              | {timeFromNow}
+            </Text>}
+          />
         </View>
-        <Badge 
-          label={<Text className="text-base mr-2">{formattedAmount}</Text>}  
-          extraLabel={<Text className="text-sm text-contentPrimary ml-3">
-            - {item.payment?.methodName}
-          </Text>}
-          variant="warning" 
-        />
-      </View>
-    </TouchableOpacity>
+        <View className="flex flex-row gap-2 items-center justify-between mt-2">
+          <View className="flex flex-row gap-2 items-center flex-1">
+            <View className="-mt-0.5">
+              <Feather name="user" size={18} color="black" />
+            </View>
+            <Text className="text-sm font-semibold" style={{width: '85%'}} numberOfLines={1} ellipsizeMode="tail">
+              {item.customer?.name}
+            </Text>
+          </View>
+          <Badge 
+            label={<Text className="text-base mr-2">{formattedAmount}</Text>}  
+            extraLabel={<Text className="text-sm text-contentPrimary ml-3">
+              - {item.payment?.methodName}
+            </Text>}
+            variant="warning" 
+          />
+        </View>
+      </TouchableOpacity>
+      
+      <OrderActionsBottomSheet
+        ref={actionsBottomSheetRef}
+        orderCode={item.code}
+        orderStatus={item.status}
+        orderType={item.type}
+        deliveryType={item.deliveryType}
+        visible={showActionsBottomSheet}
+        onClose={handleCloseActionsBottomSheet}
+      />
+    </>
   );
 });
 
@@ -139,7 +152,7 @@ const InputSearch = ({
 
 
   const orderList = useMemo(() => {
-    return ordersResponse?.data || [];
+    return (ordersResponse as any)?.data || [];
   }, [ordersResponse]);
   
   const renderItem = useCallback((item: any) => {
@@ -147,11 +160,7 @@ const InputSearch = ({
   }, []);
   
   const handleSelect = useCallback((item: any) => {
-    if(item.type === 'STORE_DELIVERY') {
-      router.push(`orders/order-invoice/${item.code}`);
-    } else {
-      router.push({ pathname: `orders/order-detail/${item.code}`, params: { status: item.status } });
-    }
+    // This is handled by the OrderItem component now
   }, []);
 
   const rightComponent = useMemo(() => (

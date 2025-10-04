@@ -22,7 +22,7 @@ import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-p
 import { queryClient } from '~/src/api/shared/api-provider';
 import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 import { OrderStatusValue } from '~/src/types/order';
-import OrderDeliveryTypeBottomSheet from './order-delivery-type-bottom-sheet';
+import OrderDeliveryTypeBottomSheet from '../shared/order-delivery-type-bottom-sheet';
 
 type Action = {
   key: string;
