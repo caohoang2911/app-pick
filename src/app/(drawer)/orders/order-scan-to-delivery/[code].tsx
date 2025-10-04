@@ -15,32 +15,40 @@ import ScannerBox from '~/src/components/shared/ScannerBox';
 import { ORDER_STATUS, ORDER_TAGS } from '~/src/contants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
-import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
+import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const ACTION_TYPE = {
-  CUSTOMER_PICKUP: 'Xác nhận đã giao cho khách',
-  OFFLINE_HOME_DELIVERY: 'Xác nhận đã giao cho khách',
-  APARTMENT_COMPLEX_DELIVERY: 'Xác nhận đã giao cho khách',
-  SHIPPER_DELIVERY: 'Xác nhận đã giao cho tài xế',
+  HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
+  HANDOVER_TO_SHIPPER: 'Xác nhận giao cho tài xế',
+  DISABLE: 'Chưa thể giao hàng',
 }
   
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
 
+  useEffect(() => {
+    if(data?.data) {
+      console.log(data?.data, "data?.data");
+      setOrderDetail(data?.data || {});
+    }
+  }, [data]);
+
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
   const isScanQrCodeProduct  = getIsScanQrCodeProduct();
-  const header = getHeaderOrderDetailOrderPick();
-  const { deliveryType, status, tags } = header as OrderDetailHeader;
+  const orderDetail = useOrderPick.use.orderDetail();
+
+  const { deliveryType, status, tags, handoverStatus} = orderDetail?.header as OrderDetailHeader || {};
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
   
-  const actionType = ACTION_TYPE[deliveryType as keyof typeof ACTION_TYPE];
+  const actionType = ACTION_TYPE[handoverStatus as keyof typeof ACTION_TYPE];
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -105,6 +113,7 @@ const OrderScanToDelivery = () => {
         loading={isLoadingHandoverOrder}
         onPress={handleCheckoutOrderBags}
         label={actionType}
+        disabled={handoverStatus === "DISABLE"}
         variant='warning'
       />
     ) : (

@@ -17,8 +17,7 @@ import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
-import { OrderStatus } from '~/src/types/order';
-import { Payment } from '~/src/types/order-pick';
+import { OrderItem as OrderItemType } from '~/src/types/order';
 import { Badge } from '../Badge';
 import MoreActionsBtn from './more-actions-btn';
 
@@ -90,34 +89,7 @@ const OrderItem = ({
   pickedItemProgress,
   bagLabels,
   storeCode,
-}: {
-  driverNote: string;
-  statusName: string;
-  orderTime: string;
-  code: string;
-  status: OrderStatus;
-  customer: any;
-  payment: Payment;
-  deliveryTimeRange?: any;
-  amount: number;
-  tags: Array<any>;
-  pickerNote: string;
-  type: string;
-  groupShippingCode: string;
-  fulfillError: any;
-  lastTimeUpdateStatus: string;
-  storeCode: string;
-  deliveryType: ORDER_DELIVERY_TYPE;
-  deliveryAddress: {
-    fullAddress: string;
-  };
-  picker: {
-    username: string;
-    name: string;
-  };
-  pickedItemProgress: number;
-  bagLabels: Array<Record<string, string>>;
-}) => {
+}: OrderItemType) => {
   const router = useRouter();
 
   const config = useConfig.use.config();

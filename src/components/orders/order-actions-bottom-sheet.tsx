@@ -6,12 +6,15 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { MaterialIcons } from '@expo/vector-icons';
 import OrderDeliveryTypeBottomSheet, { OrderDeliveryTypeModalRef } from '../shared/order-delivery-type-bottom-sheet';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
+import { isEnableScanToDelivery } from '~/src/core/utils/order';
+import { OrderStatus } from '~/src/types/order';
 
 interface OrderActionsBottomSheetProps {
   orderCode: string;
   orderStatus?: string;
   orderType?: string;
   deliveryType?: string | null;
+  status?: string;
   visible: boolean;
   onClose: () => void;
 }
@@ -22,7 +25,7 @@ export interface OrderActionsBottomSheetRef {
 }
 
 const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActionsBottomSheetProps>(
-  ({ orderCode, deliveryType, visible, onClose }, ref) => {
+  ({ orderCode, deliveryType, status, visible, onClose }, ref) => {
     const bottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
     const [showDeliveryTypeBottomSheet, setShowDeliveryTypeBottomSheet] = useState(false);
     const deliveryTypeBottomSheetRef = useRef<OrderDeliveryTypeModalRef>(null);
@@ -82,13 +85,20 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
     const ActionItem = ({ 
       icon, 
       title, 
+      enabled = true,
       onPress 
     }: { 
       icon: string | React.ReactNode; 
       title: string; 
+      enabled?: boolean;
       onPress: () => void; 
     }) => (
       <Pressable
+        disabled={!enabled}
+        style={{
+          backgroundColor: enabled ? '' : 'rgba(0, 0, 0, 0.05)',
+          opacity: enabled ? 1 : 0.3,
+        }}
         onPress={onPress}
         className="flex flex-row items-center py-4 px-2 border-b border-gray-200"
       >
@@ -98,7 +108,7 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
         <Text className="text-base text-gray-800 font-medium">{title}</Text>
       </Pressable>
     );
-
+  
   useEffect(() => {
     if(!visible) {
       setShowDeliveryTypeBottomSheet(false);
@@ -129,16 +139,19 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
                 icon="file-text"
                 title="Thông tin đơn hàng"
                 onPress={handleOrderInfoWithClose}
+                enabled={true}
               />
               <ActionItem
                 icon={<MaterialIcons name="person-add-alt" size={20} color="#374151" />}
                 title="Gán đơn cho tôi"
                 onPress={handleAssignOrderWithClose}
+                enabled={true}
               />
               <ActionItem
                 icon={<MaterialIcons name="person-remove-alt-1" size={20} color="#374151" />}
                 title="Huỷ gán đơn book AhaMove"
                 onPress={handleUnassignOrderWithClose}
+                enabled={true}
               />
             </>
           ) : (
@@ -148,21 +161,25 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
                 icon={<MaterialCommunityIcons name="barcode-scan" size={20} color="black" />}
                 title="Pick đơn hàng"
                 onPress={handlePickOrderWithClose}
+                enabled={true}
               />
               <ActionItem
                 icon="file-text"
                 title="Thông tin đơn hàng"
                 onPress={handleOrderInfoWithClose}
+                enabled={true}
               />
               <ActionItem
                 icon="refresh-cw"
                 title="Đổi phương thức giao hàng"
                 onPress={handleChangeDeliveryMethodWithClose}
+                enabled={true}
               />
               <ActionItem
                 icon="package"
                 title="Scan túi - Giao hàng"
                 onPress={handleScanBagDeliveryWithClose}
+                enabled={isEnableScanToDelivery({ status: status as OrderStatus })}
               />
             </>
           )}

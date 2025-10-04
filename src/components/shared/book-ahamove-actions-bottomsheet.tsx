@@ -59,7 +59,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
         visible={visible}
         title="Thao tác"
         titleAlign="center"
-        snapPoints={[510]}
+        snapPoints={[620]}
         ref={actionRef}
         onClose={() => setVisible(false)}
       >
@@ -70,8 +70,10 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
         }} onSubmit={handleBookShipper}>
           {({ setFieldValue, handleSubmit, values }) => (
             <View className='px-4 py-4'>
-              <View className='flex gap-2 mb-2'>
-                <Text className='text-base font-semibold mb-1'>Thời gian</Text>
+              <View className='flex gap- mb-2'>
+                <View className="pt-4 mb-2">
+                 <Text className='text-base font-semibold'>Thời gian</Text>
+                </View>
                 <RadioButtonGroup
                   containerStyle={{ marginBottom: 10 }}
                   selected={values.scheduleType}
@@ -84,7 +86,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                   radioBackground="blue"
                 >
                 <RadioButtonItem value={scheduleType.ORDER_DELIVERY_TIME} label={<Text className='pl-3'>Giao theo giờ khách chọn</Text>} />
-                <View className='py-1' />
+                <View className='py-3' />
                 <RadioButtonItem
                     value={scheduleType.NOW}
                     label={<Text className='pl-3'>Giao ngay</Text>}
@@ -92,7 +94,9 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                 </RadioButtonGroup>
               </View>
               <View className='flex gap-2 mb-2'>
-                <Text className='text-base font-semibold mb-1'>Tài xế</Text>
+                <View className="pt-4 mb-2">
+                  <Text className='text-base font-semibold'>Tài xế</Text>
+                </View>
                 <RadioButtonGroup
                   containerStyle={{ marginBottom: 10 }}
                   selected={values.serviceId}
@@ -105,7 +109,7 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                   radioBackground="blue"
                 >
                 <RadioButtonItem value={"SGN-BIKE"} label={<Text className='pl-3'>Tài xế Ahamove (Siêu tốc)</Text>} />
-                <View className='py-1' />
+                <View className='py-3' />
                 <RadioButtonItem
                   value={"VNM-PARTNER-KFM-FT"}
                   label={<Text className='pl-3'>Tài xế nội bộ</Text>}
@@ -113,7 +117,9 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                 </RadioButtonGroup>
               </View>
               <View className='flex gap-2'>
-                <Text className='text-base font-semibold mb-1'>Chọn kích thước gói hàng</Text>
+                <View className="pt-4 mb-2">
+                  <Text className='text-base font-semibold'>Chọn kích thước gói hàng</Text>
+                </View>
                 <RadioButtonGroup
                   containerStyle={{ marginBottom: 10 }}
                   selected={values.packageSize}
@@ -129,17 +135,17 @@ const BookAhamoveActionsBottomsheet = forwardRef<any, Props>(
                     value={PackageSize.STANDARD}
                     label={<Text className='pl-3'>Thông thường (50x40x50 - 30kg - Miễn phí)</Text>}
                   />
-                  <View className='py-1' />
+                  <View className='py-3' />
                   <RadioButtonItem
                     value={PackageSize.SIZE_1}
                     label={<Text className='pl-3'>Mức 1 (60x50x60 - 40kg - 10.000đ)</Text>}
                   />
-                  <View className='py-1' />
+                  <View className='py-3' />
                   <RadioButtonItem
                     value={PackageSize.SIZE_2}
                     label={<Text className='pl-3'>Mức 2 (70x60x70 - 50kg - 20.000đ)</Text>}
                   />
-                  <View className='py-1' />
+                  <View className='py-3' />
                   <RadioButtonItem
                     value={PackageSize.SIZE_3}
                     label={<Text className='pl-3'>Mức 3 (90x90x90 - 80kg - 40.000đ)</Text>}

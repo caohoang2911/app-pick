@@ -1,7 +1,17 @@
+import { ORDER_DELIVERY_TYPE } from '../contants/order';
+import { Payment } from './order-pick';
 
-
-export type OrderStatus = 'ALL' | 'CONFIRMED' | 'STORE_PICKING' | 'STORE_PACKED' | 'BOOKED_SHIPPER' | 'SHIPPING';
-export type OrderStatusDriver = 'UPCOMING_DELIVERY' | 'ON_TIME_DELIVERY' | 'OVERDUE_DELIVERY';
+export type OrderStatus =
+  | 'ALL'
+  | 'CONFIRMED'
+  | 'STORE_PICKING'
+  | 'STORE_PACKED'
+  | 'BOOKED_SHIPPER'
+  | 'SHIPPING';
+export type OrderStatusDriver =
+  | 'UPCOMING_DELIVERY'
+  | 'ON_TIME_DELIVERY'
+  | 'OVERDUE_DELIVERY';
 
 export enum OrderStatusValue {
   ALL = 'ALL',
@@ -30,3 +40,32 @@ export enum scheduleType {
   ORDER_DELIVERY_TIME = 'ORDER_DELIVERY_TIME',
   NOW = 'NOW',
 }
+
+export type OrderItem = {
+  driverNote: string;
+  statusName: string;
+  orderTime: string;
+  code: string;
+  status: OrderStatus;
+  customer: any;
+  payment: Payment;
+  deliveryTimeRange?: any;
+  amount: number;
+  tags: Array<any>;
+  pickerNote: string;
+  type: string;
+  groupShippingCode: string;
+  fulfillError: any;
+  lastTimeUpdateStatus: string;
+  storeCode: string;
+  deliveryType: ORDER_DELIVERY_TYPE;
+  deliveryAddress: {
+    fullAddress: string;
+  };
+  picker: {
+    username: string;
+    name: string;
+  };
+  pickedItemProgress: number;
+  bagLabels: Array<Record<string, string>>;
+};

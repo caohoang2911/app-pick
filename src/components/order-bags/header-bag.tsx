@@ -1,18 +1,18 @@
 import { useLocalSearchParams } from 'expo-router';
+import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Badge } from '../Badge';
-import { toLower } from 'lodash';
-import { useOrderBag } from '~/src/core/store/order-bag';
 import { ORDER_COUNTER_STATUS } from '~/src/contants/order';
-import { getHeaderOrderDetailOrderPick, useOrderPick } from '~/src/core/store/order-pick';
+import { useOrderBag } from '~/src/core/store/order-bag';
+import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import { Badge } from '../Badge';
 
 function HeaderBag() {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const header = getHeaderOrderDetailOrderPick()
-  const { status } = header as OrderDetailHeader;
+  const header = useOrderPick.use.orderDetail();
+  const { status } = header?.header as OrderDetailHeader || {};
   
 
   const orderBags = useOrderBag.use.orderBags();

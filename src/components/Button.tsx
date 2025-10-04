@@ -10,6 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary bg-blue-500',
+        disabled: 'bg-gray-500',
         secondary: 'bg-secondary border border-gray-400',
         destructive: 'bg-destructive',
         ghost: 'bg-slate-700',
@@ -36,6 +37,7 @@ const buttonTextVariants = cva('text-center font-medium', {
   variants: {
     variant: {
       default: 'text-white',
+      disabled: 'text-gray-500',
       secondary: 'text-secondary-foreground',
       destructive: 'text-destructive-foreground',
       warning: 'text-white',
@@ -77,10 +79,11 @@ function Button({
   disabled,
   ...props
 }: ButtonProps) {
+
   return (
     <TouchableOpacity
       disabled={loading || disabled}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant: disabled ? 'disabled' : variant, size, className }))}
       style={[{opacity: disabled ? 0.6 : 1}]}
       {...props}
     >

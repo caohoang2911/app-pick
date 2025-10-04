@@ -61,6 +61,12 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
     setOrderDeliveryType(deliveryType);
   }, [deliveryType, visible]);
 
+  useEffect(() => {
+    if (visible) {
+      actionRef.current?.present();
+    }
+  }, [visible]);
+
   useImperativeHandle(
     ref,
     () => {
@@ -72,17 +78,12 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
     },
     []
   );
-
-  useEffect(() => {
-    if (visible) {
-      actionRef.current?.present();
-    }
-  }, [visible]);
-
+  
   const handleConfirm = () => {
     if (!orderDeliveryType) return;
     updateOrderDeliveryType({ type: orderDeliveryType, orderCode: code || orderCode || "" });
   };
+
 
   return (
     <SBottomSheet

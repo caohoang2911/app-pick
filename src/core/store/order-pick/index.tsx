@@ -162,10 +162,6 @@ export const toggleConfirmationRemoveProductCombo = (isShowConfirmationRemovePro
 export const getProductComboRemoveSelected = () =>
   _useOrderPick.getState().productComboRemoveSelected;
 
-export const getHeaderOrderDetailOrderPick = (): OrderDetailHeader | {} => _useOrderPick.getState().orderDetail?.header || {};
-
-export const getDeliveryOrderDetailOrderPick = (): OrderDelivery | {} => _useOrderPick.getState().orderDetail?.delivery || {};
-
 export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') =>
   _useOrderPick.getState().setIsEditManual(isEditManual, action);
 

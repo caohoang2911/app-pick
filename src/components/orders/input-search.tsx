@@ -1,7 +1,7 @@
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { toLower } from 'lodash';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
 import { useSearchOrdersByKeywork } from '~/src/api/app-pick/use-search-orders-by-keywork';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
@@ -20,10 +20,13 @@ const OrderItem = memo(({ item }: { item: any }) => {
   const handleSelect = useCallback(() => {
     setShowActionsBottomSheet(true);
     actionsBottomSheetRef.current?.present();
+    Keyboard.dismiss();
   }, []);
 
   const handleCloseActionsBottomSheet = useCallback(() => {
-    setShowActionsBottomSheet(false);
+    setTimeout(() => {
+      setShowActionsBottomSheet(false);
+    }, 300);
   }, []);
 
   const formattedAmount = useMemo(() => 
@@ -76,6 +79,7 @@ const OrderItem = memo(({ item }: { item: any }) => {
         orderCode={item.code}
         orderStatus={item.status}
         orderType={item.type}
+        status={item.status}
         deliveryType={item.deliveryType}
         visible={showActionsBottomSheet}
         onClose={handleCloseActionsBottomSheet}

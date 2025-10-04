@@ -1,7 +1,7 @@
-import { OrderStatus } from './order';
+import { OrderStatus, OrderStatusValue } from './order';
 import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
-import { ORDER_DELIVERY_TYPE } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE, ORDER_DELIVEßRY_TYPE } from '~/src/contants/order';
 
 export type DeliveryAddress = {
   city?: number;
@@ -14,7 +14,6 @@ export type DeliveryAddress = {
   addressName?: string;
   fullAddress?: string;
 };
-
 
 export type Payment = {
   isPaid?: boolean;
@@ -39,7 +38,7 @@ export type OrderDelivery = {
   storeCode?: string;
   storeAddress?: string;
   productItems?: Product[];
-  productItemGroups?: Array<Product | ProductItemGroup>
+  productItemGroups?: Array<Product | ProductItemGroup>;
 };
 
 export type LogOrder = {
@@ -76,11 +75,12 @@ export interface OrderDetailHeader {
   groupShippingCode?: string;
   proofDeliveryImages?: string[];
   isRequireSelectShippingPackageSize?: boolean;
-  groupShippingPickedStatues?: {[key: string]: boolean};
+  groupShippingPickedStatues?: { [key: string]: boolean };
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
   deliveryType: ORDER_DELIVERY_TYPE;
+  handoverStatus?: "HANDOVER_TO_CUSTOMER" | "HANDOVER_TO_SHIPPER" | "DISABLE";
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   vouchers?: Array<Voucher>;
@@ -89,7 +89,7 @@ export interface OrderDetailHeader {
   overdueTimeUpdateStatus?: number;
   code?: string;
   customer?: Customer;
-  status?: number | string;
+  status?: OrderStatusValue;
   refund?: TemplateOrderRefund;
   statusName?: string;
   picker?: {
@@ -126,7 +126,7 @@ export interface OrderDetailHeader {
     provider?: string;
     amount?: number;
     methodName?: string;
-  };  
+  };
   extraPayments: {
     isPaid?: boolean;
     method?: string;

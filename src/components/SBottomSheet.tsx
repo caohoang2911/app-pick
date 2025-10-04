@@ -7,6 +7,7 @@ import React, {
   forwardRef,
   useCallback,
   useImperativeHandle,
+  useMemo,
   useRef
 } from 'react';
 import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
@@ -25,17 +26,39 @@ type Props = {
   visible: boolean;
   hideHeader?: boolean;
   extraButton?: React.ReactNode;
+  topHeader?: React.ReactNode;
   onClose: () => void;
   [key: string]: any;
 };
 
-const Header = ({ title, renderTitle, extraTitle, hideHeader, titleAlign, bottomSheetModalRef, onClose }: Props) => {
+const Header = ({ title, renderTitle, extraTitle, hideHeader, topHeader, titleAlign, bottomSheetModalRef, onClose }: Props) => {
   if (hideHeader) return null;
+  
+  const renderCloseButton = useMemo(() => {
+    return (
+      <Pressable
+        onPress={() => {
+          requestAnimationFrame(() => {
+            onClose?.();
+            bottomSheetModalRef.current?.dismiss();
+          });
+        }}
+        style={[!!topHeader && {
+          position: 'absolute',
+          right: 10,
+          top: -0,
+        }]}
+      >
+        <CloseLine />
+      </Pressable>
+    );
+  }, [onClose, bottomSheetModalRef]);
 
   return (
     <View 
     className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4"
-  >
+  > 
+    {topHeader && topHeader}
     <View className='flex flex-row justify-between items-center w-100'> 
       {titleAlign == 'center' && <View />}
       {!renderTitle && (
@@ -44,24 +67,13 @@ const Header = ({ title, renderTitle, extraTitle, hideHeader, titleAlign, bottom
         </Text>
       )}
       {renderTitle && (
-        <View className="mr-3" style={{ width: width - 80 }}>
+        <View className="mr-3" style={{ width: width - (topHeader ? 20 : 80) }}>
           {renderTitle}
         </View>
       )}
-      <Pressable
-        onPress={() => {
-          requestAnimationFrame(() => {
-            onClose?.();
-            bottomSheetModalRef.current?.dismiss();
-          });
-        }}
-        className="self-start"
-      > 
-        <View style={{ marginTop: -5 }} className='p-2'>
-          <CloseLine />
-        </View>
-      </Pressable>
+      {!topHeader && renderCloseButton}
     </View>
+    {topHeader && renderCloseButton}
     {extraTitle && extraTitle}
   </View>
   )
@@ -77,6 +89,7 @@ const SBottomSheet = forwardRef<any, Props>(
       children,
       titleAlign = 'left',
       visible,
+      topHeader,
       hideHeader = false,
       extraButton,
       onClose,
@@ -146,6 +159,7 @@ const SBottomSheet = forwardRef<any, Props>(
         {...rests}
       >
         <Header
+          topHeader={topHeader}
           title={title}
           renderTitle={renderTitle}
           extraTitle={extraTitle}
