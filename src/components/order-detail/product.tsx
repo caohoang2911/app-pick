@@ -75,7 +75,7 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => {
                 </View>
             }
             label={tagName}
-            variant={tag?.includes('SUBSTITUTE') ? 'danger' : 'default'}
+            variant={tag?.includes('REPLACEABLE') ? 'danger' : 'default'}
             style={{ maxWidth: 180 }}
           />
         )}

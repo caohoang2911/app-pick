@@ -57,7 +57,7 @@ const MoreActionsBtn = ({
 
 
   const shouldEnableReplaceProduct = useMemo(() => {
-    return tags?.includes('SUBSTITUTE');
+    return tags?.includes('REPLACEABLE');
   }, [tags]);
 
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;

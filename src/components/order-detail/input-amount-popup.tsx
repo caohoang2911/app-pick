@@ -17,7 +17,9 @@ import {
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   useOrderPick,
-  setActionProduct
+  setActionProduct,
+  setIsVisibleReplaceProduct,
+  setReplacePickedProductId
 } from '~/src/core/store/order-pick';
 import { formatDecimal, roundToDecimalDecrease, roundToDecimalIncrease } from '~/src/core/utils/number';
 import { barcodeCondition, getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
@@ -27,6 +29,7 @@ import { Button } from '../Button';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
+import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 
 // QuantityControls Component
 const DecrementButton = memo(({ onPress, disabled }: { onPress: () => void, disabled: boolean }) => (
@@ -360,6 +363,17 @@ const InputAmountPopup = () => {
   const { mutate: setOrderTemToPicked } = useSetOrderItemPicked(() => {
     if(currentPickedProduct) {
       setOrderPickProduct(currentPickedProduct);
+      setReplacePickedProductId(currentPickedProduct?.id);
+      if(currentPickedProduct?.pickedErrorType === "OUT_OF_STOCK" && currentProduct?.substituteItems?.length) {
+        showAlert({
+          title: 'Thông báo',
+          message: 'Sản phẩm hết hàng, bạn có muốn thay thế sản phẩm?',
+          onConfirm: () => {
+            hideAlert();
+            setIsVisibleReplaceProduct(true);
+          }
+        });
+      }
     }
   }, (error: string) => {
     setQuantityFromBarcode(0);
@@ -457,6 +471,8 @@ const InputAmountPopup = () => {
     setCurrentPickedProduct(pickedItem);
     setOrderTemToPicked({ pickedItem, orderCode: code});
     reset();
+
+    
   }, [productName, currentProduct, barcodeScanSuccess, quantity, code, isUnitBox]);
 
   const reset = useCallback(() => {
