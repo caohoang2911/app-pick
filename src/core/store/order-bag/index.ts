@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
 import { OrderBagItem, OrderBagType } from '~/src/types/order-bag';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import { generateBagName, transformBagsData } from '~/src/core/utils/order-bag';
 
 interface OrderBagState {

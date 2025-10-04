@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
 import { ORDER_STATUS } from '~/src/contants/order';
 import { EBikeLine } from '~/src/core/svgs';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';

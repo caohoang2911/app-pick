@@ -31,7 +31,7 @@ export const useDriverOrderActions = (orderCode: string) => {
   };
 
   const handlePickOrder = () => {
-    router.push({ pathname: `orders/order-detail/${orderCode}` });
+    router.push({ pathname: `orders/order-pick/${orderCode}` });
   };
 
   const handleScanBagDelivery = () => {

@@ -1,21 +1,24 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useRouter } from 'expo-router';
-import { toLower } from 'lodash';
+import { isEmpty, toLower } from 'lodash';
 import moment from 'moment';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import Feather from '@expo/vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
+import {
+  ORDER_DELIVERY_TYPE,
+  ORDER_STATUS_BADGE_VARIANT,
+} from '~/src/contants/order';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { OrderStatus } from '~/src/types/order';
-import { Payment } from '~/src/types/order-detail';
+import { Payment } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
 import MoreActionsBtn from './more-actions-btn';
 
@@ -77,6 +80,7 @@ const OrderItem = ({
   tags,
   pickerNote,
   driverNote,
+  deliveryType,
   type,
   fulfillError,
   groupShippingCode,
@@ -103,6 +107,7 @@ const OrderItem = ({
   fulfillError: any;
   lastTimeUpdateStatus: string;
   storeCode: string;
+  deliveryType: ORDER_DELIVERY_TYPE;
   deliveryAddress: {
     fullAddress: string;
   };
@@ -131,7 +136,7 @@ const OrderItem = ({
       router.push(`orders/order-invoice/${code}`);
     } else {
       router.push({
-        pathname: `orders/order-detail/${code}`,
+        pathname: `orders/order-pick/${code}`,
         params: { status },
       });
     }
@@ -142,7 +147,17 @@ const OrderItem = ({
 
   const storeName = getConfigNameById(stores, storeCode);
 
-  const note = isDriver ? driverNote : pickerNote;
+  const notes = useMemo(() => {
+    if (isDriver) {
+      return [driverNote];
+    }
+
+    if (deliveryType === ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY) {
+      return [pickerNote, driverNote];
+    }
+
+    return [pickerNote];
+  }, [driverNote, pickerNote, deliveryType, isDriver]);
 
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1">
@@ -260,20 +275,27 @@ const OrderItem = ({
             </View>
           )}
         </View>
-        {note && (
-          <View className="px-3 py-2 flex flex-row items-center gap-1 bg-orange-400">
-            <Ionicons
-              name="information-circle-outline"
-              size={18}
-              color="white"
-            />
-            <Text className="text-base font-semibold text-white">
-              {note?.trim()}
-            </Text>
-          </View>
-        )}
+        {notes.length > 0 &&
+          notes.map((note, index) => {
+            if (isEmpty(note)) return null;
+            return (
+              <View
+                key={index}
+                className="px-3 py-2 flex flex-row items-center gap-1 bg-orange-400 odd:border-b odd:border-gray-200"
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={18}
+                  color="white"
+                />
+                <Text className="text-base font-semibold text-white">
+                  {note?.trim()}
+                </Text>
+              </View>
+            );
+          })}
         {fulfillError?.type && (
-          <View className="px-3 py-2 rounded-b flex flex-row items-center gap-1 bg-red-400 mt-1">
+          <View className="px-3 py-2 rounded-b flex flex-row items-center gap-1 bg-red-400">
             <Ionicons name="warning-outline" size={18} color="white" />
             <Text className="text-base font-semibold text-white">
               {fulfillErrorTypeDisplay}

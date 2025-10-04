@@ -30,7 +30,7 @@ const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPi
         </View>
         <View className="gap-2 p-2">
           {combo.elements?.map((product: Product, index: number) => (
-            <Fragment key={index}>  
+            <Fragment key={product.id || product.barcode || `combo-element-${index}`}>  
               <OrderPickProduct {...product} isHiddenTag statusOrder={statusOrder} pickingBarcode={pickingBarcode} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} />
             </Fragment>
           ))}

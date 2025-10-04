@@ -8,7 +8,7 @@ import { useConfig } from '~/src/core/store/config';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { getConfigNameById } from "~/src/core/utils/config";
 import { getRelativeTime } from '~/src/core/utils/moment';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
 import HeaderActionBtn from './header-action-btn';
 

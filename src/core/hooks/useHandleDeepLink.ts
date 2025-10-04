@@ -67,10 +67,10 @@ export function processDeepLink(url: string) {
       return;
     }
     
-    if (path.includes(DeepLinkPath.ORDER_DETAIL) && orderCode) {
-      console.log(`[DeepLink] Routing to order detail with code: ${orderCode}`);
+    if (path.includes(DeepLinkPath.ORDER_PICK) && orderCode) {
+      console.log(`[DeepLink] Routing to order pick with code: ${orderCode}`);
       try {
-        router.replace(`/orders/order-detail/${orderCode}`);
+        router.replace(`/orders/order-pick/${orderCode}`);
       } catch (error) {
         console.error('[DeepLink] Navigation error:', error);
         router.navigate('/orders');
@@ -100,9 +100,9 @@ export function processDeepLink(url: string) {
       }
     } else {
       if (orderCode) {
-        console.log(`[DeepLink] Fallback: Routing to order detail with code: ${orderCode}`);
+        console.log(`[DeepLink] Fallback: Routing to order pick with code: ${orderCode}`);
         try {
-          router.replace(`/orders/order-detail/${orderCode}`);
+          router.replace(`/orders/order-pick/${orderCode}`);
         } catch (error) {
           console.error('[DeepLink] Navigation error:', error);
           router.navigate('/orders');

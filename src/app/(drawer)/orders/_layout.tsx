@@ -29,7 +29,7 @@ export default function OrdersLayout() {
         }} 
       />
       <Stack.Screen
-        name="order-detail" 
+        name="order-pick" 
         options={{ 
           headerShown: false,
         }} 

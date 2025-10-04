@@ -7,7 +7,7 @@ import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-statu
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import { Product } from '~/src/types/product';
 import PickedCompleteConfirmation from './picked-complete-confirmation';
 import { FontAwesome } from '@expo/vector-icons';

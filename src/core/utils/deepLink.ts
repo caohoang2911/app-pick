@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
  * Deep link paths available in the app
  */
 export enum DeepLinkPath {
-  ORDER_DETAIL = 'order-detail',
+  ORDER_PICK = 'order-pick',
   ORDER_INVOICE = 'order-invoice',
   SCAN_TO_DELIVERY = 'scan-to-delivery',
   ORDERS = 'orders'
@@ -67,9 +67,9 @@ export const generateWebDeepLink = (
 /**
  * Examples:
  * 
- * // Direct app link to order detail
- * const orderDetailLink = generateDeepLink(DeepLinkPath.ORDER_DETAIL, { orderCode: '123456' });
- * // Result: "apppick://order-detail?orderCode=123456"
+ * // Direct app link to order pick
+ * const orderPickLink = generateDeepLink(DeepLinkPath.ORDER_PICK, { orderCode: '123456' });
+ * // Result: "apppick://order-pick?orderCode=123456"
  * 
  * // Web link to order invoice (universal/app link)
  * const orderInvoiceWebLink = generateWebDeepLink(DeepLinkPath.ORDER_INVOICE, { orderCode: '123456' });

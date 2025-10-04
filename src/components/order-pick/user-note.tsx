@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useOrderPick } from '~/src/core/store/order-pick';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const UserNote = () => {

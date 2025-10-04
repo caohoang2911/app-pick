@@ -14,7 +14,7 @@ import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderDetail, undoLastChange, useOrderBag } from '~/src/core/store/order-bag';
 import { useOrderPick } from '~/src/core/store/order-pick';
-import { OrderDetailHeader } from '~/src/types/order-detail';
+import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -40,7 +40,7 @@ const OrderBags = () => {
       setLoading(false);
       // Fallback: Undo the last change when there's an error
       undoLastChange();
-      queryClient.invalidateQueries({ queryKey: ['order-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['order-pick'] });
       showMessage({
         message: `Lỗi cập nhật: ${error}. Đã hoàn tác thay đổi vừa thực hiện.`,
         type: 'danger',

@@ -54,7 +54,7 @@
             {
               "scheme": "https",
               "host": "oms.seedcom.vn",
-              "pathPrefix": "/order-detail"
+              "pathPrefix": "/order-pick"
             },
             {
               "scheme": "https",

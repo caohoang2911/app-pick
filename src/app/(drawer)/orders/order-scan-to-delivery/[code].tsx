@@ -17,7 +17,7 @@ import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
-import { OrderDetailHeader } from '~/src/types/order-detail';
+import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const ACTION_TYPE = {
   CUSTOMER_PICKUP: 'Xác nhận đã giao cho khách',

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-detail';
+import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 

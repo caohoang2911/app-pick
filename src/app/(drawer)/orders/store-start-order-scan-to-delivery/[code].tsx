@@ -14,7 +14,7 @@ import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/inv
 import { ORDER_TAGS } from '~/src/contants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setStoreStartOrderDetail, toggleStoreStartScanQrCodeProduct, useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
-import { OrderDetailHeader } from '~/src/types/order-detail';
+import { OrderDetailHeader } from '~/src/types/order-pick';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
 const OrderScanToDelivery = () => {

@@ -14,7 +14,7 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setCompleteOrderDetail, setCompleteUploadedImages, useCompleteOrderScanToDelivery } from '~/src/core/store/complete-order-scan-to-delivery';
 import { setLoading } from '~/src/core/store/loading';
 import { getHeaderOrderDetailOrderPick } from '~/src/core/store/order-pick';
-import { OrderDetailHeader } from '~/src/types/order-detail';
+import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();

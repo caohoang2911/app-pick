@@ -5,7 +5,7 @@ import HeaderActionBtn from "~/src/components/order-invoice/header-action-btn"
 import Header from "~/src/components/shared/Header"
 import { useOrderPick } from "~/src/core/store/order-pick";
 import { OrderStatusValue } from "~/src/types/order";
-import { OrderDetail } from "~/src/types/order-detail";
+import { OrderDetail } from "~/src/types/order-pick";
 
 export default function OrderInvoiceLayout() {
 

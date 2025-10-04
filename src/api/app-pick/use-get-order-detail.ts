@@ -1,6 +1,6 @@
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import { useRole } from '~/src/core/hooks/useRole';
 import { Role } from '~/src/types/employee';
 

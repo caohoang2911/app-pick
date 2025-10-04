@@ -172,7 +172,17 @@ const OrderPickProducts = () => {
 
   // Key extractor tối ưu
   const keyExtractor = useCallback((item: any, index: number) => {
-    return item.code ? `${item.code}_${index}` : `item_${index}`;
+    // Ensure unique keys for all item types
+    if (item.code) {
+      return `${item.code}_${index}`;
+    }
+    if (item.id) {
+      return `${item.id}_${index}`;
+    }
+    if (item.barcode) {
+      return `${item.barcode}_${index}`;
+    }
+    return `item_${index}`;
   }, []);
 
   // Handle refresh
@@ -273,7 +283,7 @@ const OrderPickProducts = () => {
         }
         ListFooterComponent={<View style={{ height: 20 }} />}
         ListHeaderComponent={<UserNote />}
-        data={filteredProducts as Array<any>}
+        data={filteredProducts || []}
         ListEmptyComponent={isEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />}
         renderItem={({ item, index }) => renderItem({ item, index, statusOrder: data?.data?.header?.status as string, pickingBarcode:  getPickingBarcode })}
         onScrollToIndexFailed={handleScrollToIndexFailed}

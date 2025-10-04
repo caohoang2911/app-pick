@@ -2,7 +2,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { useOrderPick } from "~/src/core/store/order-pick";
 import { formatCurrency } from "~/src/core/utils/number";
-import { OrderDetail } from "~/src/types/order-detail";
+import { OrderDetail } from "~/src/types/order-pick";
 import { Badge } from "../Badge";
 
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
@@ -71,6 +71,7 @@ function OrderGroups({
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
       data={groupShippingOrderCodes || []}
+      keyExtractor={(item, index) => `shipping-group-${item}-${index}`}
       onScrollToIndexFailed={handleScrollToIndexFailed}
       renderItem={({ item, index }: { item: any; index: number }) => {
         const isOrderCodeSeleted = item === code;
@@ -79,7 +80,6 @@ function OrderGroups({
         const isCompleted = groupShippingPickedStatues?.[item] || false;
         return (
           <TouchableOpacity
-            key={item.id}
             onPress={() => {
               goTabSelected(index);
               router.setParams({ code: item });

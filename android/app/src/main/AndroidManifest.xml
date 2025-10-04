@@ -43,7 +43,7 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="oms.seedcom.vn" android:pathPrefix="/order-detail"/>
+        <data android:scheme="https" android:host="oms.seedcom.vn" android:pathPrefix="/order-pick"/>
         <data android:scheme="https" android:host="oms.seedcom.vn" android:pathPrefix="/order-invoice"/>
         <data android:scheme="https" android:host="oms.seedcom.vn" android:pathPrefix="/scan-to-delivery"/>
         <data android:scheme="https" android:host="oms.seedcom.vn" android:pathPrefix="/orders"/>

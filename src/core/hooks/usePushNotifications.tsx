@@ -67,7 +67,7 @@ export const usePushNotifications: any = () => {
       try {
           switch (targetScr) {
             case TargetScreen.ORDER_PICK:
-              router.push(`/orders/order-detail/${orderCode}`);
+              router.push(`/orders/order-pick/${orderCode}`);
               break;
             case TargetScreen.ORDER_INVOICE:
               router.push(`/orders/order-invoice/${orderCode}`);

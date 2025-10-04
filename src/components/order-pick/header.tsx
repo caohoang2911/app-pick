@@ -16,7 +16,7 @@ import { getConfigNameById } from "~/src/core/utils/config";
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Employee } from '~/src/types/employee';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';

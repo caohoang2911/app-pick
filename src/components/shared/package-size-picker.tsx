@@ -11,7 +11,7 @@ import { OrderStatusValue, PackageSize, PackageSizeLabel } from "~/src/types/ord
 
 import React from "react";
 import { CheckCircleFill } from "~/src/core/svgs";
-import { OrderDetailHeader } from "~/src/types/order-detail";
+import { OrderDetailHeader } from "~/src/types/order-pick";
 import Box from "../Box";
 import SBottomSheet from "../SBottomSheet";
 

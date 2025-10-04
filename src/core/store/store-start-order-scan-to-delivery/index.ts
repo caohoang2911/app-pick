@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { OrderBagItem } from '~/src/types/order-bag';
 import { createSelectors } from '../../utils/browser';
 import { isValidOrderBagCode } from '../../utils/order-bag';
-import { OrderDetail } from '~/src/types/order-detail';
+import { OrderDetail } from '~/src/types/order-pick';
 
 interface StoreStartOrderScanToDeliveryState {
   isScanQrCodeProduct: boolean;

@@ -1,6 +1,8 @@
 import { OrderStatus } from './order';
 import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
+import { ORDER_DELIVERY_TYPE } from '~/src/contants/order';
+
 export type DeliveryAddress = {
   city?: number;
   ward?: number;
@@ -78,7 +80,7 @@ export interface OrderDetailHeader {
   saleChannel?: string;
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
-  deliveryType: 'CUSTOMER_PICKUP' | 'STORE_DELIVERY' | 'SHIPPER_DELIVERY' | 'APARTMENT_COMPLEX_DELIVERY' | 'OFFLINE_HOME_DELIVERY';
+  deliveryType: ORDER_DELIVERY_TYPE;
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   vouchers?: Array<Voucher>;
