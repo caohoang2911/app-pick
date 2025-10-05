@@ -246,7 +246,7 @@ const ReasonDropdown = memo(
     const { unit } = currentProduct || {};
 
     const isDisabled =
-      isError || ['out-of-stock', 'low-quality', 'near-date'].includes(action);
+      isError || ['out-of-stock', 'low-quality', 'near-date', 'incorrect-stock'].includes(action);
 
     const handleSelect = useCallback(
       (value: string) => {
@@ -471,7 +471,7 @@ const InputAmountPopup = () => {
       if (currentPickedProduct) {
         setOrderPickProduct(currentPickedProduct);
         setReplacePickedProductId(currentPickedProduct?.id);
-        if (!currentPickedProduct?.pickedQuantity) {
+        if (!currentPickedProduct?.pickedQuantity && currentPickedProduct?.tags?.includes('REPLACEABLE')) {
           showAlert({
             title: 'Thông báo',
             message: 'Sản phẩm hết hàng, bạn có muốn thay thế sản phẩm?',
@@ -658,6 +658,8 @@ const InputAmountPopup = () => {
             setFieldValue('pickedErrorType', 'QUALITY_DECLINE');
           } else if (action === 'near-date') {
             setFieldValue('pickedErrorType', 'NEAR_EXPIRED_DATE');
+          } else if (action === 'incorrect-stock') {
+            setFieldValue('pickedErrorType', 'INCORRECT_STOCK');
           } else {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());
           }

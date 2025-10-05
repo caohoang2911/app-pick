@@ -26,6 +26,7 @@ import SBottomSheet from '../SBottomSheet';
 import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 import EmployeeSelection from '../shared/EmployeeSelection';
 import OrderDeliveryTypeBottomSheet from '../shared/order-delivery-type-bottom-sheet';
+import OrderHistoryBottomSheet from '../shared/order-history-bottom-sheet';
 
 type Action = {
   key: string;
@@ -44,6 +45,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
     useState(false);
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     useState(false);
+  const [orderHistoryVisible, setOrderHistoryVisible] = useState(false);
 
   const employeeSelectionRef = useRef<any>();
 
@@ -142,6 +144,9 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       case 'delivery-order':
         setDeliverySelectionVisible(true);
         break;
+      case 'history-order':
+        setOrderHistoryVisible(true);
+        break;
       default:
         break;
     }
@@ -219,6 +224,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         icon: <Ionicons name="swap-horizontal" size={24} color="black" />,
       },
       {
+        key: 'history-order',
+        title: 'Lịch sử đơn hàng',
+        enabled: true,
+        icon: <MaterialIcons name="history" size={24} color="black" />,
+      },
+      {
         key: 'delivery-order',
         title: 'Vận chuyển',
         enabled: deliveryType !== 'CUSTOMER_PICKUP',
@@ -236,7 +247,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         title="Thao tác"
         extraTitle={renderExtraTitle()}
         ref={actionRef}
-        snapPoints={[470]}
+        snapPoints={[520]}
         onClose={() => {
           setVisible(false);
         }}
@@ -269,6 +280,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         setVisible={setOrderDeliveryTypeVisible}
         visible={orderDeliveryTypeVisible}
         deliveryType={deliveryType || null}
+      />
+      
+      <OrderHistoryBottomSheet
+        orderCode={code}
+        setVisible={setOrderHistoryVisible}
+        visible={orderHistoryVisible}
       />
     </>
   );

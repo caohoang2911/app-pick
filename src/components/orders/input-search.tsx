@@ -80,7 +80,6 @@ const OrderItem = memo(({ item }: { item: any }) => {
         orderStatus={item.status}
         orderType={item.type}
         status={item.status}
-        deliveryType={item.deliveryType}
         visible={showActionsBottomSheet}
         onClose={handleCloseActionsBottomSheet}
       />
@@ -160,7 +159,7 @@ const InputSearch = ({
   }, [ordersResponse]);
   
   const renderItem = useCallback((item: any) => {
-    return <OrderItem item={item} />;
+    return <OrderItem key={item.code} item={item} />;
   }, []);
   
   const handleSelect = useCallback((item: any) => {

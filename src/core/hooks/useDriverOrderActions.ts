@@ -66,7 +66,7 @@ export const useDriverOrderActions = (orderCode: string) => {
     onClose();
     setTimeout(() => {
       setShowDeliveryTypeBottomSheet(true);
-    }, 100);
+    }, 400);
   };
 
   return {

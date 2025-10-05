@@ -34,6 +34,17 @@ export type Voucher = {
 
 export type OrderDelivery = {
   code?: string;
+  logs?: Array<{
+    activity: string;
+    time: number;
+    user: {
+      company: string;
+      email: string;
+      name: string;
+      phone: string;
+    };
+    activityName: Array<string>;
+  }>;
   shippingDiscount?: number;
   storeCode?: string;
   storeAddress?: string;

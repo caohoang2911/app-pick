@@ -250,25 +250,22 @@ const OrderItem = ({
         {notes.length > 0 &&
           notes.map((note, index) => {
             if (isEmpty(note)) return null;
+            const newNotes = note.trim().split('\\n');
             return (
               <View
                 key={index}
-                className="px-3 py-2 flex flex-row items-center gap-1 bg-orange-400 odd:border-b odd:border-gray-200"
+                className="px-3 py-2 flex gap-1 bg-orange-400 odd:border-b w-full odd:border-gray-200"
               >
-                <Ionicons
-                  name="information-circle-outline"
-                  size={18}
-                  color="white"
-                />
-                <Text className="text-base font-semibold text-white">
-                  {note?.trim()}
-                </Text>
+                {newNotes?.map((newNote) => (
+                  <Text key={newNote} className="text-base font-semibold text-white ">
+                    {newNote?.trim()}
+                  </Text>
+                ))}
               </View>
             );
           })}
         {fulfillError?.type && (
           <View className="px-3 py-2 rounded-b flex flex-row items-center gap-1 bg-red-400">
-            <Ionicons name="warning-outline" size={18} color="white" />
             <Text className="text-base font-semibold text-white">
               {fulfillErrorTypeDisplay}
             </Text>

@@ -26,6 +26,11 @@ const actions = [
     title: 'Sản phẩm cận date',
     icon: <AntDesign name="tago" size={20} color="black" />
   },
+  {
+    key: 'incorrect-stock',
+    title: 'Sản phẩm sai tồn',
+    icon: <AntDesign name="tago" size={20} color="black" />
+  },
 ];
 
 interface MoreActionsBtnProps {
@@ -111,6 +116,9 @@ const MoreActionsBtn = ({
       case 'near-date':
         setActionProduct('near-date');
         break;
+      case 'incorrect-stock':
+        setActionProduct('incorrect-stock');
+        break;
       default:
         break;
     }
@@ -126,10 +134,8 @@ const MoreActionsBtn = ({
 
   return (
     <>
-      <TouchableOpacity onPress={() => setVisible(true)}>
-        <View className="p-2">
+      <TouchableOpacity onPress={() => setVisible(true)} hitSlop={15} >
         <More2Fill width={18} height={18} />
-        </View>
       </TouchableOpacity>
       {visible && (
         <SBottomSheet 
@@ -137,7 +143,7 @@ const MoreActionsBtn = ({
           visible={visible} 
           onClose={() => setVisible(false)} 
           ref={actionRef}
-          snapPoints={[350]}
+          snapPoints={[390]}
         >
           {renderItem({
             key: 'edit-pick-quantity',

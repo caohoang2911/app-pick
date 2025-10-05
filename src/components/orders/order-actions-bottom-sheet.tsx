@@ -1,10 +1,9 @@
 import { Feather } from '@expo/vector-icons';
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import SBottomSheet from '../SBottomSheet';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { MaterialIcons } from '@expo/vector-icons';
-import OrderDeliveryTypeBottomSheet, { OrderDeliveryTypeModalRef } from '../shared/order-delivery-type-bottom-sheet';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 import { isEnableScanToDelivery } from '~/src/core/utils/order';
 import { OrderStatus } from '~/src/types/order';
@@ -13,7 +12,6 @@ interface OrderActionsBottomSheetProps {
   orderCode: string;
   orderStatus?: string;
   orderType?: string;
-  deliveryType?: string | null;
   status?: string;
   visible: boolean;
   onClose: () => void;
@@ -25,10 +23,8 @@ export interface OrderActionsBottomSheetRef {
 }
 
 const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActionsBottomSheetProps>(
-  ({ orderCode, deliveryType, status, visible, onClose }, ref) => {
+  ({ orderCode, status, visible, onClose }, ref) => {
     const bottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
-    const [showDeliveryTypeBottomSheet, setShowDeliveryTypeBottomSheet] = useState(false);
-    const deliveryTypeBottomSheetRef = useRef<OrderDeliveryTypeModalRef>(null);
 
     const {
       isDriver,
@@ -36,8 +32,6 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
       handlePickOrder,
       handleScanBagDelivery,
       handleAssignOrder,
-      handleUnassignOrder,
-      handleChangeDeliveryMethod,
     } = useDriverOrderActions(orderCode);
 
     useImperativeHandle(ref, () => ({
@@ -69,18 +63,6 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
       handleAssignOrder();
     };
 
-    const handleUnassignOrderWithClose = () => {
-      onClose();
-      handleUnassignOrder();
-    };
-
-    const handleChangeDeliveryMethodWithClose = () => {
-      handleChangeDeliveryMethod(onClose, setShowDeliveryTypeBottomSheet);
-    };
-
-    const handleDeliveryTypeClose = () => {
-      setShowDeliveryTypeBottomSheet(false);
-    };
 
     const ActionItem = ({ 
       icon, 
@@ -108,12 +90,6 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
         <Text className="text-base text-gray-800 font-medium">{title}</Text>
       </Pressable>
     );
-  
-  useEffect(() => {
-    if(!visible) {
-      setShowDeliveryTypeBottomSheet(false);
-    }
-  }, [visible]);
 
   return (
     <>
@@ -121,7 +97,7 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
         ref={bottomSheetRef}
         visible={visible}
         onClose={onClose}
-        snapPoints={[isDriver ? 260 : 320]}
+        snapPoints={[isDriver ? 260 : 270]}
         title="Thao tác"
         renderTitle={
           <View className="flex flex-row items-center">
@@ -147,12 +123,6 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
                 onPress={handleAssignOrderWithClose}
                 enabled={true}
               />
-              <ActionItem
-                icon={<MaterialIcons name="person-remove-alt-1" size={20} color="#374151" />}
-                title="Huỷ gán đơn book AhaMove"
-                onPress={handleUnassignOrderWithClose}
-                enabled={true}
-              />
             </>
           ) : (
             // Non-driver options
@@ -170,12 +140,6 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
                 enabled={true}
               />
               <ActionItem
-                icon="refresh-cw"
-                title="Đổi phương thức giao hàng"
-                onPress={handleChangeDeliveryMethodWithClose}
-                enabled={true}
-              />
-              <ActionItem
                 icon="package"
                 title="Scan túi - Giao hàng"
                 onPress={handleScanBagDeliveryWithClose}
@@ -185,14 +149,6 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
           )}
         </View>
       </SBottomSheet>
-      
-      <OrderDeliveryTypeBottomSheet
-        ref={deliveryTypeBottomSheetRef}
-        orderCode={orderCode}
-        visible={showDeliveryTypeBottomSheet}
-        setVisible={handleDeliveryTypeClose}
-        deliveryType={deliveryType || null}
-      />
     </>
   );
   }

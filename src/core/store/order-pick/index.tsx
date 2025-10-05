@@ -18,8 +18,8 @@ interface OrdersState {
   currentId: number | null;
   isEditManual: boolean;
   isScanMoreProduct: boolean;
-  action: 'out-of-stock' | 'low-quality' | 'near-date' | null;
-  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | null) => void;
+  action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null;
+  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
   setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') => void;
   setKeyword: (keyword: string) => void;
@@ -60,7 +60,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
-  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | null) => {
+  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null) => {
     set({ action });
   },
   setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') => {
@@ -165,7 +165,7 @@ export const getProductComboRemoveSelected = () =>
 export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') =>
   _useOrderPick.getState().setIsEditManual(isEditManual, action);
 
-export const setActionProduct = (action: 'out-of-stock' | 'low-quality' | 'near-date' | null) =>
+export const setActionProduct = (action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null) =>
   _useOrderPick.getState().setAction(action);
 
 export const setScanMoreProduct = (isScanMoreProduct: boolean) =>

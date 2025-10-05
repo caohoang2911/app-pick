@@ -121,7 +121,7 @@ const ProductHeader = memo(({
   onReplaceProduct: () => void,
 }) => (
   <>
-    <View className='flex flex-row gap-1'>
+    <View className='flex flex-row gap-1 align-center'>
       <View className="flex-1">
         <Text className="text-base font-semibold" numberOfLines={2}>
           {isGift ? "🎁 " : ""}{name}
