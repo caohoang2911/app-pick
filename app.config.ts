@@ -10,6 +10,7 @@ function getProfile(): "dev" | "prod" {
 
 export default (): ExpoConfig => {
   const profile = getProfile();
+
   const isDev = profile === "dev";
   const variant = isDev ? (process.env.APP_VARIANT?.toLowerCase() || "dev") : "prod";
   const base: ExpoConfig = (staticJson?.expo ?? {}) as ExpoConfig;
