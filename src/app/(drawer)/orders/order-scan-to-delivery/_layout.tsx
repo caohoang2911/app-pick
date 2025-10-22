@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import Header from '~/src/components/shared/Header';
+import { View } from 'react-native';
 
 export default function OrderScanToDeliveryLayout() {
   return (
@@ -8,9 +9,9 @@ export default function OrderScanToDeliveryLayout() {
         name="[code]"
         options={{
           headerShown: true,
-          header: () => <Header title={`Scan túi - Giao hàng`} />,
+          header: () => <View className="px-4 bg-white"><Header title={`Scan túi - Giao hàng`} /></View>,
         }}
       />
     </Stack>
-  );
+  )
 }

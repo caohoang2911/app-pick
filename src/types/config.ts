@@ -5,7 +5,6 @@ export type Config = {
   wards: [],
   districts: [],
   cities: [],
-  shippingMethods: [],
   stores: [],
   orderDeliveryTypes: [],
   productPickedErrorTypes: [],

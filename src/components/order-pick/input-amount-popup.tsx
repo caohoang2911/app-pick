@@ -401,6 +401,7 @@ const FormContent = memo(
     action,
     quantityInit,
     quantityFromBarcode,
+    shoudShowBoxInput,
   }: any) => {
     useEffect(() => {
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
@@ -414,10 +415,6 @@ const FormContent = memo(
           0
       );
     }, []);
-
-    const shoudShowBoxInput = currentProduct?.unit
-      ?.toLowerCase()
-      .startsWith('thùng');
 
     return (
       <View className="flex-1 px-4 mt-4 pb-4 gap-4">
@@ -593,7 +590,7 @@ const InputAmountPopup = () => {
       const pickedItem = {
         ...currentProduct,
         barcode: barcodeScanSuccess,
-        pickedQuantity: values?.pickedQuantity || 0,
+        pickedQuantity: Number(values?.pickedQuantity || 0),
         pickedErrorType:
           quantity <= values?.pickedQuantity ? '' : values?.pickedErrorType,
         pickedNote: values?.pickedNote,
@@ -671,7 +668,7 @@ const InputAmountPopup = () => {
             topHeader={renderTopHeader}
             renderTitle={renderTitle}
             ref={inputBottomSheetRef}
-            snapPoints={[530]}
+            snapPoints={[isUnitBox ? 595 : 530]}
             onClose={reset}
             visible={isShowAmountInput}
           >
@@ -688,6 +685,7 @@ const InputAmountPopup = () => {
               productPickedErrorTypes={productPickedErrorTypes}
               isError={isError}
               quantityFromBarcode={quantityFromBarcode}
+              shoudShowBoxInput={isUnitBox}
             />
           </SBottomSheet>
         );

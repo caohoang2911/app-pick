@@ -31,7 +31,7 @@ const badgeVariants = cva(
   }
 );
 
-const badgeTextVariants = cva('font-medium text-center text-xs', {
+const badgeTextVariants = cva('font-medium text-center', {
   variants: {
     variant: {
       default: 'blue text-blue-600',
@@ -81,7 +81,7 @@ function Badge({
       {...props}
     >
       {icon}
-      <Text numberOfLines={1} ellipsizeMode='tail' className={`${badgeTextVariants({ variant })} ${labelClasses}`}>
+      <Text numberOfLines={1} ellipsizeMode='tail' className={`${badgeTextVariants({ variant })} ${labelClasses || "text-xs"}`}>
         {label} {extraLabel}
       </Text>
     </View>

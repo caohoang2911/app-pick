@@ -22,7 +22,7 @@ const pickStatus = [
 ]
 
 function DeliveryType() {
-  const cachingShippingMethods = useRef<any>(null);
+  const cachingDeliveryTypeCounters = useRef<any>(null);
 
   const deliveryType = useOrders.use.deliveryType();
   const authStatus = useAuth.use.status();
@@ -38,7 +38,7 @@ function DeliveryType() {
 
   const { data, refetch } = useGetOrderDeliveryTypeCounters({ status: fromScanQrCode ? 'ALL' : selectedOrderCounter as OrderStatus });
 
-  const counters = data?.data ? { ...cachingShippingMethods.current, ...data.data } : {};
+  const counters = data?.data ? { ...cachingDeliveryTypeCounters.current, ...data.data } : {};
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
@@ -95,7 +95,7 @@ function DeliveryType() {
   }, [counters, orderDeliveryTypes, deliveryType])
 
   useEffect(() => {
-    cachingShippingMethods.current = counters;
+    cachingDeliveryTypeCounters.current = counters;
   }, [counters])
 
   return (

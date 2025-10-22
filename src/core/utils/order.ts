@@ -9,5 +9,6 @@ export const isEnableScanToDelivery = ({
   return [
     OrderStatusValue.BOOKED_SHIPPER,
     OrderStatusValue.STORE_PACKED,
+    OrderStatusValue.SHIPPING,
   ].includes(status as OrderStatusValue);
 };

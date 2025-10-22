@@ -111,7 +111,6 @@ export interface OrderDetailHeader {
   shipping?: {
     serviceId: string;
     serviceName?: string;
-    method: string;
     provider?: string;
     fee?: number;
     packageName?: string;
