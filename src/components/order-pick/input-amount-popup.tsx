@@ -267,8 +267,9 @@ const ReasonDropdown = memo(
         item.id === 'INCORRECT_ORDERED_WEIGHT'
           ? { ...item, disabled: toLower(unit) !== 'kg' }
           : item
-      );
+      )?.reverse();
     }, [productPickedErrorTypes, unit]);
+    
 
     return (
       <SDropdown
@@ -327,7 +328,7 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
       <View className="flex-1">
         <Input
           label={
-            <Text className="font-medium text-gray-500">Thùng nguyên</Text>
+            <Text className="font-medium text-gray-500" numberOfLines={1}>Thùng nguyên kiện</Text>
           }
           placeholder="Nhập số lượng"
           value={values?.fullBoxQuantity?.toString()}
@@ -356,7 +357,7 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
       </View>
       <View className="flex-1">
         <Input
-          label={<Text className="font-medium text-gray-500">Thùng lẻ</Text>}
+          label={<Text className="font-medium text-gray-500" numberOfLines={1}>Thùng gom lẻ</Text>}
           placeholder="Nhập số lượng"
           value={values?.openedBoxQuantity?.toString()}
           onChangeText={(value: string) =>
@@ -537,8 +538,6 @@ const InputAmountPopup = () => {
   }, [quantityFromBarcode, pickedQuantity, action]);
   const productName = currentProduct?.name || '';
 
-  console.log('currentProduct', currentProduct);
-
   // Memoize title component
   const renderTitle = useMemo(
     () => (
@@ -668,7 +667,7 @@ const InputAmountPopup = () => {
             topHeader={renderTopHeader}
             renderTitle={renderTitle}
             ref={inputBottomSheetRef}
-            snapPoints={[isUnitBox ? 595 : 530]}
+            snapPoints={[isUnitBox ? 605 : 530]}
             onClose={reset}
             visible={isShowAmountInput}
           >

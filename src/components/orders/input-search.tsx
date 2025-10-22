@@ -1,19 +1,32 @@
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { toLower } from 'lodash';
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
 import { useSearchOrdersByKeywork } from '~/src/api/app-pick/use-search-orders-by-keywork';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
+import { OrderItem as OrderItemType } from '~/src/types/order';
 import { Badge } from '../Badge';
-import SearchableDropdown, { SearchableDropdownRef } from '../SearchableDropdown';
-import OrderActionsBottomSheet, { OrderActionsBottomSheetRef } from './order-actions-bottom-sheet';
+import SearchableDropdown, {
+  SearchableDropdownRef,
+} from '../SearchableDropdown';
+import OrderActionsBottomSheet, {
+  OrderActionsBottomSheetRef,
+} from './order-actions-bottom-sheet';
 
 const MIN_LENGTH_SEARCH = 3;
 
-const OrderItem = memo(({ item }: { item: any }) => {
+const OrderItem = memo(({ item }: { item: OrderItemType }) => {
+  console.log('item', item);
   const [showActionsBottomSheet, setShowActionsBottomSheet] = useState(false);
   const actionsBottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
 
@@ -29,30 +42,37 @@ const OrderItem = memo(({ item }: { item: any }) => {
     }, 300);
   }, []);
 
-  const formattedAmount = useMemo(() => 
-    formatCurrency(item.amount, {unit: true}), 
+  const formattedAmount = useMemo(
+    () => formatCurrency(item.amount, { unit: true }),
     [item.amount]
   );
-  
-  const timeFromNow = useMemo(() => 
-    getRelativeTime(item.lastTimeUpdateStatus),
+
+  const timeFromNow = useMemo(
+    () => getRelativeTime(item.lastTimeUpdateStatus),
     [item.lastTimeUpdateStatus]
   );
 
   return (
     <>
-      <TouchableOpacity 
+      <TouchableOpacity
         className="py-3 px-2"
-        style={{borderTopWidth: 1, borderColor: '#E0E0E0'}}
-        onPress={handleSelect}>
+        style={{ borderTopWidth: 1, borderColor: '#E0E0E0' }}
+        onPress={handleSelect}
+      >
         <View className="flex flex-row items-center justify-between">
-          <Text className="font-semibold">{item.code}</Text>
+          <View className="flex flex-row items-center gap-1">
+            <Text className="font-semibold">{item.code}</Text>
+
+            {item.shortCode && <Badge label={item.shortCode} variant="warning" />}
+          </View>
           <Badge
             label={item.statusName}
             variant={toLower(item.status) as any}
-            extraLabel={<Text className="text-xs text-contentPrimary ml-3">
-              | {timeFromNow}
-            </Text>}
+            extraLabel={
+              <Text className="text-xs text-contentPrimary ml-3">
+                | {timeFromNow}
+              </Text>
+            }
           />
         </View>
         <View className="flex flex-row gap-2 items-center justify-between mt-2">
@@ -60,20 +80,27 @@ const OrderItem = memo(({ item }: { item: any }) => {
             <View className="-mt-0.5">
               <Feather name="user" size={18} color="black" />
             </View>
-            <Text className="text-sm font-semibold" style={{width: '85%'}} numberOfLines={1} ellipsizeMode="tail">
+            <Text
+              className="text-sm font-semibold"
+              style={{ width: '85%' }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {item.customer?.name}
             </Text>
           </View>
-          <Badge 
-            label={<Text className="text-base mr-2">{formattedAmount}</Text>}  
-            extraLabel={<Text className="text-sm text-contentPrimary ml-3">
-              - {item.payment?.methodName}
-            </Text>}
-            variant="warning" 
+          <Badge
+            label={<Text className="text-base mr-2">{formattedAmount}</Text>}
+            extraLabel={
+              <Text className="text-sm text-contentPrimary ml-3">
+                - {item.payment?.methodName}
+              </Text>
+            }
+            variant="warning"
           />
         </View>
       </TouchableOpacity>
-      
+
       <OrderActionsBottomSheet
         ref={actionsBottomSheetRef}
         orderCode={item.code}
@@ -122,18 +149,18 @@ const InputSearch = ({
 
   const handleTextChange = useCallback((text: string) => {
     setValue(text);
-    
+
     setKeyWord(text);
-    
+
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current);
     }
-    if(text.length >= MIN_LENGTH_SEARCH) {
+    if (text.length >= MIN_LENGTH_SEARCH) {
       setIsSearching(true);
     }
-    
+
     searchTimeout.current = setTimeout(() => {
-      if(text.length >= MIN_LENGTH_SEARCH) {
+      if (text.length >= MIN_LENGTH_SEARCH) {
         refetchOrders();
       }
     }, 400);
@@ -142,10 +169,12 @@ const InputSearch = ({
   const refetchOrders = useCallback(async () => {
     try {
       setIsSearching(true);
-      
-      await queryClient.resetQueries({ queryKey: ['searchOrdersByKeywork', value] });
+
+      await queryClient.resetQueries({
+        queryKey: ['searchOrdersByKeywork', value],
+      });
       await refetch();
-      
+
       setIsSearching(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -153,33 +182,36 @@ const InputSearch = ({
     }
   }, [value, refetch]);
 
-
   const orderList = useMemo(() => {
     return (ordersResponse as any)?.data || [];
   }, [ordersResponse]);
-  
+
   const renderItem = useCallback((item: any) => {
     return <OrderItem key={item.code} item={item} />;
   }, []);
-  
+
   const handleSelect = useCallback((item: any) => {
     // This is handled by the OrderItem component now
   }, []);
 
-  const rightComponent = useMemo(() => (
-    <TouchableOpacity onPress={() => toggleScanQrCode(true)}>
-      <View className="bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
-        <FontAwesome name="qrcode" size={24} color="white" />
-      </View>
-    </TouchableOpacity>
-  ), [toggleScanQrCode]);
+  const rightComponent = useMemo(
+    () => (
+      <TouchableOpacity onPress={() => toggleScanQrCode(true)}>
+        <View className="bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
+          <FontAwesome name="qrcode" size={24} color="white" />
+        </View>
+      </TouchableOpacity>
+    ),
+    [toggleScanQrCode]
+  );
 
   const noResultsText = useMemo(() => {
-    if(isSearching) return 'Đang tìm kiếm...';
-    if(value && value.length < MIN_LENGTH_SEARCH) return 'Nhập 3 ký tự trở lên để tìm kiếm';
+    if (isSearching) return 'Đang tìm kiếm...';
+    if (value && value.length < MIN_LENGTH_SEARCH)
+      return 'Nhập 3 ký tự trở lên để tìm kiếm';
     return 'Không tìm thấy kết quả';
   }, [isSearching, value]);
-  
+
   return (
     <View className="flex-grow">
       <SearchableDropdown

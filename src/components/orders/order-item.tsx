@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useRouter } from 'expo-router';
 import { isEmpty, toLower } from 'lodash';
@@ -89,6 +88,7 @@ const OrderItem = ({
   pickedItemProgress,
   bagLabels,
   storeCode,
+  shortCode,
 }: OrderItemType) => {
   const router = useRouter();
 
@@ -139,6 +139,8 @@ const OrderItem = ({
             <Text className="font-semibold text-base text-colorPrimary">
               {code}
             </Text>
+            {/* <Text className="text-xs" numberOfLines={1} ellipsizeMode="tail">{shortCode || 'GEAT332'}</Text> */}
+            {shortCode && <Badge label={shortCode} variant="warning"/>}
             {groupShippingCode && (
               <Badge label={groupShippingCode} variant="warning" />
             )}
@@ -153,7 +155,7 @@ const OrderItem = ({
                 </Text>
               }
             />
-            <View className="mr-1  rounded-full">
+            <View className="mr-1 rounded-full">
               <MoreActionsBtn code={code} />
             </View>
           </View>

@@ -68,4 +68,5 @@ export type OrderItem = {
   };
   pickedItemProgress: number;
   bagLabels: Array<Record<string, string>>;
+  shortCode: string;
 };
