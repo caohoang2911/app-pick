@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
     }),
   },
   productImage: {
-    width: 120,
-    height: 120,
+    width: (Dimensions.get('window').width - 32) / 3,
+    aspectRatio: 1,  
   },
   labelColumn: { width: '30%' },
   valueColumn: { width: '25%' },

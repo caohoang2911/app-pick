@@ -17,6 +17,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
 import { useConfig } from '~/src/core/store/config';
+import { PRODUCT_PICKED_ERROR_TYPES, PRODUCT_ACTIONS } from '@/contants/product';
 import {
   setActionProduct,
   setCurrentId,
@@ -116,7 +117,7 @@ const QuantitySection = memo(
     setQuantityFromBarcode,
     toggleScanQrCodeProduct,
   }: any) => {
-    const editable = useMemo(() => action !== 'out-of-stock', [action]);
+    const editable = useMemo(() => action !== PRODUCT_ACTIONS.OUT_OF_STOCK, [action]);
 
     const handleDecrement = useCallback(() => {
       // setQuantityFromBarcode(0);
@@ -246,7 +247,7 @@ const ReasonDropdown = memo(
     const { unit } = currentProduct || {};
 
     const isDisabled =
-      isError || ['out-of-stock', 'low-quality', 'near-date', 'incorrect-stock'].includes(action);
+      isError || Object.values(PRODUCT_ACTIONS).includes(action);
 
     const handleSelect = useCallback(
       (value: string) => {
@@ -531,7 +532,7 @@ const InputAmountPopup = () => {
     orderQuantity: 0,
   };
   const displayPickedQuantity = useMemo(() => {
-    if (isNumber(quantityFromBarcode) && action === 'out-of-stock') {
+    if (isNumber(quantityFromBarcode) && action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
       return 0;
     }
     return quantityFromBarcode || pickedQuantity || 0;
@@ -647,15 +648,17 @@ const InputAmountPopup = () => {
           values?.pickedQuantity < orderQuantity && !values?.pickedErrorType;
 
         useEffect(() => {
-          if (action === 'out-of-stock') {
+          if (action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
             setFieldValue('pickedQuantity', 0);
-            setFieldValue('pickedErrorType', 'OUT_OF_STOCK');
-          } else if (action === 'low-quality') {
-            setFieldValue('pickedErrorType', 'QUALITY_DECLINE');
-          } else if (action === 'near-date') {
-            setFieldValue('pickedErrorType', 'NEAR_EXPIRED_DATE');
-          } else if (action === 'incorrect-stock') {
-            setFieldValue('pickedErrorType', 'INCORRECT_STOCK');
+            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK);
+          } else if (action === PRODUCT_ACTIONS.LOW_QUALITY) {
+            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE);
+          } else if (action === PRODUCT_ACTIONS.NEAR_EXPIRY) {
+            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED);
+          } else if (action === PRODUCT_ACTIONS.EXPIRED_ONLINE) {
+            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE);
+          } else if (action === PRODUCT_ACTIONS.INCORRECT_STOCK) {
+            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK);
           } else {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());
           }

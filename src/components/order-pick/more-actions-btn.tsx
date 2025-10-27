@@ -9,26 +9,32 @@ import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Product } from '~/src/types/product';
+import { PRODUCT_ACTIONS, PRODUCT_ACTION_LABELS } from '~/src/contants/product';
 
 const actions = [
   {
-    key: 'out-of-stock',
-    title: 'Sản phẩm hết hàng',
+    key: PRODUCT_ACTIONS.OUT_OF_STOCK,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.OUT_OF_STOCK],
     icon: <AntDesign name="tago" size={20} color="black" />
   },
   {
-    key: 'low-quality',
-    title: 'Sản phẩm giảm chất lượng',
+    key: PRODUCT_ACTIONS.LOW_QUALITY,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.LOW_QUALITY],
     icon: <AntDesign name="tago" size={20} color="black" />
   },
   {
-    key: 'near-date',
-    title: 'Sản phẩm cận date',
+    key: PRODUCT_ACTIONS.NEAR_EXPIRY,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.NEAR_EXPIRY],
     icon: <AntDesign name="tago" size={20} color="black" />
   },
   {
-    key: 'incorrect-stock',
-    title: 'Sản phẩm sai tồn',
+    key: PRODUCT_ACTIONS.EXPIRED_ONLINE,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.EXPIRED_ONLINE],
+    icon: <AntDesign name="tago" size={20} color="black" />
+  },
+  {
+    key: PRODUCT_ACTIONS.INCORRECT_STOCK,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.INCORRECT_STOCK],
     icon: <AntDesign name="tago" size={20} color="black" />
   },
 ];
@@ -84,10 +90,14 @@ const MoreActionsBtn = ({
       <Pressable
         disabled={!enable}
         onPress={() => onClickAction?.(key)}
-        className={`flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4 ${!enable ? 'opacity-50' : ''}`}
+        className={`flex-row flex-grow items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4 ${!enable ? 'opacity-50' : ''}`}
       >
-        {icon}
-        <Text className="text-gray-300">{title}</Text>
+        <View className="flex-row items-center gap-4">
+          {icon}
+        </View>
+        <View className="flex-1">
+          <Text className="text-gray-300">{title}</Text>
+        </View>
       </Pressable>
     );
   }, []);
@@ -107,17 +117,20 @@ const MoreActionsBtn = ({
     setSuccessForBarcodeScan(barcode);
     setCurrentId(id);
     switch (key) {
-      case 'out-of-stock':
-        setIsEditManual(true, 'out-of-stock');
+      case PRODUCT_ACTIONS.OUT_OF_STOCK:
+        setIsEditManual(true, PRODUCT_ACTIONS.OUT_OF_STOCK);
         break;
-      case 'low-quality':
-        setActionProduct('low-quality');
+      case PRODUCT_ACTIONS.LOW_QUALITY:
+        setActionProduct(PRODUCT_ACTIONS.LOW_QUALITY);
         break;
-      case 'near-date':
-        setActionProduct('near-date');
+      case PRODUCT_ACTIONS.NEAR_EXPIRY:
+        setActionProduct(PRODUCT_ACTIONS.NEAR_EXPIRY);
         break;
-      case 'incorrect-stock':
-        setActionProduct('incorrect-stock');
+      case PRODUCT_ACTIONS.EXPIRED_ONLINE:
+        setActionProduct(PRODUCT_ACTIONS.EXPIRED_ONLINE);
+        break;
+      case PRODUCT_ACTIONS.INCORRECT_STOCK:
+        setActionProduct(PRODUCT_ACTIONS.INCORRECT_STOCK);
         break;
       default:
         break;
@@ -143,7 +156,7 @@ const MoreActionsBtn = ({
           visible={visible} 
           onClose={() => setVisible(false)} 
           ref={actionRef}
-          snapPoints={[390]}
+          snapPoints={[460]}
         >
           {renderItem({
             key: 'edit-pick-quantity',

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
+import { ProductAction } from '~/src/contants/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
@@ -16,10 +17,10 @@ interface OrdersState {
   currentId: number | null;
   isEditManual: boolean;
   isScanMoreProduct: boolean;
-  action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null;
-  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null) => void;
+  action: ProductAction | null;
+  setAction: (action: ProductAction | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
-  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') => void;
+  setIsEditManual: (isEditManual: boolean, action?: ProductAction) => void;
   setKeyword: (keyword: string) => void;
   setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -55,10 +56,10 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
-  setAction: (action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null) => {
+  setAction: (action: ProductAction | null) => {
     set({ action });
   },
-  setIsEditManual: (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') => {
+  setIsEditManual: (isEditManual: boolean, action?: ProductAction) => {
     set({ isEditManual, action });
   },
   setKeyword: (keyword: string) => {
@@ -149,10 +150,10 @@ export const setQuantityFromBarcode = (quantity: number) =>
   _useOrderPick.getState().setQuantityFromBarcode(quantity);
 
 
-export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') =>
+export const setIsEditManual = (isEditManual: boolean, action?: ProductAction) =>
   _useOrderPick.getState().setIsEditManual(isEditManual, action);
 
-export const setActionProduct = (action: 'out-of-stock' | 'low-quality' | 'near-date' | 'incorrect-stock' | null) =>
+export const setActionProduct = (action: ProductAction | null) =>
   _useOrderPick.getState().setAction(action);
 
 export const setScanMoreProduct = (isScanMoreProduct: boolean) =>

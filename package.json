@@ -29,6 +29,8 @@
     "codepush:version": "node scripts/codepush-version.js",
     "codepush:dev": "node scripts/codepush-dev.js",
     "codepush:prod": "node scripts/codepush-prod.js",
+    "codepush:dev:no-version": "node scripts/codepush-dev-no-version.js",
+    "codepush:prod:no-version": "node scripts/codepush-prod-no-version.js",
     "env:dev": "node scripts/setup-env.js dev",
     "env:prod": "node scripts/setup-env.js prod",
     "pod": "npx pod-install",
