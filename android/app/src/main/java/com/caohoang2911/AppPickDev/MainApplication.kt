@@ -48,6 +48,16 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onConfigurationChanged(newConfig: Configuration) {
     super.onConfigurationChanged(newConfig)
+    // Lock font scale at 100% (1.0) - disable device font scaling
+    newConfig.fontScale = 1.0f
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
+  }
+  
+  override fun getResources(): android.content.res.Resources {
+    val res = super.getResources()
+    val config = android.content.res.Configuration(res.configuration)
+    // Lock font scale at 100% (1.0) - disable device font scaling
+    config.fontScale = 1.0f
+    return createConfigurationContext(config).resources
   }
 }

@@ -18,6 +18,14 @@ class MainActivity : ReactActivity() {
     setTheme(R.style.AppTheme);
     super.onCreate(null)
   }
+  
+  override fun getResources(): android.content.res.Resources {
+    val res = super.getResources()
+    val config = android.content.res.Configuration(res.configuration)
+    // Lock font scale at 100% (1.0) - disable device font scaling
+    config.fontScale = 1.0f
+    return createConfigurationContext(config).resources
+  }
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
