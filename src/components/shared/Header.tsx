@@ -12,7 +12,7 @@ const Header = ({
   title?: React.ReactNode
 }) => {
   return (
-    <View className="flex flex-row items-center justify-between py-3 bg-white border-b border-gray-200">
+    <View className="flex flex-row items-center justify-between py-3 bg-white border-b border-gray-200 px-4">
       {headerLeft || <ButtonBack />}
       {typeof title === 'string' ?  <Text className='text-lg font-medium'>{title}</Text> : title}
       {headerRight || <View />}
