@@ -3,11 +3,12 @@ import { DrawerContentComponentProps } from "@react-navigation/drawer"
 import { DrawerActions } from "@react-navigation/native"
 import { router, useNavigation } from "expo-router"
 import { toUpper } from "lodash"
-import { Dimensions, Pressable, ScrollView, Text, View } from "react-native"
+import { Dimensions, Pressable, Text, View } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Images } from "~/assets"
 import { useRoleDriver } from "~/src/core/hooks/useRole"
 import { useSignOut } from "~/src/core/hooks/useSignOut"
+import { SafeScrollView } from "~/src/core/utils/safe-scrollview"
 import { useAuth } from "../core"
 import { useConfig } from "../core/store/config"
 import { getConfigNameById } from "../core/utils/config"
@@ -67,7 +68,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
           </Text>} */}
         </View>
       </View>
-      <ScrollView
+      <SafeScrollView
         showsVerticalScrollIndicator={false}
       >
         {MENU_ITEMS.map((item) => {
@@ -81,7 +82,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
             </Pressable>
           )}
         )}
-      </ScrollView>
+      </SafeScrollView>
       <VersionDisplay />
       <Pressable onPress={triggerSignOut}>
         <View className="flex flex-row gap-2 items-center border-t border-gray-200 py-3 px-3 ml-3">

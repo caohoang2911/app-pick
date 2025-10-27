@@ -1,7 +1,6 @@
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import React, {
   forwardRef,
@@ -13,6 +12,7 @@ import React, {
 import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
 import { Easing } from 'react-native-reanimated';
 import { CloseLine } from '~/src/core/svgs';
+import { SafeBottomSheetScrollView } from '~/src/core/utils/safe-scrollview';
 
 const width = Dimensions.get('window').width;
 
@@ -170,14 +170,14 @@ const SBottomSheet = forwardRef<any, Props>(
           children={children} 
           visible={visible}
         />
-        <BottomSheetScrollView
+        <SafeBottomSheetScrollView
           keyboardDismissMode="on-drag"
           bounces={true}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={true}
         >
           {children}
-        </BottomSheetScrollView>
+        </SafeBottomSheetScrollView>
         {extraButton && extraButton}
       </BottomSheetModal>
     );

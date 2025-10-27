@@ -73,38 +73,66 @@ const TabsStatus = () => {
     );
     if (index === -1) return;
 
-    // Validate index before scrolling
-    if (index < 0 || index >= (sortedDataStatusCounters?.length || 0)) {
-      console.warn('Invalid scroll index:', index);
+    // Enhanced validation for scrollToIndex
+    const dataLength = sortedDataStatusCounters?.length || 0;
+    if (dataLength === 0) {
+      console.warn('No data available for scrolling');
+      return;
+    }
+    
+    if (index < 0 || index >= dataLength) {
+      console.warn('Invalid scroll index:', index, 'Data length:', dataLength);
+      return;
+    }
+
+    // Add additional safety check
+    if (!ref.current) {
+      console.warn('FlatList ref not available');
       return;
     }
 
     setTimeout(() => {
-      if (ref.current) {
+      if (ref.current && index >= 0 && index < dataLength) {
         try {
           ref.current.scrollToIndex({
             animated: true,
-            index: index || 0,
+            index: index,
             viewPosition: 0.5,
           });
         } catch (error) {
+          console.warn('scrollToIndex failed, using fallback:', error);
           // Fallback to scrollToOffset if scrollToIndex fails
-          const estimatedOffset = index * 120; // Estimate tab width
-          ref.current.scrollToOffset({ offset: estimatedOffset, animated: true });
+          const estimatedOffset = Math.max(0, index * 120); // Ensure non-negative offset
+          try {
+            ref.current.scrollToOffset({ offset: estimatedOffset, animated: true });
+          } catch (fallbackError) {
+            console.warn('scrollToOffset fallback also failed:', fallbackError);
+          }
         }
       }
     }, 500);
   }, [selectedOrderCounter, sortedDataStatusCounters])
 
-  // Handle scroll failure
+  // Handle scroll failure with enhanced error handling
   const handleScrollToIndexFailed = useCallback((info: {
     index: number;
     highestMeasuredFrameIndex: number;
     averageItemLength: number;
   }) => {
-    // Calculate scroll offset based on average item length
-    const offset = info.averageItemLength * info.index;
-    ref.current?.scrollToOffset({ offset, animated: true });
+    console.warn('scrollToIndexFailed:', info);
+    
+    if (!ref.current) {
+      console.warn('FlatList ref not available in scrollToIndexFailed');
+      return;
+    }
+
+    try {
+      // Calculate scroll offset based on average item length
+      const offset = Math.max(0, info.averageItemLength * info.index);
+      ref.current.scrollToOffset({ offset, animated: true });
+    } catch (error) {
+      console.warn('scrollToOffset failed in handleScrollToIndexFailed:', error);
+    }
   }, []);
 
   useEffect(() => {

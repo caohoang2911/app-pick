@@ -190,33 +190,49 @@ const OrderPickProducts = () => {
     refetch();
   }, [refetch]);
 
-  // Handle scroll failure
+  // Handle scroll failure with enhanced error handling
   const handleScrollToIndexFailed = useCallback((info: {
     index: number;
     highestMeasuredFrameIndex: number;
     averageItemLength: number;
   }) => {
-    // Tính toán scroll offset dựa trên số liệu thống kê
-    const offset = info.averageItemLength * info.index;
-    flatListRef.current?.scrollToOffset({ offset, animated: true });
+    console.warn('scrollToIndexFailed:', info);
     
-    // Thử lại sau một khoảng thời gian ngắn với error handling
-    setTimeout(() => {
-      if (flatListRef.current) {
-        try {
-          flatListRef.current.scrollToIndex({
-            animated: true,
-            index: info.index,
-            viewPosition: 0.5
-          });
-        } catch (retryError) {
-          // Final fallback - use scrollToOffset with more precise calculation
-          const finalOffset = info.averageItemLength * info.index;
-          flatListRef.current.scrollToOffset({ offset: finalOffset, animated: true });
+    if (!flatListRef.current) {
+      console.warn('FlatList ref not available in scrollToIndexFailed');
+      return;
+    }
+
+    try {
+      // Tính toán scroll offset dựa trên số liệu thống kê
+      const offset = Math.max(0, info.averageItemLength * info.index);
+      flatListRef.current.scrollToOffset({ offset, animated: true });
+      
+      // Thử lại sau một khoảng thời gian ngắn với error handling
+      setTimeout(() => {
+        if (flatListRef.current && info.index >= 0 && info.index < (filteredProducts?.length || 0)) {
+          try {
+            flatListRef.current.scrollToIndex({
+              animated: true,
+              index: info.index,
+              viewPosition: 0.5
+            });
+          } catch (retryError) {
+            console.warn('Retry scrollToIndex failed:', retryError);
+            // Final fallback - use scrollToOffset with more precise calculation
+            const finalOffset = Math.max(0, info.averageItemLength * info.index);
+            try {
+              flatListRef.current.scrollToOffset({ offset: finalOffset, animated: true });
+            } catch (fallbackError) {
+              console.warn('Final scrollToOffset fallback failed:', fallbackError);
+            }
+          }
         }
-      }
-    }, 100);
-  }, []);
+      }, 100);
+    } catch (error) {
+      console.warn('Initial scrollToOffset failed:', error);
+    }
+  }, [filteredProducts?.length]);
 
   // Tính toán các giá trị mô tả trạng thái
   const isLoaded = !(isPending || isFetching || isLoading);
@@ -243,8 +259,14 @@ const OrderPickProducts = () => {
     const index = getBarcodeIndexFilteredProducts;
     if(index === -1) return;
 
+    const dataLength = filteredProducts?.length || 0;
+    if (dataLength === 0) {
+      console.warn('No filtered products available for scrolling');
+      return;
+    }
+
     setTimeout(() => {
-      if (flatListRef.current && index >= 0 && index < (filteredProducts?.length || 0)) {
+      if (flatListRef.current && index >= 0 && index < dataLength) {
         try {
           flatListRef.current.scrollToIndex({
             animated: true,
@@ -252,6 +274,14 @@ const OrderPickProducts = () => {
             viewPosition: 0.5,
           });
         } catch (error) {
+          console.warn('scrollToIndex failed in useEffect:', error);
+          // Fallback to scrollToOffset
+          const estimatedOffset = Math.max(0, index * 200); // Use item height estimate
+          try {
+            flatListRef.current.scrollToOffset({ offset: estimatedOffset, animated: true });
+          } catch (fallbackError) {
+            console.warn('scrollToOffset fallback failed:', fallbackError);
+          }
         }
       }
     }, 100);

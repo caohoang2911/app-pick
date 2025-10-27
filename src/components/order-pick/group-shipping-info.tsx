@@ -4,6 +4,7 @@ import { useOrderPick } from "~/src/core/store/order-pick";
 import { formatCurrency } from "~/src/core/utils/number";
 import { OrderDetail } from "~/src/types/order-pick";
 import { Badge } from "../Badge";
+import { createSafeScrollToIndexCallback, createSafeScrollToIndexFailedCallback } from "~/src/core/utils/safe-scroll";
 
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { router, useGlobalSearchParams } from "expo-router";
@@ -22,40 +23,25 @@ function OrderGroups({
   code: string;
 }) {
   const ref = useRef<any>();
-  const goTabSelected = useCallback((index: number) => {
-    // Validate index before scrolling
-    if (index < 0 || index >= (groupShippingOrderCodes?.length || 0)) {
-      console.warn('Invalid scroll index:', index);
-      return;
-    }
+  
+  // Create safe scroll callbacks
+  const safeScrollToIndex = useCallback(
+    createSafeScrollToIndexCallback(ref, groupShippingOrderCodes?.length || 0, {
+      animated: true,
+      viewPosition: 0.5,
+      fallbackOffset: 100
+    }),
+    [groupShippingOrderCodes?.length]
+  );
 
-    setTimeout(() => {
-      if (ref.current) {
-        try {
-          ref.current.scrollToIndex({
-            animated: true,
-            index: index || 0,
-            viewPosition: 0.5,
-          });
-        } catch (error) {
-          // Fallback to scrollToOffset if scrollToIndex fails
-          const estimatedOffset = index * 100; // Estimate item width
-          ref.current.scrollToOffset({ offset: estimatedOffset, animated: true });
-        }
-      }
-    }, 200);
-  }, [groupShippingOrderCodes?.length])
+  const handleScrollToIndexFailed = useCallback(
+    createSafeScrollToIndexFailedCallback(ref, 100),
+    []
+  );
 
-  // Handle scroll failure
-  const handleScrollToIndexFailed = useCallback((info: {
-    index: number;
-    highestMeasuredFrameIndex: number;
-    averageItemLength: number;
-  }) => {
-    // Calculate scroll offset based on average item length
-    const offset = info.averageItemLength * info.index;
-    ref.current?.scrollToOffset({ offset, animated: true });
-  }, []);
+  const goTabSelected = useCallback(async (index: number) => {
+    await safeScrollToIndex(index);
+  }, [safeScrollToIndex]);
 
   useEffect(() => {
     const index = groupShippingOrderCodes?.findIndex((item) => item === code);

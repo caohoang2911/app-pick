@@ -26,6 +26,9 @@ import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
 import { setDefaultTimeZone } from '@/core/utils/moment';
+import { ErrorBoundary as CustomErrorBoundary } from '@/core/utils/error-boundary';
+import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
+import { initializeSafeAppManagement, cleanupSafeAppManagement } from '@/core/utils/safe-app-management';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
@@ -148,6 +151,16 @@ function Providers({ children }: { children: React.ReactNode }) {
     }
   }, [loaded, error]);
 
+  // Setup error handlers for Expo modules
+  useEffect(() => {
+    setupExpoModulesErrorHandler();
+    initializeSafeAppManagement();
+
+    return () => {
+      cleanupSafeAppManagement();
+    };
+  }, []);
+
   if (!loaded) {
     return <Loading />;
   }
@@ -157,53 +170,60 @@ function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <BottomSheetModalProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <PortalProvider>
-          <APIProvider>
-            
-            <NotificationWrapper>
-              <AuthWrapper>
-                <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                  <NetworkStatus />
-                  {loading && <Loading />}
-                  {children}
+    <CustomErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('App Error Boundary caught error:', error, errorInfo);
+        // You can add crash reporting here
+      }}
+    >
+      <BottomSheetModalProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <PortalProvider>
+            <APIProvider>
+              
+              <NotificationWrapper>
+                <AuthWrapper>
+                  <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                    <NetworkStatus />
+                    {loading && <Loading />}
+                    {children}
+                    <AlertDialog />
+                    {shouldPreload && <CameraPreloader />}
+                  </SafeAreaView>
                   <AlertDialog />
-                  {shouldPreload && <CameraPreloader />}
-                </SafeAreaView>
-                <AlertDialog />
-                <FlashMessage
-                  position="bottom"
-                  duration={5000}
-                  style={{
-                    paddingRight: 36,
-                  }}
-                  statusBarHeight={StatusBar.currentHeight}
-                  renderCustomContent={(data) => (
-                    <TouchableOpacity
-                      style={{
-                        position: 'absolute',
-                        right: -15,
-                        top: -10,
-                        paddingTop: 10,               
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      onPress={() => {
-                        hideMessage();
-                      }}
-                    >
-                      <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
-                        ✕
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                />
-              </AuthWrapper>
-            </NotificationWrapper>
-            <AppStateEffect />
-          </APIProvider>
-        </PortalProvider>
-      </GestureHandlerRootView>
-    </BottomSheetModalProvider>
+                  <FlashMessage
+                    position="bottom"
+                    duration={5000}
+                    style={{
+                      paddingRight: 36,
+                    }}
+                    statusBarHeight={StatusBar.currentHeight}
+                    renderCustomContent={(data) => (
+                      <TouchableOpacity
+                        style={{
+                          position: 'absolute',
+                          right: -15,
+                          top: -10,
+                          paddingTop: 10,               
+                        }}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        onPress={() => {
+                          hideMessage();
+                        }}
+                      >
+                        <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                          ✕
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </AuthWrapper>
+              </NotificationWrapper>
+              <AppStateEffect />
+            </APIProvider>
+          </PortalProvider>
+        </GestureHandlerRootView>
+      </BottomSheetModalProvider>
+    </CustomErrorBoundary>
   );
 }
