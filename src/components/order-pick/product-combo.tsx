@@ -1,9 +1,9 @@
 import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { OrderItem, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, OrderItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
 
-const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPickedTime}: {combo: ProductItemGroup, statusOrder: string, pickingBarcode: string, indexBarcodeWithoutPickedTime?: number}) => {
+const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPickedTime}: {combo: OrderItemGroup, statusOrder: string, pickingBarcode: string, indexBarcodeWithoutPickedTime?: number}) => {
 
   const { elementRatio }  = combo || {};
 

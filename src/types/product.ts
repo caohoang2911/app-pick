@@ -1,13 +1,4 @@
-export enum ProductLabelEnum {
-  GIFT = 'GIFT',
-  COMBO = 'COMBO',
-  DRY = 'DRY',
-  FROZEN = 'FROZEN',
-  CHILL = 'CHILL',
-  FRESH = 'FRESH',
-}
-
-export type ProductItemGroup = {
+export type OrderItemGroup = {
   type: 'COMBO' | 'PRODUCT' | 'GIFT_PACK';
   name: string;
   quantity: number;
@@ -17,7 +8,7 @@ export type ProductItemGroup = {
   elements?: Array<OrderItem>;
 };
 
-export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
+export type GiftPack = Pick<OrderItemGroup, 'type' | 'name' | 'elements'>;
 
 export type OrderItem = {
   type?: 'GIFT';

@@ -15,7 +15,7 @@ import {
 } from '~/src/core/store/order-pick';
 import { barcodeCondition, getOrderPickProductsFlat, handleScanBarcode } from '~/src/core/utils/order-bag';
 import { OrderStatus } from '~/src/types/order';
-import { OrderItem, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, OrderItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
@@ -42,7 +42,7 @@ const ProductItem = memo(({
   statusOrder,
   indexBarcodeWithoutPickedTime,
 }: { 
-  item: OrderItem | ProductItemGroup | any, 
+  item: OrderItem | OrderItemGroup | any, 
   isLast: boolean,
   pickingBarcode: string,
   statusOrder?: string,
@@ -50,10 +50,10 @@ const ProductItem = memo(({
 }) => {
   const renderProduct = () => {
     if(item.type === "COMBO" && 'elements' in item) {
-      return <ProductCombo statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} combo={item as ProductItemGroup} />;
+      return <ProductCombo statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} combo={item as OrderItemGroup} />;
     }
     if(item.type === "GIFT_PACK" && 'elements' in item) {
-      return <ProductGift statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} giftPack={item as ProductItemGroup} />;
+      return <ProductGift statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} giftPack={item as OrderItemGroup} />;
     }
     return <OrderPickProduct statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} {...(item.elements?.[0] as OrderItem)} />;
   };

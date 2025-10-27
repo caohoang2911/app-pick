@@ -1,5 +1,5 @@
 import { OrderBagCode, OrderBagItem, OrderBagLabel, OrderBagType } from "~/src/types/order-bag";
-import { OrderItem, ProductItemGroup } from "~/src/types/product";
+import { OrderItem, OrderItemGroup } from "~/src/types/product";
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -39,8 +39,8 @@ export const transformOrderBags = (orderBags: OrderBagItem[]) => {
   return { DRY: dry, FROZEN: frozen, FRESH: fresh };
 }
 
-export const getOrderPickProductsFlat = (products: Array<OrderItem | ProductItemGroup | any>): Array<OrderItem> => { 
-  const productsFlat = products.flatMap((product: OrderItem | ProductItemGroup | any) => {
+export const getOrderPickProductsFlat = (products: Array<OrderItem | OrderItemGroup | any>): Array<OrderItem> => { 
+  const productsFlat = products.flatMap((product: OrderItem | OrderItemGroup | any) => {
     return [...(product.elements || [])];
   }) as Array<OrderItem>;
 

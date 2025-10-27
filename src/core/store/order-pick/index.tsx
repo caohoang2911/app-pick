@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-pick';
-import { OrderItem, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, OrderItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
@@ -10,7 +10,7 @@ interface OrdersState {
   barcodeScanSuccess: string;
   keyword: string;
   barcodeScrollTo: string;
-  orderPickProducts: Array<OrderItem | ProductItemGroup>;
+  orderPickProducts: Array<OrderItem | OrderItemGroup>;
   quantityFromBarcode: number;
   scannedIds: Record<string, boolean>;
   currentId: number | null;
@@ -26,7 +26,7 @@ interface OrdersState {
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
   setBarcodeScrollTo: (barcode: string) => void;
-  setInitOrderPickProducts: (data: Array<OrderItem | ProductItemGroup>) => void;
+  setInitOrderPickProducts: (data: Array<OrderItem | OrderItemGroup>) => void;
   setOrderPickProduct: (product: OrderItem) => void;
   setQuantityFromBarcode: (quantity: number) => void;
   setCurrentId: (id: number | null) => void;
@@ -92,7 +92,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
     
-    const newOrderPickProducts = orderPickProducts.map((productMap: OrderItem | ProductItemGroup | any) => {
+    const newOrderPickProducts = orderPickProducts.map((productMap: OrderItem | OrderItemGroup | any) => {
       return { ...productMap, elements: productMap.elements?.map((productRel: OrderItem) => {
         const productAsTypeProduct = { ...productRel as OrderItem };
         if(product.id === productAsTypeProduct.id) {
@@ -128,7 +128,7 @@ export const setSuccessForBarcodeScan = (barcode: string) =>
   _useOrderPick.getState().setSuccessForBarcodeScan(barcode);
 
 export const setInitOrderPickProducts = (
-  data: Array<OrderItem | ProductItemGroup>
+  data: Array<OrderItem | OrderItemGroup>
 ) => _useOrderPick.getState().setInitOrderPickProducts(data);
 
 export const setBarcodeScrollTo = (barcode: string) =>  

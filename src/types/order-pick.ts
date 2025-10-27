@@ -1,5 +1,5 @@
 import { OrderStatus, OrderStatusValue } from './order';
-import { OrderItem, ProductItemGroup } from './product';
+import { OrderItem, OrderItemGroup } from './product';
 import { Customer, Employee } from './employee';
 import { ORDER_DELIVERY_TYPE } from '~/src/contants/order';
 
@@ -49,7 +49,7 @@ export type OrderDelivery = {
   storeCode?: string;
   storeAddress?: string;
   items?: OrderItem[];
-  itemGroups?: Array<OrderItem | ProductItemGroup>;
+  itemGroups?: Array<OrderItem | OrderItemGroup>;
 };
 
 export type LogOrder = {
