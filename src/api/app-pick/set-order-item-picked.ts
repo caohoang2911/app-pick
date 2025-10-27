@@ -1,9 +1,9 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 
 type Variables = {
-  pickedItem?: Product;
+  pickedItem?: OrderItem;
   orderCode?: string;
 };
 

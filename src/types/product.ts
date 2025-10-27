@@ -14,15 +14,15 @@ export type ProductItemGroup = {
   elementRatio: {
     [key: string]: number;
   };
-  elements?: Array<Product>;
+  elements?: Array<OrderItem>;
 };
 
 export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 
-export type Product = {
+export type OrderItem = {
   type?: 'GIFT';
   id: number;
-  substituteItems?: Array<Product>;
+  substituteItems?: Array<OrderItem>;
   pickedErrorType?: string;
   pickedNote?: string;
   pickedQuantity?: number;

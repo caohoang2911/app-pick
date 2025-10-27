@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { setIsVisibleReplaceProduct, useOrderPick } from '~/src/core/store/order-pick';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
 import { useReplacePickedItem } from '~/src/api/app-pick/use-replace-picked-item';
@@ -20,7 +20,7 @@ const ReplacePickedProducts = () => {
     setSelectedProductId(replacePickedProductId);
   }, [replacePickedProductId]);
 
-  const handleSelectProduct = (product: Product) => {
+  const handleSelectProduct = (product: OrderItem) => {
     if (product.id === replacePickedProductId) return;
     setSelectedProductId(product.id);
   };
@@ -28,7 +28,7 @@ const ReplacePickedProducts = () => {
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = useMemo(() => getOrderPickProductsFlat(orderPickProducts), [orderPickProducts]);
 
-  const product = orderPickProductsFlat.find((p: Product) => p.id === replacePickedProductId);
+  const product = orderPickProductsFlat.find((p: OrderItem) => p.id === replacePickedProductId);
 
   const substituteItems = product?.substituteItems || [];
 
@@ -76,7 +76,7 @@ const ReplacePickedProducts = () => {
       }
     >
       <View className="flex-1 mb-4">
-        {product && [product, ...substituteItems]?.map((item: Product) => (
+        {product && [product, ...substituteItems]?.map((item: OrderItem) => (
           <TouchableOpacity 
             key={item.id} 
             className={`flex flex-row items-center p-3 border-l-4 border-b-gray-200 border-b-2 mb-3 px-2 ${replacePickedProductId === item.id ? 'border-l-4 border-l-orange-500/80 bg-gray-50' : 'border-l-transparent'}`}

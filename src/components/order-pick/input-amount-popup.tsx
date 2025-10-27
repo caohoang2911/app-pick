@@ -38,7 +38,7 @@ import {
   barcodeCondition,
   getOrderPickProductsFlat,
 } from '~/src/core/utils/order-bag';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { Input } from '../Input';
@@ -408,11 +408,11 @@ const FormContent = memo(
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
       setFieldValue(
         'fullBoxQuantity',
-        (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity || 0
+        (currentProduct as OrderItem)?.pickedExtraQuantities?.fullBoxQuantity || 0
       );
       setFieldValue(
         'openedBoxQuantity',
-        (currentProduct as Product)?.pickedExtraQuantities?.openedBoxQuantity ||
+        (currentProduct as OrderItem)?.pickedExtraQuantities?.openedBoxQuantity ||
           0
       );
     }, []);
@@ -462,7 +462,7 @@ const InputAmountPopup = () => {
 
   const action = useOrderPick.use.action();
 
-  const [currentPickedProduct, setCurrentPickedProduct] = useState<Product>();
+  const [currentPickedProduct, setCurrentPickedProduct] = useState<OrderItem>();
 
   const { mutate: setOrderTemToPicked } = useSetOrderItemPicked(
     () => {
@@ -505,7 +505,7 @@ const InputAmountPopup = () => {
 
   // Find current product - memoized to avoid recalculation on every render
   const currentProduct = useMemo(() => {
-    let product = orderPickProductsFlat.find((product: Product) =>
+    let product = orderPickProductsFlat.find((product: OrderItem) =>
       isEditManual
         ? product.id === currentId
         : (barcodeCondition(barcodeScanSuccess, product.refBarcodes) ||
@@ -515,7 +515,7 @@ const InputAmountPopup = () => {
 
     if (isEmpty(product)) {
       product = orderPickProductsFlat.find(
-        (product: Product) =>
+        (product: OrderItem) =>
           barcodeCondition(barcodeScanSuccess, product.refBarcodes) ||
           product.id === currentId
       );
@@ -601,7 +601,7 @@ const InputAmountPopup = () => {
             openedBoxQuantity: values?.openedBoxQuantity || 0,
           },
         }),
-      } as Product;
+      } as OrderItem;
 
       setCurrentPickedProduct(pickedItem);
       setOrderTemToPicked({ pickedItem, orderCode: code });
@@ -621,14 +621,14 @@ const InputAmountPopup = () => {
   const initialValues = useMemo(
     () => ({
       pickedQuantity: displayPickedQuantity,
-      pickedErrorType: (currentProduct as Product)?.pickedErrorType || '',
-      pickedNote: (currentProduct as Product)?.pickedNote || '',
+      pickedErrorType: (currentProduct as OrderItem)?.pickedErrorType || '',
+      pickedNote: (currentProduct as OrderItem)?.pickedNote || '',
       ...(isUnitBox && {
         fullBoxQuantity:
-          (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity ||
+          (currentProduct as OrderItem)?.pickedExtraQuantities?.fullBoxQuantity ||
           0,
         openedBoxQuantity:
-          (currentProduct as Product)?.pickedExtraQuantities
+          (currentProduct as OrderItem)?.pickedExtraQuantities
             ?.openedBoxQuantity || 0,
       }),
     }),

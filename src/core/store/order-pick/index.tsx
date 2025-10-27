@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-pick';
-import { Product, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
@@ -10,7 +10,7 @@ interface OrdersState {
   barcodeScanSuccess: string;
   keyword: string;
   barcodeScrollTo: string;
-  orderPickProducts: Array<Product | ProductItemGroup>;
+  orderPickProducts: Array<OrderItem | ProductItemGroup>;
   quantityFromBarcode: number;
   scannedIds: Record<string, boolean>;
   currentId: number | null;
@@ -26,8 +26,8 @@ interface OrdersState {
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
   setBarcodeScrollTo: (barcode: string) => void;
-  setInitOrderPickProducts: (data: Array<Product | ProductItemGroup>) => void;
-  setOrderPickProduct: (product: Product) => void;
+  setInitOrderPickProducts: (data: Array<OrderItem | ProductItemGroup>) => void;
+  setOrderPickProduct: (product: OrderItem) => void;
   setQuantityFromBarcode: (quantity: number) => void;
   setCurrentId: (id: number | null) => void;
   setReplacePickedProductId: (id: number) => void;
@@ -88,13 +88,13 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setCurrentId: (id: number | null) => {
     set({ currentId: id });
   },
-  setOrderPickProduct: (product: Product) => {
+  setOrderPickProduct: (product: OrderItem) => {
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
     
-    const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup | any) => {
-      return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
-        const productAsTypeProduct = { ...productRel as Product };
+    const newOrderPickProducts = orderPickProducts.map((productMap: OrderItem | ProductItemGroup | any) => {
+      return { ...productMap, elements: productMap.elements?.map((productRel: OrderItem) => {
+        const productAsTypeProduct = { ...productRel as OrderItem };
         if(product.id === productAsTypeProduct.id) {
           return { ...productAsTypeProduct, ...product };
         } else {
@@ -128,7 +128,7 @@ export const setSuccessForBarcodeScan = (barcode: string) =>
   _useOrderPick.getState().setSuccessForBarcodeScan(barcode);
 
 export const setInitOrderPickProducts = (
-  data: Array<Product | ProductItemGroup>
+  data: Array<OrderItem | ProductItemGroup>
 ) => _useOrderPick.getState().setInitOrderPickProducts(data);
 
 export const setBarcodeScrollTo = (barcode: string) =>  
@@ -137,7 +137,7 @@ export const setBarcodeScrollTo = (barcode: string) =>
 export const setKeyword = (keyword: string) =>
   _useOrderPick.getState().setKeyword(keyword);
 
-export const setOrderPickProduct = (product: Product) => _useOrderPick.getState().setOrderPickProduct(product);
+export const setOrderPickProduct = (product: OrderItem) => _useOrderPick.getState().setOrderPickProduct(product);
 
 export const setOrderDetail = (orderDetail: OrderDetail) =>
   _useOrderPick.getState().setOrderDetail(orderDetail);

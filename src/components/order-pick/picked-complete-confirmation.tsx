@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
 
@@ -16,7 +16,7 @@ const PickedCompleteConfirmation = ({
   setVisible: (visible: boolean) => void;
   actionRef: React.RefObject<any>;
   onConfirm: () => void;
-  productFulfillError: Product[];
+  productFulfillError: OrderItem[];
 }) => {
   const config = useConfig.use.config();
   const productPickedErrorTypes = useMemo(
@@ -48,7 +48,7 @@ const PickedCompleteConfirmation = ({
     >
       <View className="flex-1 px-4 pt-1 mb-4">
         <View className="flex gap-4 mt-3">
-          {productFulfillError?.map((item: Product, index: number) => {
+          {productFulfillError?.map((item: OrderItem, index: number) => {
             const isLastItem = index === productFulfillError.length - 1;
             return (
               <View key={index} className="flex gap-2">

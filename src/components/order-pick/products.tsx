@@ -15,7 +15,7 @@ import {
 } from '~/src/core/store/order-pick';
 import { barcodeCondition, getOrderPickProductsFlat, handleScanBarcode } from '~/src/core/utils/order-bag';
 import { OrderStatus } from '~/src/types/order';
-import { Product, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
@@ -42,7 +42,7 @@ const ProductItem = memo(({
   statusOrder,
   indexBarcodeWithoutPickedTime,
 }: { 
-  item: Product | ProductItemGroup | any, 
+  item: OrderItem | ProductItemGroup | any, 
   isLast: boolean,
   pickingBarcode: string,
   statusOrder?: string,
@@ -55,7 +55,7 @@ const ProductItem = memo(({
     if(item.type === "GIFT_PACK" && 'elements' in item) {
       return <ProductGift statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} giftPack={item as ProductItemGroup} />;
     }
-    return <OrderPickProduct statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} {...(item.elements?.[0] as Product)} />;
+    return <OrderPickProduct statusOrder={statusOrder || ''} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} pickingBarcode={pickingBarcode} {...(item.elements?.[0] as OrderItem)} />;
   };
 
   return (
@@ -124,7 +124,7 @@ const OrderPickProducts = () => {
 
     const keywordUpper = keyword.toUpperCase();
 
-    const productBarcode = orderPickProductsFlat?.find((product: Product) => {
+    const productBarcode = orderPickProductsFlat?.find((product: OrderItem) => {
       if (keywordUpper.length >= 6) {
         const lastSixDigits = keywordUpper.slice(-6);
         return product?.refBarcodes?.some(refBarcode => 
@@ -163,7 +163,7 @@ const OrderPickProducts = () => {
   const renderItem = useCallback(({ item, index, statusOrder, pickingBarcode }: { item: any, index: number, statusOrder?: string, pickingBarcode: string }) => {
     const isLast = index === (filteredProducts?.length || 0) - 1;
 
-    const indexBarcodeWithoutPickedTime = orderPickProductsFlat?.findIndex((item: Product) => {
+    const indexBarcodeWithoutPickedTime = orderPickProductsFlat?.findIndex((item: OrderItem) => {
       return item.barcode === pickingBarcode && !item.pickedTime;
     })
 
@@ -223,14 +223,14 @@ const OrderPickProducts = () => {
   const isEmpty = isLoaded && (!filteredProducts || filteredProducts.length === 0);
 
   const getPickingBarcode = useMemo(() => {
-    return orderPickProductsFlat.find((product: Product) => {
+    return orderPickProductsFlat.find((product: OrderItem) => {
       return !product.pickedTime;
     })?.barcode || '';
   }, [orderPickProductsFlat]);
 
   const getBarcodeIndexFilteredProducts = useMemo(() => {
     return filteredProducts.findIndex((product: any) => {
-      return product.elements?.some((element: Product) => {
+      return product.elements?.some((element: OrderItem) => {
         return element.barcode === getPickingBarcode && !element.pickedTime;
       });
     });

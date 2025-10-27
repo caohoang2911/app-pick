@@ -1,6 +1,7 @@
 import { Button } from '@/components/Button';
+import { FontAwesome } from '@expo/vector-icons';
 import { router, useGlobalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
@@ -8,9 +9,8 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderDetail } from '~/src/types/order-pick';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 import PickedCompleteConfirmation from './picked-complete-confirmation';
-import { FontAwesome } from '@expo/vector-icons';
 
 const StartPickingButton = ({ onPress, loading }: { onPress: () => void; loading: boolean }) => (
   <Button
@@ -76,7 +76,7 @@ const ActionsBottom = () => {
   const { status } = header || {};
 
   const canCompletePick = useMemo(() => {
-    return orderPickProductsFlat.filter((product: Product) => {
+    return orderPickProductsFlat.filter((product: OrderItem) => {
       return !product.pickedTime;
     })?.length === 0;
   }, [orderPickProductsFlat]);
@@ -91,7 +91,7 @@ const ActionsBottom = () => {
   const title = status !== 'STORE_PICKING' ? 'Xác nhận bắt đầu pick hàng' : 'Xác nhận đã pick hàng xong';
   const message = status !== 'STORE_PICKING' ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng' : '';
 
-  const productFulfillError = orderPickProductsFlat.filter((item: Product) => Number(item.quantity || 0) !== Number(item.pickedQuantity || 0));
+  const productFulfillError = orderPickProductsFlat.filter((item: OrderItem) => Number(item.quantity || 0) !== Number(item.pickedQuantity || 0));
 
   const onConfirm = () => {
     hideAlert();

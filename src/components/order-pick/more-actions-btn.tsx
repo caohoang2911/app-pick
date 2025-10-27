@@ -8,7 +8,7 @@ import { setActionProduct, setCurrentId, setIsEditManual, setIsVisibleReplacePro
 import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 
 const actions = [
   {
@@ -56,7 +56,7 @@ const MoreActionsBtn = ({
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   
-  const currentProduct = orderPickProductsFlat.find((product: Product) => Number(product.id) === Number(id));
+  const currentProduct = orderPickProductsFlat.find((product: OrderItem) => Number(product.id) === Number(id));
 
   const { tags } = currentProduct || {};
 

@@ -26,7 +26,7 @@ import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderStatusValue } from '~/src/types/order';
-import { Product } from '~/src/types/product';
+import { OrderItem } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
@@ -263,7 +263,7 @@ const OrderPickProduct = memo(
     vendorName,
     pickingBarcode,
     statusOrder,
-  }: Partial<Product | any>) => {
+  }: Partial<OrderItem | any>) => {
     const { code } = useLocalSearchParams<{ code: string }>();
     const isShowAmountInput = useOrderPick.use.isShowAmountInput();
     const config = useConfig.use.config();
@@ -271,7 +271,7 @@ const OrderPickProduct = memo(
     const orderPickProducts = useOrderPick.use.orderPickProducts();
     const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
-    const indexById = orderPickProductsFlat?.findIndex((item: Product) => {
+    const indexById = orderPickProductsFlat?.findIndex((item: OrderItem) => {
       return item.id === id;
     });
 

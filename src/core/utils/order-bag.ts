@@ -1,5 +1,5 @@
 import { OrderBagCode, OrderBagItem, OrderBagLabel, OrderBagType } from "~/src/types/order-bag";
-import { Product, ProductItemGroup } from "~/src/types/product";
+import { OrderItem, ProductItemGroup } from "~/src/types/product";
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -39,10 +39,10 @@ export const transformOrderBags = (orderBags: OrderBagItem[]) => {
   return { DRY: dry, FROZEN: frozen, FRESH: fresh };
 }
 
-export const getOrderPickProductsFlat = (products: Array<Product | ProductItemGroup | any>): Array<Product> => { 
-  const productsFlat = products.flatMap((product: Product | ProductItemGroup | any) => {
+export const getOrderPickProductsFlat = (products: Array<OrderItem | ProductItemGroup | any>): Array<OrderItem> => { 
+  const productsFlat = products.flatMap((product: OrderItem | ProductItemGroup | any) => {
     return [...(product.elements || [])];
-  }) as Array<Product>;
+  }) as Array<OrderItem>;
 
   return [...productsFlat];
 }
@@ -80,7 +80,7 @@ export const handleScanBarcode = ({
   isEditManual,
   barcode,
 }: {
-  orderPickProductsFlat: Array<Product>;
+  orderPickProductsFlat: Array<OrderItem>;
   currentId: number | null;
   isEditManual: boolean;
   barcode: string;

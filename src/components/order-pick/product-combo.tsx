@@ -1,6 +1,6 @@
 import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { Product, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
 
 const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPickedTime}: {combo: ProductItemGroup, statusOrder: string, pickingBarcode: string, indexBarcodeWithoutPickedTime?: number}) => {
@@ -8,11 +8,11 @@ const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPi
   const { elementRatio }  = combo || {};
 
   const isPickDoneCombo = useMemo(() => {
-    return combo.elements?.filter((product: Product) => product.sellPrice).every((product: Product) => product.pickedTime);
+    return combo.elements?.filter((product: OrderItem) => product.sellPrice).every((product: OrderItem) => product.pickedTime);
   }, [combo.elements]);
 
   const pickedQuantityCombo = useMemo(() => {
-    return Math.min(...combo.elements?.filter((product: Product) => product.sellPrice).map((product: Product) => product.pickedQuantity ? product.pickedQuantity / elementRatio[product.barcode as string] : 0) || [0]);
+    return Math.min(...combo.elements?.filter((product: OrderItem) => product.sellPrice).map((product: OrderItem) => product.pickedQuantity ? product.pickedQuantity / elementRatio[product.barcode as string] : 0) || [0]);
   }, [combo.elements, elementRatio]);
 
 
@@ -27,7 +27,7 @@ const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPi
           </View>
         </View>
         <View className="gap-2 p-2">
-          {combo.elements?.map((product: Product, index: number) => (
+          {combo.elements?.map((product: OrderItem, index: number) => (
             <Fragment key={product.id || product.barcode || `combo-element-${index}`}>  
               <OrderPickProduct {...product} isHiddenTag statusOrder={statusOrder} pickingBarcode={pickingBarcode} indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime} />
             </Fragment>

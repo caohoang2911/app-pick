@@ -17,7 +17,7 @@ import { getRelativeTime } from '~/src/core/utils/moment';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Employee } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-pick';
-import { Product, ProductItemGroup } from '~/src/types/product';
+import { OrderItem, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import WaveButton from '../shared/WaveButton';
@@ -78,7 +78,7 @@ const Picker = ({picker}: {picker: {username: string, name: string}}) => {
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
   const totalPickedDone = useMemo(() => {
-    return orderPickProductsFlat?.filter((bag: Product | ProductItemGroup) => (bag as Product).pickedTime)?.length;
+    return orderPickProductsFlat?.filter((bag: OrderItem | ProductItemGroup) => (bag as OrderItem).pickedTime)?.length;
   }, [orderPickProductsFlat]);
 
   return (

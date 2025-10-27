@@ -1,7 +1,7 @@
 import { OrderStatus, OrderStatusValue } from './order';
-import { Product, ProductItemGroup } from './product';
+import { OrderItem, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
-import { ORDER_DELIVERY_TYPE, ORDER_DELIVEßRY_TYPE } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE } from '~/src/contants/order';
 
 export type DeliveryAddress = {
   city?: number;
@@ -48,8 +48,8 @@ export type OrderDelivery = {
   shippingDiscount?: number;
   storeCode?: string;
   storeAddress?: string;
-  items?: Product[];
-  itemGroups?: Array<Product | ProductItemGroup>;
+  items?: OrderItem[];
+  itemGroups?: Array<OrderItem | ProductItemGroup>;
 };
 
 export type LogOrder = {
