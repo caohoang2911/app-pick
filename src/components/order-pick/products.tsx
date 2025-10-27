@@ -96,12 +96,12 @@ const OrderPickProducts = () => {
 
   // Khởi tạo products từ API response
   useEffect(() => {
-    const productItemGroups = data?.data?.delivery?.productItemGroups;
-    if (productItemGroups) {
-      const tempArr = Object.values(productItemGroups).map((item: any) => item);
+    const itemGroups = data?.data?.delivery?.itemGroups;
+    if (itemGroups) {
+      const tempArr = Object.values(itemGroups).map((item: any) => item);
       setInitOrderPickProducts([...tempArr] as never[]);
     }
-  }, [data?.data?.delivery?.productItemGroups]);
+  }, [data?.data?.delivery?.itemGroups]);
 
   // Tối ưu hóa filter products bằng useMemo
   const filteredProducts = orderPickProducts;

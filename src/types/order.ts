@@ -41,7 +41,7 @@ export enum scheduleType {
   NOW = 'NOW',
 }
 
-export type OrderItem = {
+export type Order = {
   driverNote: string;
   statusName: string;
   orderTime: string;

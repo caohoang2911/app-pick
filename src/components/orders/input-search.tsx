@@ -14,7 +14,7 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
-import { OrderItem as OrderItemType } from '~/src/types/order';
+import { Order as OrderType } from '~/src/types/order';
 import { Badge } from '../Badge';
 import SearchableDropdown, {
   SearchableDropdownRef,
@@ -25,8 +25,7 @@ import OrderActionsBottomSheet, {
 
 const MIN_LENGTH_SEARCH = 3;
 
-const OrderItem = memo(({ item }: { item: OrderItemType }) => {
-  console.log('item', item);
+const OrderItem = memo(({ item }: { item: OrderType }) => {
   const [showActionsBottomSheet, setShowActionsBottomSheet] = useState(false);
   const actionsBottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
 

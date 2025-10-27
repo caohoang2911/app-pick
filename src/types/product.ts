@@ -8,19 +8,19 @@ export enum ProductLabelEnum {
 }
 
 export type ProductItemGroup = {
-  type: "COMBO" | "PRODUCT" | "GIFT_PACK";
+  type: 'COMBO' | 'PRODUCT' | 'GIFT_PACK';
   name: string;
   quantity: number;
   elementRatio: {
     [key: string]: number;
-  }  
+  };
   elements?: Array<Product>;
-}
+};
 
 export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 
 export type Product = {
-  type?: "GIFT";
+  type?: 'GIFT';
   id: number;
   substituteItems?: Array<Product>;
   pickedErrorType?: string;
@@ -50,5 +50,5 @@ export type Product = {
   pickedExtraQuantities?: {
     fullBoxQuantity?: number;
     openedBoxQuantity?: number;
-  }
+  };
 };

@@ -10,8 +10,6 @@ interface OrdersState {
   barcodeScanSuccess: string;
   keyword: string;
   barcodeScrollTo: string;
-  isShowConfirmationRemoveProductCombo: boolean;
-  productComboRemoveSelected: Product | null;
   orderPickProducts: Array<Product | ProductItemGroup>;
   quantityFromBarcode: number;
   scannedIds: Record<string, boolean>;
@@ -30,7 +28,6 @@ interface OrdersState {
   setBarcodeScrollTo: (barcode: string) => void;
   setInitOrderPickProducts: (data: Array<Product | ProductItemGroup>) => void;
   setOrderPickProduct: (product: Product) => void;
-  toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => void;
   setQuantityFromBarcode: (quantity: number) => void;
   setCurrentId: (id: number | null) => void;
   setReplacePickedProductId: (id: number) => void;
@@ -47,8 +44,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   barcodeScrollTo: '',
   orderPickProducts: [],
   barcodeScanSuccess: '',
-  isShowConfirmationRemoveProductCombo: false,
-  productComboRemoveSelected: null,
   quantityFromBarcode: 0,
   scannedIds: {},
   currentId: null,
@@ -86,9 +81,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   },
   setBarcodeScrollTo: (barcode: string) => {
     set({ barcodeScrollTo: barcode });
-  },
-  toggleConfirmationRemoveProductCombo: (isShowConfirmationRemoveProductCombo: boolean, product?: Product) => {
-    set({ isShowConfirmationRemoveProductCombo, productComboRemoveSelected: product });
   },
   setQuantityFromBarcode: (quantity: number) => {
     set({ quantityFromBarcode: quantity });
@@ -156,11 +148,6 @@ export const setCurrentId = (id: number | null) =>
 export const setQuantityFromBarcode = (quantity: number) =>
   _useOrderPick.getState().setQuantityFromBarcode(quantity);
 
-export const toggleConfirmationRemoveProductCombo = (isShowConfirmationRemoveProductCombo: boolean, product?: Product) =>
-  _useOrderPick.getState().toggleConfirmationRemoveProductCombo(isShowConfirmationRemoveProductCombo, product);
-
-export const getProductComboRemoveSelected = () =>
-  _useOrderPick.getState().productComboRemoveSelected;
 
 export const setIsEditManual = (isEditManual: boolean, action?: 'out-of-stock' | 'low-quality' | 'near-date') =>
   _useOrderPick.getState().setIsEditManual(isEditManual, action);

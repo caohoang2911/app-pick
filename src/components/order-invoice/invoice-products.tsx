@@ -34,20 +34,20 @@ const InvoiceProducts = () => {
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { delivery } = orderInvoice || {};
 
-  const { productItems } = delivery || {};
+  const { items: orderItems } = delivery || {};
 
   return (
     <View className='bg-white mx-4 mb-4' style={styles.box}>
-      {productItems?.map((item, index) => (
-        <React.Fragment key={item.barcode}>
+      {orderItems?.map((orderItem, index) => (
+        <React.Fragment key={orderItem.barcode}>
           <ProductItem 
-            image={item.image || ''}
-            name={item.name || ''}
-            quantity={item.quantity}
-            unit={item.unit || ''}
-            barcode={item.barcode || ''}
+            image={orderItem.image || ''}
+            name={orderItem.name || ''}
+            quantity={orderItem.quantity}
+            unit={orderItem.unit || ''}
+            barcode={orderItem.barcode || ''}
           />
-          {index < productItems.length - 1 && <View className='border-b border-gray-200' />}
+          {index < orderItems.length - 1 && <View className='border-b border-gray-200' />}
         </React.Fragment>
       ))}
     </View>

@@ -1,9 +1,7 @@
 import React, { Fragment, useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { toggleConfirmationRemoveProductCombo } from '~/src/core/store/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
-import { ProductComboConfirmation } from './product-combo-cofirmation';
 
 const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPickedTime}: {combo: ProductItemGroup, statusOrder: string, pickingBarcode: string, indexBarcodeWithoutPickedTime?: number}) => {
 
@@ -36,8 +34,6 @@ const ProductCombo = ({combo, statusOrder, pickingBarcode, indexBarcodeWithoutPi
           ))}
         </View>
       </View>
-      {/*BOTTOM SHEET CONFIRMATION REMOVE PRODUCT COMBO */}
-      <ProductComboConfirmation />
     </>
   );
 };

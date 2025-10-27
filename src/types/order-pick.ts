@@ -48,8 +48,8 @@ export type OrderDelivery = {
   shippingDiscount?: number;
   storeCode?: string;
   storeAddress?: string;
-  productItems?: Product[];
-  productItemGroups?: Array<Product | ProductItemGroup>;
+  items?: Product[];
+  itemGroups?: Array<Product | ProductItemGroup>;
 };
 
 export type LogOrder = {

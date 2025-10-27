@@ -16,7 +16,7 @@ import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
-import { OrderItem as OrderItemType } from '~/src/types/order';
+import { Order } from '~/src/types/order';
 import { Badge } from '../Badge';
 import MoreActionsBtn from './more-actions-btn';
 
@@ -89,7 +89,7 @@ const OrderItem = ({
   bagLabels,
   storeCode,
   shortCode,
-}: OrderItemType) => {
+}: Order) => {
   const router = useRouter();
 
   const config = useConfig.use.config();

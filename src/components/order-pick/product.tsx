@@ -88,12 +88,12 @@ const Row = memo(
 // Memoize expensive Badge components
 const TagsBadges = memo(({ tags }: { tags: string[] }) => {
   const configs = useConfig.use.config();
-  const orderProductItemTags = configs?.orderProductItemTags || [];
+  const orderItemTags = configs?.orderItemTags || [];
 
   return (
     <View className="flex flex-row flex-wrap gap-2 items-stretch w-full">
       {tags?.map((tag: string, index: number) => {
-        const tagName = getConfigNameById(orderProductItemTags, tag);
+        const tagName = getConfigNameById(orderItemTags, tag);
         return (
           <Badge
             key={`${tag}-${index}`}
