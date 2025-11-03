@@ -79,22 +79,6 @@ const EmptyComponent = memo(({ isFetching }: { isFetching: boolean }) => {
   return null;
 });
 
-// Component to handle default tab initialization based on user role
-const DefaultTabInitializer = memo(() => {
-  const isDriver = useRoleDriver();
-  const selectedOrderCounter = useOrders.use.selectedOrderCounter();
-
-  useEffect(() => {
-    if (isDriver) {
-      setSelectedOrderCounter("ALL");
-    } else if (!isDriver) {
-      setSelectedOrderCounter('CONFIRMED');
-    }
-  }, [isDriver]);
-
-  return null; // This component doesn't render anything
-});
-
 const OrderList = () => {
   // References
   const flatListRef = useRef<FlatList>(null);

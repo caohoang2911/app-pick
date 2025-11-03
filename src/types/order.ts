@@ -62,6 +62,7 @@ export type Order = {
   deliveryAddress: {
     fullAddress: string;
   };
+  maxPickingTime: number;
   picker: {
     username: string;
     name: string;

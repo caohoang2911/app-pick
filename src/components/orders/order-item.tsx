@@ -18,6 +18,7 @@ import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Order } from '~/src/types/order';
 import { Badge } from '../Badge';
+import CountdownTimer from '../shared/count-down-timer';
 import MoreActionsBtn from './more-actions-btn';
 
 const RowWithLabel = memo(
@@ -31,25 +32,29 @@ const RowWithLabel = memo(
   }: {
     icon: React.ReactNode;
     label: string;
-    value: string;
+    value: string | React.ReactNode;
     pickedItemProgress?: number;
     bagsSize?: number;
     numberOfLines?: number;
   }) => {
     return (
-      <View className="flex flex-row gap-1">
+      <View className="flex flex-row gap-1 items-center">
         <View className="mr-2 -mt-0.5">{icon}</View>
         <View style={{ width: 72 }}>
           <Text className="text-gray-500">{label}</Text>
         </View>
-        <Text
-          className="font-medium"
-          numberOfLines={numberOfLines || 1}
-          style={{ maxWidth: pickedItemProgress ? '60%' : '68%' }}
-          ellipsizeMode="tail"
-        >
-          {value}
-        </Text>
+        {typeof value === 'string' ? (
+          <Text
+            className="font-medium"
+            numberOfLines={numberOfLines || 1}
+            style={{ maxWidth: pickedItemProgress ? '60%' : '68%' }}
+            ellipsizeMode="tail"
+          >
+            {value}
+          </Text>
+        ) : (
+          <>{value}</>
+        )}
         {pickedItemProgress && (
           <View className="flex flex-row ml-auto gap-1 items-center">
             <Text className="text-sm text-gray-500">Pick</Text>
@@ -85,6 +90,7 @@ const OrderItem = ({
   lastTimeUpdateStatus,
   deliveryAddress,
   picker,
+  maxPickingTime,
   pickedItemProgress,
   bagLabels,
   storeCode,
@@ -131,6 +137,8 @@ const OrderItem = ({
     return [pickerNote];
   }, [driverNote, pickerNote, deliveryType, isDriver]);
 
+  const maxPickingTimeRemaining = maxPickingTime - moment().valueOf();
+
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1">
       <View className="rounded-md border-bgPrimary border overflow-hidden">
@@ -140,7 +148,7 @@ const OrderItem = ({
               {code}
             </Text>
             {/* <Text className="text-xs" numberOfLines={1} ellipsizeMode="tail">{shortCode || 'GEAT332'}</Text> */}
-            {shortCode && <Badge label={shortCode} variant="warning"/>}
+            {shortCode && <Badge label={shortCode} variant="warning" />}
             {groupShippingCode && (
               <Badge label={groupShippingCode} variant="warning" />
             )}
@@ -225,10 +233,24 @@ const OrderItem = ({
             icon={<Feather name="package" size={18} color="gray" />}
             label="NV pick"
             value={
-              shouldShowassignee ? `${picker?.name && `${picker?.name}`}` : '--'
+              shouldShowassignee ? (
+                `${picker?.name && `${picker?.name}`}`
+              ) : (
+                <>
+                  {maxPickingTime && (
+                    <CountdownTimer
+                      size="sm"
+                      autoStart
+                      containerStyle={{ flex: 1 }}
+                      initialMilliseconds={maxPickingTimeRemaining}
+                    />
+                  )}
+                </>
+              )
             }
             pickedItemProgress={pickedItemProgress}
           />
+
           {tags?.length > 0 && (
             <View className="pt-1 flex flex-row gap-1 flex-wrap">
               {tags?.map((tag: string, index: number) => {
@@ -259,7 +281,10 @@ const OrderItem = ({
                 className="px-3 py-2 flex gap-1 bg-orange-400 odd:border-b w-full odd:border-gray-200"
               >
                 {newNotes?.map((newNote) => (
-                  <Text key={newNote} className="text-base font-semibold text-white ">
+                  <Text
+                    key={newNote}
+                    className="text-base font-semibold text-white "
+                  >
                     {newNote?.trim()}
                   </Text>
                 ))}
