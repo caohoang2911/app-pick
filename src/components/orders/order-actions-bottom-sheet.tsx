@@ -7,12 +7,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 import { isEnableScanToDelivery } from '~/src/core/utils/order';
 import { OrderStatus } from '~/src/types/order';
+import { ORDER_DELIVERY_TYPE } from '~/src/contants/order';
 
 interface OrderActionsBottomSheetProps {
   orderCode: string;
   orderStatus?: string;
   orderType?: string;
   status?: string;
+  deliveryType?: string;
   visible: boolean;
   onClose: () => void;
 }
@@ -23,7 +25,7 @@ export interface OrderActionsBottomSheetRef {
 }
 
 const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActionsBottomSheetProps>(
-  ({ orderCode, status, visible, onClose }, ref) => {
+  ({ orderCode, status, deliveryType, visible, onClose }, ref) => {
     const bottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
 
     const {
@@ -141,9 +143,9 @@ const OrderActionsBottomSheet = forwardRef<OrderActionsBottomSheetRef, OrderActi
               />
               <ActionItem
                 icon="package"
-                title="Scan túi - Giao hàng"
+                title="Scan túi - Giao hàng tại siêu thị"
                 onPress={handleScanBagDeliveryWithClose}
-                enabled={isEnableScanToDelivery({ status: status as OrderStatus })}
+                enabled={isEnableScanToDelivery({ status: status as OrderStatus, deliveryType: deliveryType as ORDER_DELIVERY_TYPE })}
               />
             </>
           )}

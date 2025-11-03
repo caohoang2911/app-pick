@@ -29,7 +29,7 @@ const OrderScanToDelivery = () => {
     () => {
       setLoading(false);
       setCompleteUploadedImages('', true);
-      router.push(`/orders/order-invoice/${code}`);
+      router.push(`/orders`);
     }
   );
 

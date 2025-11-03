@@ -2,7 +2,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { useRouter } from 'expo-router';
 import { isEmpty, toLower } from 'lodash';
 import moment from 'moment';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { Fragment, memo, useCallback, useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import Feather from '@expo/vector-icons/Feather';
@@ -127,14 +127,14 @@ const OrderItem = ({
 
   const notes = useMemo(() => {
     if (isDriver) {
-      return [driverNote];
+      return [driverNote].filter(Boolean);
     }
 
     if (deliveryType === ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY) {
-      return [pickerNote, driverNote];
+      return [pickerNote, driverNote].filter(Boolean);
     }
 
-    return [pickerNote];
+    return [pickerNote].filter(Boolean);
   }, [driverNote, pickerNote, deliveryType, isDriver]);
 
   const maxPickingTimeRemaining = maxPickingTime - moment().valueOf();
@@ -271,31 +271,34 @@ const OrderItem = ({
             </View>
           )}
         </View>
-        {notes.length > 0 &&
-          notes.map((note, index) => {
-            if (isEmpty(note)) return null;
-            const newNotes = note.trim().split('\\n');
-            return (
-              <View
-                key={index}
-                className="px-3 py-2 flex gap-1 bg-orange-400 odd:border-b w-full odd:border-gray-200"
-              >
-                {newNotes?.map((newNote) => (
-                  <Text
-                    key={newNote}
-                    className="text-base font-semibold text-white "
-                  >
-                    {newNote?.trim()}
-                  </Text>
-                ))}
-              </View>
-            );
-          })}
+        {notes.length > 0 && (
+          <View className="px-3 py-2 flex bg-orange-500 odd:border-b w-full odd:border-gray-200">
+            {notes.map((note, index) => {
+              if (isEmpty(note)) return null;
+              const newNotes = note.trim().split('\\n');
+              return (
+                <Fragment key={index}>
+                  {newNotes?.map((newNote) => (
+                    <View key={newNote} className="flex flex-row items-center">
+                      <View className="size-1.5 bg-white rounded-full mr-2" />
+                      <Text className="text-base font-semibold text-white ">
+                        {newNote?.trim()}
+                      </Text>
+                    </View>
+                  ))}
+                </Fragment>
+              );
+            })}
+          </View>
+        )}
         {fulfillError?.type && (
           <View className="px-3 py-2 rounded-b flex flex-row items-center gap-1 bg-red-400">
-            <Text className="text-base font-semibold text-white">
-              {fulfillErrorTypeDisplay}
-            </Text>
+            <View className="flex flex-row items-center">
+              <View className="size-1.5 bg-white rounded-full mr-2" />
+              <Text className="text-base font-semibold text-white">
+                {fulfillErrorTypeDisplay}
+              </Text>
+            </View>
           </View>
         )}
       </View>

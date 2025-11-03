@@ -108,7 +108,7 @@ const OrderScanToDelivery = () => {
             loading={isLoadingStartSelfShipping}
             onPress={handleStartDelivery}
             disabled={!isAllDone}
-            label={"Bắt đầu giao hàng"}
+            label={!isAllDone ? "Scan QR túi để giao hàng" : "Bắt đầu giao hàng"}
           />
         </View>
       </View>

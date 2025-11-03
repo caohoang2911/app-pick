@@ -3,7 +3,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { ORDER_STATUS } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE, ORDER_STATUS } from '~/src/contants/order';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';
@@ -57,8 +57,8 @@ const HeaderActionBtn = () => {
         : [
             {
               key: 'scan-bag',
-              title: 'Scan túi - Giao hàng',
-              enabled: isEnableScanToDelivery({ status }),
+              title: 'Scan túi - Giao hàng tại siêu thị',
+              enabled: isEnableScanToDelivery({ status, deliveryType: deliveryType as ORDER_DELIVERY_TYPE }),
               icon: <QRScanLine />,
             },
             {
@@ -71,7 +71,7 @@ const HeaderActionBtn = () => {
               ),
             },
           ],
-    [code, isShipping, isStorePackaged]
+    [code, isShipping, isStorePackaged, deliveryType]
   );
 
   const renderItem = ({

@@ -57,7 +57,9 @@ const Row = memo(
         </View>
         <View className="flex-row" style={styles.valueColumn}>
           <Text
-            className={`font-medium ${warning ? 'text-red-500' : ''} ${originOrderQuantity ? 'text-gray-500' : ''}`}
+            className={`font-medium ${warning ? 'text-red-500' : ''} ${
+              originOrderQuantity ? 'text-gray-500' : ''
+            }`}
             numberOfLines={1}
           >
             {value}
@@ -65,9 +67,7 @@ const Row = memo(
         </View>
         <View className={`flex-row`} style={styles.unitColumn}>
           {unit && (
-            <Text className={`font-medium ${unitColorClass}`}>
-              {unit}
-            </Text>
+            <Text className={`font-medium ${unitColorClass}`}>{unit}</Text>
           )}
         </View>
         {originOrderQuantity && (
@@ -116,19 +116,34 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => {
 });
 
 // Error message component
-const WarningMessage = memo(({ errorName, isLast = false }: { errorName: string | React.ReactNode; isLast?: boolean }) => (
-  <View className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`} style={{ backgroundColor: '#FFA500' }}>
-    <View className="flex">
-      {typeof errorName === 'string' ? <Text className="text-white font-semibold text-sm">{errorName}</Text> : errorName}
+const WarningMessage = memo(
+  ({
+    errorName,
+    isLast = false,
+  }: {
+    errorName: string | React.ReactNode;
+    isLast?: boolean;
+  }) => (
+    <View
+      className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}
+      style={{ backgroundColor: '#FFA500' }}
+    >
+      <View className="flex flex-row items-center">
+        <View className="size-1.5 bg-white rounded-full mr-2" />
+        {typeof errorName === 'string' ? (
+          <Text className="text-white font-semibold text-sm">{errorName}</Text>
+        ) : (
+          errorName
+        )}
+      </View>
     </View>
-  </View>
-));
+  )
+);
 
 // Product Header component
 const ProductHeader = memo(
   ({
     name,
-    pickedTime,
     isGift,
     code,
     id,
@@ -426,7 +441,9 @@ const OrderPickProduct = memo(
               </View>
             </View>
           </View>
-          {Boolean(pickedErrorName || isWarningOverQuantity || originOrderQuantity) && (
+          {Boolean(
+            pickedErrorName || isWarningOverQuantity || originOrderQuantity
+          ) && (
             <View className="flex w-full flex-grow mt-3">
               {pickedErrorName && (
                 <WarningMessage errorName={pickedErrorName} />
@@ -441,7 +458,12 @@ const OrderPickProduct = memo(
               {originOrderQuantity && (
                 <WarningMessage
                   isLast={true}
-                  errorName={<Text className="text-white font-semibold text-sm">Vui lòng pick theo số lượng <Text className="font-bold">{originOrderQuantity}</Text></Text>}
+                  errorName={
+                    <Text className="text-white font-semibold text-sm">
+                      Vui lòng pick theo số lượng{' '}
+                      <Text className="font-bold">{originOrderQuantity}</Text>
+                    </Text>
+                  }
                 />
               )}
             </View>
@@ -497,7 +519,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: (Dimensions.get('window').width - 32) / 3,
-    aspectRatio: 1,  
+    aspectRatio: 1,
   },
   labelColumn: { width: '30%' },
   valueColumn: { width: '25%' },

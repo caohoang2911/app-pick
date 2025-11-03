@@ -17,7 +17,7 @@ import { Linking, Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { ORDER_STATUS } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE, ORDER_STATUS } from '~/src/contants/order';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { BillLine, PrintLine, QRScanLine } from '~/src/core/svgs';
 import { isEnableScanToDelivery } from '~/src/core/utils/order';
@@ -213,8 +213,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       },
       {
         key: 'scan-bag',
-        title: 'Scan túi - Giao hàng',
-        enabled: isEnableScanToDelivery({ status }),
+        title: 'Scan túi - Giao hàng tại siêu thị',
+        enabled: isEnableScanToDelivery({ status, deliveryType: deliveryType as ORDER_DELIVERY_TYPE }),
         icon: <QRScanLine />,
       },
       {

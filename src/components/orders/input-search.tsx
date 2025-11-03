@@ -106,6 +106,7 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
         orderStatus={item.status}
         orderType={item.type}
         status={item.status}
+        deliveryType={item.deliveryType}
         visible={showActionsBottomSheet}
         onClose={handleCloseActionsBottomSheet}
       />
