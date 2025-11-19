@@ -53,12 +53,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
+          <Text style={styles.errorTitle}>Có lỗi xảy ra</Text>
           <Text style={styles.errorMessage}>
-            {this.state.error?.message || 'An unexpected error occurred'}
+            {this.state.error?.message || 'Có lỗi xảy ra'}
           </Text>
           <Text style={styles.errorHint}>
-            Please restart the app or contact support if the problem persists.
+            Vui lòng khởi động lại ứng dụng hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp diễn.
           </Text>
         </View>
       );
