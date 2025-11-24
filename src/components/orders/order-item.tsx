@@ -280,8 +280,8 @@ const OrderItem = ({
                 <Fragment key={index}>
                   {newNotes?.map((newNote) => (
                     <View key={newNote} className="flex flex-row items-center">
-                      <View className="size-1.5 bg-white rounded-full mr-2" />
-                      <Text className="text-base font-semibold text-white ">
+                      <View className="size-1.5 bg-white rounded-full mr-2 self-start mt-2.5" />
+                      <Text className="text-base font-semibold text-white">
                         {newNote?.trim()}
                       </Text>
                     </View>

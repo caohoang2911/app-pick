@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -24,14 +25,25 @@ function PrintPreview() {
   const [connected, setConnected] = useState(false);
 
   const orderBags = useOrderBag.use.orderBags();
-  const { code, type, bagCode} = useLocalSearchParams<{ code?: string, type?: string, bagCode?: string }>();
-  const findBagLabel = orderBags[type as OrderBagType]?.find((item: any) => item.code === bagCode);
+  const { code, type, bagCode } = useLocalSearchParams<{
+    code?: string;
+    type?: string;
+    bagCode?: string;
+  }>();
+  const findBagLabel = orderBags[type as OrderBagType]?.find(
+    (item: any) => item.code === bagCode
+  );
 
-  const orderBagsMerged = [...orderBags.DRY, ...orderBags.FRESH,  ...orderBags.FROZEN];
+  const orderBagsMerged = [
+    ...orderBags.DRY,
+    ...orderBags.FRESH,
+    ...orderBags.FROZEN,
+  ];
 
-  const bagLabelsPrint = bagCode ? [{...findBagLabel}] : orderBagsMerged;
+  const bagLabelsPrint = bagCode ? [{ ...findBagLabel }] : orderBagsMerged;
 
   const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(() => {
+    router.back();
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   });
 
@@ -41,7 +53,7 @@ function PrintPreview() {
   const stores = config?.stores || [];
 
   const user = useAuth.use.userInfo();
-  const { storeCode } = user || {}
+  const { storeCode } = user || {};
 
   const store: any = stores.find((store: any) => store.id === storeCode);
   const { printerIp } = store || {};
@@ -63,25 +75,27 @@ function PrintPreview() {
   const printArrayData = data?.data || [];
 
   useEffect(() => {
-    if(!host) {
+    if (!host) {
       showAlertError();
       return;
     }
 
-    setLoading(true, connected ? "Đang xử lý ..." : "Đang kết nối máy in ...");
+    setLoading(true, connected ? 'Đang xử lý ...' : 'Đang kết nối máy in ...');
   }, [connected, host]);
 
   useEffect(() => {
-    if(result.length === 0) return;
-    
-    if(result.length === bagLabelsPrint.length && connected) {
-      const resultsBase64WithSorted = result.sort((a: any, b: any) => a.index - b.index).map((item: any) => item.uri);
+    if (result.length === 0) return;
+
+    if (result.length === bagLabelsPrint.length && connected) {
+      const resultsBase64WithSorted = result
+        .sort((a: any, b: any) => a.index - b.index)
+        .map((item: any) => item.uri);
       genRongtaPrintData({ base64Images: resultsBase64WithSorted });
     }
   }, [result, connected]);
 
   const showAlertError = useCallback(() => {
-    showAlert({ 
+    showAlert({
       message: `Chưa cài đặt máy in`,
       onConfirm: () => {
         router.back();
@@ -94,14 +108,14 @@ function PrintPreview() {
   }, [host]);
 
   useEffect(() => {
-    if(!host) return;
+    if (!host) return;
 
     let timer: any;
-    
+
     try {
       refClient.current = TcpSocket.createConnection(options, () => {
         console.log('Connected to the server');
-        if(timer) {
+        if (timer) {
           clearTimeout(timer);
         }
         setConnected(true);
@@ -111,7 +125,7 @@ function PrintPreview() {
         console.log('close');
         setLoading(false);
         setConnected(false);
-        showAlert({ 
+        showAlert({
           message: `Không thể kết nối với máy in ${host}. Vui lòng kiểm tra lại.`,
           onConfirm: () => {
             router.back();
@@ -121,7 +135,6 @@ function PrintPreview() {
           isHideCancelButton: true,
         });
       }, TIMEOUT_CONNECT_PRINTER);
-      
     } catch (error) {
       console.log(error);
       setConnected(false);
@@ -131,49 +144,53 @@ function PrintPreview() {
       refClient.current.destroy();
       setLoading(false);
       setResult([]);
-      if(timer) {
+      if (timer) {
         clearTimeout(timer);
       }
-    }
+    };
   }, [host]);
 
   useEffect(() => {
-    if(data && connected) {
-      printArrayData.forEach((item: any) => {
-        const printData = new Uint8Array(item);
-        refClient.current.write(printData);
+    if (isEmpty(printArrayData) || !connected || !code || isEmpty(bagLabelsPrint)) return;
+
+    printArrayData.forEach((item: any) => {
+      const printData = new Uint8Array(item);
+      refClient.current.write(printData);
+    });
+
+    setTimeout(() => {
+      setOrderPrintedBagLabel({
+        orderCode: code,
+        labelCodes: bagLabelsPrint.map((item: any) => item.code),
       });
-      setTimeout(() => {
-        router.back();
-        if(code) {
-          setOrderPrintedBagLabel({ orderCode: code, labelCodes: bagLabelsPrint.map((item: any) => item.code) });
-        }
-        refClient.current.destroy();
-      }, 1000);
-    }
-  }, [data, connected]);
+
+      refClient.current.destroy();
+    }, 1000);
+  }, [connected, code, printArrayData, bagLabelsPrint]);
 
   return (
-    <View style={{ padding: 10}} >
-       <ScrollView>
-          <View className='gap-3'>
-            {bagLabelsPrint.slice(0, done + 1)?.map((item: any, index: number) => (
+    <View style={{ padding: 10 }}>
+      <ScrollView>
+        <View className="gap-3">
+          {bagLabelsPrint
+            .slice(0, done + 1)
+            ?.map((item: any, index: number) => (
               <LabelPrintTemplate
                 {...item}
                 setUri={(uri: string) => {
                   setIsDone(done + 1);
                   handleSetUri(uri, index);
                 }}
-                key={index} 
+                key={index}
                 index={index}
                 bagLabelsPrint={bagLabelsPrint}
                 total={bagLabelsPrint.length}
               />
             ))}
-          </View>
-       </ScrollView>
+        </View>
+      </ScrollView>
     </View>
-  )
+  );
 }
 
 export default PrintPreview;
