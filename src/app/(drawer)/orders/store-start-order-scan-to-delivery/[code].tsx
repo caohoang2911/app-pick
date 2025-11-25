@@ -17,6 +17,7 @@ import { getIsScanQrCodeProduct, scanQrCodeSuccess, setStoreStartOrderDetail, to
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
+import { useIssueInvoice } from '~/src/api/app-pick/use-issue-invoice';
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
@@ -50,6 +51,11 @@ const OrderScanToDelivery = () => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   });
 
+  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } = useIssueInvoice( () => {
+    startSelfShipping({ orderCode: code });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  });
+
   const isAllDone = useMemo(() => {
 
     return orderBags.every((bag) => bag.isDone || bag.lastScannedTime)
@@ -65,11 +71,11 @@ const OrderScanToDelivery = () => {
 
   const handleStartDelivery = () => {
     showAlert({
-      title: 'Giao hàng?',
-      message: 'Bạn có chắc chắn bắt đầu giao hàng?',
+      title: 'Xuất hóa đơn & giao hàng?',
+      message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
       onConfirm: () => {
         hideAlert();
-        startSelfShipping({ orderCode: code });
+        issueInvoice({ orderCode: code });
       }
     });
   }
@@ -105,10 +111,10 @@ const OrderScanToDelivery = () => {
       <View className="border-t border-gray-200 pb-4">
         <View className="px-4 py-3 bg-white ">
           <Button
-            loading={isLoadingStartSelfShipping}
+            loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
             onPress={handleStartDelivery}
             disabled={!isAllDone}
-            label={!isAllDone ? "Scan QR túi để giao hàng" : "Bắt đầu giao hàng"}
+            label={!isAllDone ? "Scan QR túi để giao hàng" : "Xuất hóa đơn & bắt đầu giao hàng"}
           />
         </View>
       </View>

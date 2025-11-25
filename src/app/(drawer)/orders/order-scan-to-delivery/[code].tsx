@@ -18,15 +18,21 @@ import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';
 import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import { useIssueInvoice } from '~/src/api/app-pick/use-issue-invoice';
+import { hideAlert, showAlert as showAlertDialog} from '~/src/core/store/alert-dialog';
 
 const ACTION_TYPE = {
-  HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
-  HANDOVER_TO_SHIPPER: 'Xác nhận giao cho tài xế',
+  HANDOVER_TO_CUSTOMER: 'Xuất hóa đơn & cho khách',
+  HANDOVER_TO_SHIPPER: 'Xuất hóa đơn & giao cho tài xế',
   DISABLE: 'Chưa thể giao hàng',
 }
   
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+
+  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } = useIssueInvoice( () => {
+    handoverOrder({ orderCode: code, proofImages: uploadedImages });
+  });
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -34,7 +40,6 @@ const OrderScanToDelivery = () => {
 
   useEffect(() => {
     if(data?.data) {
-      console.log(data?.data, "data?.data");
       setOrderDetail(data?.data || {});
     }
   }, [data]);
@@ -77,7 +82,14 @@ const OrderScanToDelivery = () => {
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
   const handleCheckoutOrderBags = () => {
-    handoverOrder({ orderCode: code, proofImages: uploadedImages });
+    showAlertDialog({
+      title: 'Xuất hóa đơn?',
+      message: 'Bạn có chắc chắn xuất hóa đơn?',
+      onConfirm: () => {
+        hideAlert();
+        issueInvoice({ orderCode: code });
+      },
+    });
   }
 
   const  disableByStatus = useMemo(() => {
@@ -110,7 +122,7 @@ const OrderScanToDelivery = () => {
     if(!orderBags.length && isPending) return null;
     return isAllDone ? (
       <Button
-        loading={isLoadingHandoverOrder}
+        loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
         onPress={handleCheckoutOrderBags}
         label={actionType}
         disabled={handoverStatus === "DISABLE"}
