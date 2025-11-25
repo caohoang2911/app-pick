@@ -33,9 +33,13 @@ function PrintPreview() {
 
   const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(() => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    setTimeout(() => {
+      router.back();
+    }, 300);
   });
 
   const refClient = useRef<any>(null);
+  const hasPrintedRef = useRef<boolean>(false);
 
   const config = useConfig.use.config();
   const stores = config?.stores || [];
@@ -131,6 +135,7 @@ function PrintPreview() {
       refClient.current.destroy();
       setLoading(false);
       setResult([]);
+      hasPrintedRef.current = false;
       if(timer) {
         clearTimeout(timer);
       }
@@ -138,18 +143,51 @@ function PrintPreview() {
   }, [host]);
 
   useEffect(() => {
-    if(data && connected) {
-      printArrayData.forEach((item: any) => {
-        const printData = new Uint8Array(item);
-        refClient.current.write(printData);
+    if(data && connected && !hasPrintedRef.current) {
+      hasPrintedRef.current = true;
+      
+      let timeoutIds: any[] = [];
+      let isCancelled = false;
+      
+      // Tạo Promise cho mỗi item để đợi tất cả hoàn thành
+      const writePromises = printArrayData.map((item: any, index: number) => {
+        return new Promise<void>((resolve) => {
+          const printData = new Uint8Array(item);
+          const timeoutId = setTimeout(() => {
+            if (!isCancelled && refClient.current) {
+              refClient.current.write(printData);
+            }
+            resolve();
+          }, 100 * (index + 1)); // Delay tăng dần: 100ms, 200ms, 300ms...
+          timeoutIds.push(timeoutId);
+        });
       });
-      setTimeout(() => {
-        router.back();
-        if(code) {
-          setOrderPrintedBagLabel({ orderCode: code, labelCodes: bagLabelsPrint.map((item: any) => item.code) });
-        }
-        refClient.current.destroy();
-      }, 1000);
+      
+      // Đợi tất cả các write hoàn thành
+      Promise.all(writePromises).then(() => {
+        if (isCancelled) return;
+        
+        const timeoutId1 = setTimeout(() => {
+          if (isCancelled) return;
+          if(code) {
+            setOrderPrintedBagLabel({ orderCode: code, labelCodes: bagLabelsPrint.map((item: any) => item.code) });
+          }
+          // Đóng socket sau khi đảm bảo dữ liệu đã được gửi xong
+          const timeoutId2 = setTimeout(() => {
+            if (!isCancelled && refClient.current) {
+              refClient.current.destroy();
+            }
+          }, 300); // Delay thêm để đảm bảo dữ liệu được gửi đến máy in
+          timeoutIds.push(timeoutId2);
+        }, 500); // Delay thêm 500ms sau khi tất cả write xong
+        timeoutIds.push(timeoutId1);
+      });
+      
+      // Cleanup function
+      return () => {
+        isCancelled = true;
+        timeoutIds.forEach(id => clearTimeout(id));
+      };
     }
   }, [data, connected]);
 
