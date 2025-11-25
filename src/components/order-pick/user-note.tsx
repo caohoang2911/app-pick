@@ -17,8 +17,8 @@ const UserNote = () => {
   return (
     <View className="mx-4 px-3 mb-3 py-2 rounded flex bg-orange-400">
       {lines.map((line) => (
-        <View key={line} className="flex flex-row items-center">
-          <View className="size-1.5 bg-white rounded-full mr-2" />
+        <View key={line} className="flex flex-row">
+          <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5" />
           <Text className="text-base font-semibold text-white">
             {line.trim()}
           </Text>
