@@ -40,6 +40,8 @@ function PrintPreview() {
 
   const refClient = useRef<any>(null);
   const hasPrintedRef = useRef<boolean>(false);
+  const timeoutIdsRef = useRef<any[]>([]);
+  const isCancelledRef = useRef<boolean>(false);
 
   const config = useConfig.use.config();
   const stores = config?.stores || [];
@@ -104,18 +106,15 @@ function PrintPreview() {
     
     try {
       refClient.current = TcpSocket.createConnection(options, () => {
-        console.log('Connected to the server');
-        if(timer) {
+        if (timer) {
           clearTimeout(timer);
         }
         setConnected(true);
       });
 
       timer = setTimeout(() => {
-        console.log('close');
         setLoading(false);
-        setConnected(false);
-        showAlert({ 
+        showAlert({
           message: `Không thể kết nối với máy in ${host}. Vui lòng kiểm tra lại.`,
           onConfirm: () => {
             router.back();
@@ -127,12 +126,17 @@ function PrintPreview() {
       }, TIMEOUT_CONNECT_PRINTER);
       
     } catch (error) {
-      console.log(error);
       setConnected(false);
     }
 
     return () => {
-      refClient.current.destroy();
+      try {
+        if (refClient.current) {
+          refClient.current.destroy();
+        }
+      } catch (error) {
+        // Ignore cleanup errors
+      }
       setLoading(false);
       setResult([]);
       hasPrintedRef.current = false;
@@ -143,53 +147,78 @@ function PrintPreview() {
   }, [host]);
 
   useEffect(() => {
-    if(data && connected && !hasPrintedRef.current) {
-      hasPrintedRef.current = true;
-      
-      let timeoutIds: any[] = [];
-      let isCancelled = false;
-      
-      // Tạo Promise cho mỗi item để đợi tất cả hoàn thành
-      const writePromises = printArrayData.map((item: any, index: number) => {
-        return new Promise<void>((resolve) => {
-          const printData = new Uint8Array(item);
-          const timeoutId = setTimeout(() => {
-            if (!isCancelled && refClient.current) {
-              refClient.current.write(printData);
-            }
-            resolve();
-          }, 100 * (index + 1)); // Delay tăng dần: 100ms, 200ms, 300ms...
-          timeoutIds.push(timeoutId);
-        });
-      });
-      
-      // Đợi tất cả các write hoàn thành
-      Promise.all(writePromises).then(() => {
-        if (isCancelled) return;
-        
-        const timeoutId1 = setTimeout(() => {
-          if (isCancelled) return;
-          if(code) {
-            setOrderPrintedBagLabel({ orderCode: code, labelCodes: bagLabelsPrint.map((item: any) => item.code) });
-          }
-          // Đóng socket sau khi đảm bảo dữ liệu đã được gửi xong
-          const timeoutId2 = setTimeout(() => {
-            if (!isCancelled && refClient.current) {
-              refClient.current.destroy();
-            }
-          }, 300); // Delay thêm để đảm bảo dữ liệu được gửi đến máy in
-          timeoutIds.push(timeoutId2);
-        }, 500); // Delay thêm 500ms sau khi tất cả write xong
-        timeoutIds.push(timeoutId1);
-      });
-      
-      // Cleanup function
-      return () => {
-        isCancelled = true;
-        timeoutIds.forEach(id => clearTimeout(id));
-      };
+    if (!printArrayData || !printArrayData.length || !connected || hasPrintedRef.current) {
+      return;
     }
-  }, [data, connected]);
+    hasPrintedRef.current = true;
+    isCancelledRef.current = false;
+
+    // 1. Marker: Đánh dấu đã in TRƯỚC KHI bắt đầu gửi
+    if (code) {
+      setOrderPrintedBagLabel({
+        orderCode: code,
+        labelCodes: bagLabelsPrint.map((item: any) => item.code),
+      });
+    }
+
+    // 2. Send data: Gửi data tới máy in
+    const writePromises = printArrayData.map((item: any, index: number) => {
+      return new Promise<void>((resolve) => {
+        const printData = new Uint8Array(item);
+        const delay = 100 * (index + 1);
+        const timeoutId = setTimeout(() => {
+          if (!isCancelledRef.current && refClient.current) {
+            try {
+              refClient.current.write(printData);
+            } catch (error) {
+              // Ignore write errors
+            }
+          }
+          resolve();
+        }, delay);
+        timeoutIdsRef.current.push(timeoutId);
+      });
+    });
+
+    // Đợi tất cả các write hoàn thành
+    Promise.all(writePromises).then(() => {
+      if (isCancelledRef.current) return;
+
+      setLoading(false);
+
+      // 3. Unmount: Quay lại màn hình trước sau khi gửi xong
+      const timeoutId1 = setTimeout(async () => {
+        if (isCancelledRef.current) return;
+
+        try {
+          if (router.canGoBack()) {
+            await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+            router.back();
+          }
+        } catch (error) {
+          // Ignore navigation errors
+        }
+      }, 500);
+      timeoutIdsRef.current.push(timeoutId1);
+    });
+
+    return () => {
+      // Cleanup không clear timeout để chúng có thể chạy
+    };
+  }, [printArrayData, connected]);
+
+  // Cleanup riêng chỉ chạy khi component unmount
+  useEffect(() => {
+    return () => {
+      isCancelledRef.current = true;
+      timeoutIdsRef.current.forEach((id) => {
+        if (id) {
+          clearTimeout(id);
+        }
+      });
+      timeoutIdsRef.current = [];
+    };
+  }, []);
 
   return (
     <View style={{ padding: 10}} >
