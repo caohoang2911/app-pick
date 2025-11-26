@@ -26,7 +26,6 @@ export const useGenRongtaPrintData = (cb?: () => void) => {
         // });
         cb?.();
       }
-      setLoading(false);
     },
   });
 };
