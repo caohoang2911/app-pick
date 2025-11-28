@@ -18,19 +18,20 @@ const Settings = () => {
   const config = useConfig.use.config();
   const stores = config?.stores || [];
 
-  const timer = useRef<any>(null);
+  const labelPrinterTimer = useRef<any>(null);
+  const billPrinterTimer = useRef<any>(null);
 
   const user = useAuth.use.userInfo();
   const { storeCode } = user || {}
 
   const store: any = stores.find((store: any) => store.id === storeCode);
-  const { printerIp, name } = store || {};
+  const { billPrinterIp: storeBillPrinterIp, labelPrinterIp: storeLabelPrinterIp, name } = store || {};
 
-  const [ip, setIp] = useState<string>(getItem('ip') || printerIp || '');
-  const [isLoadingPrint, setIsLoadingPrint] = useState<boolean>(false);
+  const [labelPrinterIp, setLabelPrinterIp] = useState<string>(getItem('ip') || storeLabelPrinterIp || '');
+  const [billPrinterIp, setBillPrinterIp] = useState<string>(getItem('ip2') || storeBillPrinterIp || '');
+  const [isLoadingLabelPrinter, setIsLoadingLabelPrinter] = useState<boolean>(false);
+  const [isLoadingBillPrinter, setIsLoadingBillPrinter] = useState<boolean>(false);
   
-
-
   const { mutate: testSendNoti, isPending: isPendingTestSendNoti } = useTestSendNoti();
 
   const [isSubcribeOrderStoreDelivery, setIsSubcribeOrderStoreDelivery] = useState<any>(false);
@@ -43,45 +44,89 @@ const Settings = () => {
     setIsSubcribeOrderShipperDelivery(noti?.isSubcribeOrderShipperDelivery);
   }, [noti]);
 
-  const handleResetIp = () => {
-    setItem('ip', printerIp);
-    setIp(printerIp);
+  const handleResetLabelPrinter = () => {
+    setItem('ip', storeLabelPrinterIp);
+    setLabelPrinterIp(storeLabelPrinterIp);
   };
 
-  const handleSaveIp = () => {
-    setIsLoadingPrint(true);
+  const handleResetBillPrinter = () => {
+    setItem('ip2', storeBillPrinterIp);
+    setBillPrinterIp(storeBillPrinterIp);
+  };
+
+  const handleSaveLabelPrinter = () => {
+    setIsLoadingLabelPrinter(true);
     try {
       const client = TcpSocket.createConnection({
         port: 9100,
-        host: ip,
+        host: labelPrinterIp,
         reuseAddress: true,
     }, () => {
-      console.log('Connected to server');
-      setItem('ip', ip);
+      console.log('Connected to label printer');
+      setItem('ip', labelPrinterIp);
       showMessage({
-        message: 'Kết nối máy in thành công',
+        message: 'Kết nối máy in label thành công',
         type: 'success',
       });
-      if(timer.current) {
-        clearTimeout(timer.current);
+      if(labelPrinterTimer.current) {
+        clearTimeout(labelPrinterTimer.current);
       }
       client.destroy();
-      setIsLoadingPrint(false);
+      setIsLoadingLabelPrinter(false);
     });
 
-    timer.current = setTimeout(() => {
+    labelPrinterTimer.current = setTimeout(() => {
       showMessage({
-        message: 'Kết nối máy in thất bại',
+        message: 'Kết nối máy in label thất bại',
         type: 'danger',
       });
       client.destroy();
-      setIsLoadingPrint(false);
+      setIsLoadingLabelPrinter(false);
     }, 5000);
 
     } catch (error) {
-      setIsLoadingPrint(false);
+      setIsLoadingLabelPrinter(false);
       showMessage({
-        message: "Lỗi không xác định khi kết nối máy in",
+        message: "Lỗi không xác định khi kết nối máy in label",
+        type: 'danger',
+      });
+    }
+  };
+
+  const handleSaveBillPrinter = () => {
+    setIsLoadingBillPrinter(true);
+    try {
+      const client = TcpSocket.createConnection({
+        port: 9100,
+        host: billPrinterIp,
+        reuseAddress: true,
+    }, () => {
+      console.log('Connected to bill printer');
+      setItem('ip2', billPrinterIp);
+      showMessage({
+        message: 'Kết nối máy in bill thành công',
+        type: 'success',
+      });
+      if(billPrinterTimer.current) {
+        clearTimeout(billPrinterTimer.current);
+      }
+      client.destroy();
+      setIsLoadingBillPrinter(false);
+    });
+
+    billPrinterTimer.current = setTimeout(() => {
+      showMessage({
+        message: 'Kết nối máy in bill thất bại',
+        type: 'danger',
+      });
+      client.destroy();
+      setIsLoadingBillPrinter(false);
+    }, 5000);
+
+    } catch (error) {
+      setIsLoadingBillPrinter(false);
+      showMessage({
+        message: "Lỗi không xác định khi kết nối máy in bill",
         type: 'danger',
       });
     }
@@ -89,8 +134,11 @@ const Settings = () => {
 
   useEffect(() => {
     return () => {
-      if (timer.current) {
-        clearTimeout(timer.current);
+      if (labelPrinterTimer.current) {
+        clearTimeout(labelPrinterTimer.current);
+      }
+      if (billPrinterTimer.current) {
+        clearTimeout(billPrinterTimer.current);
       }
     };
   }, []);
@@ -132,12 +180,21 @@ const Settings = () => {
         </View>
         <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
           <Text numberOfLines={1} className="text-base font-bold">Máy in - {name}</Text>
-          <View className="flex flex-row gap-2 my-3">
-            <Input value={ip} className="flex-1" placeholder="Nhập IP máy in" onChangeText={setIp} />
+          <View className="mt-3">
+            <Text className="text-sm font-semibold mb-2">Máy in label</Text>
+            <View className="flex flex-row items-center gap-2 mb-3">
+              <Input value={labelPrinterIp} className="flex-1" placeholder="Nhập IP máy in label" onChangeText={setLabelPrinterIp} />
+              <Button loading={isLoadingLabelPrinter} disabled={!labelPrinterIp} label="Lưu" onPress={handleSaveLabelPrinter} />
+              <Button variant="warning" label="Reset" onPress={handleResetLabelPrinter} />
+            </View>
           </View>
-          <View className="flex flex-row justify-end gap-2">
-            <Button loading={isLoadingPrint} label="Lưu" onPress={handleSaveIp} />
-            <Button variant="warning" label="Reset" onPress={handleResetIp} />
+          <View className="mt-4 border-t border-gray-200 pt-3">
+            <Text className="text-sm font-semibold mb-2">Máy in bill</Text>
+            <View className="flex flex-row items-center gap-2 mb-3">
+              <Input value={billPrinterIp} className="flex-1" placeholder="Nhập IP máy in bill" onChangeText={setBillPrinterIp} />
+              <Button loading={isLoadingBillPrinter} disabled={!billPrinterIp} label="Lưu" onPress={handleSaveBillPrinter} />
+              <Button variant="warning" label="Reset" onPress={handleResetBillPrinter} />
+            </View>
           </View>
         </View>
       </View>
