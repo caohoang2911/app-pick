@@ -157,7 +157,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
 
   const renderExtraTitle = () => {
     return (
-      <View className="flex flex-row justify-between items-center w-100 mt-2 gap-2">
+      <View className="flex flex-row justify-between items-center w-100 mt-3 gap-2">
         <View className="flex flex-row gap-2 items-center flex-1 pr-10">
           <Feather name="user" size={20} color="black" />
           <Text numberOfLines={1} ellipsizeMode="tail">

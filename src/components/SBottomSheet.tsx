@@ -48,6 +48,7 @@ const Header = ({ title, renderTitle, extraTitle, hideHeader, topHeader, titleAl
           right: 10,
           top: -0,
         }]}
+        hitSlop={15}
       >
         <CloseLine />
       </Pressable>

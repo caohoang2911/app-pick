@@ -221,11 +221,14 @@ const OrderItem = ({
             icon={<Feather name="calendar" size={18} color="gray" />}
             label="Ngày giao"
             value={
-              deliveryTimeRange
-                ? `${expectedDeliveryTime(deliveryTimeRange).hh} ${
-                    expectedDeliveryTime(deliveryTimeRange).day
-                  }`
-                : '--'
+              deliveryTimeRange ? (
+                <Text>
+                  {expectedDeliveryTime(deliveryTimeRange).day} {"  "}
+                  <Text className="text-orange-600 font-semibold">{expectedDeliveryTime(deliveryTimeRange).hh}</Text>
+                </Text>
+              ) : (
+                '--'
+              )
             }
             bagsSize={bagLabels?.length}
           />

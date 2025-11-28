@@ -163,7 +163,7 @@ const OrderScanToDelivery = () => {
         ref={failureBottomSheetRef}
         title="Lý do giao hàng thất bại"
         onClose={() => setShowFailureBottomSheet(false)}
-        snapPoints={[300, 400]}
+        snapPoints={[260]}
       >
         <View className="px-4 py-4">
           <Input
@@ -171,6 +171,7 @@ const OrderScanToDelivery = () => {
             onChangeText={(value: string) => setFailureReason(value)}
             multiline
             numberOfLines={4}
+            useBottomSheetTextInput
             style={{ minHeight: 100 }}
           />
           <View className="flex-row gap-3 mt-6">
