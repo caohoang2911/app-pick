@@ -11,9 +11,15 @@ import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
-import { ORDER_TAGS } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '~/src/contants/order';
 import { setLoading } from '~/src/core/store/loading';
-import { getIsScanQrCodeProduct, scanQrCodeSuccess, setStoreStartOrderDetail, toggleStoreStartScanQrCodeProduct, useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
+import {
+  getIsScanQrCodeProduct,
+  scanQrCodeSuccess,
+  setStoreStartOrderDetail,
+  toggleStoreStartScanQrCodeProduct,
+  useStoreStartOrderScanToDelivery,
+} from '~/src/core/store/store-start-order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
@@ -27,10 +33,11 @@ const OrderScanToDelivery = () => {
 
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
 
-  const isScanQrCodeProduct  = getIsScanQrCodeProduct();
+  const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, status } = orderDetail?.header as OrderDetailHeader || {};
+  const { tags, deliveryType } =
+    (orderDetail?.header as OrderDetailHeader) || {};
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -40,82 +47,113 @@ const OrderScanToDelivery = () => {
     setStoreStartOrderDetail(data?.data || {});
   }, [data]);
 
-  if(data?.error) {
-    return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
+  if (data?.error) {
+    return (
+      <SectionAlert variant="danger">
+        <Text>{data?.error}</Text>
+      </SectionAlert>
+    );
   }
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
-  const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } = useStartSelfShipping(() => {
-    setLoading(false);
-    router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-  });
+  const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
+    useStartSelfShipping(() => {
+      setLoading(false);
+      router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    });
 
-  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } = useIssueInvoice( () => {
-    startSelfShipping({ orderCode: code });
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-  });
+  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
+    useIssueInvoice(() => {
+      startSelfShipping({ orderCode: code });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    });
 
   const isAllDone = useMemo(() => {
-
-    return orderBags.every((bag) => bag.isDone || bag.lastScannedTime)
+    return orderBags.every((bag) => bag.isDone || bag.lastScannedTime);
   }, [orderBags]);
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
-      if(result?.data) {
-        setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
+      if (result?.data) {
+        setOrderScanedBagLabel({ orderCode: code, bagCode: '' });
       }
     });
-  }
+  };
 
-  const handleStartDelivery = () => {
+  const handleStartDeliveryWithInvoice = () => {
     showAlert({
       title: 'Xuất hóa đơn & giao hàng?',
       message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
       onConfirm: () => {
         hideAlert();
         issueInvoice({ orderCode: code });
-      }
+      },
     });
-  }
+  };
+
+  const handleStartDeliveryWithoutInvoice = () => {
+    showAlert({
+      title: 'Bắt đầu giao hàng?',
+      message: 'Bạn có muốn bắt đầu giao hàng?',
+      onConfirm: () => {
+        hideAlert();
+        startSelfShipping({ orderCode: code });
+      },
+    });
+  };
 
   const isShowAlert = useMemo(() => {
-    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
+    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
   }, [tags]);
 
   return (
     <>
-      <View className='flex-1 mt-3'>
+      <View className="flex-1 mt-3">
         <ScrollView>
           {isShowAlert && (
-              <View className='px-4' style={{ marginBottom: 10 }}>
-                <SectionAlert 
-                    style={{ backgroundColor: '#FFA500' }}
-                    >
-                    <Text className='text-white font-semibold'>
-                      Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng
-                    </Text>
-                </SectionAlert>
-              </View>
-            )
-          }
-          <View className='flex flex-col gap-4'>
+            <View className="px-4" style={{ marginBottom: 10 }}>
+              <SectionAlert style={{ backgroundColor: '#FFA500' }}>
+                <Text className="text-white font-semibold">
+                  Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước
+                  khi giao hàng
+                </Text>
+              </SectionAlert>
+            </View>
+          )}
+          <View className="flex flex-col gap-4">
             <InvoiceInfo />
-            <View className='border-t border-gray-200 pb-3'>
+            <View className="border-t border-gray-200 pb-3">
               <Bags />
             </View>
           </View>
         </ScrollView>
-      </View> 
+      </View>
       <View className="border-t border-gray-200 pb-4">
         <View className="px-4 py-3 bg-white ">
-          <Button
-            loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
-            onPress={handleStartDelivery}
-            disabled={!isAllDone}
-            label={!isAllDone ? "Scan QR túi để giao hàng" : "Xuất hóa đơn & bắt đầu giao hàng"}
-          />
+          {deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? (
+            <Button
+              loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
+              onPress={handleStartDeliveryWithoutInvoice}
+              disabled={!isAllDone}
+              label={
+                !isAllDone
+                  ? 'Scan QR túi để giao hàng'
+                  : 'Bắt đầu giao hàng'
+              }
+            />
+          ): (
+            <Button
+              loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
+              onPress={handleStartDeliveryWithInvoice}
+              disabled={!isAllDone}
+              label={
+                !isAllDone
+                  ? 'Scan QR túi để giao hàng'
+                  : 'Xuất hóa đơn & bắt đầu giao hàng'
+              }
+            />
+          )}
         </View>
       </View>
       {isScanQrCodeProduct && (
@@ -126,7 +164,7 @@ const OrderScanToDelivery = () => {
         />
       )}
     </>
-  )
-}
+  );
+};
 
 export default OrderScanToDelivery;
