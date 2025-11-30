@@ -20,7 +20,7 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
     onSuccess: (data: any & { data: { zas: string } }) => {
       setLoading(true);
       setToken(data?.data?.zas || '');
-      removeItem('ip');
+      removeItem('ipPrinterLabel');
       setTimeout(() => {
         setUserInfo({
           ...userInfo,

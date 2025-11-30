@@ -3,10 +3,11 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
+import { useAuth } from '~/src/core';
 import { getItem } from '~/src/core/storage';
 import { useConfig } from '~/src/core/store/config';
-import { useAuth } from '~/src/core';
 import { setLoading } from '~/src/core/store/loading';
+import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
   orderCode: string;
@@ -15,17 +16,32 @@ type Variables = {
 type Response = { error: string } & AxiosResponse;
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
+const PRINTER_PORT = 9100;
+const BASE64_REGEX = /^(data:image\/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$/;
+const INVOICE_API_URL = 'https://oms-api-dev.seedcom.vn/share/getInvoiceImage';
 
-const checkPrinterConnection = (): Promise<boolean> => {
+const getPrinterHost = (): string | null => {
+  const config = useConfig.getState().config;
+  const user = useAuth.getState().userInfo;
+  const { storeCode } = user || {};
+  const stores = config?.stores || [];
+  const store: any = stores.find((store: any) => store.id === storeCode);
+  const { billPrinterIp } = store || {};
+  return getItem<string>('ipPrinterBill') || billPrinterIp || null;
+};
+
+const cleanupConnection = (client: any, timer: NodeJS.Timeout | null) => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+  if (client) {
+    client.destroy();
+  }
+};
+
+const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
   return new Promise((resolve, reject) => {
-    // Get printer IP from storage or config
-    const config = useConfig.getState().config;
-    const user = useAuth.getState().userInfo;
-    const { storeCode } = user || {};
-    const stores = config?.stores || [];
-    const store: any = stores.find((store: any) => store.id === storeCode);
-    const { printerIp } = store || {};
-    const host = getItem<string>('ip') || printerIp;
+    const host = getPrinterHost();
 
     if (!host) {
       showMessage({
@@ -36,9 +52,8 @@ const checkPrinterConnection = (): Promise<boolean> => {
       return;
     }
 
-    const port = 9100;
     const options: any = {
-      port: port,
+      port: PRINTER_PORT,
       host: host,
     };
 
@@ -47,19 +62,12 @@ const checkPrinterConnection = (): Promise<boolean> => {
 
     try {
       client = TcpSocket.createConnection(options, () => {
-        console.log('Connected to printer');
-        if (timer) {
-          clearTimeout(timer);
-        }
-        client.destroy();
-        resolve(true);
+        cleanupConnection(null, timer);
+        resolve(client);
       });
 
       timer = setTimeout(() => {
-        console.log('Printer connection timeout');
-        if (client) {
-          client.destroy();
-        }
+        cleanupConnection(client, timer);
         showMessage({
           message: `Không thể kết nối với máy in ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
@@ -68,13 +76,7 @@ const checkPrinterConnection = (): Promise<boolean> => {
       }, TIMEOUT_CONNECT_PRINTER);
 
       client.on('error', (error: any) => {
-        console.log('Printer connection error:', error);
-        if (timer) {
-          clearTimeout(timer);
-        }
-        if (client) {
-          client.destroy();
-        }
+        cleanupConnection(client, timer);
         showMessage({
           message: `Không thể kết nối với máy in ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
@@ -82,15 +84,9 @@ const checkPrinterConnection = (): Promise<boolean> => {
         reject(error);
       });
     } catch (error) {
-      console.log('Printer connection exception:', error);
-      if (timer) {
-        clearTimeout(timer);
-      }
-      if (client) {
-        client.destroy();
-      }
+      cleanupConnection(client, timer);
       showMessage({
-        message: `Lỗi khi kết nối máy in. Vui lòng thử lại.`,
+        message: 'Lỗi khi kết nối máy in. Vui lòng thử lại.',
         type: 'danger',
       });
       reject(error);
@@ -98,29 +94,115 @@ const checkPrinterConnection = (): Promise<boolean> => {
   });
 };
 
+const fetchBase64ImageByInvoiceURL = async (orderCode: string): Promise<string> => {
+  return await axiosClient.get(`${INVOICE_API_URL}?orderCode=${orderCode}`);
+};
+
+const useFetchBase64ImageByInvoiceURL = (cb?: (base64Image: string) => void) => {
+  return useMutation({
+    mutationFn: (orderCode: string) => fetchBase64ImageByInvoiceURL(orderCode),
+    onSuccess: (data: string) => {
+      if (data) {
+        cb?.(data);
+      } else {
+        setLoading(false);
+        showMessage({
+          message: 'không thể tải dữ liệu hóa đơn',
+          type: 'danger',
+        });
+      }
+    },
+  });
+};
+
 const issueInvoice = async (params: Variables): Promise<Response> => {
   return await axiosClient.post('app-pick/issueInvoice', params);
 };
 
-export const useIssueInvoice = (cb?: () => void) => {
+const useIssueInvoice = () => {
+  return useMutation({
+    mutationFn: (params: Variables) => issueInvoice(params),
+  });
+};
+
+const validateBase64Image = (base64Image: string): string => {
+  const trimmedBase64 = base64Image.trim();
+  
+  if (!BASE64_REGEX.test(trimmedBase64)) {
+    setLoading(false);
+    showMessage({
+      message: 'Định dạng dữ liệu hóa đơn không hợp lệ',
+      type: 'danger',
+    });
+    throw new Error('Invalid base64 format');
+  }
+
+  return trimmedBase64;
+};
+
+const sendToPrinter = async (client: TcpSocket.Socket, printerBuffer: Uint8Array) => {
+  client.write(printerBuffer);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  client.destroy();
+};
+
+export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
+  const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
+  const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } = useFetchBase64ImageByInvoiceURL();
+  const { mutateAsync: issueInvoiceAsync } = useIssueInvoice();
+
   return useMutation({
     mutationFn: async (params: Variables) => {
-      setLoading(true, 'Đang kiểm tra máy in...'); 
-      // Kiểm tra máy in trước khi gọi API
+      const host = getPrinterHost();
+      if(!host) {
+        showMessage({
+          message: 'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
+          type: 'danger',
+        });
+        throw new Error('Printer not configured');
+      }
+      setLoading(true);
       try {
-        // await checkPrinterConnection();
-        // Nếu kết nối máy in thành công thì mới gọi API
-        function checkPrinterConnection() {
-          return new Promise((resolve, reject) => {
-            setTimeout(() => {
-              resolve(true);
-            }, 2000);
+        const client = await checkPrinterConnection();
+
+        const issueInvoiceResult = await issueInvoiceAsync(params);
+        const { error: issueInvoiceError } = issueInvoiceResult;
+        if (issueInvoiceError) {
+          setLoading(false);
+          showMessage({
+            message: issueInvoiceError,
+            type: 'danger',
           });
+          throw new Error('Issue invoice error');
+        }
+        
+        const base64Image = await fetchBase64ImageByInvoiceURLAsync(orderCode);
+        const fullBase64 = validateBase64Image(base64Image);
+
+        const { data: printerBuffer, error, hasError } = await genXPrinterPrintDataAsync({
+          base64Image: fullBase64,
+        });
+
+        if (hasError && error) {
+          setLoading(false);
+          showMessage({
+            message: error,
+            type: 'danger',
+          });
+          throw new Error('Generate printer buffer error');
         }
 
-        await checkPrinterConnection();
-        return await issueInvoice(params);
-       
+        if (!error && printerBuffer) {
+          await sendToPrinter(client, printerBuffer);
+        } else {
+          showMessage({
+            message: error?.toString() || 'Không thể in hóa đơn',
+            type: 'danger',
+          });
+          throw new Error('Printer buffer is empty');
+        }
+
+        return issueInvoiceResult;
       } catch (error) {
         setLoading(false);
         throw error;
@@ -130,13 +212,14 @@ export const useIssueInvoice = (cb?: () => void) => {
       setLoading(false);
       if (!data.error) {
         showMessage({
-          message: 'Đã xuất hóa đơn thành công',
+          message: 'Xuất hóa đơn & bắt đầu giao hàng thành công',
           type: 'success',
         });
         cb?.();
       }
     },
+    onError: () => {
+      setLoading(false);
+    },
   });
 };
-
-

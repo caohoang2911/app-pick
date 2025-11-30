@@ -50,7 +50,7 @@ function PrintPreview() {
   const store: any = stores.find((store: any) => store.id === storeCode);
   const { printerIp } = store || {};
   const port = 9100;
-  const host = getItem('ip') || printerIp;
+  const host = getItem('ipPrinterLabel') || printerIp;
 
   const options = { port, host };
 

@@ -23,7 +23,7 @@ import {
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { useIssueInvoice } from '~/src/api/app-pick/use-issue-invoice';
+import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
@@ -64,7 +64,7 @@ const OrderScanToDelivery = () => {
     });
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoice(() => {
+    useIssueInvoiceProcess(code, () => {
       startSelfShipping({ orderCode: code });
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     });
@@ -80,6 +80,10 @@ const OrderScanToDelivery = () => {
       }
     });
   };
+
+  useEffect(() => {
+    setOrderScanedBagLabel({ orderCode: code, bagCode: 'OL74655326-DR00' });
+  }, []);
 
   const handleStartDeliveryWithInvoice = () => {
     showAlert({

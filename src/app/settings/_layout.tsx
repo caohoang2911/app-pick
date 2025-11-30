@@ -9,8 +9,7 @@ export default function OrderInvoiceLayout() {
         options={{
           headerShown: true,
           header: () => (
-     
-              <Header title="Cài đặt" />
+            <Header title="Cài đặt" />
           ),
         }}
       />

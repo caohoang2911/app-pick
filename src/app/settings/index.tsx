@@ -1,6 +1,6 @@
 import { getItem, setItem } from '@/core/storage';
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
 import { useTestSendNoti } from '~/src/api/app-pick/test-send-noti';
@@ -9,6 +9,7 @@ import { Button } from '~/src/components/Button';
 import { Input } from '~/src/components/Input';
 import { Switch } from '~/src/components/Switch';
 import { useAuth } from '~/src/core';
+import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useConfig } from '~/src/core/store/config';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
 
@@ -20,6 +21,12 @@ const Settings = () => {
 
   const labelPrinterTimer = useRef<any>(null);
   const billPrinterTimer = useRef<any>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const billInputRef = useRef<any>(null);
+  const labelInputRef = useRef<any>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const isKeyboardVisible = useKeyboardVisible();
+  const activeInputRef = useRef<'label' | 'bill' | null>(null);
 
   const user = useAuth.use.userInfo();
   const { storeCode } = user || {}
@@ -27,8 +34,8 @@ const Settings = () => {
   const store: any = stores.find((store: any) => store.id === storeCode);
   const { billPrinterIp: storeBillPrinterIp, labelPrinterIp: storeLabelPrinterIp, name } = store || {};
 
-  const [labelPrinterIp, setLabelPrinterIp] = useState<string>(getItem('ip') || storeLabelPrinterIp || '');
-  const [billPrinterIp, setBillPrinterIp] = useState<string>(getItem('ip2') || storeBillPrinterIp || '');
+  const [labelPrinterIp, setLabelPrinterIp] = useState<string>(getItem('ipPrinterLabel') || storeLabelPrinterIp || '');
+  const [billPrinterIp, setBillPrinterIp] = useState<string>(getItem('ipPrinterBill') || storeBillPrinterIp || '');
   const [isLoadingLabelPrinter, setIsLoadingLabelPrinter] = useState<boolean>(false);
   const [isLoadingBillPrinter, setIsLoadingBillPrinter] = useState<boolean>(false);
   
@@ -44,18 +51,71 @@ const Settings = () => {
     setIsSubcribeOrderShipperDelivery(noti?.isSubcribeOrderShipperDelivery);
   }, [noti]);
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        // Scroll to active input when keyboard shows
+        setTimeout(() => {
+          if (activeInputRef.current === 'bill' && billInputRef.current && scrollViewRef.current) {
+            billInputRef.current.measureLayout(
+              scrollViewRef.current.getInnerViewNode?.() || scrollViewRef.current,
+              (x: number, y: number) => {
+                scrollViewRef.current?.scrollTo({
+                  y: Math.max(0, y - 100),
+                  animated: true,
+                });
+              },
+              () => {
+                // Fallback: scroll to end
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+              }
+            );
+          } else if (activeInputRef.current === 'label' && labelInputRef.current && scrollViewRef.current) {
+            labelInputRef.current.measureLayout(
+              scrollViewRef.current.getInnerViewNode?.() || scrollViewRef.current,
+              (x: number, y: number) => {
+                scrollViewRef.current?.scrollTo({
+                  y: Math.max(0, y - 100),
+                  animated: true,
+                });
+              },
+              () => {}
+            );
+          }
+        }, Platform.OS === 'ios' ? 100 : 200);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+        activeInputRef.current = null;
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
   const handleResetLabelPrinter = () => {
-    setItem('ip', storeLabelPrinterIp);
+    Keyboard.dismiss();
+    setItem('ipPrinterLabel', storeLabelPrinterIp);
     setLabelPrinterIp(storeLabelPrinterIp);
   };
 
   const handleResetBillPrinter = () => {
-    setItem('ip2', storeBillPrinterIp);
+    Keyboard.dismiss();
+    setItem('ipPrinterBill', storeBillPrinterIp);
     setBillPrinterIp(storeBillPrinterIp);
   };
 
   const handleSaveLabelPrinter = () => {
     setIsLoadingLabelPrinter(true);
+    Keyboard.dismiss();
     try {
       const client = TcpSocket.createConnection({
         port: 9100,
@@ -63,9 +123,9 @@ const Settings = () => {
         reuseAddress: true,
     }, () => {
       console.log('Connected to label printer');
-      setItem('ip', labelPrinterIp);
+      setItem('ipPrinterLabel', labelPrinterIp);
       showMessage({
-        message: 'Kết nối máy in label thành công',
+        message: 'Lưu IP máy in label thành công',
         type: 'success',
       });
       if(labelPrinterTimer.current) {
@@ -77,7 +137,7 @@ const Settings = () => {
 
     labelPrinterTimer.current = setTimeout(() => {
       showMessage({
-        message: 'Kết nối máy in label thất bại',
+        message: 'Lưu IP máy in label thất bại',
         type: 'danger',
       });
       client.destroy();
@@ -95,6 +155,7 @@ const Settings = () => {
 
   const handleSaveBillPrinter = () => {
     setIsLoadingBillPrinter(true);
+    Keyboard.dismiss();
     try {
       const client = TcpSocket.createConnection({
         port: 9100,
@@ -102,9 +163,9 @@ const Settings = () => {
         reuseAddress: true,
     }, () => {
       console.log('Connected to bill printer');
-      setItem('ip2', billPrinterIp);
+      setItem('ipPrinterBill', billPrinterIp);
       showMessage({
-        message: 'Kết nối máy in bill thành công',
+        message: 'Lưu IP máy in hoá đơn thành công',
         type: 'success',
       });
       if(billPrinterTimer.current) {
@@ -116,7 +177,7 @@ const Settings = () => {
 
     billPrinterTimer.current = setTimeout(() => {
       showMessage({
-        message: 'Kết nối máy in bill thất bại',
+        message: 'Lưu IP máy in hoá đơn thất bại',
         type: 'danger',
       });
       client.destroy();
@@ -126,7 +187,7 @@ const Settings = () => {
     } catch (error) {
       setIsLoadingBillPrinter(false);
       showMessage({
-        message: "Lỗi không xác định khi kết nối máy in bill",
+        message: "Lỗi không xác định khi kết nối máy in hoá đơn",
         type: 'danger',
       });
     }
@@ -155,50 +216,85 @@ const Settings = () => {
   };
 
   return (
-    <View className="bg-gray-100 flex-1">
-      <View className="flex-grow flex mt-4 gap-3">
-        <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
-          <Text className="text-base font-bold">Thông báo</Text>
-          <View className="flex flex-col gap-4 mt-3">
-            <View className="flex flex-row items-center justify-between">
-              <Text className="text-base">Đơn Shipper giao hàng</Text>
-              <Switch disabled value={isSubcribeOrderShipperDelivery as boolean} onValueChange={setIsSubcribeOrderShipperDelivery} />
+    <KeyboardAvoidingView 
+      className="bg-gray-100 flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView 
+        ref={scrollViewRef}
+        className="flex-1"
+        contentContainerStyle={{ 
+          paddingBottom: keyboardHeight > 0 ? Math.min(keyboardHeight * 0.3, 90) : 20
+        }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
+      >
+        <View className="flex-grow flex mt-4 gap-3 pb-4">
+          <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
+            <Text className="text-base font-bold">Thông báo</Text>
+            <View className="flex flex-col gap-4 mt-3">
+              <View className="flex flex-row items-center justify-between">
+                <Text className="text-base">Đơn Shipper giao hàng</Text>
+                <Switch disabled value={isSubcribeOrderShipperDelivery as boolean} onValueChange={setIsSubcribeOrderShipperDelivery} />
+              </View>
+              <View className="flex flex-row items-center justify-between">
+                <Text className="text-base">Đơn Store giao hàng</Text>
+                <Switch disabled value={isSubcribeOrderStoreDelivery as boolean} onValueChange={setIsSubcribeOrderStoreDelivery} />
+              </View>
+              <View className="flex flex-row items-center justify-between">
+                <Text className="text-base">Đơn khách hàng pickup</Text>
+                <Switch disabled value={isSubcribeOrderCustomerPickup as boolean} onValueChange={setIsSubcribeOrderCustomerPickup} />
+              </View>
+              <View className="flex flex-row items-center justify-between">
+                <Text className="text-base text-orange-500">Test gửi thông báo</Text>
+                <Button variant="warning" loading={isPendingTestSendNoti} label="Gửi" onPress={handleTestPushNotification} />
+              </View>
             </View>
-            <View className="flex flex-row items-center justify-between">
-              <Text className="text-base">Đơn Store giao hàng</Text>
-              <Switch disabled value={isSubcribeOrderStoreDelivery as boolean} onValueChange={setIsSubcribeOrderStoreDelivery} />
+          </View>
+          <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
+            <Text numberOfLines={1} className="text-base font-bold">Máy in - {name}</Text>
+            <View className="mt-3">
+              <Text className="text-sm font-semibold mb-2">Máy in label</Text>
+              <View className="flex flex-row items-center gap-2 mb-3">
+                <View ref={labelInputRef} collapsable={false} className="flex-1">
+                  <Input 
+                    value={labelPrinterIp} 
+                    className="flex-1" 
+                    placeholder="Nhập IP máy in label" 
+                    onChangeText={setLabelPrinterIp}
+                    onFocus={() => {
+                      activeInputRef.current = 'label';
+                    }}
+                  />
+                </View>
+                <Button loading={isLoadingLabelPrinter} disabled={!labelPrinterIp} label="Lưu" onPress={handleSaveLabelPrinter} />
+                <Button variant="warning" label="Reset" onPress={handleResetLabelPrinter} />
+              </View>
             </View>
-            <View className="flex flex-row items-center justify-between">
-              <Text className="text-base">Đơn khách hàng pickup</Text>
-              <Switch disabled value={isSubcribeOrderCustomerPickup as boolean} onValueChange={setIsSubcribeOrderCustomerPickup} />
-            </View>
-            <View className="flex flex-row items-center justify-between">
-              <Text className="text-base text-orange-500">Test gửi thông báo</Text>
-              <Button variant="warning" loading={isPendingTestSendNoti} label="Gửi" onPress={handleTestPushNotification} />
+            <View className="mt-4 border-t border-gray-200 pt-3">
+              <Text className="text-sm font-semibold mb-2">Máy in hoá đơn</Text>
+              <View className="flex flex-row items-center gap-2 mb-3">
+                <View ref={billInputRef} collapsable={false} className="flex-1">
+                  <Input 
+                    value={billPrinterIp} 
+                    className="flex-1" 
+                    placeholder="Nhập IP máy in hoá đơn" 
+                    onChangeText={setBillPrinterIp}
+                    onFocus={() => {
+                      activeInputRef.current = 'bill';
+                    }}
+                  />
+                </View>
+                <Button loading={isLoadingBillPrinter} disabled={!billPrinterIp} label="Lưu" onPress={handleSaveBillPrinter} />
+                <Button variant="warning" label="Reset" onPress={handleResetBillPrinter} />
+              </View>
             </View>
           </View>
         </View>
-        <View className='bg-white p-3 mx-4 rounded-lg' style={styles.box}>
-          <Text numberOfLines={1} className="text-base font-bold">Máy in - {name}</Text>
-          <View className="mt-3">
-            <Text className="text-sm font-semibold mb-2">Máy in label</Text>
-            <View className="flex flex-row items-center gap-2 mb-3">
-              <Input value={labelPrinterIp} className="flex-1" placeholder="Nhập IP máy in label" onChangeText={setLabelPrinterIp} />
-              <Button loading={isLoadingLabelPrinter} disabled={!labelPrinterIp} label="Lưu" onPress={handleSaveLabelPrinter} />
-              <Button variant="warning" label="Reset" onPress={handleResetLabelPrinter} />
-            </View>
-          </View>
-          <View className="mt-4 border-t border-gray-200 pt-3">
-            <Text className="text-sm font-semibold mb-2">Máy in bill</Text>
-            <View className="flex flex-row items-center gap-2 mb-3">
-              <Input value={billPrinterIp} className="flex-1" placeholder="Nhập IP máy in bill" onChangeText={setBillPrinterIp} />
-              <Button loading={isLoadingBillPrinter} disabled={!billPrinterIp} label="Lưu" onPress={handleSaveBillPrinter} />
-              <Button variant="warning" label="Reset" onPress={handleResetBillPrinter} />
-            </View>
-          </View>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -16,44 +16,69 @@ import { ORDER_STATUS, ORDER_TAGS } from '~/src/contants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';
-import { getIsScanQrCodeProduct, scanQrCodeSuccess, setUploadedImages, toggleScanQrCodeProduct, useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
+import {
+  getIsScanQrCodeProduct,
+  scanQrCodeSuccess,
+  setUploadedImages,
+  toggleScanQrCodeProduct,
+  useOrderScanToDelivery,
+} from '~/src/core/store/order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-pick';
-import { useIssueInvoice } from '~/src/api/app-pick/use-issue-invoice';
-import { hideAlert, showAlert as showAlertDialog} from '~/src/core/store/alert-dialog';
+import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
+import {
+  hideAlert,
+  showAlert as showAlertDialog,
+} from '~/src/core/store/alert-dialog';
+import { formatCurrency } from '~/src/core/utils/number';
+
+const bulletPoint = () => {
+  return (
+    <View className="flex flex-row items-center">
+      <View className="w-2 h-2 bg-blue-500 rounded-full" />
+    </View>
+  );
+};
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xuất hóa đơn & cho khách',
   HANDOVER_TO_SHIPPER: 'Xuất hóa đơn & giao cho tài xế',
   DISABLE: 'Chưa thể giao hàng',
-}
-  
+};
+
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } = useIssueInvoice( () => {
-    handoverOrder({ orderCode: code, proofImages: uploadedImages });
-  });
+  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
+    useIssueInvoiceProcess(code, () => {
+      handoverOrder({ orderCode: code, proofImages: uploadedImages });
+    });
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
 
   useEffect(() => {
-    if(data?.data) {
+    if (data?.data) {
       setOrderDetail(data?.data || {});
     }
   }, [data]);
 
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
-  const isScanQrCodeProduct  = getIsScanQrCodeProduct();
+  const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useOrderPick.use.orderDetail();
 
-  const { deliveryType, status, tags, handoverStatus} = orderDetail?.header as OrderDetailHeader || {};
+  const { deliveryType, status, tags, handoverStatus, payment } =
+    (orderDetail?.header as OrderDetailHeader) || {};
+
+  const isCOD = payment?.method === 'CASH_ON_DELIVERY';
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
-  
-  const actionType = ACTION_TYPE[handoverStatus as keyof typeof ACTION_TYPE];
+
+  const actionType = useMemo(
+    () => ACTION_TYPE[handoverStatus as keyof typeof ACTION_TYPE],
+    [handoverStatus]
+  );
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -66,18 +91,23 @@ const OrderScanToDelivery = () => {
   useEffect(() => {
     return () => {
       setUploadedImages('', true);
-    }
+    };
   }, []);
 
-  if(data?.error) {
-    return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
+  if (data?.error) {
+    return (
+      <SectionAlert variant="danger">
+        <Text>{data?.error}</Text>
+      </SectionAlert>
+    );
   }
 
-  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } = useHandoverOrder(() => {
-    setLoading(false);
-    setUploadedImages('', true);
-    router.back();
-  });
+  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
+    useHandoverOrder(() => {
+      setLoading(false);
+      setUploadedImages('', true);
+      router.back();
+    });
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
@@ -90,84 +120,96 @@ const OrderScanToDelivery = () => {
         issueInvoice({ orderCode: code });
       },
     });
-  }
+  };
 
-  const  disableByStatus = useMemo(() => {
-    if(deliveryType === 'STORE_DELIVERY' || deliveryType === 'CUSTOMER_PICKUP') {
+  const disableByStatus = useMemo(() => {
+    if (
+      deliveryType === 'STORE_DELIVERY' ||
+      deliveryType === 'CUSTOMER_PICKUP'
+    ) {
       return status === ORDER_STATUS.SHIPPING;
     }
 
     return status !== ORDER_STATUS.STORE_PACKED;
   }, [deliveryType, status]);
 
-
   const isAllDone = useMemo(() => {
-
-    return orderBags.every((bag) => bag.isDone || bag.lastScannedTime)
+    return orderBags.every((bag) => bag.isDone || bag.lastScannedTime);
   }, [orderBags, disableByStatus]);
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
-      if(result?.data) {
+      if (result?.data) {
         setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
       }
     });
-  }
+  };
 
   const showAlert = useMemo(() => {
-    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL) 
+    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
   }, [tags]);
 
   const renderAction = useMemo(() => {
-    if(!orderBags.length && isPending) return null;
+    if (!orderBags.length && isPending) return null;
     return isAllDone ? (
       <Button
         loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
         onPress={handleCheckoutOrderBags}
         label={actionType}
-        disabled={handoverStatus === "DISABLE"}
-        variant='warning'
+        disabled={handoverStatus === 'DISABLE'}
+        variant="warning"
       />
     ) : (
       <Button
         onPress={() => toggleScanQrCodeProduct(true)}
-        icon={<FontAwesome name="qrcode" size={20} color="white" /> }
+        icon={<FontAwesome name="qrcode" size={20} color="white" />}
         label={'Scan túi'}
       />
-    )
-  }, [isAllDone, orderBags, isLoadingHandoverOrder, handleCheckoutOrderBags, actionType, isPending]);
+    );
+  }, [
+    isAllDone,
+    orderBags,
+    isLoadingHandoverOrder,
+    handleCheckoutOrderBags,
+    actionType,
+    isPending,
+  ]);
 
   return (
     <>
-      <View className='flex-1 mt-3'>
+      <View className="flex-1 mt-3">
         <ScrollView>
           {showAlert && (
-              <View className='px-4' style={{ marginBottom: 10 }}>
-                <SectionAlert 
-                    className='bg-yellow-500'
-                    >
-                    <Text className='text-white font-semibold'>
-                      Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước khi giao hàng
+            <View className="px-4" style={{ marginBottom: 10 }}>
+              <SectionAlert className="bg-yellow-500">
+                <Text className="text-white font-semibold">
+                • Đơn hàng chưa in hoá đơn. Vui lòng in hoá đơn trước khi giao
+                  hàng
+                </Text>
+                {isCOD && (
+                  <View className="mt-2">
+                    <Text className="text-white font-semibold">
+                    • Nhân viên siêu thị cần thu COD{' '}
+                      {formatCurrency(payment?.amount || 0, { unit: true })}
                     </Text>
-                </SectionAlert>
-              </View>
-            )
-          }
-          <View className='flex flex-col gap-4'>
+                  </View>
+                )}
+              </SectionAlert>
+            </View>
+          )}
+          <View className="flex flex-col gap-4">
             <InvoiceInfo />
-            <View className='border-t border-gray-200 pb-3'>
+            <View className="border-t border-gray-200 pb-3">
               <Bags />
             </View>
           </View>
         </ScrollView>
-      </View> 
-      {actionType && 
+      </View>
+      {actionType && (
         <View className="border-t border-gray-200 pb-4">
-          <View className="px-4 py-3 bg-white ">
-            {renderAction}
-          </View>
+          <View className="px-4 py-3 bg-white ">{renderAction}</View>
         </View>
-      }
+      )}
       {isScanQrCodeProduct && (
         <ScannerBox
           visible={isScanQrCodeProduct}
@@ -176,7 +218,7 @@ const OrderScanToDelivery = () => {
         />
       )}
     </>
-  )
-}
+  );
+};
 
 export default OrderScanToDelivery;

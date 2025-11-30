@@ -92,6 +92,7 @@ export interface OrderDetailHeader {
   groupShippingOrderCodes?: Array<string>;
   deliveryType: ORDER_DELIVERY_TYPE;
   handoverStatus?: "HANDOVER_TO_CUSTOMER" | "HANDOVER_TO_SHIPPER" | "DISABLE";
+  printedBill?: string;
   taxAuthorityCode?: string;
   promotions?: Array<any>;
   vouchers?: Array<Voucher>;
