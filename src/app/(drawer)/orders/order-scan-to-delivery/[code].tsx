@@ -48,11 +48,6 @@ const ACTION_TYPE = {
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, () => {
-      handoverOrder({ orderCode: code, proofImages: uploadedImages });
-    });
-
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
@@ -68,8 +63,13 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useOrderPick.use.orderDetail();
 
-  const { deliveryType, status, tags, handoverStatus, payment } =
+  const { deliveryType, status, tags, handoverStatus, payment, ignorePrintInvoiceStep} =
     (orderDetail?.header as OrderDetailHeader) || {};
+
+  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
+    useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
+      handoverOrder({ orderCode: code, proofImages: uploadedImages });
+    });
 
   const isCOD = payment?.method === 'CASH_ON_DELIVERY';
 
@@ -183,13 +183,13 @@ const OrderScanToDelivery = () => {
             <View className="px-4" style={{ marginBottom: 10 }}>
               <SectionAlert className="bg-yellow-500">
                 <Text className="text-white font-semibold">
-                • Đơn hàng chưa in hoá đơn. Vui lòng in hoá đơn trước khi giao
+                  • Đơn hàng chưa in hoá đơn. Vui lòng in hoá đơn trước khi giao
                   hàng
                 </Text>
                 {isCOD && (
                   <View className="mt-2">
                     <Text className="text-white font-semibold">
-                    • Nhân viên siêu thị cần thu COD{' '}
+                      • Nhân viên siêu thị cần thu COD{' '}
                       {formatCurrency(payment?.amount || 0, { unit: true })}
                     </Text>
                   </View>

@@ -7,6 +7,7 @@ import { useAuth } from '~/src/core';
 import { getItem } from '~/src/core/storage';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
+import axios from 'axios';
 import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
@@ -27,7 +28,7 @@ const getPrinterHost = (): string | null => {
   const stores = config?.stores || [];
   const store: any = stores.find((store: any) => store.id === storeCode);
   const { billPrinterIp } = store || {};
-  return getItem<string>('ipPrinterBill') || billPrinterIp || null;
+  return getItem<string>('ipPrinterBill') || billPrinterIp || ''
 };
 
 const cleanupConnection = (client: any, timer: NodeJS.Timeout | null) => {
@@ -94,16 +95,18 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
   });
 };
 
-const fetchBase64ImageByInvoiceURL = async (orderCode: string): Promise<string> => {
-  return await axiosClient.get(`${INVOICE_API_URL}?orderCode=${orderCode}`);
+const fetchBase64ImageByInvoiceURL = async (orderCode: string): Promise<{ data: string }> => {
+  return await axios.get(`${INVOICE_API_URL}?orderCode=${orderCode}`);
 };
 
 const useFetchBase64ImageByInvoiceURL = (cb?: (base64Image: string) => void) => {
   return useMutation({
-    mutationFn: (orderCode: string) => fetchBase64ImageByInvoiceURL(orderCode),
-    onSuccess: (data: string) => {
+    mutationFn: (orderCode: string): Promise<{ data: string }> => fetchBase64ImageByInvoiceURL(orderCode),
+    onSuccess: (data: {
+      data: string;
+    }) => {
       if (data) {
-        cb?.(data);
+        cb?.(data.data);
       } else {
         setLoading(false);
         showMessage({
@@ -146,25 +149,20 @@ const sendToPrinter = async (client: TcpSocket.Socket, printerBuffer: Uint8Array
   client.destroy();
 };
 
-export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
+export const useIssueInvoiceProcess = (orderCode: string, ignorePrintInvoiceStep: boolean = false, cb?: () => void) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } = useFetchBase64ImageByInvoiceURL();
   const { mutateAsync: issueInvoiceAsync } = useIssueInvoice();
 
   return useMutation({
     mutationFn: async (params: Variables) => {
-      const host = getPrinterHost();
-      if(!host) {
-        showMessage({
-          message: 'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
-          type: 'danger',
-        });
-        throw new Error('Printer not configured');
-      }
       setLoading(true);
       try {
-        const client = await checkPrinterConnection();
-
+        let client: TcpSocket.Socket | null = null;
+        if (!ignorePrintInvoiceStep) {
+          client = await checkPrinterConnection();
+        }
+        
         const issueInvoiceResult = await issueInvoiceAsync(params);
         const { error: issueInvoiceError } = issueInvoiceResult;
         if (issueInvoiceError) {
@@ -175,9 +173,12 @@ export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
           });
           throw new Error('Issue invoice error');
         }
-        
-        const base64Image = await fetchBase64ImageByInvoiceURLAsync(orderCode);
-        const fullBase64 = validateBase64Image(base64Image);
+
+        if (ignorePrintInvoiceStep) {
+          return issueInvoiceResult;
+        }        
+        const res = await fetchBase64ImageByInvoiceURLAsync(orderCode);
+        const fullBase64 = validateBase64Image(res.data);
 
         const { data: printerBuffer, error, hasError } = await genXPrinterPrintDataAsync({
           base64Image: fullBase64,
@@ -192,7 +193,7 @@ export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
           throw new Error('Generate printer buffer error');
         }
 
-        if (!error && printerBuffer) {
+        if (!error && printerBuffer && client) {
           await sendToPrinter(client, printerBuffer);
         } else {
           showMessage({

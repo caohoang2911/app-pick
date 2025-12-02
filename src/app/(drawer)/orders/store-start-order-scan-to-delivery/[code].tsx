@@ -36,7 +36,7 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, deliveryType } =
+  const { tags, deliveryType, ignorePrintInvoiceStep } =
     (orderDetail?.header as OrderDetailHeader) || {};
 
   useEffect(() => {
@@ -64,7 +64,7 @@ const OrderScanToDelivery = () => {
     });
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, () => {
+    useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
       startSelfShipping({ orderCode: code });
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     });

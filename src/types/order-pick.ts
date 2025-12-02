@@ -130,6 +130,7 @@ export interface OrderDetailHeader {
     penceAmount?: number;
     pointAmount?: number;
   };
+  ignorePrintInvoiceStep?: boolean;
   payment?: {
     isPaid?: boolean;
     method?: string;
