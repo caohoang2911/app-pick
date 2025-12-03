@@ -80,7 +80,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
       client.on('error', (error: any) => {
         cleanupConnection(client, timer);
         showMessage({
-          message: `Không thể kết nối với máy in ${host}. Vui lòng kiểm tra lại.`,
+          message: `Không thể kết nối với máy in hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
         });
         reject(error);
@@ -146,7 +146,7 @@ const validateBase64Image = (base64Image: string): string => {
 
 const sendToPrinter = async (client: TcpSocket.Socket, printerBuffer: Uint8Array) => {
   client.write(printerBuffer);
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   client.destroy();
 };
 
