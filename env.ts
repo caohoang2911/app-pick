@@ -18,6 +18,7 @@ const environment = getEnvironmentFromConfig();
 const configs = {
   dev: {
     API_BASE_URL: 'https://oms-api-dev.seedcom.vn/',
+    INVOICE_API_URL: 'https://oms-api-dev.seedcom.vn/share/getInvoiceImage',
     API_TIMEOUT: 30000,
     APP_NAME: 'App Pick Dev',
     APP_VERSION: '1.0.0-dev',
@@ -29,6 +30,7 @@ const configs = {
   },
   prod: {
     API_BASE_URL: 'https://oms-api.seedcom.vn/',
+    INVOICE_API_URL: 'https://oms-api.seedcom.vn/share/getInvoiceImage',
     API_TIMEOUT: 30000,
     APP_NAME: 'App Pick',
     APP_VERSION: '1.0.0',
@@ -51,6 +53,7 @@ export const Env = {
   IS_STAGING: false,
   IS_PRODUCTION: environment === 'prod',
   API_BASE_URL: currentConfig.API_BASE_URL,
+  INVOICE_API_URL: currentConfig.INVOICE_API_URL,
   API_TIMEOUT: currentConfig.API_TIMEOUT,
   APP_NAME: currentConfig.APP_NAME,
   APP_VERSION: currentConfig.APP_VERSION,

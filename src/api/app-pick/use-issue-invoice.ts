@@ -8,6 +8,7 @@ import { getItem } from '~/src/core/storage';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import axios from 'axios';
+import { Env } from '~/env';
 import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
@@ -19,7 +20,7 @@ type Response = { error: string } & AxiosResponse;
 const TIMEOUT_CONNECT_PRINTER = 5000;
 const PRINTER_PORT = 9100;
 const BASE64_REGEX = /^(data:image\/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$/;
-const INVOICE_API_URL = 'https://oms-api-dev.seedcom.vn/share/getInvoiceImage';
+const INVOICE_API_URL = Env.INVOICE_API_URL;
 
 const getPrinterHost = (): string | null => {
   const config = useConfig.getState().config;

@@ -4,6 +4,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "start:dev": "cross-env EAS_BUILD_PROFILE=dev expo start --dev-client",
+    "start:prod": "cross-env EAS_BUILD_PROFILE=prod expo start --dev-client",
     "android:dev": "cross-env EAS_BUILD_PROFILE=dev expo run:android --no-build-cache --device",
     "ios": "expo run:ios --no-build-cache --device",
     "ios:dev": "cross-env EAS_BUILD_PROFILE=dev expo run:ios --no-build-cache --device",
