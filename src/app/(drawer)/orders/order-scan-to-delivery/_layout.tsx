@@ -9,7 +9,7 @@ export default function OrderScanToDeliveryLayout() {
         name="[code]"
         options={{
           headerShown: true,
-          header: () => <View className="px-4 bg-white"><Header title={`Scan túi - Giao hàng tại siêu thị`} /></View>,
+          header: () => <View className="bg-white"><Header title={`Scan túi - Giao hàng tại siêu thị`} /></View>,
         }}
       />
     </Stack>

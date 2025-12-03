@@ -106,7 +106,7 @@ function PrintPreview() {
         setLoading(false);
         setConnected(false);
         showAlert({
-          message: `Không thể kết nối với máy in ${host}.`,
+          message: `Không thể kết nối với máy in label tại IP: ${host}.`,
           onConfirm: () => {
             router.back();
             hideAlert();
