@@ -59,8 +59,8 @@ const OrderScanToDelivery = () => {
   const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
     useStartSelfShipping(() => {
       setLoading(false);
-      router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
     });
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
@@ -85,16 +85,16 @@ const OrderScanToDelivery = () => {
     setOrderScanedBagLabel({ orderCode: code, bagCode: 'OL74655326-DR00' });
   }, []);
 
-  const handleStartDeliveryWithInvoice = () => {
-    showAlert({
-      title: 'Xuất hóa đơn & giao hàng?',
-      message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
-      onConfirm: () => {
-        hideAlert();
-        issueInvoice({ orderCode: code });
-      },
-    });
-  };
+  // const handleStartDeliveryWithInvoice = () => {
+  //   showAlert({
+  //     title: 'Xuất hóa đơn & giao hàng?',
+  //     message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
+  //     onConfirm: () => {
+  //       hideAlert();
+  //       issueInvoice({ orderCode: code });
+  //     },
+  //   });
+  // };
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlert({
@@ -135,18 +135,16 @@ const OrderScanToDelivery = () => {
       </View>
       <View className="border-t border-gray-200 pb-4">
         <View className="px-4 py-3 bg-white ">
-          {deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? (
-            <Button
-              loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
-              onPress={handleStartDeliveryWithoutInvoice}
-              disabled={!isAllDone}
-              label={
-                !isAllDone
-                  ? 'Scan QR túi để giao hàng'
-                  : 'Bắt đầu giao hàng'
-              }
-            />
-          ): (
+          {/* {deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? ( */}
+          <Button
+            loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
+            onPress={handleStartDeliveryWithoutInvoice}
+            disabled={!isAllDone}
+            label={
+              !isAllDone ? 'Scan QR túi để giao hàng' : 'Bắt đầu giao hàng'
+            }
+          />
+          {/* ): (
             <Button
               loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
               onPress={handleStartDeliveryWithInvoice}
@@ -157,7 +155,7 @@ const OrderScanToDelivery = () => {
                   : 'Xuất hóa đơn & bắt đầu giao hàng'
               }
             />
-          )}
+          )} */}
         </View>
       </View>
       {isScanQrCodeProduct && (

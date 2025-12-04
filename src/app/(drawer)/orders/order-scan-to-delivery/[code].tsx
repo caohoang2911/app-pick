@@ -30,6 +30,7 @@ import {
   showAlert as showAlertDialog,
 } from '~/src/core/store/alert-dialog';
 import { formatCurrency } from '~/src/core/utils/number';
+import { queryClient } from '~/src/api/shared/api-provider';
 
 const bulletPoint = () => {
   return (
@@ -40,8 +41,8 @@ const bulletPoint = () => {
 };
 
 const ACTION_TYPE = {
-  HANDOVER_TO_CUSTOMER: 'Xuất hóa đơn & cho khách',
-  HANDOVER_TO_SHIPPER: 'Xuất hóa đơn & giao cho tài xế',
+  HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
+  HANDOVER_TO_SHIPPER: 'Xác nhận giao cho tài xế',
   DISABLE: 'Chưa thể giao hàng',
 };
 
@@ -106,18 +107,31 @@ const OrderScanToDelivery = () => {
     useHandoverOrder(() => {
       setLoading(false);
       setUploadedImages('', true);
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
       router.back();
     });
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
-  const handleCheckoutOrderBags = () => {
+  // TODO: Implement in the future  
+  // const handleCheckoutOrderBagsWithInvoice = () => {
+  //   showAlertDialog({
+  //     title: 'Xuất hóa đơn?',
+  //     message: 'Bạn có chắc chắn xuất hóa đơn?',
+  //     onConfirm: () => {
+  //       hideAlert();
+  //       issueInvoice({ orderCode: code });
+  //     },
+  //   });
+  // };
+
+  const handleStartDeliveryWithoutInvoice = () => {
     showAlertDialog({
-      title: 'Xuất hóa đơn?',
-      message: 'Bạn có chắc chắn xuất hóa đơn?',
+      title: 'Bắt đầu giao hàng?',
+      message: 'Bạn có muốn bắt đầu giao hàng?',
       onConfirm: () => {
         hideAlert();
-        issueInvoice({ orderCode: code });
+        handoverOrder({ orderCode: code, proofImages: uploadedImages });
       },
     });
   };
@@ -154,7 +168,7 @@ const OrderScanToDelivery = () => {
     return isAllDone ? (
       <Button
         loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
-        onPress={handleCheckoutOrderBags}
+        onPress={handleStartDeliveryWithoutInvoice}
         label={actionType}
         disabled={handoverStatus === 'DISABLE'}
         variant="warning"
@@ -170,7 +184,7 @@ const OrderScanToDelivery = () => {
     isAllDone,
     orderBags,
     isLoadingHandoverOrder,
-    handleCheckoutOrderBags,
+    handleStartDeliveryWithoutInvoice,
     actionType,
     isPending,
   ]);
