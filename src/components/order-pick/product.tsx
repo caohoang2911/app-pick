@@ -129,7 +129,7 @@ const WarningMessage = memo(
       style={{ backgroundColor: '#FFA500' }}
     >
       <View className="flex flex-row items-center">
-        <View className="size-1.5 bg-white rounded-full mr-2" />
+        <View className="size-1.5 bg-white rounded-full mr-2 self-start mt-2" />
         {typeof errorName === 'string' ? (
           <Text className="text-white font-semibold text-sm">{errorName}</Text>
         ) : (

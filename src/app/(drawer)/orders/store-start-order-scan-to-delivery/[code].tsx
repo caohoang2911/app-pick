@@ -98,8 +98,8 @@ const OrderScanToDelivery = () => {
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlert({
-      title: 'Bắt đầu giao hàng?',
-      message: 'Bạn có muốn bắt đầu giao hàng?',
+      title: 'Bắt đầu xác nhận giao hàng?',
+      message: 'Bạn có muốn bắt đầu xác nhận giao hàng?',
       onConfirm: () => {
         hideAlert();
         startSelfShipping({ orderCode: code });

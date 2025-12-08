@@ -52,6 +52,7 @@ const InvoiceInfo = () => {
     deliveryTimeRange,
     tags,
     bagLabels,
+    codAmount = 0,
   } = header || {};
 
   const config = useConfig.use.config();
@@ -104,10 +105,10 @@ const InvoiceInfo = () => {
         <RowInfo
           label={
             <Text className="text-orange-500">
-              {payment?.methodName || '--'}
+              COD
             </Text>
           }
-          value={<Text className="text-orange-500">{formatCurrency(amount, { unit: true })}</Text>}
+          value={<Text className="text-orange-500">{formatCurrency(codAmount, { unit: true })}</Text>}
         />
         <RowInfo label="Khách hàng" value={customer?.name || ''} />
         <RowInfo label="SDT" value={customer?.phone || ''} />
