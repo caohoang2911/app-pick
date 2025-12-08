@@ -64,15 +64,13 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useOrderPick.use.orderDetail();
 
-  const { deliveryType, status, tags, handoverStatus, payment, ignorePrintInvoiceStep} =
+  const { deliveryType, status, tags, handoverStatus, payment, codAmount, ignorePrintInvoiceStep} =
     (orderDetail?.header as OrderDetailHeader) || {};
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
     useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
       handoverOrder({ orderCode: code, proofImages: uploadedImages });
     });
-
-  const isCOD = payment?.method === 'CASH_ON_DELIVERY';
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
 
@@ -127,8 +125,8 @@ const OrderScanToDelivery = () => {
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlertDialog({
-      title: 'Bắt đầu giao hàng?',
-      message: 'Bạn có muốn bắt đầu giao hàng?',
+      title: 'Bắt đầu xác nhận giao hàng?',
+      message: 'Bạn có muốn bắt đầu xác nhận giao hàng?',
       onConfirm: () => {
         hideAlert();
         handoverOrder({ orderCode: code, proofImages: uploadedImages });
@@ -200,11 +198,11 @@ const OrderScanToDelivery = () => {
                   • Đơn hàng chưa in hoá đơn. Vui lòng in hoá đơn trước khi giao
                   hàng
                 </Text>
-                {isCOD && (
+                {Boolean(codAmount) && (
                   <View className="mt-2">
                     <Text className="text-white font-semibold">
                       • Nhân viên siêu thị cần thu COD{' '}
-                      {formatCurrency(payment?.amount || 0, { unit: true })}
+                      {formatCurrency(codAmount, { unit: true })}
                     </Text>
                   </View>
                 )}

@@ -128,8 +128,8 @@ const OrderPickProducts = () => {
       if (keywordUpper.length >= 6) {
         const lastSixDigits = keywordUpper.slice(-6);
         return product?.refBarcodes?.some(refBarcode => 
-          refBarcode.endsWith(lastSixDigits) || 
-          refBarcode.includes(lastSixDigits)
+          refBarcode?.endsWith(lastSixDigits) || 
+          refBarcode?.includes(lastSixDigits)
         );
       } 
 
