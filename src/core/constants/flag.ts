@@ -1,0 +1,2 @@
+export const GROUP_SHIPPING_ENABLED = false;
+

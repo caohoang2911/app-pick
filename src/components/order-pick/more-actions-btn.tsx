@@ -9,7 +9,7 @@ import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Product } from '~/src/types/product';
-import { PRODUCT_ACTIONS, PRODUCT_ACTION_LABELS } from '~/src/contants/product';
+import { PRODUCT_ACTIONS, PRODUCT_ACTION_LABELS } from '@/core/constants/product';
 
 const actions = [
   {

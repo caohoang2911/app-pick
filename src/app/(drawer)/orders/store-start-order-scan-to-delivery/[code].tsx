@@ -11,7 +11,7 @@ import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
-import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '@/core/constants/order';
 import { setLoading } from '~/src/core/store/loading';
 import {
   getIsScanQrCodeProduct,

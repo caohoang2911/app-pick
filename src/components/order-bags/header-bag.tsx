@@ -2,7 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ORDER_COUNTER_STATUS } from '~/src/contants/order';
+import { ORDER_COUNTER_STATUS } from '@/core/constants/order';
 import { useOrderBag } from '~/src/core/store/order-bag';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-pick';

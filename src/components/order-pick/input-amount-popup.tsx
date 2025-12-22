@@ -17,7 +17,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
 import { useConfig } from '~/src/core/store/config';
-import { PRODUCT_PICKED_ERROR_TYPES, PRODUCT_ACTIONS } from '@/contants/product';
+import { PRODUCT_PICKED_ERROR_TYPES, PRODUCT_ACTIONS } from '@/core/constants/product';
 import {
   setActionProduct,
   setCurrentId,

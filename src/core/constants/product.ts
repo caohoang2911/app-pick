@@ -33,3 +33,4 @@ export const PRODUCT_ACTION_LABELS = {
 } as const;
 
 export type ProductAction = typeof PRODUCT_ACTIONS[keyof typeof PRODUCT_ACTIONS];
+

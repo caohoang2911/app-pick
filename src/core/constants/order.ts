@@ -84,3 +84,4 @@ export const ORDER_STATUS_BADGE_VARIANT = {
   ORDER_PRINTED_BILLL: 'warning',
   ORDER_PRINTED_BAG_LABEL: 'warning',
 };
+

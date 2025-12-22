@@ -12,7 +12,7 @@ import { Input } from '~/src/components/Input';
 import SBottomSheet from '~/src/components/SBottomSheet';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import InvoiceInfo from '~/src/components/store-complete-scan-to-deivery/invoice-info';
-import { ORDER_STATUS, ORDER_TAGS } from '~/src/contants/order';
+import { ORDER_STATUS, ORDER_TAGS } from '@/core/constants/order';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setCompleteOrderDetail, setCompleteUploadedImages, useCompleteOrderScanToDelivery } from '~/src/core/store/complete-order-scan-to-delivery';
 import { setLoading } from '~/src/core/store/loading';

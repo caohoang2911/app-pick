@@ -3,7 +3,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { ORDER_STATUS } from '~/src/contants/order';
+import { ORDER_STATUS } from '@/core/constants/order';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';

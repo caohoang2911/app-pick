@@ -12,7 +12,7 @@ import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import { ORDER_STATUS, ORDER_TAGS } from '~/src/contants/order';
+import { ORDER_STATUS, ORDER_TAGS } from '@/core/constants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';

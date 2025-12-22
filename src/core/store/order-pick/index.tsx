@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
-import { ProductAction } from '~/src/contants/product';
+import { ProductAction } from '@/core/constants/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {

@@ -10,7 +10,7 @@ import {
   ORDER_COUNTER_STATUS_DRIVER,
   ORDER_COUNTER_STATUS_PRIORITY,
   ORDER_COUNTER_STATUS_PRIORITY_DRIVER,
-} from '~/src/contants/order';
+} from '@/core/constants/order';
 import { useAuth } from '~/src/core';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 import { Role } from '~/src/types/employee';

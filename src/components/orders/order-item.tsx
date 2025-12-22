@@ -10,7 +10,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import {
   ORDER_DELIVERY_TYPE,
   ORDER_STATUS_BADGE_VARIANT,
-} from '~/src/contants/order';
+} from '@/core/constants/order';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
