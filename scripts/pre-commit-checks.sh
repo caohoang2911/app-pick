@@ -21,20 +21,25 @@ if [ -z "$STAGED_FILES" ]; then
   exit 0
 fi
 
-# Check 1: TypeScript type checking (temporarily skipped - có 4 errors cần fix riêng)
-# echo -e "\n${YELLOW}📘 Checking TypeScript types...${NC}"
-# if command -v yarn &> /dev/null; then
-#   if yarn tsc --noEmit 2>&1 | grep -q "error"; then
-#     echo -e "${RED}❌ TypeScript errors found!${NC}"
-#     yarn tsc --noEmit
-#     exit 1
-#   fi
-#   echo -e "${GREEN}✅ TypeScript check passed${NC}"
-# elif npx tsc --noEmit --pretty false 2>&1 | grep -q "error"; then
-#   echo -e "${RED}❌ TypeScript errors found!${NC}"
-#   npx tsc --noEmit
-#   exit 1
-# fi
+# Check 1: TypeScript type checking
+echo -e "\n${YELLOW}📘 Checking TypeScript types...${NC}"
+if command -v yarn &> /dev/null; then
+  if yarn tsc --noEmit 2>&1 | grep -q "error"; then
+    echo -e "${RED}❌ TypeScript errors found!${NC}"
+    yarn tsc --noEmit
+    exit 1
+  fi
+  echo -e "${GREEN}✅ TypeScript check passed${NC}"
+elif command -v npx &> /dev/null; then
+  if npx tsc --noEmit --pretty false 2>&1 | grep -q "error"; then
+    echo -e "${RED}❌ TypeScript errors found!${NC}"
+    npx tsc --noEmit
+    exit 1
+  fi
+  echo -e "${GREEN}✅ TypeScript check passed${NC}"
+else
+  echo -e "${YELLOW}⚠️  yarn/npx not found, skipping type check${NC}"
+fi
 
 # Check 2: Check for large files (> 1MB)
 echo -e "\n${YELLOW}📦 Checking file sizes...${NC}"

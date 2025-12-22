@@ -71,7 +71,7 @@ const _useAuth = create<AuthState>((set, get) => ({
       const userToken = getToken();
       const userInfo = getUserInfo();
 
-      if (userToken !== null) {
+      if (userToken !== null && userInfo !== null) {
         get().signIn({
           token: userToken,
           userInfo: userInfo,

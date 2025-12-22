@@ -130,7 +130,19 @@ const OrderHistoryBottomSheet = forwardRef<
         <ScrollView className="flex-1">
           {deliveryLogs.length > 0 ? (
             deliveryLogs.map((item, index) =>
-              renderHistoryItem(item, index, index === deliveryLogs.length - 1),
+              renderHistoryItem(
+                {
+                  ...item,
+                  activityName: Array.isArray(item.activityName)
+                    ? item.activityName.join(', ')
+                    : item.activityName || '',
+                  notes: Array.isArray(item.activityName)
+                    ? item.activityName
+                    : [],
+                },
+                index,
+                index === deliveryLogs.length - 1,
+              ),
             )
           ) : (
             <View className="flex-1 items-center justify-center py-8">

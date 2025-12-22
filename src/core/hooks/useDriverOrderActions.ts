@@ -46,7 +46,7 @@ export const useDriverOrderActions = (orderCode: string) => {
       onConfirm: () => {
         hideAlert();
         setLoading(true);
-        assignOrderToMe({ status: 'ENABLE', orderCode });
+        assignOrderToMe({ status: 'ENABLE' });
       },
     });
   };

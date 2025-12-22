@@ -44,29 +44,28 @@ else
 fi
 
 # Check 2: TypeScript type checking (check all files, not just staged)
-# Note: Skip for format-only commits, can be enabled later
-# echo "📘 Running TypeScript type check..."
-# if command -v yarn &> /dev/null; then
-#   TSC_OUTPUT=$(yarn tsc --noEmit 2>&1)
-#   TSC_EXIT=$?
-#   if [ $TSC_EXIT -ne 0 ]; then
-#     echo "❌ TypeScript errors found!"
-#     echo "$TSC_OUTPUT"
-#     exit 1
-#   fi
-#   echo "✅ TypeScript check passed"
-# elif command -v npx &> /dev/null; then
-#   TSC_OUTPUT=$(npx tsc --noEmit 2>&1)
-#   TSC_EXIT=$?
-#   if [ $TSC_EXIT -ne 0 ]; then
-#     echo "❌ TypeScript errors found!"
-#     echo "$TSC_OUTPUT"
-#     exit 1
-#   fi
-#   echo "✅ TypeScript check passed"
-# else
-#   echo "⚠️  yarn/npx not found, skipping type check"
-# fi
+echo "📘 Running TypeScript type check..."
+if command -v yarn &> /dev/null; then
+  TSC_OUTPUT=$(yarn tsc --noEmit 2>&1)
+  TSC_EXIT=$?
+  if [ $TSC_EXIT -ne 0 ]; then
+    echo "❌ TypeScript errors found!"
+    echo "$TSC_OUTPUT"
+    exit 1
+  fi
+  echo "✅ TypeScript check passed"
+elif command -v npx &> /dev/null; then
+  TSC_OUTPUT=$(npx tsc --noEmit 2>&1)
+  TSC_EXIT=$?
+  if [ $TSC_EXIT -ne 0 ]; then
+    echo "❌ TypeScript errors found!"
+    echo "$TSC_OUTPUT"
+    exit 1
+  fi
+  echo "✅ TypeScript check passed"
+else
+  echo "⚠️  yarn/npx not found, skipping type check"
+fi
 
 # Check 3: Run additional checks script
 if [ -f "scripts/pre-commit-checks.sh" ]; then
