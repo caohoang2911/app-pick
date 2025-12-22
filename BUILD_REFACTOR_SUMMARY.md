@@ -25,16 +25,13 @@
 
 ### 2. **Android Build Type cho Production**
 
-**Vấn đề:**
+**Decision:**
 
-- Production build dùng `apk` thay vì `aab`
+- Production build **giữ `apk`** vì dùng internal testing
+- `.aab` không thể cài trực tiếp, chỉ phù hợp cho Play Store submission
+- Internal testing cần `.apk` để cài trực tiếp trên device
 
-**Fix:**
-
-- ✅ Changed `eas.json` → `prod.android.buildType`: `apk` → `aab`
-- ✅ Changed `gradleCommand`: `:app:assembleRelease` → `:app:bundleRelease`
-
-**Before:**
+**Current Configuration:**
 
 ```json
 "android": {
@@ -43,14 +40,7 @@
 }
 ```
 
-**After:**
-
-```json
-"android": {
-  "buildType": "aab",
-  "gradleCommand": ":app:bundleRelease"
-}
-```
+**Note:** Nếu sau này cần upload lên Play Store, có thể đổi sang `aab`.
 
 ---
 
