@@ -27,7 +27,11 @@
     "serve": "npx serve -s dist",
     "reset": "watchman watch-del-all && rm -rf node_modules .expo .expo-shared ios/build ios/Pods ios/Podfile.lock android/build android/app/build package-lock.json yarn.lock && rm -rf ~/Library/Developer/Xcode/DerivedData && yarn install && cd ios && pod install && cd ..",
     "postinstall": "patch-package",
-    "android": "expo run:android"
+    "android": "expo run:android",
+    "lint": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{js,md}\" \"scripts/**/*.{js,sh}\"",
+    "lint:fix": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{js,md}\" \"scripts/**/*.{js,sh}\"",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky"
   },
   "dependencies": {
     "@dev-plugins/react-navigation": "^0.0.6",
@@ -103,7 +107,10 @@
     "@types/lodash": "^4.17.7",
     "@types/react": "~18.2.45",
     "cross-env": "^10.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "patch-package": "^8.0.0",
+    "prettier": "^3.7.4",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.1.3"
   },
