@@ -40,7 +40,7 @@ const CountdownTimer = forwardRef<CountdownTimerRef, CountdownTimerProps>(
       autoStart = false,
       size = 'default',
     },
-    ref
+    ref,
   ) => {
     const [remainingMs, setRemainingMs] = useState(initialMilliseconds);
     const [isRunning, setIsRunning] = useState(false);
@@ -71,7 +71,7 @@ const CountdownTimer = forwardRef<CountdownTimerRef, CountdownTimerProps>(
       const seconds = totalSeconds % 60;
       return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(
         2,
-        '0'
+        '0',
       )}`;
     };
 
@@ -188,8 +188,8 @@ const CountdownTimer = forwardRef<CountdownTimerRef, CountdownTimerProps>(
         setInputValue(
           `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(
             2,
-            '0'
-          )}`
+            '0',
+          )}`,
         );
       }
     }, [initialMilliseconds]);
@@ -236,12 +236,19 @@ const CountdownTimer = forwardRef<CountdownTimerRef, CountdownTimerProps>(
               textStyle,
             ]}
           >
-           {remainingMs >= 0 ? <Text className="font-medium">Thời gian pick còn lại <Text className="font-bold">{formatTime(remainingMs)}</Text></Text> : <Text className="font-medium">Quá thời gian pick hàng</Text>}
+            {remainingMs >= 0 ? (
+              <Text className="font-medium">
+                Thời gian pick còn lại{' '}
+                <Text className="font-bold">{formatTime(remainingMs)}</Text>
+              </Text>
+            ) : (
+              <Text className="font-medium">Quá thời gian pick hàng</Text>
+            )}
           </Text>
         </View>
       </View>
     );
-  }
+  },
 );
 
 CountdownTimer.displayName = 'CountdownTimer';

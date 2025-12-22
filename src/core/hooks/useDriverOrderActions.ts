@@ -46,7 +46,7 @@ export const useDriverOrderActions = (orderCode: string) => {
       onConfirm: () => {
         hideAlert();
         setLoading(true);
-        assignOrderToMe({ status: "ENABLE", orderCode });
+        assignOrderToMe({ status: 'ENABLE', orderCode });
       },
     });
   };
@@ -63,7 +63,10 @@ export const useDriverOrderActions = (orderCode: string) => {
     });
   };
 
-  const handleChangeDeliveryMethod = (onClose: () => void, setShowDeliveryTypeBottomSheet: (show: boolean) => void) => {
+  const handleChangeDeliveryMethod = (
+    onClose: () => void,
+    setShowDeliveryTypeBottomSheet: (show: boolean) => void,
+  ) => {
     onClose();
     setTimeout(() => {
       setShowDeliveryTypeBottomSheet(true);

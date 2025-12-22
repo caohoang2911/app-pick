@@ -1,4 +1,4 @@
-import { Option, Options } from "~/src/types/commons";
+import { Option, Options } from '~/src/types/commons';
 
 const getConfigNameById = (options: Options, id?: string | number) => {
   return options?.find((option: Option) => option.id === id)?.name;

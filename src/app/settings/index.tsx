@@ -47,10 +47,10 @@ const Settings = () => {
   } = store || {};
 
   const [labelPrinterIp, setLabelPrinterIp] = useState<string>(
-    getItem('ipPrinterLabel') || storeLabelPrinterIp || ''
+    getItem('ipPrinterLabel') || storeLabelPrinterIp || '',
   );
   const [billPrinterIp, setBillPrinterIp] = useState<string>(
-    getItem('ipPrinterBill') || storeBillPrinterIp || ''
+    getItem('ipPrinterBill') || storeBillPrinterIp || '',
   );
   const [isLoadingLabelPrinter, setIsLoadingLabelPrinter] =
     useState<boolean>(false);
@@ -98,7 +98,7 @@ const Settings = () => {
                 () => {
                   // Fallback: scroll to end
                   scrollViewRef.current?.scrollToEnd({ animated: true });
-                }
+                },
               );
             } else if (
               activeInputRef.current === 'label' &&
@@ -114,20 +114,20 @@ const Settings = () => {
                     animated: true,
                   });
                 },
-                () => {}
+                () => {},
               );
             }
           },
-          Platform.OS === 'ios' ? 100 : 200
+          Platform.OS === 'ios' ? 100 : 200,
         );
-      }
+      },
     );
     const keyboardDidHideListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
         setKeyboardHeight(0);
         activeInputRef.current = null;
-      }
+      },
     );
 
     return () => {
@@ -170,7 +170,7 @@ const Settings = () => {
           }
           client.destroy();
           setIsLoadingLabelPrinter(false);
-        }
+        },
       );
 
       labelPrinterTimer.current = setTimeout(() => {
@@ -212,7 +212,7 @@ const Settings = () => {
           }
           client.destroy();
           setIsLoadingBillPrinter(false);
-        }
+        },
       );
 
       billPrinterTimer.current = setTimeout(() => {

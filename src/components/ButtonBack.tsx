@@ -18,11 +18,19 @@ const ButtonBack = ({
 
   return (
     <Pressable onPress={onPress || goBack} className="text-left -ml-3">
-      <View className='p-1 flex flex-row items-center gap-2'>
+      <View className="p-1 flex flex-row items-center gap-2">
         <ArrowLeft />
-        {title && <View className='-ml-2'>
-          {typeof title == 'string' ?<Text className="font-semibold text-gray-500 text-sm">{title}</Text> : title}    
-        </View>}
+        {title && (
+          <View className="-ml-2">
+            {typeof title == 'string' ? (
+              <Text className="font-semibold text-gray-500 text-sm">
+                {title}
+              </Text>
+            ) : (
+              title
+            )}
+          </View>
+        )}
       </View>
     </Pressable>
   );

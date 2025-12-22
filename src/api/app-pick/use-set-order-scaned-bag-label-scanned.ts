@@ -8,7 +8,9 @@ type Variables = {
 
 type Response = { error: string } & {};
 
-const setOrderBagLabelScanned = async (params: Variables): Promise<Response> => {
+const setOrderBagLabelScanned = async (
+  params: Variables,
+): Promise<Response> => {
   return await axiosClient.post('app-pick/setOrderBagLabelScanned', params);
 };
 

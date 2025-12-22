@@ -30,7 +30,7 @@ const buttonVariants = cva(
       variant: 'default',
       size: 'default',
     },
-  }
+  },
 );
 
 const buttonTextVariants = cva('text-center font-medium', {
@@ -60,7 +60,8 @@ const buttonTextVariants = cva('text-center font-medium', {
 });
 
 interface ButtonProps
-  extends React.ComponentPropsWithoutRef<typeof TouchableOpacity>,
+  extends
+    React.ComponentPropsWithoutRef<typeof TouchableOpacity>,
     VariantProps<typeof buttonVariants> {
   label: string;
   icon?: React.ReactNode;
@@ -79,18 +80,23 @@ function Button({
   disabled,
   ...props
 }: ButtonProps) {
-
   return (
     <TouchableOpacity
       disabled={loading || disabled}
-      className={cn(buttonVariants({ variant: disabled ? 'disabled' : variant, size, className }))}
-      style={[{opacity: disabled ? 0.6 : 1}]}
+      className={cn(
+        buttonVariants({
+          variant: disabled ? 'disabled' : variant,
+          size,
+          className,
+        }),
+      )}
+      style={[{ opacity: disabled ? 0.6 : 1 }]}
       {...props}
     >
       {icon && <View style={{ marginRight: 5 }}>{icon}</View>}
       <Text
         className={cn(
-          buttonTextVariants({ variant, size, className: labelClasses })
+          buttonTextVariants({ variant, size, className: labelClasses }),
         )}
       >
         {label}

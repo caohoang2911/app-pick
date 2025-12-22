@@ -1,7 +1,13 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Portal } from '@gorhom/portal';
 import { BarcodeScanningResult, BarcodeType, CameraView } from 'expo-camera';
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import {
@@ -59,7 +65,7 @@ const ScannerLayout = ({
   const holeHeight = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
   const holeX = deviceWidth / 2 - holeWidth / 2;
   const holeY = deviceHeight / 2 - holeHeight / 2;
-  
+
   // Create unique ID for ClipPath to force re-render on Android
   const clipPathId = `clip-${isQRScanner ? 'qr' : 'barcode'}-${Date.now()}`;
   return (
@@ -82,24 +88,29 @@ const ScannerLayout = ({
           clipPath={`url(#${clipPathId})`}
         />
 
-         {/* viền trắng quanh lỗ */}
-         <Rect
-           x={holeX}
-           y={holeY}
-           width={holeWidth}
-           height={holeHeight}
-           stroke="white"
-           strokeWidth={3}
-           fill="transparent"
-         />
-       </Svg>
+        {/* viền trắng quanh lỗ */}
+        <Rect
+          x={holeX}
+          y={holeY}
+          width={holeWidth}
+          height={holeHeight}
+          stroke="white"
+          strokeWidth={3}
+          fill="transparent"
+        />
+      </Svg>
 
-       {/* Text hiển thị loại scanner hiện tại */}
-       <View style={[styles.currentScannerTextContainer, { top: holeY + holeHeight + 10 }]}>
-         <Text style={styles.currentScannerText}>
-           {isQRScanner ? 'QR Code' : 'Barcode'}
-         </Text>
-       </View>
+      {/* Text hiển thị loại scanner hiện tại */}
+      <View
+        style={[
+          styles.currentScannerTextContainer,
+          { top: holeY + holeHeight + 10 },
+        ]}
+      >
+        <Text style={styles.currentScannerText}>
+          {isQRScanner ? 'QR Code' : 'Barcode'}
+        </Text>
+      </View>
 
       {/* Nút đóng */}
       <View className="ml-auto absolute top-14 right-5 z-10">
@@ -154,7 +165,7 @@ const ScannerBox = ({
       const timer = setTimeout(() => {
         setIsCameraReady(true);
         setShowLoading(false);
-        
+
         // Animate camera appearance
         Animated.parallel([
           Animated.timing(fadeAnim, {
@@ -201,12 +212,15 @@ const ScannerBox = ({
     setShowLoading(false);
   }, []);
 
-  const handleBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
-    onDestroy?.();
-    setTimeout(() => {
-      onSuccessBarcodeScanned?.(result);
-    }, 100);
-  }, [onDestroy, onSuccessBarcodeScanned]);
+  const handleBarcodeScanned = useCallback(
+    (result: BarcodeScanningResult) => {
+      onDestroy?.();
+      setTimeout(() => {
+        onSuccessBarcodeScanned?.(result);
+      }, 100);
+    },
+    [onDestroy, onSuccessBarcodeScanned],
+  );
 
   if (!visible) return <></>;
 
@@ -357,7 +371,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     paddingHorizontal: 16,
     paddingVertical: 8,
   },

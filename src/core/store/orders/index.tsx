@@ -11,7 +11,9 @@ interface OrdersState {
   deliveryType: string | null;
   fromScanQrCode: boolean;
   toggleScanQrCode: (status: boolean) => void;
-  setSelectedOrderCounter: (status: OrderStatus | OrderStatusDriver | undefined) => void;
+  setSelectedOrderCounter: (
+    status: OrderStatus | OrderStatusDriver | undefined,
+  ) => void;
   setKeyWord: (keyword?: string) => void;
   setFromScanQrCode: (fromScanQrCode: boolean) => void;
   setDeliveryType: (deliveryType: string | null) => void;
@@ -27,7 +29,9 @@ const _useOrders = create<OrdersState>((set, get) => ({
   toggleScanQrCode: (isScanQrCode: boolean) => {
     set({ isScanQrCode });
   },
-  setSelectedOrderCounter: (selectedOrderCounter: OrderStatus | OrderStatusDriver | undefined) => {
+  setSelectedOrderCounter: (
+    selectedOrderCounter: OrderStatus | OrderStatusDriver | undefined,
+  ) => {
     set({ selectedOrderCounter });
   },
   setFromScanQrCode: (fromScanQrCode: boolean) => {
@@ -54,16 +58,15 @@ export const useOrders = createSelectors(_useOrders);
 export const toggleScanQrCode = (status: boolean) =>
   _useOrders.getState().toggleScanQrCode(status);
 
-export const setSelectedOrderCounter = (status: OrderStatus | OrderStatusDriver | undefined) =>
-  _useOrders.getState().setSelectedOrderCounter(status);
+export const setSelectedOrderCounter = (
+  status: OrderStatus | OrderStatusDriver | undefined,
+) => _useOrders.getState().setSelectedOrderCounter(status);
 
 export const setKeyWord = (keyword?: string) =>
   _useOrders.getState().setKeyWord(keyword);
 
 export const setDeliveryType = (deliveryType: string | null) =>
   _useOrders.getState().setDeliveryType(deliveryType);
-
-
 
 export const setFromScanQrCode = (fromScanQrCode: boolean) =>
   _useOrders.getState().setFromScanQrCode(fromScanQrCode);

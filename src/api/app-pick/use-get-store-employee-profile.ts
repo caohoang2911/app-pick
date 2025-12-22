@@ -23,15 +23,19 @@ interface GetStoreEmployeeProfileResponse {
   data: StoreEmployeeProfile;
 }
 
-const getStoreEmployeeProfile = async (params: GetStoreEmployeeProfileParams): Promise<GetStoreEmployeeProfileResponse> => {
+const getStoreEmployeeProfile = async (
+  params: GetStoreEmployeeProfileParams,
+): Promise<GetStoreEmployeeProfileResponse> => {
   const response = await axiosClient.get('/app-pick/getStoreEmployeeProfile', {
-    params: { employeeCode: params.employeeCode }
+    params: { employeeCode: params.employeeCode },
   });
 
   return response;
 };
 
-export const useGetStoreEmployeeProfile = (params: GetStoreEmployeeProfileParams) => {
+export const useGetStoreEmployeeProfile = (
+  params: GetStoreEmployeeProfileParams,
+) => {
   return useQuery({
     queryKey: ['getStoreEmployeeProfile', params],
     queryFn: () => getStoreEmployeeProfile(params),

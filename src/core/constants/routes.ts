@@ -1,6 +1,6 @@
 /**
  * Application Route Constants
- * 
+ *
  * Centralized route definitions for type safety and maintainability.
  * All routes should use these constants instead of hardcoded strings.
  */
@@ -15,15 +15,15 @@ export const AUTH_ROUTES = {
 
 /**
  * Main application routes (authenticated routes)
- * 
+ *
  * These are the main routes of the app that require authentication.
  * They are organized in the `(drawer)` route group for shared layout,
  * but the name doesn't imply drawer-specific usage.
- * 
+ *
  * Note: `(drawer)` is a route group and doesn't create a URL segment.
  * Both `/(drawer)/orders` and `/orders` resolve to the same route.
  * We use `/orders` format (without drawer prefix) for simplicity.
- * 
+ *
  * Use these routes for:
  * - From login/authorize into app
  * - Deep link navigation
@@ -33,25 +33,27 @@ export const AUTH_ROUTES = {
 export const APP_ROUTES = {
   // Orders listing
   ORDERS: '/orders',
-  
+
   // Order detail screens
   ORDER_PICK: (code: string) => `/orders/order-pick/${code}`,
   ORDER_INVOICE: (code: string) => `/orders/order-invoice/${code}`,
   ORDER_DETAIL: (code: string) => `/orders/order-detail/${code}`,
   ORDER_BAGS: (code: string) => `/orders/order-bags/${code}`,
-  
+
   // Delivery screens
-  ORDER_SCAN_TO_DELIVERY: (code: string) => `/orders/order-scan-to-delivery/${code}`,
-  STORE_START_SCAN_TO_DELIVERY: (code: string) => `/orders/store-start-order-scan-to-delivery/${code}`,
-  STORE_COMPLETE_SCAN_TO_DELIVERY: (code: string) => `/orders/store-complete-order-scan-to-delivery/${code}`,
-  
+  ORDER_SCAN_TO_DELIVERY: (code: string) =>
+    `/orders/order-scan-to-delivery/${code}`,
+  STORE_START_SCAN_TO_DELIVERY: (code: string) =>
+    `/orders/store-start-order-scan-to-delivery/${code}`,
+  STORE_COMPLETE_SCAN_TO_DELIVERY: (code: string) =>
+    `/orders/store-complete-order-scan-to-delivery/${code}`,
+
   // Other screens
   PRINT_PREVIEW: '/orders/print-preview',
-  
+
   // Settings
   SETTINGS: '/settings',
 } as const;
-
 
 /**
  * Deep link path segments (without domain/scheme)
@@ -92,7 +94,7 @@ export type RouteParams = {
  */
 export const buildRouteWithParams = (
   path: string,
-  params?: Record<string, string | number | undefined>
+  params?: Record<string, string | number | undefined>,
 ): string => {
   if (!params || Object.keys(params).length === 0) {
     return path;
@@ -132,4 +134,3 @@ export const MAIN_ROUTES = APP_ROUTES;
 export const RELATIVE_ROUTES = APP_ROUTES;
 
 export default ROUTES;
-

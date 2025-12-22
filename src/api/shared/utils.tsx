@@ -23,7 +23,7 @@ export function normalizePages<T>(pages?: PaginateQuery<T>[]): T[] {
 
 // a function that accept a url and return params as an object
 export function getUrlParameters(
-  url: string | null
+  url: string | null,
 ): { [k: string]: string } | null {
   if (url === null) {
     return null;

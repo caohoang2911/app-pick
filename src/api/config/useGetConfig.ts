@@ -9,7 +9,7 @@ type Variables = {
 export type ConfigResponse = {
   allConfig?: Config | null;
   version?: string;
-}
+};
 
 type Response = { error: string } & {
   data: ConfigResponse;
@@ -22,6 +22,6 @@ const getAll = async (params?: Variables): Promise<Response> => {
 export const useGetConfig = ({ version }: Variables) =>
   useQuery({
     queryKey: ['configs', version],
-    queryFn: () => getAll({version}), 
+    queryFn: () => getAll({ version }),
     enabled: false,
   });

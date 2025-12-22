@@ -6,13 +6,13 @@ import { Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useConfig } from '~/src/core/store/config';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
-import { getConfigNameById } from "~/src/core/utils/config";
+import { getConfigNameById } from '~/src/core/utils/config';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
 import HeaderActionBtn from './header-action-btn';
 
-const HeaderTags = ({tags}: {tags?: string[]}) => {
+const HeaderTags = ({ tags }: { tags?: string[] }) => {
   const configs = useConfig.use.config();
   const orderTags = configs?.orderTags || [];
 
@@ -20,40 +20,49 @@ const HeaderTags = ({tags}: {tags?: string[]}) => {
     <View className="flex flex-row gap-1 flex-wrap">
       {tags?.map((tag) => {
         const tagName = getConfigNameById(orderTags, tag);
-        return  (
+        return (
           <Badge
             className="self-start rounded-md"
-            key={tag} label={tagName as string}
-            style={{marginHorizontal: 0}}
-            variant={ORDER_STATUS_BADGE_VARIANT[tag as keyof typeof ORDER_STATUS_BADGE_VARIANT] as any} />
-        )
+            key={tag}
+            label={tagName as string}
+            style={{ marginHorizontal: 0 }}
+            variant={
+              ORDER_STATUS_BADGE_VARIANT[
+                tag as keyof typeof ORDER_STATUS_BADGE_VARIANT
+              ] as any
+            }
+          />
+        );
       })}
     </View>
-  )
-}
-
+  );
+};
 
 const OrderPickHeader = () => {
   const { code } = useGlobalSearchParams<{ code: string }>();
   const orderDetail: OrderDetail = useOrderInvoice.use.orderInvoice();
 
   const { header } = orderDetail;
-  const { status, statusName,  lastTimeUpdateStatus, tags } = header || {};
+  const { status, statusName, lastTimeUpdateStatus, tags } = header || {};
 
   return (
     <View className="px-4 bg-white pb-3">
       <View className="flex-row justify-between items-center">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
-          <View className='flex flex-row items-center gap-2'>
-            <ButtonBack title={<Text className="font-semibold text-base">{code}</Text>} />
+          <View className="flex flex-row items-center gap-2">
+            <ButtonBack
+              title={<Text className="font-semibold text-base">{code}</Text>}
+            />
           </View>
           {status && (
             <Badge
               label={statusName}
               variant={toLower(status as string) as any}
-              extraLabel={<Text className="text-xs text-contentPrimary ml-3">
-                | {getRelativeTime(lastTimeUpdateStatus)}
-              </Text>}
+              extraLabel={
+                <Text className="text-xs text-contentPrimary ml-3">
+                  | {getRelativeTime(lastTimeUpdateStatus)}
+                </Text>
+              }
             />
           )}
         </View>

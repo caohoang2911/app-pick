@@ -5,9 +5,9 @@ import * as React from 'react';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      enabled: false
-    }
-  }
+      enabled: false,
+    },
+  },
 });
 
 export function APIProvider({ children }: { children: React.ReactNode }) {

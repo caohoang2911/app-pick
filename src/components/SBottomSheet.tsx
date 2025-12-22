@@ -1,13 +1,10 @@
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-} from '@gorhom/bottom-sheet';
+import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
 import React, {
   forwardRef,
   useCallback,
   useImperativeHandle,
   useMemo,
-  useRef
+  useRef,
 } from 'react';
 import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
 import { Easing } from 'react-native-reanimated';
@@ -31,9 +28,18 @@ type Props = {
   [key: string]: any;
 };
 
-const Header = ({ title, renderTitle, extraTitle, hideHeader, topHeader, titleAlign, bottomSheetModalRef, onClose }: Props) => {
+const Header = ({
+  title,
+  renderTitle,
+  extraTitle,
+  hideHeader,
+  topHeader,
+  titleAlign,
+  bottomSheetModalRef,
+  onClose,
+}: Props) => {
   if (hideHeader) return null;
-  
+
   const renderCloseButton = useMemo(() => {
     return (
       <Pressable
@@ -43,11 +49,13 @@ const Header = ({ title, renderTitle, extraTitle, hideHeader, topHeader, titleAl
             bottomSheetModalRef.current?.dismiss();
           });
         }}
-        style={[!!topHeader && {
-          position: 'absolute',
-          right: 10,
-          top: -0,
-        }]}
+        style={[
+          !!topHeader && {
+            position: 'absolute',
+            right: 10,
+            top: -0,
+          },
+        ]}
         hitSlop={15}
       >
         <CloseLine />
@@ -56,34 +64,35 @@ const Header = ({ title, renderTitle, extraTitle, hideHeader, topHeader, titleAl
   }, [onClose, bottomSheetModalRef]);
 
   return (
-    <View 
-    className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4"
-  > 
-    {topHeader && topHeader}
-    <View className='flex flex-row justify-between items-center w-100'> 
-      {titleAlign == 'center' && <View />}
-      {!renderTitle && (
-        <Text className={`text-${titleAlign} font-semibold text-lg`}>
-          {title}
-        </Text>
-      )}
-      {renderTitle && (
-        <View className="mr-3" style={{ width: width - (topHeader ? 20 : 80) }}>
-          {renderTitle}
-        </View>
-      )}
-      {!topHeader && renderCloseButton}
+    <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4">
+      {topHeader && topHeader}
+      <View className="flex flex-row justify-between items-center w-100">
+        {titleAlign == 'center' && <View />}
+        {!renderTitle && (
+          <Text className={`text-${titleAlign} font-semibold text-lg`}>
+            {title}
+          </Text>
+        )}
+        {renderTitle && (
+          <View
+            className="mr-3"
+            style={{ width: width - (topHeader ? 20 : 80) }}
+          >
+            {renderTitle}
+          </View>
+        )}
+        {!topHeader && renderCloseButton}
+      </View>
+      {topHeader && renderCloseButton}
+      {extraTitle && extraTitle}
     </View>
-    {topHeader && renderCloseButton}
-    {extraTitle && extraTitle}
-  </View>
-  )
-}
+  );
+};
 
 const SBottomSheet = forwardRef<any, Props>(
   (
     {
-      snapPoints = [230, "70%"],
+      snapPoints = [230, '70%'],
       title = 'Title',
       renderTitle,
       extraTitle,
@@ -96,7 +105,7 @@ const SBottomSheet = forwardRef<any, Props>(
       onClose,
       ...rests
     },
-    ref
+    ref,
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
 
@@ -106,7 +115,7 @@ const SBottomSheet = forwardRef<any, Props>(
           onClose?.();
         }
       },
-      [onClose]
+      [onClose],
     );
 
     useImperativeHandle(
@@ -124,7 +133,7 @@ const SBottomSheet = forwardRef<any, Props>(
           });
         },
       }),
-      [onClose]
+      [onClose],
     );
 
     const renderBackdrop = useCallback(
@@ -135,7 +144,7 @@ const SBottomSheet = forwardRef<any, Props>(
           appearsOnIndex={0}
         />
       ),
-      []
+      [],
     );
 
     if (!visible) {
@@ -167,8 +176,8 @@ const SBottomSheet = forwardRef<any, Props>(
           hideHeader={hideHeader}
           titleAlign={titleAlign}
           bottomSheetModalRef={bottomSheetModalRef}
-          onClose={onClose} 
-          children={children} 
+          onClose={onClose}
+          children={children}
           visible={visible}
         />
         <SafeBottomSheetScrollView
@@ -182,7 +191,7 @@ const SBottomSheet = forwardRef<any, Props>(
         {extraButton && extraButton}
       </BottomSheetModal>
     );
-  }
+  },
 );
 
 export default React.memo(SBottomSheet);

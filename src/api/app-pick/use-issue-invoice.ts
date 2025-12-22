@@ -29,7 +29,7 @@ const getPrinterHost = (): string | null => {
   const stores = config?.stores || [];
   const store: any = stores.find((store: any) => store.id === storeCode);
   const { billPrinterIp } = store || {};
-  return getItem<string>('ipPrinterBill') || billPrinterIp || ''
+  return getItem<string>('ipPrinterBill') || billPrinterIp || '';
 };
 
 const cleanupConnection = (client: any, timer: NodeJS.Timeout | null) => {
@@ -47,7 +47,8 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
 
     if (!host) {
       showMessage({
-        message: 'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
+        message:
+          'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
         type: 'danger',
       });
       reject(new Error('Printer not configured'));
@@ -96,16 +97,19 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
   });
 };
 
-const fetchBase64ImageByInvoiceURL = async (orderCode: string): Promise<{ data: string }> => {
+const fetchBase64ImageByInvoiceURL = async (
+  orderCode: string,
+): Promise<{ data: string }> => {
   return await axios.get(`${INVOICE_API_URL}?orderCode=${orderCode}`);
 };
 
-const useFetchBase64ImageByInvoiceURL = (cb?: (base64Image: string) => void) => {
+const useFetchBase64ImageByInvoiceURL = (
+  cb?: (base64Image: string) => void,
+) => {
   return useMutation({
-    mutationFn: (orderCode: string): Promise<{ data: string }> => fetchBase64ImageByInvoiceURL(orderCode),
-    onSuccess: (data: {
-      data: string;
-    }) => {
+    mutationFn: (orderCode: string): Promise<{ data: string }> =>
+      fetchBase64ImageByInvoiceURL(orderCode),
+    onSuccess: (data: { data: string }) => {
       if (data) {
         cb?.(data.data);
       } else {
@@ -131,7 +135,7 @@ const useIssueInvoice = () => {
 
 const validateBase64Image = (base64Image: string): string => {
   const trimmedBase64 = base64Image.trim();
-  
+
   if (!BASE64_REGEX.test(trimmedBase64)) {
     setLoading(false);
     showMessage({
@@ -144,15 +148,23 @@ const validateBase64Image = (base64Image: string): string => {
   return trimmedBase64;
 };
 
-const sendToPrinter = async (client: TcpSocket.Socket, printerBuffer: Uint8Array) => {
+const sendToPrinter = async (
+  client: TcpSocket.Socket,
+  printerBuffer: Uint8Array,
+) => {
   client.write(printerBuffer);
   await new Promise((resolve) => setTimeout(resolve, 2000));
   client.destroy();
 };
 
-export const useIssueInvoiceProcess = (orderCode: string, ignorePrintInvoiceStep: boolean = false, cb?: () => void) => {
+export const useIssueInvoiceProcess = (
+  orderCode: string,
+  ignorePrintInvoiceStep: boolean = false,
+  cb?: () => void,
+) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
-  const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } = useFetchBase64ImageByInvoiceURL();
+  const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
+    useFetchBase64ImageByInvoiceURL();
   const { mutateAsync: issueInvoiceAsync } = useIssueInvoice();
 
   return useMutation({
@@ -163,7 +175,7 @@ export const useIssueInvoiceProcess = (orderCode: string, ignorePrintInvoiceStep
         if (!ignorePrintInvoiceStep) {
           client = await checkPrinterConnection();
         }
-        
+
         const issueInvoiceResult = await issueInvoiceAsync(params);
         const { error: issueInvoiceError } = issueInvoiceResult;
         if (issueInvoiceError) {
@@ -177,11 +189,15 @@ export const useIssueInvoiceProcess = (orderCode: string, ignorePrintInvoiceStep
 
         if (ignorePrintInvoiceStep) {
           return issueInvoiceResult;
-        }        
+        }
         const res = await fetchBase64ImageByInvoiceURLAsync(orderCode);
         const fullBase64 = validateBase64Image(res.data);
 
-        const { data: printerBuffer, error, hasError } = await genXPrinterPrintDataAsync({
+        const {
+          data: printerBuffer,
+          error,
+          hasError,
+        } = await genXPrinterPrintDataAsync({
           base64Image: fullBase64,
         });
 

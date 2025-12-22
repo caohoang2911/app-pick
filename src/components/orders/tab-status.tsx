@@ -19,16 +19,17 @@ const TabsStatus = () => {
   const ref = useRef<any>();
   const cachingOrderStatusCounters = useRef<any>(null);
 
-  const { storeCode, role} = useAuth.use.userInfo();
+  const { storeCode, role } = useAuth.use.userInfo();
   const { data, refetch } = useGetOrderStatusCounters();
-  const orderStatusCounters = data?.data ? { ...cachingOrderStatusCounters.current, ...data.data } : {};
+  const orderStatusCounters = data?.data
+    ? { ...cachingOrderStatusCounters.current, ...data.data }
+    : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
 
-
   useEffect(() => {
     cachingOrderStatusCounters.current = orderStatusCounters;
-  }, [orderStatusCounters])
+  }, [orderStatusCounters]);
 
   const isFirtTime = useRef(true);
 
@@ -40,148 +41,178 @@ const TabsStatus = () => {
       return () => {
         isFirtTime.current = false;
       };
-    }, [])
+    }, []),
   );
 
   useEffect(() => {
     refetch();
-  }, [storeCode])
+  }, [storeCode]);
 
   const dataStatusCounters = useMemo(() => {
-    const priority = role === Role.DRIVER ? ORDER_COUNTER_STATUS_PRIORITY_DRIVER : ORDER_COUNTER_STATUS_PRIORITY;
-    const labels = role === Role.DRIVER ? ORDER_COUNTER_STATUS_DRIVER : ORDER_COUNTER_STATUS;
-    
-    return Object.keys(orderStatusCounters)?.filter(key => priority[key] !== undefined)?.map(
-      (key: string) => {
+    const priority =
+      role === Role.DRIVER
+        ? ORDER_COUNTER_STATUS_PRIORITY_DRIVER
+        : ORDER_COUNTER_STATUS_PRIORITY;
+    const labels =
+      role === Role.DRIVER ? ORDER_COUNTER_STATUS_DRIVER : ORDER_COUNTER_STATUS;
+
+    return Object.keys(orderStatusCounters)
+      ?.filter((key) => priority[key] !== undefined)
+      ?.map((key: string) => {
         return {
           id: key,
           label: labels[key],
           priority: priority[key],
           number: (orderStatusCounters as any)[key],
         };
-      }
-    );
+      });
   }, [orderStatusCounters]);
 
   const sortedDataStatusCounters = useMemo(() => {
     return sortByPriority(dataStatusCounters || []);
   }, [dataStatusCounters]);
 
-  const goTabSelected = useCallback((id?: string) => {
-    const index = sortedDataStatusCounters.findIndex(
-      (status) => status.id === (selectedOrderCounter as any) || status.id === id
-    );
-    if (index === -1) return;
+  const goTabSelected = useCallback(
+    (id?: string) => {
+      const index = sortedDataStatusCounters.findIndex(
+        (status) =>
+          status.id === (selectedOrderCounter as any) || status.id === id,
+      );
+      if (index === -1) return;
 
-    // Enhanced validation for scrollToIndex
-    const dataLength = sortedDataStatusCounters?.length || 0;
-    if (dataLength === 0) {
-      console.warn('No data available for scrolling');
-      return;
-    }
-    
-    if (index < 0 || index >= dataLength) {
-      console.warn('Invalid scroll index:', index, 'Data length:', dataLength);
-      return;
-    }
+      // Enhanced validation for scrollToIndex
+      const dataLength = sortedDataStatusCounters?.length || 0;
+      if (dataLength === 0) {
+        console.warn('No data available for scrolling');
+        return;
+      }
 
-    // Add additional safety check
-    if (!ref.current) {
-      console.warn('FlatList ref not available');
-      return;
-    }
+      if (index < 0 || index >= dataLength) {
+        console.warn(
+          'Invalid scroll index:',
+          index,
+          'Data length:',
+          dataLength,
+        );
+        return;
+      }
 
-    setTimeout(() => {
-      if (ref.current && index >= 0 && index < dataLength) {
-        try {
-          ref.current.scrollToIndex({
-            animated: true,
-            index: index,
-            viewPosition: 0.5,
-          });
-        } catch (error) {
-          console.warn('scrollToIndex failed, using fallback:', error);
-          // Fallback to scrollToOffset if scrollToIndex fails
-          const estimatedOffset = Math.max(0, index * 120); // Ensure non-negative offset
+      // Add additional safety check
+      if (!ref.current) {
+        console.warn('FlatList ref not available');
+        return;
+      }
+
+      setTimeout(() => {
+        if (ref.current && index >= 0 && index < dataLength) {
           try {
-            ref.current.scrollToOffset({ offset: estimatedOffset, animated: true });
-          } catch (fallbackError) {
-            console.warn('scrollToOffset fallback also failed:', fallbackError);
+            ref.current.scrollToIndex({
+              animated: true,
+              index: index,
+              viewPosition: 0.5,
+            });
+          } catch (error) {
+            console.warn('scrollToIndex failed, using fallback:', error);
+            // Fallback to scrollToOffset if scrollToIndex fails
+            const estimatedOffset = Math.max(0, index * 120); // Ensure non-negative offset
+            try {
+              ref.current.scrollToOffset({
+                offset: estimatedOffset,
+                animated: true,
+              });
+            } catch (fallbackError) {
+              console.warn(
+                'scrollToOffset fallback also failed:',
+                fallbackError,
+              );
+            }
           }
         }
-      }
-    }, 500);
-  }, [selectedOrderCounter, sortedDataStatusCounters])
+      }, 500);
+    },
+    [selectedOrderCounter, sortedDataStatusCounters],
+  );
 
   // Handle scroll failure with enhanced error handling
-  const handleScrollToIndexFailed = useCallback((info: {
-    index: number;
-    highestMeasuredFrameIndex: number;
-    averageItemLength: number;
-  }) => {
-    console.warn('scrollToIndexFailed:', info);
-    
-    if (!ref.current) {
-      console.warn('FlatList ref not available in scrollToIndexFailed');
-      return;
-    }
+  const handleScrollToIndexFailed = useCallback(
+    (info: {
+      index: number;
+      highestMeasuredFrameIndex: number;
+      averageItemLength: number;
+    }) => {
+      console.warn('scrollToIndexFailed:', info);
 
-    try {
-      // Calculate scroll offset based on average item length
-      const offset = Math.max(0, info.averageItemLength * info.index);
-      ref.current.scrollToOffset({ offset, animated: true });
-    } catch (error) {
-      console.warn('scrollToOffset failed in handleScrollToIndexFailed:', error);
-    }
-  }, []);
+      if (!ref.current) {
+        console.warn('FlatList ref not available in scrollToIndexFailed');
+        return;
+      }
+
+      try {
+        // Calculate scroll offset based on average item length
+        const offset = Math.max(0, info.averageItemLength * info.index);
+        ref.current.scrollToOffset({ offset, animated: true });
+      } catch (error) {
+        console.warn(
+          'scrollToOffset failed in handleScrollToIndexFailed:',
+          error,
+        );
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     goTabSelected(selectedOrderCounter);
   }, [selectedOrderCounter, goTabSelected]);
 
-  const handleTabPress = useCallback((itemId: string) => {
-    refetch();
-    goTabSelected(itemId);
-    setSelectedOrderCounter(itemId as any);
-  }, [refetch, goTabSelected]);
+  const handleTabPress = useCallback(
+    (itemId: string) => {
+      refetch();
+      goTabSelected(itemId);
+      setSelectedOrderCounter(itemId as any);
+    },
+    [refetch, goTabSelected],
+  );
 
-  const renderTabItem = useCallback(({ item, index }: { item: any; index: number }) => {
-    const isStatusSeleted = item.id === selectedOrderCounter;
-    const isFirst = index === 0;
-    const isLast = index === sortedDataStatusCounters?.length - 1;
-    
-    return (
-      <TouchableOpacity
-        key={item.id}
-        onPress={() => handleTabPress(item.id)}
-      >
-        <View
-          className={clsx('py- rounded', {
-            'pr-4': isFirst,
-            'px-3': !isFirst,
-            'px-0 pl-3': isLast,
-          })}
-        >
-          <Text
-            className={clsx({
-              'color-colorPrimary font-semibold': isStatusSeleted,
-              'color-gray-500': !isStatusSeleted,
+  const renderTabItem = useCallback(
+    ({ item, index }: { item: any; index: number }) => {
+      const isStatusSeleted = item.id === selectedOrderCounter;
+      const isFirst = index === 0;
+      const isLast = index === sortedDataStatusCounters?.length - 1;
+
+      return (
+        <TouchableOpacity key={item.id} onPress={() => handleTabPress(item.id)}>
+          <View
+            className={clsx('py- rounded', {
+              'pr-4': isFirst,
+              'px-3': !isFirst,
+              'px-0 pl-3': isLast,
             })}
           >
-            <Text>{item.label}</Text> <Text className='text-blue text-lg'>•</Text> <Text>{item.number}</Text>
-          </Text>
-          {isStatusSeleted && (
-            <View
-              style={{ height: 2, marginTop: 5 }}
+            <Text
               className={clsx({
-                'rounded-t-md bg-colorPrimary': isStatusSeleted,
+                'color-colorPrimary font-semibold': isStatusSeleted,
+                'color-gray-500': !isStatusSeleted,
               })}
-            />
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  }, [selectedOrderCounter, sortedDataStatusCounters?.length, handleTabPress]);
+            >
+              <Text>{item.label}</Text>{' '}
+              <Text className="text-blue text-lg">•</Text>{' '}
+              <Text>{item.number}</Text>
+            </Text>
+            {isStatusSeleted && (
+              <View
+                style={{ height: 2, marginTop: 5 }}
+                className={clsx({
+                  'rounded-t-md bg-colorPrimary': isStatusSeleted,
+                })}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [selectedOrderCounter, sortedDataStatusCounters?.length, handleTabPress],
+  );
 
   if (error) return <></>;
 
@@ -202,7 +233,7 @@ const TabsStatus = () => {
       initialNumToRender={5}
     />
   );
-}
+};
 
 export default memo(TabsStatus);
 

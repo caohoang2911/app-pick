@@ -1,10 +1,14 @@
 import { useFocusEffect } from 'expo-router';
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import {
-  FlatList,
-  RefreshControl
-} from 'react-native-gesture-handler';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
@@ -13,43 +17,58 @@ import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { removeItem } from '~/src/core/storage';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { setLoading } from '~/src/core/store/loading';
-import { setFromScanQrCode, setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
+import {
+  setFromScanQrCode,
+  setSelectedOrderCounter,
+  useOrders,
+} from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
 import OrderItem from './order-item';
 
 // Tách OrderItem thành component riêng để tránh re-render toàn bộ danh sách
-const MemoizedOrderItem = memo(({ item, selectedOrderCounter }: { item: any, selectedOrderCounter: string }) => (
-  <View className="my-3">
-    <OrderItem
-      {...item}
-      selectedOrderCounter={selectedOrderCounter}
-    />
-  </View>
-));
+const MemoizedOrderItem = memo(
+  ({
+    item,
+    selectedOrderCounter,
+  }: {
+    item: any;
+    selectedOrderCounter: string;
+  }) => (
+    <View className="my-3">
+      <OrderItem {...item} selectedOrderCounter={selectedOrderCounter} />
+    </View>
+  ),
+);
 
 // Footer component
-const ListFooter = memo(({ 
-  isFetchingNextPage, 
-  hasNextPage, 
-  isFetching, 
-  hasItems 
-}: { 
-  isFetchingNextPage: boolean, 
-  hasNextPage: boolean | undefined, 
-  isFetching: boolean, 
-  hasItems: boolean 
-}) => {
-  if (isFetchingNextPage) {
-    return <ActivityIndicator color="blue" />;
-  }
-  
-  if (!hasNextPage && !isFetchingNextPage && !isFetching && hasItems) {
-    return <Text className="text-center text-xs text-gray-500">Danh sách đã hết</Text>;
-  }
-  
-  return <View />;
-});
+const ListFooter = memo(
+  ({
+    isFetchingNextPage,
+    hasNextPage,
+    isFetching,
+    hasItems,
+  }: {
+    isFetchingNextPage: boolean;
+    hasNextPage: boolean | undefined;
+    isFetching: boolean;
+    hasItems: boolean;
+  }) => {
+    if (isFetchingNextPage) {
+      return <ActivityIndicator color="blue" />;
+    }
+
+    if (!hasNextPage && !isFetchingNextPage && !isFetching && hasItems) {
+      return (
+        <Text className="text-center text-xs text-gray-500">
+          Danh sách đã hết
+        </Text>
+      );
+    }
+
+    return <View />;
+  },
+);
 
 // Loading component
 const LoadingIndicator = memo(() => (
@@ -94,18 +113,18 @@ const OrderList = () => {
     setTimeout(() => {
       setUserInfo({
         ...userInfo,
-        ...data?.data
+        ...data?.data,
       });
       setTimeout(() => {
         setUser({
           ...userInfo,
-          ...data?.data
+          ...data?.data,
         });
         setLoading(false);
       }, 200);
     }, 1000);
   });
-  
+
   // State from store
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
   const deliveryType = useOrders.use.deliveryType();
@@ -115,30 +134,29 @@ const OrderList = () => {
 
   // Initialize default tab based on user role
   useEffect(() => {
-    if (isDriver ) {
-      setSelectedOrderCounter("ALL");
+    if (isDriver) {
+      setSelectedOrderCounter('ALL');
     } else if (!isDriver) {
       setSelectedOrderCounter('CONFIRMED');
     }
   }, [isDriver]);
 
   // State
-  const [isRefreshIndicatorVisible, setIsRefreshIndicatorVisible] = useState(false);
+  const [isRefreshIndicatorVisible, setIsRefreshIndicatorVisible] =
+    useState(false);
 
   // Memoize search params
-  const params = useMemo(() =>{
-    
-    return ({
+  const params = useMemo(() => {
+    return {
       status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
       deliveryType: fromScanQrCode ? null : deliveryType,
-
-    })
+    };
   }, [selectedOrderCounter, deliveryType, fromScanQrCode]);
 
   // Check if params have changed
   const haveParamsChanged = useCallback(() => {
     if (!prevParamsRef.current) return true;
-    
+
     // Only compare relevant fields for reload
     const prevParams = prevParamsRef.current;
     return (
@@ -147,7 +165,7 @@ const OrderList = () => {
     );
   }, [params]);
 
-  // Update prevParams ref 
+  // Update prevParams ref
   useEffect(() => {
     prevParamsRef.current = params;
   }, [params]);
@@ -162,13 +180,17 @@ const OrderList = () => {
     refetch,
     hasPreviousPage,
     isSuccess,
-    isPending
+    isPending,
   } = useSearchOrders(params);
 
-  const orderList = useMemo(() => ordersResponse?.pages || [], [ordersResponse?.pages]);
+  const orderList = useMemo(
+    () => ordersResponse?.pages || [],
+    [ordersResponse?.pages],
+  );
   const hasItems = orderList.length > 0;
   const hasError = !!(ordersResponse as any)?.error;
-  const isLoading = (!hasPreviousPage && isPending && !isManualRefreshRef.current);
+  const isLoading =
+    !hasPreviousPage && isPending && !isManualRefreshRef.current;
 
   // Reset scan QR flag after successful fetch
   useEffect(() => {
@@ -203,7 +225,7 @@ const OrderList = () => {
         refetch();
       }
       return () => {};
-    }, [refetch])
+    }, [refetch]),
   );
 
   // Pull-to-refresh handler
@@ -212,15 +234,15 @@ const OrderList = () => {
 
     isManualRefreshRef.current = true;
     setIsRefreshIndicatorVisible(true);
-    
+
     Promise.all([
       goFirstPage(),
-      queryClient.invalidateQueries({ 
-        queryKey: ['getOrderStatusCounters'] 
+      queryClient.invalidateQueries({
+        queryKey: ['getOrderStatusCounters'],
       }),
-      queryClient.invalidateQueries({ 
-        queryKey: ['getOrderDeliveryTypeCounters', selectedOrderCounter] 
-      })
+      queryClient.invalidateQueries({
+        queryKey: ['getOrderDeliveryTypeCounters', selectedOrderCounter],
+      }),
     ]).finally(() => {
       // Hide refresh indicator after all queries complete
       setTimeout(() => setIsRefreshIndicatorVisible(false), 500);
@@ -236,25 +258,34 @@ const OrderList = () => {
   }, [hasNextPage, isFetching, isFetchingNextPage, fetchNextPage]);
 
   // Memoize item renderer to prevent unnecessary re-renders
-  const renderItem = useCallback(({ item, index }: { item: any, index: number }) => {
-    // Fast path: Chỉ render các items gần viewport
-    return (
-      <MemoizedOrderItem 
-        item={item} 
-        selectedOrderCounter={selectedOrderCounter} 
-      />
-    );
-  }, [selectedOrderCounter]);
+  const renderItem = useCallback(
+    ({ item, index }: { item: any; index: number }) => {
+      // Fast path: Chỉ render các items gần viewport
+      return (
+        <MemoizedOrderItem
+          item={item}
+          selectedOrderCounter={selectedOrderCounter}
+        />
+      );
+    },
+    [selectedOrderCounter],
+  );
 
   // Optimize list performance with getItemLayout
-  const getItemLayout = useCallback((_: any, index: number) => ({
-    length: 120, // Estimated item height
-    offset: 120 * index,
-    index,
-  }), []);
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: 120, // Estimated item height
+      offset: 120 * index,
+      index,
+    }),
+    [],
+  );
 
   // Optimize key extraction
-  const keyExtractor = useCallback((item: any, index: number) => `${item.code}-${index}`, []);
+  const keyExtractor = useCallback(
+    (item: any, index: number) => `${item.code}-${index}`,
+    [],
+  );
 
   // Conditional rendering based on state
   if (isLoading) {
@@ -283,7 +314,7 @@ const OrderList = () => {
         onEndReachedThreshold={0.3}
         onEndReached={handleEndReached}
         ListFooterComponent={
-          <ListFooter 
+          <ListFooter
             isFetchingNextPage={isFetchingNextPage}
             hasNextPage={hasNextPage}
             isFetching={isFetching}

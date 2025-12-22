@@ -1,6 +1,18 @@
 import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutChangeEvent, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  LayoutChangeEvent,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useGetOrderDeliveryTypeCounters } from '~/src/api/app-pick/use-get-order-delivery-type-counters';
 import { queryClient } from '~/src/api/shared';
 import { useAuth } from '~/src/core';
@@ -12,14 +24,14 @@ import { OrderStatus } from '~/src/types/order';
 type DeliveryTypeOption = {
   label: React.ReactNode | string;
   value: string;
-}
+};
 
 const pickStatus = [
-  "SHIPPER_DELIVERY",
-  "OFFLINE_HOME_DELIVERY",
-  "APARTMENT_COMPLEX_DELIVERY",
-  "CUSTOMER_PICKUP",
-]
+  'SHIPPER_DELIVERY',
+  'OFFLINE_HOME_DELIVERY',
+  'APARTMENT_COMPLEX_DELIVERY',
+  'CUSTOMER_PICKUP',
+];
 
 function DeliveryType() {
   const cachingDeliveryTypeCounters = useRef<any>(null);
@@ -36,9 +48,13 @@ function DeliveryType() {
 
   const isFirtTime = useRef(true);
 
-  const { data, refetch } = useGetOrderDeliveryTypeCounters({ status: fromScanQrCode ? 'ALL' : selectedOrderCounter as OrderStatus });
+  const { data, refetch } = useGetOrderDeliveryTypeCounters({
+    status: fromScanQrCode ? 'ALL' : (selectedOrderCounter as OrderStatus),
+  });
 
-  const counters = data?.data ? { ...cachingDeliveryTypeCounters.current, ...data.data } : {};
+  const counters = data?.data
+    ? { ...cachingDeliveryTypeCounters.current, ...data.data }
+    : {};
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
@@ -52,19 +68,18 @@ function DeliveryType() {
       return () => {
         isFirtTime.current = false;
       };
-    }, [authStatus])
+    }, [authStatus]),
   );
 
   useEffect(() => {
     if (authStatus === 'signIn') {
       refetch();
     }
-  }, [fromScanQrCode, selectedOrderCounter, authStatus])
-
+  }, [fromScanQrCode, selectedOrderCounter, authStatus]);
 
   const handleSelect = (value: string) => {
     queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters'] });
-    if(refCurrentStatus.current === value) {
+    if (refCurrentStatus.current === value) {
       setDeliveryType(null);
       refCurrentStatus.current = null;
     } else {
@@ -73,40 +88,57 @@ function DeliveryType() {
     }
   };
 
-
   const options: DeliveryTypeOption[] = useMemo(() => {
-    return Object.keys(counters).filter((status) => pickStatus.includes(status)).map((status) => {
-      const shippingMethodName = getConfigNameById(orderDeliveryTypes, status)
+    return Object.keys(counters)
+      .filter((status) => pickStatus.includes(status))
+      .map((status) => {
+        const shippingMethodName = getConfigNameById(
+          orderDeliveryTypes,
+          status,
+        );
 
-      const textClasses = deliveryType === status ? 'text-blue-600' : 'text-gray-500';
-      const backgroundColorClass = deliveryType === status ? 'bg-blue-50' : 'bg-slate-100';
+        const textClasses =
+          deliveryType === status ? 'text-blue-600' : 'text-gray-500';
+        const backgroundColorClass =
+          deliveryType === status ? 'bg-blue-50' : 'bg-slate-100';
 
-      return ({
-        label: <TouchableOpacity onPress={() => handleSelect(status)}>
-          <View className={`flex flex-row items-center rounded-full py-1 px-2 ${backgroundColorClass}`}>
-            <Text numberOfLines={1} className={`${textClasses} font-medium text-sm`}>{shippingMethodName || status}</Text>
-            <Text className={`${textClasses} text-lg`}> • </Text>
-            <Text className={`${textClasses} font-medium text-sm`}>{counters[status] || 0}</Text>
-          </View>
-        </TouchableOpacity>,
-        value: status,
-      })
-    })
-  }, [counters, orderDeliveryTypes, deliveryType])
+        return {
+          label: (
+            <TouchableOpacity onPress={() => handleSelect(status)}>
+              <View
+                className={`flex flex-row items-center rounded-full py-1 px-2 ${backgroundColorClass}`}
+              >
+                <Text
+                  numberOfLines={1}
+                  className={`${textClasses} font-medium text-sm`}
+                >
+                  {shippingMethodName || status}
+                </Text>
+                <Text className={`${textClasses} text-lg`}> • </Text>
+                <Text className={`${textClasses} font-medium text-sm`}>
+                  {counters[status] || 0}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ),
+          value: status,
+        };
+      });
+  }, [counters, orderDeliveryTypes, deliveryType]);
 
   useEffect(() => {
     cachingDeliveryTypeCounters.current = counters;
-  }, [counters])
+  }, [counters]);
 
   return (
-    <View 
-      className='flex flex-row'
+    <View
+      className="flex flex-row"
       onLayout={(event: LayoutChangeEvent) => {
         setContainerWidth(event.nativeEvent.layout.width);
       }}
     >
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ justifyContent: 'flex-end', flexGrow: 1 }}
         style={{ flex: 1 }}
@@ -121,7 +153,7 @@ function DeliveryType() {
             <View key={index} className={`${isLast ? 'mr-0' : 'mr-2'}`}>
               {item.label}
             </View>
-          )
+          );
         })}
       </ScrollView>
     </View>

@@ -1,4 +1,3 @@
-
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useRole } from '~/src/core/hooks/useRole';
@@ -24,18 +23,17 @@ type Response = { error: string } & {
 
 const getCounter = async (role: Role): Promise<Response> => {
   const contextPath = role === Role.DRIVER ? 'app-pick-driver' : 'app-pick';
-  
+
   return await axiosClient.get(`${contextPath}/getOrderStatusCounters`);
 };
 export const useGetOrderStatusCounters = () => {
-
   const role = useRole();
-  
-  return  useQuery({
+
+  return useQuery({
     queryKey: ['getOrderStatusCounters'],
     queryFn: () => {
       return getCounter(role as Role);
     },
-    enabled: true
+    enabled: true,
   });
-}
+};

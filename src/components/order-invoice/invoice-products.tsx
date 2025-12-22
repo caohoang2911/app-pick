@@ -6,10 +6,22 @@ import { useOrderInvoice } from '~/src/core/store/order-invoice';
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-const ProductItem = ({ image, name, quantity, unit, barcode }: { image: string, name: string, quantity: number, unit: string, barcode: string }) => {
+const ProductItem = ({
+  image,
+  name,
+  quantity,
+  unit,
+  barcode,
+}: {
+  image: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  barcode: string;
+}) => {
   return (
-    <View className='flex flex-row justify-between items-center py-3 px-4'>
-     <View className='flex flex-row gap-3 items-center'>
+    <View className="flex flex-row justify-between items-center py-3 px-4">
+      <View className="flex flex-row gap-3 items-center">
         <Image
           style={{ width: 64, height: 64 }}
           source={image}
@@ -17,18 +29,20 @@ const ProductItem = ({ image, name, quantity, unit, barcode }: { image: string, 
           contentFit="cover"
           transition={1000}
         />
-        <View className='flex flex-col gap-2 flex-1'>
+        <View className="flex flex-col gap-2 flex-1">
           <Text numberOfLines={2}>{name}</Text>
-          <View className='flex flex-row justify-between items-center'>
-            <Text className='text-gray-500'>{barcode}</Text>
-            <Text className='self-center text-gray-500'>{quantity} {unit}</Text>
+          <View className="flex flex-row justify-between items-center">
+            <Text className="text-gray-500">{barcode}</Text>
+            <Text className="self-center text-gray-500">
+              {quantity} {unit}
+            </Text>
           </View>
         </View>
-     </View>
-     {/* <Text>{quantity} {unit}</Text> */}
+      </View>
+      {/* <Text>{quantity} {unit}</Text> */}
     </View>
-  )
-}
+  );
+};
 
 const InvoiceProducts = () => {
   const orderInvoice = useOrderInvoice.use.orderInvoice();
@@ -37,22 +51,24 @@ const InvoiceProducts = () => {
   const { items: orderItems } = delivery || {};
 
   return (
-    <View className='bg-white mx-4 mb-4' style={styles.box}>
+    <View className="bg-white mx-4 mb-4" style={styles.box}>
       {orderItems?.map((orderItem, index) => (
         <React.Fragment key={orderItem.barcode}>
-          <ProductItem 
+          <ProductItem
             image={orderItem.image || ''}
             name={orderItem.name || ''}
             quantity={orderItem.quantity}
             unit={orderItem.unit || ''}
             barcode={orderItem.barcode || ''}
           />
-          {index < orderItems.length - 1 && <View className='border-b border-gray-200' />}
+          {index < orderItems.length - 1 && (
+            <View className="border-b border-gray-200" />
+          )}
         </React.Fragment>
       ))}
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   box: {
@@ -79,4 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InvoiceProducts
+export default InvoiceProducts;

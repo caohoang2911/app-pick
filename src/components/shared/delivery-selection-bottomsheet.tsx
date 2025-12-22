@@ -19,7 +19,6 @@ const DeliverySelectionBottomsheet = ({
   orderDetail: OrderDetail;
   setVisible: (visible: boolean) => void;
 }) => {
-
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -29,12 +28,17 @@ const DeliverySelectionBottomsheet = ({
 
   const actionRef = useRef<any>();
 
-  const isStoreDelivery = deliveryType === "APARTMENT_COMPLEX_DELIVERY" || deliveryType === "OFFLINE_HOME_DELIVERY";
+  const isStoreDelivery =
+    deliveryType === 'APARTMENT_COMPLEX_DELIVERY' ||
+    deliveryType === 'OFFLINE_HOME_DELIVERY';
 
-  const actions =  [
+  const actions = [
     {
       key: 'start-store-delivery',
-      title: status === ORDER_STATUS.SHIPPING ? 'Store hoàn tất giao hàng' : 'Store tự giao hàng',
+      title:
+        status === ORDER_STATUS.SHIPPING
+          ? 'Store hoàn tất giao hàng'
+          : 'Store tự giao hàng',
       disabled: !isStoreDelivery,
       icon: <AntDesign name="user" size={24} color="black" />,
     },
@@ -46,7 +50,13 @@ const DeliverySelectionBottomsheet = ({
     {
       key: 'cancel-book-shipper',
       title: 'Huỷ tài xế AhaMove',
-      icon: <MaterialCommunityIcons name="book-cancel-outline" size={24} color="black" />
+      icon: (
+        <MaterialCommunityIcons
+          name="book-cancel-outline"
+          size={24}
+          color="black"
+        />
+      ),
     },
   ];
 
@@ -86,13 +96,13 @@ const DeliverySelectionBottomsheet = ({
         bookAhamoveActionsBottomsheetRef.current?.present();
         break;
       case 'start-store-delivery':
-        if(status !== ORDER_STATUS.SHIPPING) {
+        if (status !== ORDER_STATUS.SHIPPING) {
           router.push(`/orders/store-start-order-scan-to-delivery/${code}`);
         } else {
           router.push(`/orders/store-complete-order-scan-to-delivery/${code}`);
         }
         break;
-      case "cancel-book-shipper":
+      case 'cancel-book-shipper':
         cancelBookShipperBottomsheetRef.current?.present();
         break;
       default:
@@ -105,7 +115,6 @@ const DeliverySelectionBottomsheet = ({
       actionRef.current?.present();
     }
   }, [visible]);
-
 
   return (
     <>
@@ -124,9 +133,12 @@ const DeliverySelectionBottomsheet = ({
         ))}
       </SBottomSheet>
       <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
-      <CancelBookShipperBottomsheet orderCode={code} ref={cancelBookShipperBottomsheetRef} />
+      <CancelBookShipperBottomsheet
+        orderCode={code}
+        ref={cancelBookShipperBottomsheetRef}
+      />
     </>
-  )
-}
+  );
+};
 
 export default DeliverySelectionBottomsheet;

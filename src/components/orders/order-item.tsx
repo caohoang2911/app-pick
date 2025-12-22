@@ -68,7 +68,7 @@ const RowWithLabel = memo(
         )}
       </View>
     );
-  }
+  },
 );
 
 const OrderItem = ({
@@ -104,7 +104,7 @@ const OrderItem = ({
   const fulfillErrorTypes = config?.fulfillErrorTypes || [];
   const fulfillErrorTypeDisplay = getConfigNameById(
     fulfillErrorTypes,
-    fulfillError?.type
+    fulfillError?.type,
   );
 
   const isDriver = useRoleDriver();
@@ -223,8 +223,10 @@ const OrderItem = ({
             value={
               deliveryTimeRange ? (
                 <Text>
-                  {expectedDeliveryTime(deliveryTimeRange).day} {"  "}
-                  <Text className="text-orange-600 font-semibold">{expectedDeliveryTime(deliveryTimeRange).hh}</Text>
+                  {expectedDeliveryTime(deliveryTimeRange).day} {'  '}
+                  <Text className="text-orange-600 font-semibold">
+                    {expectedDeliveryTime(deliveryTimeRange).hh}
+                  </Text>
                 </Text>
               ) : (
                 '--'

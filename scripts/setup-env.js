@@ -26,7 +26,7 @@ const environments = {
     ENABLE_ANALYTICS: 'true',
     ENABLE_CRASH_REPORTING: 'true',
     ENABLE_DEBUG_TOOLS: 'false',
-  }
+  },
 };
 
 function createEnvFile(environment) {
@@ -42,7 +42,7 @@ function createEnvFile(environment) {
     .join('\n');
 
   const envPath = path.join(process.cwd(), '.env');
-  
+
   try {
     fs.writeFileSync(envPath, envContent);
     console.log(`✅ Created .env file for ${environment} environment`);

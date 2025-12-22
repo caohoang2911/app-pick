@@ -8,9 +8,7 @@ export default function OrderInvoiceLayout() {
         name="index"
         options={{
           headerShown: true,
-          header: () => (
-            <Header title="Cài đặt" />
-          ),
+          header: () => <Header title="Cài đặt" />,
         }}
       />
     </Stack>

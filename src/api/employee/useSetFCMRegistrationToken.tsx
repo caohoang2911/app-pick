@@ -6,7 +6,7 @@ type Variables = { token: string };
 type Response = { error: string } & {};
 
 const setFCMRegistrationToken = async (
-  params: Variables
+  params: Variables,
 ): Promise<Response> => {
   return await axiosClient.post('employee/setFCMRegistrationToken', params);
 };

@@ -5,8 +5,8 @@ import { setLoading } from '~/src/core/store/loading';
 import { OrderBagItem } from '~/src/types/order-bag';
 
 type Variables = {
-  data: OrderBagItem[],
-  orderCode: string,
+  data: OrderBagItem[];
+  orderCode: string;
 };
 
 type Response = { error: string } & {

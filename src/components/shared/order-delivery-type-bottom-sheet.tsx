@@ -52,12 +52,12 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
   });
 
   const [orderDeliveryType, setOrderDeliveryType] = useState<string | null>(
-    deliveryType
+    deliveryType,
   );
   const actionRef = useRef<any>();
 
   useEffect(() => {
-    if(!visible) return;
+    if (!visible) return;
     setOrderDeliveryType(deliveryType);
   }, [deliveryType, visible]);
 
@@ -67,23 +67,21 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
     }
   }, [visible]);
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        present: () => {
-          setVisible(!visible);
-        },
-      };
-    },
-    []
-  );
-  
+  useImperativeHandle(ref, () => {
+    return {
+      present: () => {
+        setVisible(!visible);
+      },
+    };
+  }, []);
+
   const handleConfirm = () => {
     if (!orderDeliveryType) return;
-    updateOrderDeliveryType({ type: orderDeliveryType, orderCode: code || orderCode || "" });
+    updateOrderDeliveryType({
+      type: orderDeliveryType,
+      orderCode: code || orderCode || '',
+    });
   };
-
 
   return (
     <SBottomSheet
@@ -105,19 +103,14 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
             radioStyle={{ backgroundColor: 'white' }}
             radioBackground="blue"
           >
-            {orderDeliveryTypes?.map((deliveryType: {
-              id: string;
-              name: string;
-            }) => (
-              <RadioButtonItem
-                value={String(deliveryType.id)}
-                label={
-                  <Text className="pl-2 py-4">
-                    {deliveryType.name}
-                  </Text>
-                }
-              />
-            ))}
+            {orderDeliveryTypes?.map(
+              (deliveryType: { id: string; name: string }) => (
+                <RadioButtonItem
+                  value={String(deliveryType.id)}
+                  label={<Text className="pl-2 py-4">{deliveryType.name}</Text>}
+                />
+              ),
+            )}
           </RadioButtonGroup>
         ) : (
           <View className="py-8">

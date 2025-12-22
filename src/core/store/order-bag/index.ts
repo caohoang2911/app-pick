@@ -37,35 +37,42 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
   },
   isLoadingDeliveryOrderDetail: false,
   setOrderDetail: (orderDetail: OrderDetail) => {
-    set({ hasUpdateOrderBagLabels: false, orderDetail, orderBags: transformBagsData(orderDetail?.header?.bagLabels) });
+    set({
+      hasUpdateOrderBagLabels: false,
+      orderDetail,
+      orderBags: transformBagsData(orderDetail?.header?.bagLabels),
+    });
   },
   setOrderBags: (values: any) => {
-    set({ orderBags: values, });
+    set({ orderBags: values });
   },
   addOrderBag: (values: OrderBagItem) => {
     // Save previous state before making changes
     const currentState = get().orderBags;
-    set({ 
+    set({
       hasUpdateOrderBagLabels: true,
       previousOrderBags: currentState,
-      orderBags: { 
+      orderBags: {
         ...get().orderBags,
-        [values.type]: [...get().orderBags[values.type], { ...values}],
-      }
+        [values.type]: [...get().orderBags[values.type], { ...values }],
+      },
     });
   },
   removeOrderBag: (code: string, type: OrderBagType) => {
     // Save previous state before making changes
     const currentState = get().orderBags;
-    set({ 
+    set({
       hasUpdateOrderBagLabels: true,
       previousOrderBags: currentState,
-      orderBags: { 
-        ...get().orderBags, 
-        [type]: get().orderBags[type]
-          .filter((item: OrderBagItem) => item.code !== code)
-          .map((item: OrderBagItem, index: number) => ({ ...item, name: generateBagName(type, index + 1) }))
-      }
+      orderBags: {
+        ...get().orderBags,
+        [type]: get()
+          .orderBags[type].filter((item: OrderBagItem) => item.code !== code)
+          .map((item: OrderBagItem, index: number) => ({
+            ...item,
+            name: generateBagName(type, index + 1),
+          })),
+      },
     });
   },
   savePreviousState: () => {
@@ -75,10 +82,10 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
   undoLastChange: () => {
     const previousState = get().previousOrderBags;
     if (previousState) {
-      set({ 
+      set({
         orderBags: previousState,
         hasUpdateOrderBagLabels: false,
-        previousOrderBags: undefined
+        previousOrderBags: undefined,
       });
     }
   },

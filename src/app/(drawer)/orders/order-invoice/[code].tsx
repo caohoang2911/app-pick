@@ -24,25 +24,29 @@ const OrderInvoice = () => {
     setOrderInvoice(data?.data || {});
   }, [data]);
 
-  if(data?.error) {
-    return <SectionAlert variant='danger'><Text>{data?.error}</Text></SectionAlert>
+  if (data?.error) {
+    return (
+      <SectionAlert variant="danger">
+        <Text>{data?.error}</Text>
+      </SectionAlert>
+    );
   }
 
-  if(!data ) {
+  if (!data) {
     return null;
   }
 
   return (
     <>
-      <ScrollView className='flex-1 pt-3 mb-7'>
-        <View className='flex flex-col gap-4'>
+      <ScrollView className="flex-1 pt-3 mb-7">
+        <View className="flex flex-col gap-4">
           <InvoiceInfo />
           <ShippingInfo />
           <InvoiceProducts />
         </View>
       </ScrollView>
     </>
-  )
-}
+  );
+};
 
 export default OrderInvoice;

@@ -1,17 +1,20 @@
 import Feather from '@expo/vector-icons/Feather';
-import { Platform, StyleSheet, Text, View } from "react-native";
-import { useOrderPick } from "~/src/core/store/order-pick";
-import { formatCurrency } from "~/src/core/utils/number";
-import { OrderDetail } from "~/src/types/order-pick";
-import { Badge } from "../Badge";
-import { createSafeScrollToIndexCallback, createSafeScrollToIndexFailedCallback } from "~/src/core/utils/safe-scroll";
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import { useOrderPick } from '~/src/core/store/order-pick';
+import { formatCurrency } from '~/src/core/utils/number';
+import { OrderDetail } from '~/src/types/order-pick';
+import { Badge } from '../Badge';
+import {
+  createSafeScrollToIndexCallback,
+  createSafeScrollToIndexFailedCallback,
+} from '~/src/core/utils/safe-scroll';
 
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { router, useGlobalSearchParams } from "expo-router";
+import { router, useGlobalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { cn } from '~/src/lib/utils';
-import { colors } from "~/src/ui/colors";
+import { colors } from '~/src/ui/colors';
 
 function OrderGroups({
   groupShippingOrderCodes,
@@ -19,36 +22,39 @@ function OrderGroups({
   code,
 }: {
   groupShippingOrderCodes: string[];
-  groupShippingPickedStatues?: {[key: string]: boolean};
+  groupShippingPickedStatues?: { [key: string]: boolean };
   code: string;
 }) {
   const ref = useRef<any>();
-  
+
   // Create safe scroll callbacks
   const safeScrollToIndex = useCallback(
     createSafeScrollToIndexCallback(ref, groupShippingOrderCodes?.length || 0, {
       animated: true,
       viewPosition: 0.5,
-      fallbackOffset: 100
+      fallbackOffset: 100,
     }),
-    [groupShippingOrderCodes?.length]
+    [groupShippingOrderCodes?.length],
   );
 
   const handleScrollToIndexFailed = useCallback(
     createSafeScrollToIndexFailedCallback(ref, 100),
-    []
+    [],
   );
 
-  const goTabSelected = useCallback(async (index: number) => {
-    await safeScrollToIndex(index);
-  }, [safeScrollToIndex]);
+  const goTabSelected = useCallback(
+    async (index: number) => {
+      await safeScrollToIndex(index);
+    },
+    [safeScrollToIndex],
+  );
 
   useEffect(() => {
     const index = groupShippingOrderCodes?.findIndex((item) => item === code);
-    if(index !== -1) {
+    if (index !== -1) {
       goTabSelected(index);
     }
-  }, [code])
+  }, [code]);
 
   return (
     <FlatList
@@ -76,7 +82,9 @@ function OrderGroups({
               style={{
                 marginLeft: isFirst ? 0 : 4,
                 marginRight: isLast ? 0 : 4,
-                backgroundColor: isOrderCodeSeleted ? colors.blue[50] : 'transparent',
+                backgroundColor: isOrderCodeSeleted
+                  ? colors.blue[50]
+                  : 'transparent',
               }}
             >
               <View className="flex flex-row items-center px-2 gap-1">
@@ -84,7 +92,7 @@ function OrderGroups({
                   <Feather name="check" size={16} color={colors.colorPrimary} />
                 )}
                 <Text
-                  className={cn('text-center',{
+                  className={cn('text-center', {
                     'color-colorPrimary font-semibold': isOrderCodeSeleted,
                     'color-gray-500': !isOrderCodeSeleted,
                   })}
@@ -107,23 +115,37 @@ export function GroupShippingInfo() {
   const { code } = useGlobalSearchParams<{ code: string }>();
 
   const { header } = orderDetail || {};
-  const { groupShippingCode, groupShippingOrderCodes, groupShippingTotalCODAmount, groupShippingPickedStatues } = header || {};
+  const {
+    groupShippingCode,
+    groupShippingOrderCodes,
+    groupShippingTotalCODAmount,
+    groupShippingPickedStatues,
+  } = header || {};
 
-  const totalPicked = Object.values(groupShippingPickedStatues || {}).filter(Boolean).length;
+  const totalPicked = Object.values(groupShippingPickedStatues || {}).filter(
+    Boolean,
+  ).length;
 
-  if(!groupShippingCode || !groupShippingOrderCodes?.length) return null;
+  if (!groupShippingCode || !groupShippingOrderCodes?.length) return null;
 
   return (
     <View className="mt-3 p-2 px-3 bg-white" style={styles.box}>
       <View className="flex flex-row items-center gap-2 mb-2 justify-between">
         <View className="flex flex-row items-center gap-2">
           <Badge label={groupShippingCode} variant="warning" />
-          <Badge label={`COD ${formatCurrency(groupShippingTotalCODAmount || 0, {unit: true})}`} variant="default" />
+          <Badge
+            label={`COD ${formatCurrency(groupShippingTotalCODAmount || 0, { unit: true })}`}
+            variant="default"
+          />
         </View>
-        <Text className={cn({
-          'text-gray-500': totalPicked !== groupShippingOrderCodes?.length,
-          'text-blue-500': totalPicked === groupShippingOrderCodes?.length,
-        })}>Đã pick: {totalPicked}/{groupShippingOrderCodes?.length} đơn</Text>
+        <Text
+          className={cn({
+            'text-gray-500': totalPicked !== groupShippingOrderCodes?.length,
+            'text-blue-500': totalPicked === groupShippingOrderCodes?.length,
+          })}
+        >
+          Đã pick: {totalPicked}/{groupShippingOrderCodes?.length} đơn
+        </Text>
       </View>
       <OrderGroups
         groupShippingOrderCodes={groupShippingOrderCodes}
@@ -131,7 +153,7 @@ export function GroupShippingInfo() {
         groupShippingPickedStatues={groupShippingPickedStatues}
       />
     </View>
-    )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -162,4 +184,3 @@ const styles = StyleSheet.create({
     }),
   },
 });
-  

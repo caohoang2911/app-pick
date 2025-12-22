@@ -67,18 +67,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
     });
   });
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        present: () => {
-          actionRef.current?.present();
-          setVisible(!visible);
-        },
-      };
-    },
-    []
-  );
+  useImperativeHandle(ref, () => {
+    return {
+      present: () => {
+        actionRef.current?.present();
+        setVisible(!visible);
+      },
+    };
+  }, []);
 
   const renderItem = ({
     onClickAction,
@@ -188,7 +184,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         orderCode: code,
       });
     },
-    [code]
+    [code],
   );
 
   const actions: Array<Action> = useMemo(
@@ -237,7 +233,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         icon: <MaterialIcons name="delivery-dining" size={24} color="black" />,
       },
     ],
-    [status, deliveryType]
+    [status, deliveryType],
   );
 
   return (
@@ -281,7 +277,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         visible={orderDeliveryTypeVisible}
         deliveryType={deliveryType || null}
       />
-      
+
       <OrderHistoryBottomSheet
         orderCode={code}
         setVisible={setOrderHistoryVisible}

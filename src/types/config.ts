@@ -1,15 +1,15 @@
 export type Config = {
-  orderStatuses: [],
-  paymentMethods: [],
-  sourceSales: [],
-  wards: [],
-  districts: [],
-  cities: [],
-  stores: [],
-  orderDeliveryTypes: [],
-  productPickedErrorTypes: [],
-  orderTags: [],
-  orderItemTags: [],
-  fulfillErrorTypes: [],
-  employeeRoles: [],
-}
+  orderStatuses: [];
+  paymentMethods: [];
+  sourceSales: [];
+  wards: [];
+  districts: [];
+  cities: [];
+  stores: [];
+  orderDeliveryTypes: [];
+  productPickedErrorTypes: [];
+  orderTags: [];
+  orderItemTags: [];
+  fulfillErrorTypes: [];
+  employeeRoles: [];
+};

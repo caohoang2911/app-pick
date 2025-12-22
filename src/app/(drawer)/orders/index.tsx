@@ -1,6 +1,13 @@
 import Container from '@/components/Container';
 import { useRefreshOnFocus } from '@/core/hooks/useRefreshOnFocus';
-import { setDeliveryType, setFromScanQrCode, setKeyWord, setSelectedOrderCounter, toggleScanQrCode, useOrders } from '@/core/store/orders';
+import {
+  setDeliveryType,
+  setFromScanQrCode,
+  setKeyWord,
+  setSelectedOrderCounter,
+  toggleScanQrCode,
+  useOrders,
+} from '@/core/store/orders';
 
 import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
@@ -25,12 +32,15 @@ const Orders = () => {
 
   // Check for invite action in query parameters]);
 
-  const handleSuccessBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
-    setKeyWord(result?.data || '');
-    setFromScanQrCode(true);
-    setDeliveryType('');
-    setSelectedOrderCounter('ALL');
-  }, []);
+  const handleSuccessBarcodeScanned = useCallback(
+    (result: BarcodeScanningResult) => {
+      setKeyWord(result?.data || '');
+      setFromScanQrCode(true);
+      setDeliveryType('');
+      setSelectedOrderCounter('ALL');
+    },
+    [],
+  );
 
   const handleDestroy = useCallback(() => {
     toggleScanQrCode(false);

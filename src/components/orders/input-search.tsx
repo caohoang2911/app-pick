@@ -43,12 +43,12 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
 
   const formattedAmount = useMemo(
     () => formatCurrency(item.amount, { unit: true }),
-    [item.amount]
+    [item.amount],
   );
 
   const timeFromNow = useMemo(
     () => getRelativeTime(item.lastTimeUpdateStatus),
-    [item.lastTimeUpdateStatus]
+    [item.lastTimeUpdateStatus],
   );
 
   return (
@@ -62,7 +62,9 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
           <View className="flex flex-row items-center gap-1">
             <Text className="font-semibold">{item.code}</Text>
 
-            {item.shortCode && <Badge label={item.shortCode} variant="warning" />}
+            {item.shortCode && (
+              <Badge label={item.shortCode} variant="warning" />
+            )}
           </View>
           <Badge
             label={item.statusName}
@@ -202,7 +204,7 @@ const InputSearch = ({
         </View>
       </TouchableOpacity>
     ),
-    [toggleScanQrCode]
+    [toggleScanQrCode],
   );
 
   const noResultsText = useMemo(() => {

@@ -7,8 +7,8 @@ export const ORDER_COUNTER_STATUS: any = {
   STORE_PACKED: 'Soạn hàng xong',
   COMPLETED: 'Đã hoàn thành',
   CANCELLED: 'Đã huỷ',
-  BOOKED_SHIPPER: "Đã book shipper",
-  SHIPPING: "Đang giao hàng"
+  BOOKED_SHIPPER: 'Đã book shipper',
+  SHIPPING: 'Đang giao hàng',
 };
 
 export const ORDER_COUNTER_STATUS_DRIVER: any = {
@@ -39,7 +39,7 @@ export const ORDER_COUNTER_STATUS_PRIORITY_DRIVER: any = {
 export const ORDER_STATUS = {
   ALL: 'ALL',
   NEW: 'NEW',
-  ASSIGNED: 'ASSIGNED', 
+  ASSIGNED: 'ASSIGNED',
   CONFIRMED: 'CONFIRMED',
   STORE_PICKING: 'STORE_PICKING',
   STORE_PACKED: 'STORE_PACKED',
@@ -75,7 +75,7 @@ export enum ORDER_TAGS {
 export const ORDER_STATUS_BADGE_VARIANT = {
   ORDER_CUSTOMER_PICKUP: 'default',
   ORDER_STORE_DELIVERY: 'default',
-  ORDER_SHIPPER_DELIVERY: 'default',  
+  ORDER_SHIPPER_DELIVERY: 'default',
   ORDER_FROM_AGENT: 'purple',
   ORDER_FROM_CS_CALL_IN: 'purple',
   ORDER_HAS_COMBO_PRODUCT: 'danger',
@@ -84,4 +84,3 @@ export const ORDER_STATUS_BADGE_VARIANT = {
   ORDER_PRINTED_BILLL: 'warning',
   ORDER_PRINTED_BAG_LABEL: 'warning',
 };
-

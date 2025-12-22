@@ -24,21 +24,20 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
       setTimeout(() => {
         setUserInfo({
           ...userInfo,
-          ...data?.data
+          ...data?.data,
         });
         setTimeout(() => {
           setUser({
             ...userInfo,
-            ...data?.data
+            ...data?.data,
           });
           setLoading(false);
         }, 200);
       }, 1000);
       if (!data.error) {
         cb?.(data);
-      } 
+      }
       setLoading(false);
     },
   });
 };
-

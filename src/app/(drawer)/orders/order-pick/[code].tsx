@@ -17,10 +17,14 @@ import {
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
-  useOrderPick
+  useOrderPick,
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
-import { barcodeCondition, getOrderPickProductsFlat, handleScanBarcode } from '~/src/core/utils/order-bag';
+import {
+  barcodeCondition,
+  getOrderPickProductsFlat,
+  handleScanBarcode,
+} from '~/src/core/utils/order-bag';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -32,7 +36,7 @@ const OrderPick = () => {
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
   const orderDetail = useOrderPick.use.orderDetail();
-  
+
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 
   const isEditManual = useOrderPick.use.isEditManual();
@@ -40,7 +44,10 @@ const OrderPick = () => {
 
   const headerAcrtionRef = useRef<any>();
 
-  const orderPickProductsFlat = useMemo(() => getOrderPickProductsFlat(orderPickProducts), [orderPickProducts]);
+  const orderPickProductsFlat = useMemo(
+    () => getOrderPickProductsFlat(orderPickProducts),
+    [orderPickProducts],
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -49,7 +56,7 @@ const OrderPick = () => {
         return <Header onClickHeaderAction={openHeaderAction} />;
       },
     });
-  }, [ orderDetail ]);
+  }, [orderDetail]);
 
   const openHeaderAction = () => {
     headerAcrtionRef.current?.present();
@@ -61,11 +68,11 @@ const OrderPick = () => {
 
       const { barcode, quantity } = splitBarcode({ barcode: codeScanned });
 
-      const indexWithBarcode = orderPickProductsFlat?.findIndex(
-        item => barcodeCondition(barcode, item?.refBarcodes)
+      const indexWithBarcode = orderPickProductsFlat?.findIndex((item) =>
+        barcodeCondition(barcode, item?.refBarcodes),
       );
 
-      if(indexWithBarcode === -1) {
+      if (indexWithBarcode === -1) {
         showMessage({
           message: `Mã ${barcode} vừa quét không nằm trong đơn hàng`,
           type: 'warning',
@@ -79,24 +86,34 @@ const OrderPick = () => {
         isEditManual,
         barcode,
       });
-   
+
       const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
-      setCurrentId(currentProduct?.id)
+      setCurrentId(currentProduct?.id);
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
-      const currentAmount = !isScanMoreProduct ? Number(currentProduct?.pickedQuantity) + 1 || 1 : 1;
+      const currentAmount = !isScanMoreProduct
+        ? Number(currentProduct?.pickedQuantity) + 1 || 1
+        : 1;
 
       if (currentBarcode) {
-        const newAmount = !scannedIds?.[currentProduct?.id] ? quantity || currentAmount : Number(quantityFromBarcode || 0) + Number(quantity || currentAmount);
+        const newAmount = !scannedIds?.[currentProduct?.id]
+          ? quantity || currentAmount
+          : Number(quantityFromBarcode || 0) +
+            Number(quantity || currentAmount);
 
         setSuccessForBarcodeScan(currentBarcode);
-        setQuantityFromBarcode(Math.floor(Number(newAmount || 0) * 1000) / 1000);
-        toggleShowAmountInput(true, orderPickProductsFlat?.[indexOfCodeScanned]?.id);
+        setQuantityFromBarcode(
+          Math.floor(Number(newAmount || 0) * 1000) / 1000,
+        );
+        toggleShowAmountInput(
+          true,
+          orderPickProductsFlat?.[indexOfCodeScanned]?.id,
+        );
       } else {
         showMessage({
           message: `codeScanned: ${codeScanned} - indexOfCodeScanned: ${indexOfCodeScanned} - currentBarcode: ${currentBarcode} - barcode: ${barcode}`,
           type: 'warning',
-        })
+        });
       }
     },
     [
@@ -109,12 +126,15 @@ const OrderPick = () => {
       isEditManual,
       scannedIds,
       isShowAmountInput,
-    ]
+    ],
   );
 
-
-  if(!orderDetail) {
-    return <SectionAlert><Text>Không tìm thấy đơn hàng</Text></SectionAlert>
+  if (!orderDetail) {
+    return (
+      <SectionAlert>
+        <Text>Không tìm thấy đơn hàng</Text>
+      </SectionAlert>
+    );
   }
 
   return (
@@ -125,20 +145,18 @@ const OrderPick = () => {
       <ActionsBottom />
       {/* bottomshet */}
       {/* {isScanQrCodeProduct && ( */}
-        <ScannerBox
-          isQRScanner={false}
-          visible={isScanQrCodeProduct}
-          onSuccessBarcodeScanned={handleSuccessBarCode}
-          onDestroy={() => {
-            toggleScanQrCodeProduct(false);
-          }}
-        />
-      {/* )} */}
-      <OrderPickHeadeActionBottomSheet
-        ref={headerAcrtionRef}
+      <ScannerBox
+        isQRScanner={false}
+        visible={isScanQrCodeProduct}
+        onSuccessBarcodeScanned={handleSuccessBarCode}
+        onDestroy={() => {
+          toggleScanQrCodeProduct(false);
+        }}
       />
+      {/* )} */}
+      <OrderPickHeadeActionBottomSheet ref={headerAcrtionRef} />
       <InputAmountPopup />
-      <ReplacePickedProducts  />
+      <ReplacePickedProducts />
     </>
   );
 };

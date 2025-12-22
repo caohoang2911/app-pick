@@ -82,7 +82,7 @@ const Row = memo(
         )}
       </View>
     );
-  }
+  },
 );
 
 // Memoize expensive Badge components
@@ -137,7 +137,7 @@ const WarningMessage = memo(
         )}
       </View>
     </View>
-  )
+  ),
 );
 
 // Product Header component
@@ -184,7 +184,7 @@ const ProductHeader = memo(
         )}
       </View>
     </>
-  )
+  ),
 );
 
 const ProductVendor = ({ vendorName }: { vendorName: string }) => {
@@ -217,7 +217,7 @@ const BarcodeDisplay = memo(
         </View>
       </View>
     );
-  }
+  },
 );
 
 // Add ImagePreviewModal component
@@ -252,7 +252,7 @@ const ImagePreviewModal = memo(
         </View>
       </TouchableOpacity>
     </Modal>
-  )
+  ),
 );
 
 // Main component
@@ -311,16 +311,16 @@ const OrderPickProduct = memo(
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
       () => config?.productPickedErrorTypes || [],
-      [config]
+      [config],
     );
     const pickedErrorName = useMemo(
       () => getConfigNameById(productPickedErrorTypes, pickedErrorType),
-      [productPickedErrorTypes, pickedErrorType]
+      [productPickedErrorTypes, pickedErrorType],
     );
     // const isGift = useMemo(() => type === "GIFT", [type]);
     const hasSellPrice = useMemo(
       () => !isGift && Number(sellPrice) > 0,
-      [isGift, sellPrice]
+      [isGift, sellPrice],
     );
     const hasTags = useMemo(() => tags?.length > 0, [tags]);
 
@@ -336,7 +336,7 @@ const OrderPickProduct = memo(
     // Memoize image source to prevent re-renders
     const imageSource = useMemo(
       () => image || require('~/assets/default-img.jpg'),
-      [image]
+      [image],
     );
 
     const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
@@ -442,7 +442,7 @@ const OrderPickProduct = memo(
             </View>
           </View>
           {Boolean(
-            pickedErrorName || isWarningOverQuantity || originOrderQuantity
+            pickedErrorName || isWarningOverQuantity || originOrderQuantity,
           ) && (
             <View className="flex w-full flex-grow mt-3">
               {pickedErrorName && (
@@ -476,7 +476,7 @@ const OrderPickProduct = memo(
         />
       </>
     );
-  }
+  },
 );
 
 // Cache styles outside component to avoid recreation

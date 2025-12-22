@@ -28,7 +28,10 @@ import { useLoading } from '@/core/store/loading';
 import { setDefaultTimeZone } from '@/core/utils/moment';
 import { ErrorBoundary as CustomErrorBoundary } from '@/core/utils/error-boundary';
 import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
-import { initializeSafeAppManagement, cleanupSafeAppManagement } from '@/core/utils/safe-app-management';
+import {
+  initializeSafeAppManagement,
+  cleanupSafeAppManagement,
+} from '@/core/utils/safe-app-management';
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
@@ -46,11 +49,9 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
 
-  const {
-    isUpdateAvailable,
-  } = Updates.useUpdates();
+  const { isUpdateAvailable } = Updates.useUpdates();
 
-  const { isDoneCodepush, onFetchUpdateAsync} = useCodepush();
+  const { isDoneCodepush, onFetchUpdateAsync } = useCodepush();
 
   const appState = useAppState();
 
@@ -68,17 +69,12 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
       onFetchUpdateAsync();
     }
   }, [appState]);
-  
 
-  if(!isDoneCodepush && isUpdateAvailable) {
-    return <Loading description="Đang cập nhật phiên bản mới..." />
+  if (!isDoneCodepush && isUpdateAvailable) {
+    return <Loading description="Đang cập nhật phiên bản mới..." />;
   }
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 };
 
 export const unstable_settings = {
@@ -180,7 +176,6 @@ function Providers({ children }: { children: React.ReactNode }) {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <PortalProvider>
             <APIProvider>
-              
               <NotificationWrapper>
                 <AuthWrapper>
                   <SafeAreaView edges={['top']} style={{ flex: 1 }}>
@@ -204,14 +199,20 @@ function Providers({ children }: { children: React.ReactNode }) {
                           position: 'absolute',
                           right: -15,
                           top: -10,
-                          paddingTop: 10,               
+                          paddingTop: 10,
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         onPress={() => {
                           hideMessage();
                         }}
                       >
-                        <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                          }}
+                        >
                           ✕
                         </Text>
                       </TouchableOpacity>

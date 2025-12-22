@@ -1,14 +1,13 @@
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
 
-
 type Response = { error: string } & {
   data: {
     noti?: {
       isSubcribeOrderStoreDelivery: boolean;
       isSubcribeOrderCustomerPickup: boolean;
       isSubcribeOrderShipperDelivery: boolean;
-    }
+    };
   };
 };
 

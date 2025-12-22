@@ -10,7 +10,9 @@ type Variables = {
 
 type Response = { error: string } & AxiosResponse;
 
-const validateDeliveryOrderFail = async (params: Variables): Promise<Response> => {
+const validateDeliveryOrderFail = async (
+  params: Variables,
+): Promise<Response> => {
   return await axiosClient.post('app-pick/deliveryOrderFail', params);
 };
 

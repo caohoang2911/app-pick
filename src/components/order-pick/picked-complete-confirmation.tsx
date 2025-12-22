@@ -22,7 +22,7 @@ const PickedCompleteConfirmation = ({
   const config = useConfig.use.config();
   const productPickedErrorTypes = useMemo(
     () => config?.productPickedErrorTypes || [],
-    [config]
+    [config],
   ) as any[];
 
   return (
@@ -101,7 +101,7 @@ const PickedCompleteConfirmation = ({
                       >
                         {
                           productPickedErrorTypes.find(
-                            (error: any) => error.id === item.pickedErrorType
+                            (error: any) => error.id === item.pickedErrorType,
                           )?.name
                         }
                       </Text>

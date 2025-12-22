@@ -1,5 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { cn } from '@/lib/utils';
 import { CheckCircleFill, CloseLine } from '../core/svgs';
@@ -42,15 +48,19 @@ const SDropdown = ({
 
   const renderItem = (item: any) => {
     return (
-      <TouchableOpacity 
-        style={[styles.item, item.disabled && { opacity: 0.5 }]} onPress={() => {
-        if(item.disabled) return;
-        onSelect?.(item?.[valueField]);
-        setIsFocus(false);
-        ref.current?.close();
-      }}>
-        <Text>{item[labelField]}
-        </Text>{ value === item?.[valueField] && <CheckCircleFill width={20} height={20} color="green" />}
+      <TouchableOpacity
+        style={[styles.item, item.disabled && { opacity: 0.5 }]}
+        onPress={() => {
+          if (item.disabled) return;
+          onSelect?.(item?.[valueField]);
+          setIsFocus(false);
+          ref.current?.close();
+        }}
+      >
+        <Text>{item[labelField]}</Text>
+        {value === item?.[valueField] && (
+          <CheckCircleFill width={20} height={20} color="green" />
+        )}
       </TouchableOpacity>
     );
   };
@@ -63,7 +73,7 @@ const SDropdown = ({
         style={[
           styles.dropdown,
           isFocus && { borderColor: '	border-color: rgb(203 213 225)' },
-          disabled && { backgroundColor: 'rgb(243 244 246)' }
+          disabled && { backgroundColor: 'rgb(243 244 246)' },
         ]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
@@ -80,18 +90,22 @@ const SDropdown = ({
         containerStyle={styles.containerStyle}
         onFocus={() => setIsFocus(true)}
         selectedTextProps={{ numberOfLines: 1, ellipsizeMode: 'tail' }}
-        renderRightIcon={() => 
-          <View className='flex items-center justify-center gap-1 flex-row'>
-            {allowClear && value && <Pressable className='bg-gray-50 rounded-full p-1' onPress={() => {
-              setIsFocus(false);
-              onClear?.();
-            }}>
-              <CloseLine width={18} height={18} color="#999999" />
-            </Pressable>
-            }
-            <ArrowDown width={20} height={20} color="#999999"  />
+        renderRightIcon={() => (
+          <View className="flex items-center justify-center gap-1 flex-row">
+            {allowClear && value && (
+              <Pressable
+                className="bg-gray-50 rounded-full p-1"
+                onPress={() => {
+                  setIsFocus(false);
+                  onClear?.();
+                }}
+              >
+                <CloseLine width={18} height={18} color="#999999" />
+              </Pressable>
+            )}
+            <ArrowDown width={20} height={20} color="#999999" />
           </View>
-        }
+        )}
         renderItem={(item: any) => renderItem(item)}
         onBlur={() => setIsFocus(false)}
         onChange={(item: any) => {

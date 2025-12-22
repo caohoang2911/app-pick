@@ -1,6 +1,6 @@
 /**
  * Navigation Helper Utilities
- * 
+ *
  * Centralized navigation functions with error handling and logging.
  * Use these helpers instead of calling router directly for better maintainability.
  */
@@ -15,26 +15,29 @@ import { ROUTES } from '../constants/routes';
 const safeNavigate = (
   action: () => void,
   fallbackRoute?: string,
-  errorMessage?: string
+  errorMessage?: string,
 ) => {
   try {
     action();
   } catch (error) {
     console.error('[Navigation] Error:', error);
-    
+
     if (errorMessage) {
       showMessage({
         message: errorMessage,
         type: 'danger',
       });
     }
-    
+
     // Fallback to safe route
     if (fallbackRoute) {
       try {
         router.navigate(fallbackRoute as any);
       } catch (fallbackError) {
-        console.error('[Navigation] Fallback navigation failed:', fallbackError);
+        console.error(
+          '[Navigation] Fallback navigation failed:',
+          fallbackError,
+        );
       }
     }
   }
@@ -47,7 +50,7 @@ export const navigateToLogin = () => {
   safeNavigate(
     () => router.navigate(ROUTES.AUTH.LOGIN as any),
     undefined,
-    'Không thể chuyển đến trang đăng nhập'
+    'Không thể chuyển đến trang đăng nhập',
   );
 };
 
@@ -58,7 +61,7 @@ export const navigateToAuthorize = () => {
   safeNavigate(
     () => router.push(ROUTES.AUTH.AUTHORIZE as any),
     ROUTES.AUTH.LOGIN,
-    'Không thể chuyển đến trang xác thực'
+    'Không thể chuyển đến trang xác thực',
   );
 };
 
@@ -69,7 +72,7 @@ export const navigateToOrders = () => {
   safeNavigate(
     () => router.navigate(ROUTES.APP.ORDERS as any),
     undefined,
-    'Không thể chuyển đến danh sách đơn hàng'
+    'Không thể chuyển đến danh sách đơn hàng',
   );
 };
 
@@ -80,16 +83,19 @@ export const replaceWithOrders = () => {
   safeNavigate(
     () => router.replace(ROUTES.APP.ORDERS as any),
     undefined,
-    'Không thể chuyển đến danh sách đơn hàng'
+    'Không thể chuyển đến danh sách đơn hàng',
   );
 };
 
 /**
  * Navigate to order pick screen
  */
-export const navigateToOrderPick = (orderCode: string, params?: { status?: string }) => {
+export const navigateToOrderPick = (
+  orderCode: string,
+  params?: { status?: string },
+) => {
   const route = ROUTES.APP.ORDER_PICK(orderCode);
-  
+
   safeNavigate(
     () => {
       if (params) {
@@ -99,7 +105,7 @@ export const navigateToOrderPick = (orderCode: string, params?: { status?: strin
       }
     },
     ROUTES.APP.ORDERS,
-    'Không thể mở chi tiết đơn hàng'
+    'Không thể mở chi tiết đơn hàng',
   );
 };
 
@@ -110,7 +116,7 @@ export const replaceWithOrderPick = (orderCode: string) => {
   safeNavigate(
     () => router.replace(ROUTES.APP.ORDER_PICK(orderCode) as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở chi tiết đơn hàng'
+    'Không thể mở chi tiết đơn hàng',
   );
 };
 
@@ -119,11 +125,11 @@ export const replaceWithOrderPick = (orderCode: string) => {
  */
 export const navigateToOrderInvoice = (orderCode: string) => {
   const route = ROUTES.APP.ORDER_INVOICE(orderCode);
-  
+
   safeNavigate(
     () => router.push(route as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở phiếu xuất kho'
+    'Không thể mở phiếu xuất kho',
   );
 };
 
@@ -134,7 +140,7 @@ export const replaceWithOrderInvoice = (orderCode: string) => {
   safeNavigate(
     () => router.replace(ROUTES.APP.ORDER_INVOICE(orderCode) as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở phiếu xuất kho'
+    'Không thể mở phiếu xuất kho',
   );
 };
 
@@ -143,11 +149,11 @@ export const replaceWithOrderInvoice = (orderCode: string) => {
  */
 export const navigateToOrderBags = (orderCode: string) => {
   const route = ROUTES.APP.ORDER_BAGS(orderCode);
-  
+
   safeNavigate(
     () => router.push(route as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở danh sách túi hàng'
+    'Không thể mở danh sách túi hàng',
   );
 };
 
@@ -156,11 +162,11 @@ export const navigateToOrderBags = (orderCode: string) => {
  */
 export const navigateToOrderScanToDelivery = (orderCode: string) => {
   const route = ROUTES.APP.ORDER_SCAN_TO_DELIVERY(orderCode);
-  
+
   safeNavigate(
     () => router.push(route as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở màn hình giao hàng'
+    'Không thể mở màn hình giao hàng',
   );
 };
 
@@ -169,9 +175,10 @@ export const navigateToOrderScanToDelivery = (orderCode: string) => {
  */
 export const replaceWithScanToDelivery = (deliveryCode: string) => {
   safeNavigate(
-    () => router.replace(ROUTES.APP.ORDER_SCAN_TO_DELIVERY(deliveryCode) as any),
+    () =>
+      router.replace(ROUTES.APP.ORDER_SCAN_TO_DELIVERY(deliveryCode) as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở màn hình giao hàng'
+    'Không thể mở màn hình giao hàng',
   );
 };
 
@@ -182,7 +189,7 @@ export const navigateToStoreStartScanToDelivery = (code: string) => {
   safeNavigate(
     () => router.push(ROUTES.APP.STORE_START_SCAN_TO_DELIVERY(code) as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở màn hình bắt đầu giao hàng'
+    'Không thể mở màn hình bắt đầu giao hàng',
   );
 };
 
@@ -193,7 +200,7 @@ export const navigateToStoreCompleteScanToDelivery = (code: string) => {
   safeNavigate(
     () => router.push(ROUTES.APP.STORE_COMPLETE_SCAN_TO_DELIVERY(code) as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở màn hình hoàn thành giao hàng'
+    'Không thể mở màn hình hoàn thành giao hàng',
   );
 };
 
@@ -202,24 +209,29 @@ export const navigateToStoreCompleteScanToDelivery = (code: string) => {
  */
 export const replaceWithStoreCompleteScanToDelivery = (code: string) => {
   safeNavigate(
-    () => router.replace(ROUTES.APP.STORE_COMPLETE_SCAN_TO_DELIVERY(code) as any),
+    () =>
+      router.replace(ROUTES.APP.STORE_COMPLETE_SCAN_TO_DELIVERY(code) as any),
     ROUTES.APP.ORDERS,
-    'Không thể chuyển đến màn hình hoàn thành'
+    'Không thể chuyển đến màn hình hoàn thành',
   );
 };
 
 /**
  * Navigate to print preview screen
  */
-export const navigateToPrintPreview = (params?: { code?: string; bagCode?: string; type?: string }) => {
-  const route = params 
+export const navigateToPrintPreview = (params?: {
+  code?: string;
+  bagCode?: string;
+  type?: string;
+}) => {
+  const route = params
     ? `${ROUTES.APP.PRINT_PREVIEW}?${new URLSearchParams(params as any).toString()}`
     : ROUTES.APP.PRINT_PREVIEW;
-  
+
   safeNavigate(
     () => router.push(route as any),
     ROUTES.APP.ORDERS,
-    'Không thể mở trang in'
+    'Không thể mở trang in',
   );
 };
 
@@ -230,7 +242,7 @@ export const navigateToSettings = () => {
   safeNavigate(
     () => router.navigate(ROUTES.APP.SETTINGS as any),
     undefined,
-    'Không thể mở cài đặt'
+    'Không thể mở cài đặt',
   );
 };
 
@@ -249,7 +261,7 @@ export const goBack = (fallbackRoute?: string) => {
       }
     },
     undefined,
-    'Không thể quay lại'
+    'Không thể quay lại',
   );
 };
 
@@ -260,25 +272,25 @@ export const NavigationHelpers = {
   // Auth
   toLogin: navigateToLogin,
   toAuthorize: navigateToAuthorize,
-  
+
   // Orders
   toOrders: navigateToOrders,
   replaceWithOrders,
-  
+
   // Order details
   toOrderPick: navigateToOrderPick,
   replaceWithOrderPick,
   toOrderInvoice: navigateToOrderInvoice,
   replaceWithOrderInvoice,
   toOrderBags: navigateToOrderBags,
-  
+
   // Delivery
   toOrderScanToDelivery: navigateToOrderScanToDelivery,
   replaceWithScanToDelivery,
   toStoreStartScanToDelivery: navigateToStoreStartScanToDelivery,
   toStoreCompleteScanToDelivery: navigateToStoreCompleteScanToDelivery,
   replaceWithStoreCompleteScanToDelivery,
-  
+
   // Other
   toPrintPreview: navigateToPrintPreview,
   toSettings: navigateToSettings,
@@ -286,4 +298,3 @@ export const NavigationHelpers = {
 };
 
 export default NavigationHelpers;
-

@@ -12,83 +12,87 @@ interface SImageProps {
   preview?: boolean;
 }
 
-const ImagePreviewModal = memo(({ 
-  visible, 
-  imageSource, 
-  onClose 
-}: { 
-  visible: boolean, 
-  imageSource: any, 
-  onClose: () => void 
-}) => (
-  <Modal
-    visible={visible}
-    transparent={true}
-    animationType="fade"
-    onRequestClose={onClose}
-  >
-    <TouchableOpacity 
-      style={styles.modalOverlay} 
-      activeOpacity={1} 
-      onPress={onClose}
+const ImagePreviewModal = memo(
+  ({
+    visible,
+    imageSource,
+    onClose,
+  }: {
+    visible: boolean;
+    imageSource: any;
+    onClose: () => void;
+  }) => (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
     >
-      <View style={styles.modalContent}>
-        <Image
-          style={styles.previewImage}
-          source={imageSource}
-          contentFit="contain"
-          transition={200}
-        />
-      </View>
-    </TouchableOpacity>
-  </Modal>
-));
-
-const SImage = memo(({
-  source,
-  style,
-  contentFit = 'cover',
-  allowDownscaling = true,
-  transition = 200,
-  cachePolicy = 'none',
-  preview = false,
-}: SImageProps) => {
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
-
-  const handleImagePress = useCallback(() => {
-    if (preview) {
-      setIsPreviewVisible(true);
-    }
-  }, [preview]);
-
-  const ImageComponent = (
-    <Image
-      style={style}
-      source={source}
-      contentFit={contentFit}
-      allowDownscaling={allowDownscaling}
-      transition={transition}
-      cachePolicy={cachePolicy}
-    />
-  );
-
-  if (!preview) {
-    return ImageComponent;
-  }
-
-  return (
-    <>
-      <TouchableOpacity onPress={handleImagePress}>
-        {ImageComponent}
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <View style={styles.modalContent}>
+          <Image
+            style={styles.previewImage}
+            source={imageSource}
+            contentFit="contain"
+            transition={200}
+          />
+        </View>
       </TouchableOpacity>
-      <ImagePreviewModal
-        visible={isPreviewVisible}
-        imageSource={source}
-        onClose={() => setIsPreviewVisible(false)}
+    </Modal>
+  ),
+);
+
+const SImage = memo(
+  ({
+    source,
+    style,
+    contentFit = 'cover',
+    allowDownscaling = true,
+    transition = 200,
+    cachePolicy = 'none',
+    preview = false,
+  }: SImageProps) => {
+    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+
+    const handleImagePress = useCallback(() => {
+      if (preview) {
+        setIsPreviewVisible(true);
+      }
+    }, [preview]);
+
+    const ImageComponent = (
+      <Image
+        style={style}
+        source={source}
+        contentFit={contentFit}
+        allowDownscaling={allowDownscaling}
+        transition={transition}
+        cachePolicy={cachePolicy}
       />
-    </>
-  );
-});
+    );
+
+    if (!preview) {
+      return ImageComponent;
+    }
+
+    return (
+      <>
+        <TouchableOpacity onPress={handleImagePress}>
+          {ImageComponent}
+        </TouchableOpacity>
+        <ImagePreviewModal
+          visible={isPreviewVisible}
+          imageSource={source}
+          onClose={() => setIsPreviewVisible(false)}
+        />
+      </>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   modalOverlay: {
@@ -109,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SImage; 
+export default SImage;

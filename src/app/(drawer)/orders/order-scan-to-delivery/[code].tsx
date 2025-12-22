@@ -64,8 +64,15 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useOrderPick.use.orderDetail();
 
-  const { deliveryType, status, tags, handoverStatus, payment, codAmount, ignorePrintInvoiceStep} =
-    (orderDetail?.header as OrderDetailHeader) || {};
+  const {
+    deliveryType,
+    status,
+    tags,
+    handoverStatus,
+    payment,
+    codAmount,
+    ignorePrintInvoiceStep,
+  } = (orderDetail?.header as OrderDetailHeader) || {};
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
     useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
@@ -76,7 +83,7 @@ const OrderScanToDelivery = () => {
 
   const actionType = useMemo(
     () => ACTION_TYPE[handoverStatus as keyof typeof ACTION_TYPE],
-    [handoverStatus]
+    [handoverStatus],
   );
 
   useEffect(() => {
@@ -111,7 +118,7 @@ const OrderScanToDelivery = () => {
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
-  // TODO: Implement in the future  
+  // TODO: Implement in the future
   // const handleCheckoutOrderBagsWithInvoice = () => {
   //   showAlertDialog({
   //     title: 'Xuất hóa đơn?',

@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
     color: '#888888',
     fontSize: 12,
   },
-}); 
+});

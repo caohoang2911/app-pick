@@ -32,10 +32,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
-    
+
     // Log error details for debugging
     console.error('Error details:', {
       message: error.message,
@@ -58,7 +58,8 @@ export class ErrorBoundary extends Component<Props, State> {
             {this.state.error?.message || 'Có lỗi xảy ra'}
           </Text>
           <Text style={styles.errorHint}>
-            Vui lòng khởi động lại ứng dụng hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp diễn.
+            Vui lòng khởi động lại ứng dụng hoặc liên hệ hỗ trợ nếu vấn đề vẫn
+            tiếp diễn.
           </Text>
         </View>
       );
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
   fallback?: ReactNode,
-  onError?: (error: Error, errorInfo: ErrorInfo) => void
+  onError?: (error: Error, errorInfo: ErrorInfo) => void,
 ) => {
   const WrappedComponent = (props: P) => (
     <ErrorBoundary fallback={fallback} onError={onError}>
@@ -112,7 +113,7 @@ export const withErrorBoundary = <P extends object>(
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 };
 
@@ -122,7 +123,7 @@ export const withErrorBoundary = <P extends object>(
 export const useErrorHandler = () => {
   const handleError = React.useCallback((error: Error, context?: string) => {
     console.error(`Error in ${context || 'component'}:`, error);
-    
+
     // You can add additional error reporting here
     // e.g., send to crash reporting service
   }, []);

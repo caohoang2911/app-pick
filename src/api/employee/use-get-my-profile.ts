@@ -1,4 +1,3 @@
-
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -10,20 +9,20 @@ type Response = { error: string } & {
   data: any;
 };
 
-const getMyProfile = async (): Promise<Response> => {  
+const getMyProfile = async (): Promise<Response> => {
   return await axiosClient.get('employee/getMyProfile');
 };
 
 export const useGetMyProfile = () => {
   const authStatus = useAuth.use.status();
   const userInfo = useAuth.use.userInfo();
-  
+
   const query = useQuery({
     queryKey: ['getMyProfile'],
     queryFn: () => {
       return getMyProfile();
     },
-    enabled: authStatus === 'signIn'
+    enabled: authStatus === 'signIn',
   });
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export const useGetMyProfile = () => {
       setTimeout(() => {
         setUserInfo({
           ...userInfo,
-          ...driverOrderAssignSetting
+          ...driverOrderAssignSetting,
         });
         setTimeout(() => {
           setUser({
@@ -44,7 +43,7 @@ export const useGetMyProfile = () => {
           setLoading(false);
         }, 200);
       }, 1000);
-      setLoading(false);  
+      setLoading(false);
     }
   }, [query?.data]);
 
@@ -54,11 +53,16 @@ export const useGetMyProfile = () => {
     if (authStatus === 'signIn') {
       return originalRefetch();
     }
-    return Promise.resolve({ data: null, error: null, isError: false, isLoading: false });
+    return Promise.resolve({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
   };
 
   return {
     ...query,
-    refetch: safeRefetch
+    refetch: safeRefetch,
   };
 };
