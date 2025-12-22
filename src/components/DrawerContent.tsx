@@ -38,7 +38,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
     {
       label: 'Cài đặt',
       icon: <AntDesign name="setting" size={20} color="black" />,
-      onPress: () => router.push('/settings'),
+      onPress: () => router.navigate('/settings'),
       enable: true,
       show: !isDriver
     },

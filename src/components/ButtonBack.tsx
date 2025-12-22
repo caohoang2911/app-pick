@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, View, Text } from 'react-native';
 import { ArrowLeft } from '@/core/svgs';
-import { router } from 'expo-router';
+import { NavigationHelpers } from '@/core/utils/navigation';
 
 const ButtonBack = ({
   title,
@@ -13,11 +13,7 @@ const ButtonBack = ({
   onPress?: () => void;
 }) => {
   const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.navigate('/orders');
-    }
+    NavigationHelpers.goBack();
   };
 
   return (

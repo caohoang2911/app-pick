@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 
 /**
  * Deep link paths available in the app
+ * @deprecated Use ROUTES.DEEP_LINK from '../constants/routes' instead
  */
 export enum DeepLinkPath {
   ORDER_PICK = 'order-pick',

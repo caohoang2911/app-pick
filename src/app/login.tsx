@@ -2,6 +2,8 @@ import { useLogin } from '@/api/auth';
 import { Button } from '@/components/Button';
 import { setRedirectUrl, signIn, useAuth } from '@/core';
 import { consumePendingDeepLink, processDeepLink } from '@/core/hooks/useHandleDeepLink';
+import { NavigationHelpers } from '@/core/utils/navigation';
+import { ROUTES } from '@/core/constants/routes';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Formik } from 'formik';
@@ -37,11 +39,11 @@ export default function Login() {
             processDeepLink(savedDeepLink);
           } catch (error) {
             console.error('[Login] Error processing deep link:', error);
-            router.replace('/(drawer)/orders');
+            NavigationHelpers.replaceWithOrders();
           }
         }, 500);
       } else {
-        router.replace('/(drawer)/orders');
+        NavigationHelpers.replaceWithOrders();
       }
     }
   });
@@ -49,7 +51,7 @@ export default function Login() {
   useEffect(() => {
     if (data) {
       setRedirectUrl(data?.data as string);
-      router.push('/authorize');
+      NavigationHelpers.toAuthorize();
     }
   }, [data]);
 

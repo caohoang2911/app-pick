@@ -118,7 +118,7 @@ const OrderItem = ({
         params: { status },
       });
     }
-  }, [type, code, status, isDriver, router]);
+  }, [type, code, status, isDriver]);
 
   const shouldShowassignee = picker?.username && picker?.name;
   const stores = config?.stores || [];

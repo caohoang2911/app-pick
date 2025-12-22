@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { showMessage } from "react-native-flash-message";
 import { useAuth } from "../store/auth";
 import { DeepLinkPath } from "../utils/deepLink";
+import { ROUTES } from "../constants/routes";
+import { NavigationHelpers } from "../utils/navigation";
 
 let pendingDeepLinkCache: string | null = null;
 
@@ -18,6 +20,9 @@ export const consumePendingDeepLink = () => {
   return url;
 };
 
+/**
+ * Process deep link and navigate to appropriate screen
+ */
 export function processDeepLink(url: string) {
   try {
     if (!url || typeof url !== 'string' || url.trim() === '') {
@@ -35,102 +40,118 @@ export function processDeepLink(url: string) {
     const parsedLink = Linking.parse(url);
     console.log("[DeepLink] Parsed:", parsedLink);
     
-    let path = "";
-    if (url.startsWith('apppick://')) {
-      path = url.replace('apppick://', '').split('?')[0];
-    } else {
-      try {
-        const urlObj = new URL(url);
-        path = urlObj.pathname.replace(/^\/+/, '');
-      } catch (e) {
-        const withoutProtocol = url.replace(/^(https?:\/\/|[^:]+:\/\/)/, '');
-        path = withoutProtocol.includes('/') 
-          ? withoutProtocol.substring(withoutProtocol.indexOf('/') + 1) 
-          : withoutProtocol;
-        path = path.replace(/^\/+/, '').split('?')[0];
-      }
-    }
-
+    // Extract path from URL
+    let path = extractPathFromUrl(url);
     console.log("[DeepLink] Extracted path:", path);
-    
-    if (path.includes('oms.seedcom.vn/')) {
-      path = path.split('oms.seedcom.vn/')[1];
-      console.log("[DeepLink] Fixed path after domain removal:", path);
-    }
     
     const { orderCode, deliveryCode } = parsedLink.queryParams || {};
     console.log("[DeepLink] Query params:", { orderCode, deliveryCode });
     
-    if (path === '' || path === '/') {
-      console.log("[DeepLink] Routing to default orders screen");
-      router.navigate('/orders');
-      return;
-    }
+    // Route to appropriate screen based on path
+    routeByPath(path, orderCode as string, deliveryCode as string);
     
-    if (path.includes(DeepLinkPath.ORDER_PICK) && orderCode) {
-      console.log(`[DeepLink] Routing to order pick with code: ${orderCode}`);
-      try {
-        router.replace(`/orders/order-pick/${orderCode}`);
-      } catch (error) {
-        console.error('[DeepLink] Navigation error:', error);
-        router.navigate('/orders');
-      }
-    } else if (path.includes(DeepLinkPath.ORDER_INVOICE) && orderCode) {
-      console.log(`[DeepLink] Routing to order invoice with code: ${orderCode}`);
-      try {
-        router.replace(`/orders/order-invoice/${orderCode}`);
-      } catch (error) {
-        console.error('[DeepLink] Navigation error:', error);
-        router.navigate('/orders');
-      }
-    } else if (path.includes(DeepLinkPath.SCAN_TO_DELIVERY) && deliveryCode) {
-      console.log(`[DeepLink] Routing to scan to delivery with code: ${deliveryCode}`);
-      try {
-        router.replace(`/orders/order-scan-to-delivery/${deliveryCode}`);
-      } catch (error) {
-        console.error('[DeepLink] Navigation error:', error);
-        router.navigate('/orders');
-      }
-    } else if (path.includes(DeepLinkPath.ORDERS)) {
-      console.log('[DeepLink] Routing to orders list');
-      try {
-        router.navigate('/orders');
-      } catch (error) {
-        console.error('[DeepLink] Navigation error:', error);
-      }
-    } else {
-      if (orderCode) {
-        console.log(`[DeepLink] Fallback: Routing to order pick with code: ${orderCode}`);
-        try {
-          router.replace(`/orders/order-pick/${orderCode}`);
-        } catch (error) {
-          console.error('[DeepLink] Navigation error:', error);
-          router.navigate('/orders');
-        }
-      } else if (deliveryCode) {
-        console.log(`[DeepLink] Fallback: Routing to scan to delivery with code: ${deliveryCode}`);
-        try {
-          router.replace(`/orders/order-scan-to-delivery/${deliveryCode}`);
-        } catch (error) {
-          console.error('[DeepLink] Navigation error:', error);
-          router.navigate('/orders');
-        }
-      } else {
-        console.log('[DeepLink] Fallback: Routing to orders list');
-        router.navigate('/orders');
-      }
-    }
   } catch (error) {
     console.error('[DeepLink] Error processing deep link:', error);
     showMessage({
       message: "Không thể xử lý liên kết",
       type: "danger",
     });
+    NavigationHelpers.toOrders();
+  }
+}
+
+/**
+ * Extract clean path from deep link URL
+ */
+function extractPathFromUrl(url: string): string {
+  let path = "";
+  
+  if (url.startsWith('apppick://')) {
+    path = url.replace('apppick://', '').split('?')[0];
+  } else {
     try {
-      router.navigate('/orders');
-    } catch (navError) {
-      console.error('[DeepLink] Error navigating to fallback screen:', navError);
+      const urlObj = new URL(url);
+      path = urlObj.pathname.replace(/^\/+/, '');
+    } catch (e) {
+      const withoutProtocol = url.replace(/^(https?:\/\/|[^:]+:\/\/)/, '');
+      path = withoutProtocol.includes('/') 
+        ? withoutProtocol.substring(withoutProtocol.indexOf('/') + 1) 
+        : withoutProtocol;
+      path = path.replace(/^\/+/, '').split('?')[0];
     }
+  }
+  
+  // Remove domain from path if present
+  if (path.includes('oms.seedcom.vn/')) {
+    path = path.split('oms.seedcom.vn/')[1];
+    console.log("[DeepLink] Fixed path after domain removal:", path);
+  }
+  
+  return path;
+}
+
+/**
+ * Route to screen based on path and parameters
+ */
+function routeByPath(path: string, orderCode?: string, deliveryCode?: string) {
+  // Empty path - go to orders
+  if (path === '' || path === '/') {
+    console.log("[DeepLink] Routing to default orders screen");
+    NavigationHelpers.toOrders();
+    return;
+  }
+  
+  // Route mapping with constants
+  const routeMap: Record<string, () => void> = {
+    [ROUTES.DEEP_LINK.ORDER_PICK]: () => {
+      if (orderCode) {
+        console.log(`[DeepLink] Routing to order pick with code: ${orderCode}`);
+        NavigationHelpers.replaceWithOrderPick(orderCode);
+      } else {
+        NavigationHelpers.toOrders();
+      }
+    },
+    [ROUTES.DEEP_LINK.ORDER_INVOICE]: () => {
+      if (orderCode) {
+        console.log(`[DeepLink] Routing to order invoice with code: ${orderCode}`);
+        NavigationHelpers.replaceWithOrderInvoice(orderCode);
+      } else {
+        NavigationHelpers.toOrders();
+      }
+    },
+    [ROUTES.DEEP_LINK.SCAN_TO_DELIVERY]: () => {
+      if (deliveryCode) {
+        console.log(`[DeepLink] Routing to scan to delivery with code: ${deliveryCode}`);
+        NavigationHelpers.replaceWithScanToDelivery(deliveryCode);
+      } else {
+        NavigationHelpers.toOrders();
+      }
+    },
+    [ROUTES.DEEP_LINK.ORDERS]: () => {
+      console.log('[DeepLink] Routing to orders list');
+      NavigationHelpers.toOrders();
+    },
+  };
+  
+  // Find matching route
+  for (const [key, handler] of Object.entries(routeMap)) {
+    if (path.includes(key)) {
+      handler();
+      return;
+    }
+  }
+  
+  // Fallback logic
+  console.log('[DeepLink] No specific route matched, using fallback logic');
+  if (orderCode) {
+    console.log(`[DeepLink] Fallback: Routing to order pick with code: ${orderCode}`);
+    NavigationHelpers.replaceWithOrderPick(orderCode);
+  } else if (deliveryCode) {
+    console.log(`[DeepLink] Fallback: Routing to scan to delivery with code: ${deliveryCode}`);
+    NavigationHelpers.replaceWithScanToDelivery(deliveryCode);
+  } else {
+    console.log('[DeepLink] Fallback: Routing to orders list');
+    NavigationHelpers.toOrders();
   }
 }
 
@@ -184,7 +205,7 @@ const useHandleDeepLink = () => {
           
           setTimeout(() => {
             try {
-              router.navigate('/login');
+              NavigationHelpers.toLogin();
             } catch (navError) {
               console.error("[DeepLink] Error navigating to login:", navError);
               isRedirectingToLogin.current = false;

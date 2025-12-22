@@ -1,6 +1,7 @@
 import { INJECTED_SCRIPT, parseEventData, signIn, useAuth, WebViewContentReader } from '@/core';
 import { consumePendingDeepLink, processDeepLink } from '@/core/hooks/useHandleDeepLink';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
+import { NavigationHelpers } from '@/core/utils/navigation';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
@@ -79,11 +80,11 @@ const Authorize = () => {
                 processDeepLink(savedDeepLink);
               } catch (error) {
                 // Error processing deep link
-                router.replace('/orders');
+                NavigationHelpers.replaceWithOrders();
               }
             }, 500);
           } else {
-            router.replace('/orders');
+            NavigationHelpers.replaceWithOrders();
           }
           setVersionWithAutoInfo();
         } else {
