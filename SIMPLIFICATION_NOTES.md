@@ -10,17 +10,19 @@
 ## ✅ Đã Merge Tất Cả Routes Thành DRAWER_ROUTES
 
 ### Trước đây (3 constants duplicate):
+
 ```typescript
 // Duplicate routes - cả ba đều resolve đến cùng URL
-MAIN_ROUTES.ORDER_PICK(code) = '/(drawer)/orders/order-pick/${code}'  // → URL: '/orders/order-pick/ABC'
-RELATIVE_ROUTES.ORDER_PICK(code) = '/orders/order-pick/${code}'      // → URL: '/orders/order-pick/ABC'
-NESTED_ROUTES.ORDER_PICK(code) = 'orders/order-pick/${code}'         // → URL: '/orders/order-pick/ABC'
+MAIN_ROUTES.ORDER_PICK(code) = '/(drawer)/orders/order-pick/${code}'; // → URL: '/orders/order-pick/ABC'
+RELATIVE_ROUTES.ORDER_PICK(code) = '/orders/order-pick/${code}'; // → URL: '/orders/order-pick/ABC'
+NESTED_ROUTES.ORDER_PICK(code) = 'orders/order-pick/${code}'; // → URL: '/orders/order-pick/ABC'
 ```
 
 ### Sau khi đơn giản hóa:
+
 ```typescript
 // Một constant duy nhất
-DRAWER_ROUTES.ORDER_PICK(code) = '/orders/order-pick/${code}'  // → URL: '/orders/order-pick/ABC'
+DRAWER_ROUTES.ORDER_PICK(code) = '/orders/order-pick/${code}'; // → URL: '/orders/order-pick/ABC'
 ```
 
 **Lý do:** Trong Expo Router, cả relative path (không có `/`) và absolute path (có `/`) đều hoạt động giống nhau với `router.push()`.
@@ -30,6 +32,7 @@ DRAWER_ROUTES.ORDER_PICK(code) = '/orders/order-pick/${code}'  // → URL: '/ord
 ## 📝 Migration Guide
 
 ### Code Cũ:
+
 ```typescript
 // ❌ Cũ
 router.navigate(ROUTES.MAIN.ORDERS);
@@ -38,6 +41,7 @@ router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
 ```
 
 ### Code Mới:
+
 ```typescript
 // ✅ Mới - Tất cả đều dùng DRAWER_ROUTES
 router.navigate(ROUTES.DRAWER.ORDERS);
@@ -66,7 +70,8 @@ export const RELATIVE_ROUTES = DRAWER_ROUTES;
  * @deprecated Use ROUTES.DRAWER instead
  */
 export const NESTED_ROUTES = {
-  ORDER_PICK: (code: string) => DRAWER_ROUTES.ORDER_PICK(code).replace(/^\//, ''),
+  ORDER_PICK: (code: string) =>
+    DRAWER_ROUTES.ORDER_PICK(code).replace(/^\//, ''),
   // ... (computed from DRAWER_ROUTES)
 };
 ```
@@ -97,14 +102,15 @@ export const NESTED_ROUTES = {
 
 ```typescript
 ROUTES = {
-  AUTH: AUTH_ROUTES,           // '/login', '/authorize'
-  DRAWER: DRAWER_ROUTES,       // '/orders', '/orders/order-pick/[code]', ...
-  DEEP_LINK: DEEP_LINK_PATHS,  // 'order-pick', 'order-invoice', ... (for parsing)
-  PARAMS: ROUTE_PARAMS,        // 'orderCode', 'deliveryCode', ...
-}
+  AUTH: AUTH_ROUTES, // '/login', '/authorize'
+  DRAWER: DRAWER_ROUTES, // '/orders', '/orders/order-pick/[code]', ...
+  DEEP_LINK: DEEP_LINK_PATHS, // 'order-pick', 'order-invoice', ... (for parsing)
+  PARAMS: ROUTE_PARAMS, // 'orderCode', 'deliveryCode', ...
+};
 ```
 
 **Đã xóa:**
+
 - ❌ `MAIN_ROUTES` → ✅ `DRAWER_ROUTES`
 - ❌ `RELATIVE_ROUTES` → ✅ `DRAWER_ROUTES`
 - ❌ `NESTED_ROUTES` → ✅ `DRAWER_ROUTES`
@@ -113,4 +119,3 @@ ROUTES = {
 
 **Last Updated:** Dec 22, 2025  
 **Version:** 2.0.0
-

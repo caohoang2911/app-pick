@@ -10,6 +10,7 @@
 ### 1. **Fix Typo Folder Name**
 
 **Trước:**
+
 ```
 src/contants/  ❌ Typo
 ├── flag.ts
@@ -18,6 +19,7 @@ src/contants/  ❌ Typo
 ```
 
 **Sau:**
+
 ```
 src/core/constants/  ✅ Đúng
 ├── routes.ts
@@ -27,6 +29,7 @@ src/core/constants/  ✅ Đúng
 ```
 
 **Thay đổi:**
+
 - ✅ Move tất cả files từ `src/contants/` → `src/core/constants/`
 - ✅ Xóa folder `src/contants/` cũ
 - ✅ Consolidate tất cả constants về một nơi
@@ -36,6 +39,7 @@ src/core/constants/  ✅ Đúng
 ### 2. **Update Tất Cả Imports**
 
 **Trước:**
+
 ```typescript
 import { ORDER_STATUS } from '~/src/contants/order';
 import { GROUP_SHIPPING_ENABLED } from '~/src/contants/flag';
@@ -43,6 +47,7 @@ import { PRODUCT_ACTIONS } from '@/contants/product';
 ```
 
 **Sau:**
+
 ```typescript
 import { ORDER_STATUS } from '@/core/constants/order';
 import { GROUP_SHIPPING_ENABLED } from '@/core/constants/flag';
@@ -50,6 +55,7 @@ import { PRODUCT_ACTIONS } from '@/core/constants/product';
 ```
 
 **Files đã update:** 20 files
+
 - ✅ `src/components/orders/order-item.tsx`
 - ✅ `src/components/order-scan-to-delivery/invoice-info.tsx`
 - ✅ `src/app/(drawer)/orders/store-start-order-scan-to-delivery/[code].tsx`
@@ -75,6 +81,7 @@ import { PRODUCT_ACTIONS } from '@/core/constants/product';
 ### 3. **Update Core Index Exports**
 
 **Trước:**
+
 ```typescript
 // src/core/index.ts
 export * from './store/auth';
@@ -83,6 +90,7 @@ export * from './utils/browser';
 ```
 
 **Sau:**
+
 ```typescript
 // src/core/index.ts
 // Store exports
@@ -106,6 +114,7 @@ export { useProtectedRoute } from './hooks/useProtectedRoute';
 ```
 
 **Lợi ích:**
+
 - ✅ Có thể import từ `@/core` thay vì path dài
 - ✅ Centralized exports
 - ✅ Dễ discover các utilities
@@ -115,12 +124,14 @@ export { useProtectedRoute } from './hooks/useProtectedRoute';
 ## 📊 Thống Kê
 
 ### Files Changed
+
 - ✅ **3 files** được move (flag.ts, order.ts, product.ts)
 - ✅ **20 files** được update imports
 - ✅ **1 file** được update exports (core/index.ts)
 - ✅ **3 files** được xóa (từ folder cũ)
 
 ### Total Changes
+
 - **24 files** thay đổi
 - **0 breaking changes** - Tất cả imports đã được update
 - **0 linter errors**
@@ -150,12 +161,14 @@ src/core/constants/
 ### 🔄 **Import Paths**
 
 **Cũ:**
+
 ```typescript
 import { ORDER_STATUS } from '~/src/contants/order';
 import { ORDER_STATUS } from '@/contants/order';
 ```
 
 **Mới:**
+
 ```typescript
 import { ORDER_STATUS } from '@/core/constants/order';
 // Hoặc từ core index
@@ -177,6 +190,7 @@ import { ORDER_STATUS } from '@/core';
 ## 🚀 Next Steps (Optional)
 
 Các vấn đề medium/low priority có thể fix sau:
+
 - Organize utils folder tốt hơn
 - Move root components vào shared/
 - Types organization
@@ -185,4 +199,3 @@ Các vấn đề medium/low priority có thể fix sau:
 
 **Last Updated:** Dec 22, 2025  
 **Status:** ✅ All High Priority Fixes Completed
-

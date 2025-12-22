@@ -1,6 +1,7 @@
 # 🔍 Giải Thích: `(drawer)` vs `drawer` trong Expo Router
 
 ## Câu Hỏi
+
 **`(drawer)` khác gì với `drawer`?**
 
 ---
@@ -8,12 +9,14 @@
 ## 📚 Khái Niệm Cơ Bản
 
 ### Route Group `(drawer)` - Nhóm Routes
+
 - **Ký hiệu:** Dấu ngoặc đơn `()`
 - **Tên gọi:** Route Group (Nhóm routes)
 - **URL:** ❌ **KHÔNG** tạo segment trong URL
 - **Mục đích:** Organize code, share layout
 
 ### Route Segment `drawer` - Đoạn Route
+
 - **Ký hiệu:** Không có dấu ngoặc
 - **Tên gọi:** Route Segment (Đoạn route)
 - **URL:** ✅ **CÓ** tạo segment trong URL
@@ -39,10 +42,10 @@ src/app/
 
 ### URLs Tương Ứng
 
-| File Path | Route Path | URL Thực Tế | Có "drawer" trong URL? |
-|-----------|------------|-------------|------------------------|
-| `(drawer)/orders/index.tsx` | `/(drawer)/orders` | `/orders` | ❌ **KHÔNG** |
-| `drawer/orders/index.tsx` | `/drawer/orders` | `/drawer/orders` | ✅ **CÓ** |
+| File Path                   | Route Path         | URL Thực Tế      | Có "drawer" trong URL? |
+| --------------------------- | ------------------ | ---------------- | ---------------------- |
+| `(drawer)/orders/index.tsx` | `/(drawer)/orders` | `/orders`        | ❌ **KHÔNG**           |
+| `drawer/orders/index.tsx`   | `/drawer/orders`   | `/drawer/orders` | ✅ **CÓ**              |
 
 ---
 
@@ -66,6 +69,7 @@ router.navigate('/(drawer)/orders');
 ```
 
 **Kết quả:**
+
 - ✅ URL sạch: `/orders`
 - ✅ Vẫn trong drawer navigation context
 - ✅ Có drawer menu, có thể swipe để mở
@@ -90,6 +94,7 @@ router.push('/drawer/orders');
 ```
 
 **Kết quả:**
+
 - ❌ URL dài hơn: `/drawer/orders`
 - ❌ Không tự động vào drawer context
 - ❌ Phải setup drawer riêng
@@ -101,15 +106,17 @@ router.push('/drawer/orders');
 ### ✅ Ưu Điểm
 
 1. **URL Sạch Hơn**
+
    ```typescript
    // Route Group
    '/(drawer)/orders' → URL: '/orders'  ✅
-   
+
    // Route Segment
    '/drawer/orders' → URL: '/drawer/orders'  ❌
    ```
 
 2. **Organize Code**
+
    ```
    src/app/
      ├── (drawer)/          ← Tất cả routes trong drawer
@@ -122,6 +129,7 @@ router.push('/drawer/orders');
    ```
 
 3. **Shared Layout**
+
    ```typescript
    // src/app/(drawer)/_layout.tsx
    export default function DrawerLayout() {
@@ -146,27 +154,29 @@ router.push('/drawer/orders');
 
 ## 📊 Bảng So Sánh Chi Tiết
 
-| Tiêu Chí | `(drawer)` Route Group | `drawer` Route Segment |
-|----------|------------------------|-------------------------|
-| **Ký hiệu** | Có dấu `()` | Không có dấu |
-| **URL Segment** | ❌ Không tạo | ✅ Có tạo |
-| **URL Example** | `/orders` | `/drawer/orders` |
-| **Layout Sharing** | ✅ Shared layout | ❌ Phải setup riêng |
-| **Code Organization** | ✅ Tốt | ⚠️ Bình thường |
-| **Use Case** | Nhóm routes có chung layout | Route thực sự cần segment |
-| **Navigation Path** | `/(drawer)/orders` | `/drawer/orders` |
+| Tiêu Chí              | `(drawer)` Route Group      | `drawer` Route Segment    |
+| --------------------- | --------------------------- | ------------------------- |
+| **Ký hiệu**           | Có dấu `()`                 | Không có dấu              |
+| **URL Segment**       | ❌ Không tạo                | ✅ Có tạo                 |
+| **URL Example**       | `/orders`                   | `/drawer/orders`          |
+| **Layout Sharing**    | ✅ Shared layout            | ❌ Phải setup riêng       |
+| **Code Organization** | ✅ Tốt                      | ⚠️ Bình thường            |
+| **Use Case**          | Nhóm routes có chung layout | Route thực sự cần segment |
+| **Navigation Path**   | `/(drawer)/orders`          | `/drawer/orders`          |
 
 ---
 
 ## 🎯 Khi Nào Dùng Gì?
 
 ### Dùng Route Group `(drawer)` khi:
+
 - ✅ Muốn nhóm routes lại (orders, settings, profile)
 - ✅ Muốn share layout (Drawer navigation)
 - ✅ Muốn URL sạch (không có `drawer` trong URL)
 - ✅ Routes có chung navigation pattern
 
 ### Dùng Route Segment `drawer` khi:
+
 - ✅ Thực sự cần `/drawer` trong URL
 - ✅ Route độc lập, không share layout
 - ✅ Cần segment rõ ràng trong URL structure
@@ -176,6 +186,7 @@ router.push('/drawer/orders');
 ## 🔍 Trong Code Của Chúng Ta
 
 ### File Structure Hiện Tại
+
 ```
 src/app/
 ├── (drawer)/              ← Route Group ✅
@@ -193,11 +204,11 @@ src/app/
 
 ```typescript
 // MAIN_ROUTES - Dùng route group
-ROUTES.MAIN.ORDERS = '/(drawer)/orders'
+ROUTES.MAIN.ORDERS = '/(drawer)/orders';
 // → URL thực: '/orders'  ✅
 
 // RELATIVE_ROUTES - Không có drawer prefix
-ROUTES.RELATIVE.ORDERS = '/orders'
+ROUTES.RELATIVE.ORDERS = '/orders';
 // → URL thực: '/orders'  ✅
 
 // Cả hai đều trỏ đến cùng URL: '/orders'
@@ -227,6 +238,7 @@ router.navigate('/drawer/orders');
 ## 🚨 Common Mistakes
 
 ### ❌ Mistake 1: Dùng Route Segment thay vì Route Group
+
 ```typescript
 // ❌ SAI
 router.navigate('/drawer/orders');
@@ -238,6 +250,7 @@ router.navigate('/(drawer)/orders');
 ```
 
 ### ❌ Mistake 2: Nhầm lẫn về URL
+
 ```typescript
 // ❌ Nghĩ rằng (drawer) tạo segment
 '/(drawer)/orders' → URL: '/drawer/orders'  // ❌ SAI
@@ -247,6 +260,7 @@ router.navigate('/(drawer)/orders');
 ```
 
 ### ❌ Mistake 3: Tạo folder `drawer` thay vì `(drawer)`
+
 ```
 // ❌ SAI - Tạo folder drawer/
 src/app/drawer/orders/
@@ -259,26 +273,29 @@ src/app/(drawer)/orders/
 
 ## 📝 Tóm Tắt
 
-| Khái Niệm | Route Group `(drawer)` | Route Segment `drawer` |
-|-----------|------------------------|------------------------|
-| **Ký hiệu** | `()` | Không có |
-| **URL** | `/orders` | `/drawer/orders` |
-| **Mục đích** | Organize + Share layout | Tạo segment thực |
-| **Dùng khi** | Nhóm routes có chung layout | Cần segment trong URL |
+| Khái Niệm    | Route Group `(drawer)`      | Route Segment `drawer` |
+| ------------ | --------------------------- | ---------------------- |
+| **Ký hiệu**  | `()`                        | Không có               |
+| **URL**      | `/orders`                   | `/drawer/orders`       |
+| **Mục đích** | Organize + Share layout     | Tạo segment thực       |
+| **Dùng khi** | Nhóm routes có chung layout | Cần segment trong URL  |
 
 ### ✅ Kết Luận
 
 **`(drawer)` là Route Group:**
+
 - Không tạo segment trong URL
 - Dùng để organize code và share layout
 - URL sạch hơn: `/orders` thay vì `/drawer/orders`
 
 **`drawer` là Route Segment:**
+
 - Tạo segment trong URL
 - URL sẽ có `/drawer` trong path
 - Dùng khi thực sự cần segment đó
 
 **Trong app của chúng ta:**
+
 - ✅ Dùng `(drawer)` route group
 - ✅ URL: `/orders` (không có `drawer`)
 - ✅ Routes trong `(drawer)` share Drawer layout
@@ -288,4 +305,3 @@ src/app/(drawer)/orders/
 
 **Last Updated:** Dec 22, 2025  
 **Version:** 1.0.0
-

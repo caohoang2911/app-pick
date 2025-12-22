@@ -32,6 +32,7 @@ src/
 ### 2. **Routing Structure - Sau Refactor**
 
 #### ✅ **Route Constants Centralized**
+
 ```typescript
 src/core/constants/routes.ts
 ├── AUTH_ROUTES      ✅ Authentication routes
@@ -43,6 +44,7 @@ src/core/constants/routes.ts
 **Đánh giá:** ✅ **Rất tốt** - Đơn giản, rõ ràng, không duplicate
 
 #### ✅ **Navigation Helpers**
+
 ```typescript
 src/core/utils/navigation.ts
 ├── Safe navigation với error handling
@@ -53,6 +55,7 @@ src/core/utils/navigation.ts
 **Đánh giá:** ✅ **Tốt** - Centralized, có error handling
 
 #### ✅ **Route Organization**
+
 ```
 src/app/
 ├── _layout.tsx           ✅ Root layout
@@ -120,6 +123,7 @@ src/components/
 ### 1. **Core Index Export**
 
 **Vấn đề:**
+
 ```typescript
 // src/core/index.ts
 export * from './store/auth';
@@ -128,6 +132,7 @@ export * from './utils/browser';
 ```
 
 **Đề xuất:**
+
 ```typescript
 // Nên export thêm:
 export * from './constants/routes';
@@ -143,12 +148,14 @@ export * from './hooks/useProtectedRoute';
 ### 2. **Constants Folder Structure**
 
 **Hiện tại:**
+
 ```
 src/core/constants/
 └── routes.ts  ✅ Tốt
 ```
 
 **Nhưng có:**
+
 ```
 src/contants/  ❌ Typo: "contants" thay vì "constants"
 ├── flag.ts
@@ -157,11 +164,13 @@ src/contants/  ❌ Typo: "contants" thay vì "constants"
 ```
 
 **Vấn đề:**
+
 - ❌ Typo trong tên folder: `contants` → `constants`
 - ❌ Không consistent: có 2 nơi chứa constants
 - ❌ Không rõ sự khác biệt giữa `core/constants` và `contants`
 
 **Đề xuất:**
+
 ```
 src/core/constants/
 ├── routes.ts      ✅ Routes
@@ -177,6 +186,7 @@ src/core/constants/
 ### 3. **Types Organization**
 
 **Hiện tại:**
+
 ```
 src/types/
 ├── commons.ts
@@ -190,10 +200,12 @@ src/types/
 ```
 
 **Vấn đề:**
+
 - ⚠️ Có thể merge một số types liên quan
 - ⚠️ Thiếu index.ts để export tập trung
 
 **Đề xuất:**
+
 ```
 src/types/
 ├── index.ts        ✅ Export tất cả
@@ -213,6 +225,7 @@ src/types/
 ### 4. **Utils Organization**
 
 **Hiện tại:**
+
 ```
 src/core/utils/
 ├── navigation.ts       ✅ Navigation helpers
@@ -227,10 +240,12 @@ src/core/utils/
 ```
 
 **Vấn đề:**
+
 - ⚠️ Quá nhiều files ở root level
 - ⚠️ Có thể nhóm lại theo category
 
 **Đề xuất:**
+
 ```
 src/core/utils/
 ├── navigation/
@@ -255,6 +270,7 @@ src/core/utils/
 ### 5. **Hooks Organization**
 
 **Hiện tại:**
+
 ```
 src/core/hooks/
 ├── useProtectedRoute.ts      ✅ Route protection
@@ -272,6 +288,7 @@ src/core/hooks/
 ### 6. **Components Structure**
 
 **Vấn đề nhỏ:**
+
 ```
 src/components/
 ├── order-bags/       ✅ Tốt
@@ -282,6 +299,7 @@ src/components/
 ```
 
 **Nhưng có:**
+
 - ⚠️ Một số components ở root level (Button, Input, etc.) - có thể move vào `shared/`
 - ⚠️ Folder `examples/` - không rõ mục đích
 
@@ -292,6 +310,7 @@ src/components/
 ### 7. **API Structure**
 
 **Hiện tại:**
+
 ```
 src/api/
 ├── app-pick/         ✅ Main APIs
@@ -329,11 +348,13 @@ src/api/
 ### 🔴 **High Priority**
 
 1. **Fix typo folder name:**
+
    ```
    src/contants/ → src/constants/
    ```
 
 2. **Consolidate constants:**
+
    ```
    Move src/contants/* → src/core/constants/
    ```
@@ -388,18 +409,21 @@ src/api/
 **Đánh giá:** ✅ **Cấu trúc tốt, cần một số cải thiện nhỏ**
 
 **Điểm mạnh:**
+
 - Routing structure sau refactor rất tốt
 - State management organized tốt
 - API layer rõ ràng
 - Components nhóm theo feature
 
 **Cần cải thiện:**
+
 - Fix typo folder name
 - Consolidate constants
 - Update core/index.ts exports
 - Organize utils tốt hơn
 
 **Khuyến nghị:**
+
 - ✅ **Có thể deploy** với cấu trúc hiện tại
 - ⚠️ **Nên fix** các vấn đề high priority trước
 - 💡 **Có thể cải thiện** các vấn đề medium/low priority sau
@@ -409,4 +433,3 @@ src/api/
 **Last Updated:** Dec 22, 2025  
 **Reviewer:** AI Assistant  
 **Status:** ✅ Approved với một số recommendations
-

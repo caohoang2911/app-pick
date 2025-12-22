@@ -1,6 +1,7 @@
 # Router Refactoring Notes
 
 ## Tổng quan
+
 Refactoring này được thực hiện để cải thiện cấu trúc routing trong ứng dụng, tăng tính maintainability, type safety và consistency.
 
 **Ngày thực hiện:** December 22, 2025  
@@ -21,6 +22,7 @@ Refactoring này được thực hiện để cải thiện cấu trúc routing 
 ## 📋 Quick Reference Cheat Sheet
 
 ### Import
+
 ```typescript
 import { ROUTES } from '@/core/constants/routes';
 import { NavigationHelpers } from '@/core/utils/navigation';
@@ -28,37 +30,37 @@ import { NavigationHelpers } from '@/core/utils/navigation';
 
 ### Common Use Cases
 
-| Scenario | Code | Route Type + Method |
-|----------|------|-------------------|
-| **Login → App** | `router.replace(ROUTES.MAIN.ORDERS)` | MAIN + replace() |
-| **Orders → Order Detail** | `router.push(ROUTES.NESTED.ORDER_PICK(code))` | NESTED + push() |
-| **Order → Settings** | `router.navigate(ROUTES.RELATIVE.SETTINGS)` | RELATIVE + navigate() |
-| **Deep Link** | `router.replace(ROUTES.RELATIVE.ORDER_PICK(code))` | RELATIVE + replace() |
-| **Back với fallback** | `NavigationHelpers.goBack()` | Helper |
-| **URL + params** | `buildRouteWithParams(path, { code })` | Helper |
+| Scenario                  | Code                                               | Route Type + Method   |
+| ------------------------- | -------------------------------------------------- | --------------------- |
+| **Login → App**           | `router.replace(ROUTES.MAIN.ORDERS)`               | MAIN + replace()      |
+| **Orders → Order Detail** | `router.push(ROUTES.NESTED.ORDER_PICK(code))`      | NESTED + push()       |
+| **Order → Settings**      | `router.navigate(ROUTES.RELATIVE.SETTINGS)`        | RELATIVE + navigate() |
+| **Deep Link**             | `router.replace(ROUTES.RELATIVE.ORDER_PICK(code))` | RELATIVE + replace()  |
+| **Back với fallback**     | `NavigationHelpers.goBack()`                       | Helper                |
+| **URL + params**          | `buildRouteWithParams(path, { code })`             | Helper                |
 
 ### Route Types Cheat Sheet
 
 ```typescript
 // AUTH - Từ anywhere → login/authorize
-ROUTES.AUTH.LOGIN                    // '/login'
-ROUTES.AUTH.AUTHORIZE                // '/authorize'
+ROUTES.AUTH.LOGIN; // '/login'
+ROUTES.AUTH.AUTHORIZE; // '/authorize'
 
 // MAIN - Từ outside → inside drawer (full path)
-ROUTES.MAIN.ORDERS                   // '/(drawer)/orders'
-ROUTES.MAIN.ORDER_PICK(code)         // '/(drawer)/orders/order-pick/[code]'
+ROUTES.MAIN.ORDERS; // '/(drawer)/orders'
+ROUTES.MAIN.ORDER_PICK(code); // '/(drawer)/orders/order-pick/[code]'
 
 // RELATIVE - Trong drawer, có leading slash
-ROUTES.RELATIVE.ORDERS               // '/orders'
-ROUTES.RELATIVE.ORDER_PICK(code)     // '/orders/order-pick/[code]'
+ROUTES.RELATIVE.ORDERS; // '/orders'
+ROUTES.RELATIVE.ORDER_PICK(code); // '/orders/order-pick/[code]'
 
 // NESTED - Trong stack, không leading slash
-ROUTES.NESTED.ORDER_PICK(code)       // 'orders/order-pick/[code]'
-ROUTES.NESTED.ORDER_INVOICE(code)    // 'orders/order-invoice/[code]'
+ROUTES.NESTED.ORDER_PICK(code); // 'orders/order-pick/[code]'
+ROUTES.NESTED.ORDER_INVOICE(code); // 'orders/order-invoice/[code]'
 
 // DEEP_LINK - Path segments only (for matching)
-ROUTES.DEEP_LINK.ORDER_PICK          // 'order-pick'
-ROUTES.DEEP_LINK.ORDER_INVOICE       // 'order-invoice'
+ROUTES.DEEP_LINK.ORDER_PICK; // 'order-pick'
+ROUTES.DEEP_LINK.ORDER_INVOICE; // 'order-invoice'
 ```
 
 ### Navigation Helpers Cheat Sheet
@@ -102,24 +104,28 @@ router.replace(ROUTES.MAIN.ORDERS);
 ## 📁 Files Mới Được Tạo
 
 ### 1. `src/core/constants/routes.ts`
+
 **Mục đích:** Centralized route constants cho toàn bộ ứng dụng
 
 **Nội dung chính:**
 
 #### 1. `AUTH_ROUTES` - Routes cho Authentication
+
 Routes dùng cho các màn hình xác thực (login, authorize).
 
 **Đặc điểm:**
+
 - Không nằm trong drawer navigation
 - Có format đầy đủ với leading slash: `/login`, `/authorize`
 - Dùng với `router.navigate()` hoặc `router.replace()`
 
 **Ví dụ:**
+
 ```typescript
 AUTH_ROUTES = {
   LOGIN: '/login',
   AUTHORIZE: '/authorize',
-}
+};
 
 // Sử dụng
 router.navigate(ROUTES.AUTH.LOGIN);
@@ -130,24 +136,27 @@ router.navigate(ROUTES.AUTH.LOGIN);
 ---
 
 #### 2. `MAIN_ROUTES` - Routes Chính (Full Path với Drawer Prefix)
+
 Routes đầy đủ bao gồm drawer navigation prefix `/(drawer)/`.
 
 **🔍 Giải thích: `(drawer)` vs `drawer`**
 
 Trong Expo Router, có sự khác biệt quan trọng:
 
-| Format | Type | URL Segment | Mục đích |
-|-------|------|--------------|----------|
-| `(drawer)` | **Route Group** | ❌ Không tạo segment | Organize code, không ảnh hưởng URL |
-| `drawer` | **Route Segment** | ✅ Tạo segment `/drawer` | Tạo segment trong URL |
+| Format     | Type              | URL Segment              | Mục đích                           |
+| ---------- | ----------------- | ------------------------ | ---------------------------------- |
+| `(drawer)` | **Route Group**   | ❌ Không tạo segment     | Organize code, không ảnh hưởng URL |
+| `drawer`   | **Route Segment** | ✅ Tạo segment `/drawer` | Tạo segment trong URL              |
 
 **Route Group `(drawer)`:**
+
 - Folder structure: `src/app/(drawer)/orders/`
 - URL thực tế: `/orders` (không có `drawer` trong URL)
 - Mục đích: Nhóm routes lại để dùng chung layout (Drawer navigation)
 - Không xuất hiện trong URL path
 
 **Route Segment `drawer`:**
+
 - Folder structure: `src/app/drawer/orders/`
 - URL thực tế: `/drawer/orders` (có `drawer` trong URL)
 - Mục đích: Tạo segment thực sự trong URL
@@ -171,12 +180,14 @@ src/app/
 ```
 
 **Tại sao dùng `(drawer)`?**
+
 - ✅ URL sạch hơn: `/orders` thay vì `/drawer/orders`
 - ✅ Organize code: Nhóm routes có chung layout
 - ✅ Shared layout: Tất cả routes trong `(drawer)` dùng Drawer navigation
 - ✅ Không ảnh hưởng URL structure
 
 **Đặc điểm của MAIN_ROUTES:**
+
 - Format: `/(drawer)/orders`, `/(drawer)/orders/order-pick/[code]`
 - Dùng cho **absolute navigation** từ bên ngoài drawer
 - Thường dùng với `router.navigate()` hoặc `router.replace()`
@@ -184,19 +195,21 @@ src/app/
 - URL thực tế: `/orders` (không có `drawer`)
 
 **Ví dụ:**
+
 ```typescript
 MAIN_ROUTES = {
-  ORDERS: '/(drawer)/orders',  // URL thực: '/orders'
+  ORDERS: '/(drawer)/orders', // URL thực: '/orders'
   ORDER_PICK: (code: string) => `/(drawer)/orders/order-pick/${code}`,
   // URL thực: '/orders/order-pick/ABC123'
-}
+};
 
 // Sử dụng
-router.navigate(ROUTES.MAIN.ORDERS);  // Navigate to '/orders'
-router.replace(ROUTES.MAIN.ORDER_PICK('ABC123'));  // Navigate to '/orders/order-pick/ABC123'
+router.navigate(ROUTES.MAIN.ORDERS); // Navigate to '/orders'
+router.replace(ROUTES.MAIN.ORDER_PICK('ABC123')); // Navigate to '/orders/order-pick/ABC123'
 ```
 
 **Khi nào dùng:**
+
 - Navigate từ login/authorize vào app
 - Deep link processing (từ notification, external link)
 - Reset navigation stack với `router.replace()`
@@ -205,20 +218,23 @@ router.replace(ROUTES.MAIN.ORDER_PICK('ABC123'));  // Navigate to '/orders/order
 ---
 
 #### 3. `RELATIVE_ROUTES` - Routes Tương Đối (Có Leading Slash)
+
 Routes bắt đầu bằng `/` nhưng **không có** drawer prefix.
 
 **Đặc điểm:**
+
 - Format: `/orders`, `/orders/order-pick/[code]`
 - Dùng cho navigation **trong drawer context**
 - Dùng với `router.push()`, `router.navigate()`, `router.replace()`
 - Ngắn gọn hơn MAIN_ROUTES
 
 **Ví dụ:**
+
 ```typescript
 RELATIVE_ROUTES = {
   ORDERS: '/orders',
   ORDER_PICK: (code: string) => `/orders/order-pick/${code}`,
-}
+};
 
 // Sử dụng (khi đã ở trong drawer)
 router.push(ROUTES.RELATIVE.ORDER_PICK('ABC123'));
@@ -226,36 +242,41 @@ router.navigate(ROUTES.RELATIVE.ORDERS);
 ```
 
 **Khi nào dùng:**
+
 - Navigation helpers trong `navigation.ts`
 - Navigate giữa các screens trong drawer
 - Fallback routes trong error handling
 
 **So sánh với MAIN_ROUTES:**
+
 ```typescript
 // MAIN_ROUTES - Dùng từ bên ngoài drawer
-router.navigate('/(drawer)/orders');  // ✅ Từ login
+router.navigate('/(drawer)/orders'); // ✅ Từ login
 
 // RELATIVE_ROUTES - Dùng trong drawer
-router.navigate('/orders');  // ✅ Đã ở trong drawer rồi
+router.navigate('/orders'); // ✅ Đã ở trong drawer rồi
 ```
 
 ---
 
 #### 4. `NESTED_ROUTES` - Routes Lồng Nhau (Không Leading Slash)
+
 Routes **không có** leading slash, dùng cho relative navigation trong nested navigators.
 
 **Đặc điểm:**
+
 - Format: `orders/order-pick/[code]` (không có `/` đầu)
 - Dùng cho **relative navigation** trong cùng một stack
 - Dùng với `router.push()` từ screens trong cùng stack
 - Giữ nguyên navigation stack history
 
 **Ví dụ:**
+
 ```typescript
 NESTED_ROUTES = {
   ORDER_INVOICE: (code: string) => `orders/order-invoice/${code}`,
   ORDER_PICK: (code: string) => `orders/order-pick/${code}`,
-}
+};
 
 // Sử dụng (từ orders/index.tsx)
 router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
@@ -263,12 +284,14 @@ router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
 ```
 
 **Khi nào dùng:**
+
 - Navigate giữa các screens trong cùng stack navigator
 - Từ order list -> order detail
 - Từ order pick -> order invoice
 - Khi muốn giữ back button navigation
 
 **So sánh:**
+
 ```typescript
 // NESTED_ROUTES - Relative trong stack
 router.push('orders/order-pick/ABC123');
@@ -286,22 +309,25 @@ router.navigate('/(drawer)/orders/order-pick/ABC123');
 ---
 
 #### 5. `DEEP_LINK_PATHS` - Path Segments cho Deep Linking
+
 Các đoạn path **không có prefix/suffix**, dùng để parse deep links.
 
 **Đặc điểm:**
+
 - Format: `order-pick`, `order-invoice` (chỉ path segment)
 - Không có `/`, không có `(drawer)/`
 - Dùng để **match** với deep link URLs
 - Dùng trong `useHandleDeepLink.ts`
 
 **Ví dụ:**
+
 ```typescript
 DEEP_LINK_PATHS = {
   ORDER_PICK: 'order-pick',
   ORDER_INVOICE: 'order-invoice',
   SCAN_TO_DELIVERY: 'scan-to-delivery',
   ORDERS: 'orders',
-}
+};
 
 // Sử dụng
 const url = 'apppick://oms.seedcom.vn/order-pick?orderCode=ABC123';
@@ -311,17 +337,19 @@ if (path.includes(ROUTES.DEEP_LINK.ORDER_PICK)) {
 ```
 
 **Khi nào dùng:**
+
 - Parse deep link URLs
 - Match path trong `processDeepLink()`
 - Route mapping trong deep link handler
 
 **Deep Link Flow:**
+
 ```typescript
 // 1. Nhận deep link
-'apppick://oms.seedcom.vn/order-pick?orderCode=ABC123'
+'apppick://oms.seedcom.vn/order-pick?orderCode=ABC123';
 
 // 2. Extract path
-const path = 'order-pick';  // ← DEEP_LINK_PATHS
+const path = 'order-pick'; // ← DEEP_LINK_PATHS
 
 // 3. Match và navigate
 if (path.includes(ROUTES.DEEP_LINK.ORDER_PICK)) {
@@ -332,14 +360,17 @@ if (path.includes(ROUTES.DEEP_LINK.ORDER_PICK)) {
 ---
 
 #### 6. `ROUTE_PARAMS` - Tên Parameters
+
 Constants cho tên parameters trong routes.
 
 **Đặc điểm:**
+
 - Tránh typo khi dùng param names
 - Consistent param naming
 - Type-safe với TypeScript
 
 **Ví dụ:**
+
 ```typescript
 ROUTE_PARAMS = {
   ORDER_CODE: 'orderCode',
@@ -348,16 +379,17 @@ ROUTE_PARAMS = {
   BAG_CODE: 'bagCode',
   TYPE: 'type',
   STATUS: 'status',
-}
+};
 
 // Sử dụng
 const { orderCode } = queryParams[ROUTES.PARAMS.ORDER_CODE];
 
 // Thay vì
-const { orderCode } = queryParams['orderCode'];  // ❌ Có thể typo
+const { orderCode } = queryParams['orderCode']; // ❌ Có thể typo
 ```
 
 **Khi nào dùng:**
+
 - Parse query params từ deep links
 - Access route params trong screens
 - Build URLs với query params
@@ -365,9 +397,11 @@ const { orderCode } = queryParams['orderCode'];  // ❌ Có thể typo
 ---
 
 #### 7. `buildRouteWithParams()` - Helper Build Route + Query Params
+
 Function tiện ích để build route URL với query parameters.
 
 **Signature:**
+
 ```typescript
 buildRouteWithParams(
   path: string,
@@ -376,51 +410,53 @@ buildRouteWithParams(
 ```
 
 **Ví dụ:**
+
 ```typescript
 // Build route với params
 const url = buildRouteWithParams('/orders/print-preview', {
   code: 'ABC123',
   type: 'bag',
-  bagCode: 'BAG001'
+  bagCode: 'BAG001',
 });
 // Result: '/orders/print-preview?code=ABC123&type=bag&bagCode=BAG001'
 
 // Params undefined sẽ bị filter
 const url2 = buildRouteWithParams('/orders', {
   code: 'ABC123',
-  status: undefined  // ← Bị loại bỏ
+  status: undefined, // ← Bị loại bỏ
 });
 // Result: '/orders?code=ABC123'
 ```
 
 **Khi nào dùng:**
+
 - Navigate với query params
 - Build URLs cho print preview, reports
 - Dynamic route building
 
 **So sánh:**
+
 ```typescript
 // ❌ Manual - Dễ lỗi, khó maintain
 router.push(`/orders/print-preview?code=${code}&type=${type}`);
 
 // ✅ Using helper - Clean, safe
-router.push(buildRouteWithParams(
-  ROUTES.RELATIVE.PRINT_PREVIEW,
-  { code, type }
-));
+router.push(
+  buildRouteWithParams(ROUTES.RELATIVE.PRINT_PREVIEW, { code, type }),
+);
 ```
 
 ---
 
 ### 📊 Bảng So Sánh Nhanh
 
-| Loại Route | Format | Leading Slash | Drawer Prefix | Khi nào dùng | Router Method |
-|-----------|--------|---------------|---------------|--------------|---------------|
-| **AUTH_ROUTES** | `/login` | ✅ | ❌ | Auth screens | `navigate()`, `replace()` |
-| **MAIN_ROUTES** | `/(drawer)/orders` | ✅ | ✅ | Từ ngoài vào drawer | `navigate()`, `replace()` |
-| **RELATIVE_ROUTES** | `/orders` | ✅ | ❌ | Trong drawer context | `push()`, `navigate()` |
-| **NESTED_ROUTES** | `orders/order-pick/ABC` | ❌ | ❌ | Trong cùng stack | `push()` |
-| **DEEP_LINK_PATHS** | `order-pick` | ❌ | ❌ | Parse deep links | N/A (for matching) |
+| Loại Route          | Format                  | Leading Slash | Drawer Prefix | Khi nào dùng         | Router Method             |
+| ------------------- | ----------------------- | ------------- | ------------- | -------------------- | ------------------------- |
+| **AUTH_ROUTES**     | `/login`                | ✅            | ❌            | Auth screens         | `navigate()`, `replace()` |
+| **MAIN_ROUTES**     | `/(drawer)/orders`      | ✅            | ✅            | Từ ngoài vào drawer  | `navigate()`, `replace()` |
+| **RELATIVE_ROUTES** | `/orders`               | ✅            | ❌            | Trong drawer context | `push()`, `navigate()`    |
+| **NESTED_ROUTES**   | `orders/order-pick/ABC` | ❌            | ❌            | Trong cùng stack     | `push()`                  |
+| **DEEP_LINK_PATHS** | `order-pick`            | ❌            | ❌            | Parse deep links     | N/A (for matching)        |
 
 ### 🎯 Decision Tree: Dùng Route Nào?
 
@@ -469,16 +505,17 @@ if (path.includes(ROUTES.DEEP_LINK.ORDER_PICK)) {
 }
 
 // 5️⃣ Build URL với query params
-const url = buildRouteWithParams(
-  ROUTES.RELATIVE.PRINT_PREVIEW,
-  { code: 'ABC123', type: 'bag' }
-);
+const url = buildRouteWithParams(ROUTES.RELATIVE.PRINT_PREVIEW, {
+  code: 'ABC123',
+  type: 'bag',
+});
 // → '/orders/print-preview?code=ABC123&type=bag'
 ```
 
 ---
 
 **Ví dụ sử dụng tổng hợp:**
+
 ```typescript
 import { ROUTES } from '@/core/constants/routes';
 
@@ -490,9 +527,11 @@ router.navigate(ROUTES.MAIN.ORDERS);
 ```
 
 ### 2. `src/core/utils/navigation.ts`
+
 **Mục đích:** Navigation helper utilities với error handling
 
 **Các functions chính:**
+
 - `navigateToLogin()` - Navigate to login screen
 - `navigateToOrders()` - Navigate to orders list
 - `navigateToOrderPick(code, params?)` - Navigate to order pick
@@ -510,12 +549,14 @@ router.navigate(ROUTES.MAIN.ORDERS);
 - `replaceWithScanToDelivery(code)` - Replace with scan delivery
 
 **Đặc điểm:**
+
 - ✅ Error handling tự động
 - ✅ Fallback routes khi navigation fails
 - ✅ User-friendly error messages
 - ✅ Console logging cho debugging
 
 **Ví dụ sử dụng:**
+
 ```typescript
 import { NavigationHelpers } from '@/core/utils/navigation';
 
@@ -536,7 +577,9 @@ NavigationHelpers.replaceWithOrders();
 ### Core Files
 
 #### 1. `src/core/hooks/useProtectedRoute.ts`
+
 **Thay đổi:**
+
 ```diff
 - router.navigate('/login');
 + router.navigate(ROUTES.AUTH.LOGIN as any);
@@ -550,9 +593,11 @@ NavigationHelpers.replaceWithOrders();
 ---
 
 #### 2. `src/core/hooks/useHandleDeepLink.ts`
+
 **Thay đổi lớn:**
 
 **Before:**
+
 ```typescript
 // Nhiều if-else chains với hardcoded routes
 if (path.includes(DeepLinkPath.ORDER_PICK) && orderCode) {
@@ -564,6 +609,7 @@ if (path.includes(DeepLinkPath.ORDER_PICK) && orderCode) {
 ```
 
 **After:**
+
 ```typescript
 // Sử dụng route mapping và helper functions
 const routeMap: Record<string, () => void> = {
@@ -582,6 +628,7 @@ const routeMap: Record<string, () => void> = {
 ```
 
 **Cải thiện:**
+
 - ✅ Tách logic thành helper functions: `extractPathFromUrl()`, `routeByPath()`
 - ✅ Sử dụng route mapping thay vì if-else chain
 - ✅ Dùng NavigationHelpers cho consistent error handling
@@ -590,7 +637,9 @@ const routeMap: Record<string, () => void> = {
 ---
 
 #### 3. `src/core/utils/deepLink.ts`
+
 **Thay đổi:**
+
 ```diff
 + /**
 +  * @deprecated Use ROUTES.DEEP_LINK from '../constants/routes' instead
@@ -605,7 +654,9 @@ const routeMap: Record<string, () => void> = {
 ### Authentication Files
 
 #### 4. `src/app/login.tsx`
+
 **Thay đổi:**
+
 ```diff
 + import { NavigationHelpers } from '@/core/utils/navigation';
 + import { ROUTES } from '@/core/constants/routes';
@@ -620,7 +671,9 @@ const routeMap: Record<string, () => void> = {
 ---
 
 #### 5. `src/app/authorize.tsx`
+
 **Thay đổi:**
+
 ```diff
 + import { NavigationHelpers } from '@/core/utils/navigation';
 
@@ -633,7 +686,9 @@ const routeMap: Record<string, () => void> = {
 ### Hooks
 
 #### 6. `src/core/hooks/useOrderActions.ts`
+
 **Thay đổi:**
+
 ```diff
 + import { NavigationHelpers } from '~/src/core/utils/navigation';
 
@@ -656,6 +711,7 @@ const routeMap: Record<string, () => void> = {
 ---
 
 #### 7. `src/core/hooks/useDriverOrderActions.ts`
+
 **Thay đổi:** Tương tự như `useOrderActions.ts`
 
 ---
@@ -663,7 +719,9 @@ const routeMap: Record<string, () => void> = {
 ### Components
 
 #### 8. `src/components/ButtonBack.tsx`
+
 **Thay đổi:**
+
 ```diff
 - import { router } from 'expo-router';
 + import { NavigationHelpers } from '@/core/utils/navigation';
@@ -683,7 +741,9 @@ const routeMap: Record<string, () => void> = {
 ---
 
 #### 9. `src/components/DrawerContent.tsx`
+
 **Thay đổi:**
+
 ```diff
   const MENU_ITEMS = [
     {
@@ -700,7 +760,9 @@ const routeMap: Record<string, () => void> = {
 ---
 
 #### 10. `src/components/orders/order-item.tsx`
+
 **Thay đổi nhỏ:**
+
 ```diff
 - }, [type, code, status, isDriver, router]);
 + }, [type, code, status, isDriver]);
@@ -713,10 +775,12 @@ const routeMap: Record<string, () => void> = {
 ## 📊 Thống Kê Thay Đổi
 
 ### Files Created
+
 - ✅ `src/core/constants/routes.ts` (150 lines)
 - ✅ `src/core/utils/navigation.ts` (280 lines)
 
 ### Files Modified
+
 - ✅ `src/core/hooks/useProtectedRoute.ts`
 - ✅ `src/core/hooks/useHandleDeepLink.ts` (major refactor)
 - ✅ `src/core/utils/deepLink.ts` (deprecation notice)
@@ -729,6 +793,7 @@ const routeMap: Record<string, () => void> = {
 - ✅ `src/components/orders/order-item.tsx`
 
 ### Total Changes
+
 - **10 files modified**
 - **2 new files created**
 - **~430 lines of new code**
@@ -739,14 +804,17 @@ const routeMap: Record<string, () => void> = {
 ## 🔀 Router Methods: push() vs navigate() vs replace()
 
 ### `router.push(path)`
+
 **Mục đích:** Thêm screen mới vào navigation stack
 
 **Đặc điểm:**
+
 - ✅ Giữ history, có thể back về màn hình trước
 - ✅ Dùng cho flow navigation (A → B → C)
 - ✅ Thường dùng với NESTED_ROUTES hoặc RELATIVE_ROUTES
 
 **Ví dụ:**
+
 ```typescript
 // Từ orders list
 router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
@@ -755,6 +823,7 @@ router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
 ```
 
 **Khi nào dùng:**
+
 - Navigate vào order detail từ list
 - Navigate vào sub-screens trong flow
 - User cần quay lại màn hình trước
@@ -762,15 +831,18 @@ router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
 ---
 
 ### `router.navigate(path)`
+
 **Mục đích:** Navigate đến screen, reset stack nếu cần
 
 **Đặc điểm:**
+
 - 🔄 Smart navigation: tìm screen trong stack hoặc navigate mới
 - ✅ Có thể back về màn hình trước (nếu còn trong stack)
 - ✅ Dùng cho main screens, cross-stack navigation
 - ✅ Thường dùng với MAIN_ROUTES hoặc RELATIVE_ROUTES
 
 **Ví dụ:**
+
 ```typescript
 // Navigate to orders từ login
 router.navigate(ROUTES.MAIN.ORDERS);
@@ -782,6 +854,7 @@ router.navigate(ROUTES.RELATIVE.SETTINGS);
 ```
 
 **Khi nào dùng:**
+
 - Navigate giữa các main screens
 - Từ login/authorize vào app
 - Navigate đến settings, profile
@@ -790,15 +863,18 @@ router.navigate(ROUTES.RELATIVE.SETTINGS);
 ---
 
 ### `router.replace(path)`
+
 **Mục đích:** Thay thế màn hình hiện tại
 
 **Đặc điểm:**
+
 - 🔄 Replace current screen in stack
 - ❌ Không thể back về màn hình cũ
 - ✅ Dùng cho flow hoàn tất hoặc redirect
 - ✅ Thường dùng với MAIN_ROUTES hoặc RELATIVE_ROUTES
 
 **Ví dụ:**
+
 ```typescript
 // Deep link: replace login với order detail
 router.replace(ROUTES.RELATIVE.ORDER_PICK('ABC123'));
@@ -811,6 +887,7 @@ router.replace(ROUTES.MAIN.ORDERS);
 ```
 
 **Khi nào dùng:**
+
 - Sau login thành công (không muốn back về login)
 - Deep link navigation
 - Redirect sau khi hoàn tất flow
@@ -820,11 +897,11 @@ router.replace(ROUTES.MAIN.ORDERS);
 
 ### 📊 So Sánh Chi Tiết
 
-| Method | Stack Behavior | Back Button | Use Case | Route Type |
-|--------|---------------|-------------|----------|------------|
-| `push()` | Add to stack | ✅ Có | Detail screens, sub-flows | NESTED, RELATIVE |
-| `navigate()` | Smart nav | ✅ Có (conditional) | Main screens, cross-stack | MAIN, RELATIVE |
-| `replace()` | Replace current | ❌ Không | After login, deep links | MAIN, RELATIVE |
+| Method       | Stack Behavior  | Back Button         | Use Case                  | Route Type       |
+| ------------ | --------------- | ------------------- | ------------------------- | ---------------- |
+| `push()`     | Add to stack    | ✅ Có               | Detail screens, sub-flows | NESTED, RELATIVE |
+| `navigate()` | Smart nav       | ✅ Có (conditional) | Main screens, cross-stack | MAIN, RELATIVE   |
+| `replace()`  | Replace current | ❌ Không            | After login, deep links   | MAIN, RELATIVE   |
 
 ### 🎯 Decision Tree: Dùng Method Nào?
 
@@ -874,6 +951,7 @@ router.push(ROUTES.MAIN.ORDERS);
 ## 🎨 Patterns và Best Practices
 
 ### 1. Route Constants Pattern
+
 ```typescript
 // ❌ BAD - Hardcoded strings
 router.push('/orders/order-pick/ABC123');
@@ -883,6 +961,7 @@ router.push(ROUTES.NESTED.ORDER_PICK('ABC123'));
 ```
 
 ### 2. Navigation Helper Pattern
+
 ```typescript
 // ❌ BAD - Direct router calls without error handling
 router.push(`/orders/order-pick/${code}`);
@@ -892,6 +971,7 @@ NavigationHelpers.toOrderPick(code);
 ```
 
 ### 3. Error Handling Pattern
+
 ```typescript
 // ❌ BAD - No error handling
 router.navigate('/orders');
@@ -909,6 +989,7 @@ const safeNavigate = (action, fallback, errorMessage) => {
 ```
 
 ### 4. Deep Link Processing Pattern
+
 ```typescript
 // ❌ BAD - Long if-else chains
 if (path.includes('order-pick')) {
@@ -929,9 +1010,11 @@ const routeMap = {
 ## 🚀 Migration Guide
 
 ### For New Features
+
 Khi thêm route mới:
 
 1. **Thêm vào route constants:**
+
 ```typescript
 // src/core/constants/routes.ts
 export const MAIN_ROUTES = {
@@ -941,18 +1024,20 @@ export const MAIN_ROUTES = {
 ```
 
 2. **Thêm navigation helper:**
+
 ```typescript
 // src/core/utils/navigation.ts
 export const navigateToNewFeature = (id: string) => {
   safeNavigate(
     () => router.push(ROUTES.NESTED.NEW_FEATURE(id) as any),
     ROUTES.RELATIVE.ORDERS,
-    'Không thể mở tính năng mới'
+    'Không thể mở tính năng mới',
   );
 };
 ```
 
 3. **Sử dụng trong component:**
+
 ```typescript
 import { NavigationHelpers } from '@/core/utils/navigation';
 
@@ -962,14 +1047,17 @@ const handlePress = () => {
 ```
 
 ### For Existing Code
+
 Khi maintain code cũ:
 
 1. **Tìm hardcoded routes:**
+
 ```bash
 grep -r "router.push\|router.navigate\|router.replace" src/
 ```
 
 2. **Replace với navigation helpers:**
+
 ```typescript
 // Before
 router.push(`/orders/order-pick/${code}`);
@@ -983,13 +1071,16 @@ NavigationHelpers.toOrderPick(code);
 ## ⚠️ Breaking Changes
 
 ### Không có Breaking Changes
+
 Refactoring này được thiết kế để **backward compatible**:
+
 - ✅ Code cũ vẫn hoạt động bình thường
 - ✅ Chỉ refactor các files đã được identify
 - ✅ Không thay đổi route structure
 - ✅ Không thay đổi navigation behavior
 
 ### Deprecations
+
 - `DeepLinkPath` enum được đánh dấu deprecated
 - Khuyến khích sử dụng `ROUTES.DEEP_LINK` thay thế
 
@@ -998,6 +1089,7 @@ Refactoring này được thiết kế để **backward compatible**:
 ## 🧪 Testing Checklist
 
 ### Manual Testing Required
+
 - [ ] Login flow
 - [ ] Deep link navigation (từ notification, external links)
 - [ ] Order pick navigation
@@ -1010,6 +1102,7 @@ Refactoring này được thiết kế để **backward compatible**:
 - [ ] Error scenarios (invalid routes, network errors)
 
 ### Test Cases
+
 ```typescript
 // Test 1: Navigate to order pick
 NavigationHelpers.toOrderPick('TEST001');
@@ -1033,6 +1126,7 @@ NavigationHelpers.toOrderPick('INVALID_CODE');
 ## 📝 Known Issues & Limitations
 
 ### Current Limitations
+
 1. **Một số components chưa được refactor:**
    - `src/components/order-pick/header-action-bottom-sheet.tsx` - Giữ nguyên do complexity
    - `src/components/order-pick/actions-bottom.tsx` - Giữ nguyên do complexity
@@ -1057,6 +1151,7 @@ NavigationHelpers.toOrderPick('INVALID_CODE');
 ## 🔮 Future Improvements
 
 ### Phase 2 (Recommended)
+
 1. **Refactor remaining components:**
    - Components trong known issues
    - Thêm tests cho các components này
@@ -1076,6 +1171,7 @@ NavigationHelpers.toOrderPick('INVALID_CODE');
    - Better error recovery
 
 ### Phase 3 (Optional)
+
 1. **Navigation state management:**
    - Track navigation history
    - Implement breadcrumbs
@@ -1096,16 +1192,19 @@ NavigationHelpers.toOrderPick('INVALID_CODE');
 ## 📚 References
 
 ### Documentation
+
 - [Expo Router Documentation](https://docs.expo.dev/router/introduction/)
 - [React Navigation](https://reactnavigation.org/)
 
 ### Related Files
+
 - `src/core/constants/routes.ts` - Route constants
 - `src/core/utils/navigation.ts` - Navigation helpers
 - `src/core/hooks/useHandleDeepLink.ts` - Deep link handling
 - `src/core/hooks/useProtectedRoute.ts` - Route protection
 
 ### Code Examples
+
 See individual file changes above for detailed examples.
 
 ---
@@ -1113,6 +1212,7 @@ See individual file changes above for detailed examples.
 ## ✅ Checklist
 
 ### Completed
+
 - [x] Create route constants file
 - [x] Create navigation helpers
 - [x] Refactor useProtectedRoute
@@ -1125,6 +1225,7 @@ See individual file changes above for detailed examples.
 - [x] Add JSDoc comments
 
 ### Pending (Optional)
+
 - [ ] Refactor remaining components (Phase 2)
 - [ ] Add unit tests
 - [ ] Add integration tests
@@ -1146,6 +1247,7 @@ See individual file changes above for detailed examples.
 ## 📞 Support
 
 Nếu có vấn đề hoặc câu hỏi về refactoring này:
+
 1. Check this document first
 2. Review code comments in modified files
 3. Test locally before deploying
@@ -1156,4 +1258,3 @@ Nếu có vấn đề hoặc câu hỏi về refactoring này:
 **Last Updated:** December 22, 2025  
 **Version:** 1.0.0  
 **Status:** ✅ Completed
-
