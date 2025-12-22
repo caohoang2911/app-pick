@@ -29,8 +29,8 @@
       "autoIncrement": true,
       "developmentClient": false,
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
+        "buildType": "aab",
+        "gradleCommand": ":app:bundleRelease",
         "prebuildCommand": "./commands/prebuild.sh"
       },
       "ios": {

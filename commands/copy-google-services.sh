@@ -38,7 +38,9 @@ copy_google_services() {
         cp "$ANDROID_SOURCE" "$ANDROID_TARGET"
         echo "✅ Android: Copied $ANDROID_SOURCE to $ANDROID_TARGET"
     else
-        echo "⚠️  Android: File not found: $ANDROID_SOURCE"
+        echo "❌ Error: Android Google Services file not found: $ANDROID_SOURCE"
+        echo "   Please ensure the file exists before building"
+        exit 1
     fi
 
     # Copy iOS Google Services
@@ -65,7 +67,9 @@ copy_google_services() {
             cp "$IOS_SOURCE" "$IOS_TARGET"
             echo "✅ iOS: Copied $IOS_SOURCE to $IOS_TARGET"
         else
-            echo "⚠️  iOS: File not found: $IOS_SOURCE"
+            echo "❌ Error: iOS Google Services file not found: $IOS_SOURCE"
+            echo "   Please ensure the file exists before building"
+            exit 1
         fi
     else
         echo "⚠️  iOS: Could not find app directory in ./ios/"
