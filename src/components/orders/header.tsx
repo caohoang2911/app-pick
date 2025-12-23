@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { DrawerActions } from '@react-navigation/native';
+
 import { useNavigation } from 'expo-router';
 import { toUpper } from 'lodash';
 import { useMemo, useRef } from 'react';
@@ -23,10 +24,10 @@ import { useRole, useRoleDriver } from '~/src/core/hooks/useRole';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import { toggleScanQrCode } from '~/src/core/store/orders';
-import ArrowDown from '~/src/core/svgs/ArrowDown';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { Option } from '~/src/types/commons';
 import { Role } from '~/src/types/employee';
+import { colors } from '~/src/ui/colors';
 import { Badge } from '../Badge';
 import StoreSelection from '../shared/StoreSelection';
 import AssignStoreBottomSheet from './assign-store-bottom-sheet';
@@ -52,6 +53,9 @@ const Header = () => {
 
   const driverAssignedStoreCodes = userInfo?.driverAssignedStoreCodes || [];
   const driverOrderAssignStatus = userInfo?.driverOrderAssignStatus;
+
+  const isPickerShiftStatusOnShift = userInfo?.kposShiftStatus === 'ON_SHIFT';
+
   const isDriver = useRoleDriver();
 
   const orderStatusBottomSheetRef = useRef<any>(null);
@@ -83,21 +87,51 @@ const Header = () => {
     assignMeToStore({ storeCode: store?.id });
   };
 
+  const handleOpenStoreSelection = () => {
+    storeRef.current?.present();
+  };
+
   const renderStoreSelection = useMemo(() => {
     return (
-      <Pressable
-        onPress={() => storeRef.current?.present()}
-        className="flex flex-row items-center gap-1"
-      >
-        <Text
-          className="text-sm"
-          style={{ maxWidth: windowWidth - 120 }}
-          numberOfLines={1}
-        >
-          {userInfo?.storeCode} - {storeName}
-        </Text>
-        <ArrowDown />
-      </Pressable>
+      <View className="flex flex-row items-center gap-2 mt-1 ">
+        <Pressable>
+          <Badge
+            icon={
+              <Ionicons
+                name={
+                  !isPickerShiftStatusOnShift
+                    ? 'notifications-off-outline'
+                    : 'notifications-outline'
+                }
+                size={12}
+                color={!isPickerShiftStatusOnShift ? 'red' : 'green'}
+              />
+            }
+            label={!isPickerShiftStatusOnShift ? 'Ngoài ca' : 'Đang vào ca'}
+            variant={!isPickerShiftStatusOnShift ? 'danger' : 'success'}
+          />
+        </Pressable>
+        <View className="flex flex-row items-center gap-1 flex-1">
+          <Pressable onPress={handleOpenStoreSelection} hitSlop={10}>
+            <View className="flex flex-row items-center rounded-full px-1.5 py-1 bg-blue-50">
+              <Ionicons
+                className="mr-1"
+                name="storefront-outline"
+                size={12}
+                color={colors.blue[400]}
+              />
+              <Text className="text-xs font-medium text-blue-600">
+                {userInfo?.storeCode}
+              </Text>
+              <MaterialIcons
+                name={'keyboard-arrow-down'}
+                size={16}
+                color={colors.blue[400]}
+              />
+            </View>
+          </Pressable>
+        </View>
+      </View>
     );
   }, [userInfo, storeName]);
 
@@ -171,9 +205,13 @@ const Header = () => {
                   onPress={() => refreshToken()}
                 >
                   {isPending ? (
-                    <ActivityIndicator size="small" color="#4A7FFF" />
+                    <ActivityIndicator size="small" color={colors.blue[400]} />
                   ) : (
-                    <MaterialIcons name="refresh" size={18} color="#4A7FFF" />
+                    <MaterialIcons
+                      name="refresh"
+                      size={14}
+                      color={colors.blue[400]}
+                    />
                   )}
                 </Pressable>
                 <Badge label={roleName || userInfo?.role} />

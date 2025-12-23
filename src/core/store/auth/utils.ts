@@ -17,6 +17,7 @@ export type UserInfo = {
   tenant?: string;
   driverAssignedStoreCodes?: string[];
   driverOrderAssignStatus?: 'ENABLE' | 'DISABLE';
+  kposShiftStatus?: 'ON_SHIFT' | 'OFF_SHIFF';
 };
 
 export type TokenType = {
