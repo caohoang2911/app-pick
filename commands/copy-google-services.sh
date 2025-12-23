@@ -37,6 +37,20 @@ copy_google_services() {
         mkdir -p "$(dirname "$ANDROID_TARGET")"
         cp "$ANDROID_SOURCE" "$ANDROID_TARGET"
         echo "✅ Android: Copied $ANDROID_SOURCE to $ANDROID_TARGET"
+        
+        # Also copy to variant-specific directories for release builds
+        # Google Services plugin (v4.4.1) searches in src/release/google-services.json first
+        # This is REQUIRED for :app:assembleRelease builds
+        RELEASE_TARGET="./android/app/src/release/google-services.json"
+        mkdir -p "$(dirname "$RELEASE_TARGET")"
+        cp "$ANDROID_SOURCE" "$RELEASE_TARGET"
+        echo "✅ Android: Copied $ANDROID_SOURCE to $RELEASE_TARGET"
+        
+        # Also copy to debug directory for consistency
+        DEBUG_TARGET="./android/app/src/debug/google-services.json"
+        mkdir -p "$(dirname "$DEBUG_TARGET")"
+        cp "$ANDROID_SOURCE" "$DEBUG_TARGET"
+        echo "✅ Android: Copied $ANDROID_SOURCE to $DEBUG_TARGET"
     else
         echo "❌ Error: Android Google Services file not found: $ANDROID_SOURCE"
         echo "   Please ensure the file exists before building"
