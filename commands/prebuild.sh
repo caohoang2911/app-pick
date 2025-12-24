@@ -4,29 +4,80 @@ set -e  # Exit on error
 
 echo "🚀 Starting prebuild process..."
 
-# Copy Google Services files FIRST (before prebuild generates AndroidManifest)
+# Step 1: Run expo prebuild to generate native directories
+echo "📦 Running expo prebuild..."
+npx expo prebuild --clean
+
+# Step 2: Copy Google Services files AFTER prebuild creates the directories
+echo "📋 Copying Google Services files for Android and iOS..."
 if [ -f "./commands/copy-google-services.sh" ]; then
   bash ./commands/copy-google-services.sh
   
-  # Verify files were copied
-  if [ ! -f "./android/app/google-services.json" ] && [ -d "./android" ]; then
-    echo "⚠️  Warning: Android Google Services file not found after copy"
+  # Step 2.1: Verify iOS GoogleService-Info.plist exists and is in the right place
+  echo "🔍 Verifying iOS GoogleService-Info.plist..."
+  IOS_APP_DIR=""
+  if [ -d "./ios" ]; then
+    # Find iOS app directory
+    for dir in ./ios/*/; do
+      dirname=$(basename "$dir")
+      if [[ ! "$dirname" =~ ^\. ]] && \
+         [[ "$dirname" != "Pods" ]] && \
+         [[ "$dirname" != "build" ]] && \
+         [[ ! "$dirname" =~ \.xcodeproj$ ]] && \
+         [[ ! "$dirname" =~ \.xcworkspace$ ]]; then
+        if [ -f "$dir/Info.plist" ]; then
+          IOS_APP_DIR="$dirname"
+          break
+        fi
+      fi
+    done
   fi
   
-  if [ ! -f "./ios/AppPick/GoogleService-Info.plist" ] && [ -d "./ios" ]; then
-    echo "⚠️  Warning: iOS Google Services file not found after copy"
+  if [ -n "$IOS_APP_DIR" ]; then
+    IOS_TARGET="./ios/$IOS_APP_DIR/GoogleService-Info.plist"
+    if [ -f "$IOS_TARGET" ]; then
+      echo "✅ Verified: GoogleService-Info.plist exists at $IOS_TARGET"
+      # Ensure file is readable and has content
+      if [ -s "$IOS_TARGET" ]; then
+        echo "✅ Verified: GoogleService-Info.plist has content"
+      else
+        echo "❌ Error: GoogleService-Info.plist is empty!"
+        exit 1
+      fi
+    else
+      echo "❌ Error: GoogleService-Info.plist not found at expected location: $IOS_TARGET"
+      echo "   Attempting to copy again..."
+      PROFILE=${EAS_BUILD_PROFILE:-"dev"}
+      PROFILE=$(echo "$PROFILE" | tr '[:upper:]' '[:lower:]')
+      if [[ "$PROFILE" == "prod" || "$PROFILE" == "production" || "$PROFILE" == "testflight" ]]; then
+        ENV_SUFFIX="prod"
+      else
+        ENV_SUFFIX="dev"
+      fi
+      IOS_SOURCE="./GoogleService-Info-${ENV_SUFFIX}.plist"
+      if [ -f "$IOS_SOURCE" ]; then
+        mkdir -p "$(dirname "$IOS_TARGET")"
+        cp "$IOS_SOURCE" "$IOS_TARGET"
+        echo "✅ Re-copied $IOS_SOURCE to $IOS_TARGET"
+      else
+        echo "❌ Error: Source file not found: $IOS_SOURCE"
+        exit 1
+      fi
+    fi
+  else
+    echo "⚠️  Warning: Could not find iOS app directory to verify GoogleService-Info.plist"
   fi
 else
-  echo "⚠️  Warning: copy-google-services.sh not found"
+  echo "❌ Error: copy-google-services.sh not found!"
+  exit 1
 fi
 
-# Fix AndroidManifest.xml to add Firebase notification channel meta-data
-# This must be done AFTER expo prebuild generates the manifest
+# Step 3: Fix AndroidManifest.xml to add Firebase notification channel meta-data
 fix_android_manifest() {
   local manifest_file="./android/app/src/main/AndroidManifest.xml"
   
   if [ ! -f "$manifest_file" ]; then
-    echo "⚠️  AndroidManifest.xml not found yet, will be fixed after prebuild"
+    echo "⚠️  AndroidManifest.xml not found, skipping manifest fix"
     return
   fi
   
@@ -47,7 +98,7 @@ fix_android_manifest() {
   echo "✅ Firebase notification channel meta-data added successfully"
 }
 
-# Register the function to run after prebuild
-trap 'fix_android_manifest' EXIT
+# Run the Android manifest fix
+fix_android_manifest
 
-echo "✨ Prebuild process completed!"
+echo "✨ Prebuild process completed successfully!"

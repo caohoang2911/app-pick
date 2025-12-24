@@ -1,8 +1,8 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo } from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { RefreshControl, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
@@ -12,7 +12,11 @@ import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import { ORDER_STATUS, ORDER_TAGS } from '@/core/constants/order';
+import {
+  ORDER_DELIVERY_TYPE,
+  ORDER_STATUS,
+  ORDER_TAGS,
+} from '@/core/constants/order';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';
@@ -31,14 +35,7 @@ import {
 } from '~/src/core/store/alert-dialog';
 import { formatCurrency } from '~/src/core/utils/number';
 import { queryClient } from '~/src/api/shared/api-provider';
-
-const bulletPoint = () => {
-  return (
-    <View className="flex flex-row items-center">
-      <View className="w-2 h-2 bg-blue-500 rounded-full" />
-    </View>
-  );
-};
+import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -69,13 +66,12 @@ const OrderScanToDelivery = () => {
     status,
     tags,
     handoverStatus,
-    payment,
     codAmount,
-    ignorePrintInvoiceStep,
+    isInvoiceSupportedByAppPick,
   } = (orderDetail?.header as OrderDetailHeader) || {};
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
+    useIssueInvoiceProcess(code, () => {
       handoverOrder({ orderCode: code, proofImages: uploadedImages });
     });
 
@@ -85,6 +81,20 @@ const OrderScanToDelivery = () => {
     () => ACTION_TYPE[handoverStatus as keyof typeof ACTION_TYPE],
     [handoverStatus],
   );
+
+  const actionTypeWithInvoice = useMemo(() => {
+    if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
+      return 'Xuất hóa đơn & giao cho tài xế';
+    }
+    return 'Xuất hóa đơn & giao cho khách';
+  }, [isInvoiceSupportedByAppPick]);
+
+  const generateMessageIssueInvoice = useMemo(() => {
+    if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
+      return 'Bạn có chắc chắn xuất hóa đơn & giao cho tài xế?';
+    }
+    return 'Bạn có chắc chắn xuất hóa đơn & giao cho khách?';
+  }, [deliveryType]);
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -118,17 +128,20 @@ const OrderScanToDelivery = () => {
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
-  // TODO: Implement in the future
-  // const handleCheckoutOrderBagsWithInvoice = () => {
-  //   showAlertDialog({
-  //     title: 'Xuất hóa đơn?',
-  //     message: 'Bạn có chắc chắn xuất hóa đơn?',
-  //     onConfirm: () => {
-  //       hideAlert();
-  //       issueInvoice({ orderCode: code });
-  //     },
-  //   });
-  // };
+  const { checkShift } = useCheckShift(() => {
+    showAlertDialog({
+      title: 'Xuất hóa đơn?',
+      message: generateMessageIssueInvoice,
+      onConfirm: () => {
+        hideAlert();
+        issueInvoice({ orderCode: code });
+      },
+    });
+  });
+
+  const handleCheckoutOrderBagsWithInvoice = () => {
+    checkShift();
+  };
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlertDialog({
@@ -171,13 +184,23 @@ const OrderScanToDelivery = () => {
   const renderAction = useMemo(() => {
     if (!orderBags.length && isPending) return null;
     return isAllDone ? (
-      <Button
-        loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
-        onPress={handleStartDeliveryWithoutInvoice}
-        label={actionType}
-        disabled={handoverStatus === 'DISABLE'}
-        variant="warning"
-      />
+      deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
+      !isInvoiceSupportedByAppPick ? (
+        <Button
+          loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
+          onPress={handleStartDeliveryWithoutInvoice}
+          label={actionType}
+          disabled={handoverStatus === 'DISABLE'}
+          variant="warning"
+        />
+      ) : (
+        <Button
+          loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
+          onPress={handleCheckoutOrderBagsWithInvoice}
+          label={actionTypeWithInvoice}
+          variant="warning"
+        />
+      )
     ) : (
       <Button
         onPress={() => toggleScanQrCodeProduct(true)}
@@ -194,10 +217,18 @@ const OrderScanToDelivery = () => {
     isPending,
   ]);
 
+  const handleRefresh = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  }, []);
+
   return (
     <>
       <View className="flex-1 mt-3">
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+          }
+        >
           {showAlert && (
             <View className="px-4" style={{ marginBottom: 10 }}>
               <SectionAlert className="bg-yellow-500">

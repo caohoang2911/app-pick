@@ -154,14 +154,8 @@ const sendToPrinter = async (
 ) => {
   client.write(printerBuffer);
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  client.destroy();
 };
-
-export const useIssueInvoiceProcess = (
-  orderCode: string,
-  ignorePrintInvoiceStep: boolean = false,
-  cb?: () => void,
-) => {
+export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
@@ -170,11 +164,9 @@ export const useIssueInvoiceProcess = (
   return useMutation({
     mutationFn: async (params: Variables) => {
       setLoading(true);
+      let client: TcpSocket.Socket | null = null;
       try {
-        let client: TcpSocket.Socket | null = null;
-        if (!ignorePrintInvoiceStep) {
-          client = await checkPrinterConnection();
-        }
+        client = await checkPrinterConnection();
 
         const issueInvoiceResult = await issueInvoiceAsync(params);
         const { error: issueInvoiceError } = issueInvoiceResult;
@@ -187,14 +179,11 @@ export const useIssueInvoiceProcess = (
           throw new Error('Issue invoice error');
         }
 
-        if (ignorePrintInvoiceStep) {
-          return issueInvoiceResult;
-        }
         const res = await fetchBase64ImageByInvoiceURLAsync(orderCode);
         const fullBase64 = validateBase64Image(res.data);
 
         const {
-          data: printerBuffer,
+          data: printerBuffers,
           error,
           hasError,
         } = await genXPrinterPrintDataAsync({
@@ -210,9 +199,21 @@ export const useIssueInvoiceProcess = (
           throw new Error('Generate printer buffer error');
         }
 
-        if (!error && printerBuffer && client) {
-          await sendToPrinter(client, printerBuffer);
+        if (!error && printerBuffers?.length > 0 && client) {
+          // Gửi tuần tự từng buffer, đợi mỗi lần gửi xong mới gửi tiếp
+          for (const printerBuffer of printerBuffers) {
+            await sendToPrinter(client, printerBuffer as unknown as Uint8Array);
+          }
+          // Tất cả sendToPrinter đã hoàn thành, mới destroy client
+          if (client) {
+            client.destroy();
+            client = null;
+          }
         } else {
+          if (client) {
+            client.destroy();
+            client = null;
+          }
           showMessage({
             message: error?.toString() || 'Không thể in hóa đơn',
             type: 'danger',
@@ -222,6 +223,11 @@ export const useIssueInvoiceProcess = (
 
         return issueInvoiceResult;
       } catch (error) {
+        // Cleanup client nếu có lỗi
+        if (client) {
+          client.destroy();
+          client = null;
+        }
         setLoading(false);
         throw error;
       }

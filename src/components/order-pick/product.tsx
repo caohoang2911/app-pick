@@ -30,6 +30,7 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
+import { colors } from '~/src/ui/colors';
 const screenWidth = Dimensions.get('window').width;
 // Extract Row component and memoize
 const Row = memo(
@@ -125,8 +126,8 @@ const WarningMessage = memo(
     isLast?: boolean;
   }) => (
     <View
-      className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}
-      style={{ backgroundColor: '#FFA500' }}
+      className={`px-3 py-2 ${isLast ? 'border-b border-gray-200' : ''}`}
+      style={{ backgroundColor: colors.orange[200] }}
     >
       <View className="flex flex-row items-center">
         <View className="size-1.5 bg-white rounded-full mr-2 self-start mt-2" />
@@ -356,11 +357,11 @@ const OrderPickProduct = memo(
           className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}
           style={[
             styles.box,
-            {
-              borderLeftWidth: isPicking ? 5 : 1,
-              borderLeftColor: isPicking ? 'rgb(59,130,246)' : '#dfdfdf',
-              borderStyle: 'solid',
-            },
+            // {
+            //   borderLeftWidth: isPicking ? 5 : 0,
+            //   borderLeftColor: isPicking ? 'rgb(59,130,246)' : '#dfdfdf',
+            //   borderStyle: 'solid',
+            // },
           ]}
         >
           <View className="p-3">

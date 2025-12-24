@@ -1,26 +1,26 @@
 /**
  * lint-staged configuration
- * Runs linters on git staged files only (fast and efficient)
+ * Automatically formats git staged files before commit
  */
 
 module.exports = {
   // TypeScript and TypeScript React files
   '**/*.{ts,tsx}': [
-    // Format check (Prettier) - Fast check
-    'prettier --check',
+    // Auto-format files (Prettier) - formats and stages changes
+    'prettier --write',
   ],
 
   // JavaScript files
-  '**/*.{js,jsx}': ['prettier --check'],
+  '**/*.{js,jsx}': ['prettier --write'],
 
   // JSON files
-  '**/*.json': ['prettier --check'],
+  '**/*.json': ['prettier --write'],
 
   // Markdown files
-  '**/*.md': ['prettier --check'],
+  '**/*.md': ['prettier --write'],
 
   // YAML files
-  '**/*.{yml,yaml}': ['prettier --check'],
+  '**/*.{yml,yaml}': ['prettier --write'],
 };
 
 // Note: TypeScript type checking is done separately in pre-commit hook

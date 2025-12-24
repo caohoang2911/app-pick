@@ -36,21 +36,23 @@ const ProductCombo = ({
 
   return (
     <>
-      <View className="bg-white border border-blue-200 rounded-md">
-        <View className="bg-blue-50 rounded-t-md p-2 py-3">
-          <Text className="text-sm text-blue-600 font-bold" numberOfLines={2}>
+      <View className="bg-orange-200 border border-orange-200 rounded-md">
+        <View className="bg-orange-200 rounded-t-md p-2 py-3">
+          <Text className="text-base text-white font-bold" numberOfLines={2}>
             {combo.name}
           </Text>
           <View className="flex flex-row items-center gap-2 justify-between">
-            <Text className="text-sm text-blue-500 font-medium mt-2">
-              <Text className="text-gray-500">Số lượng đặt: </Text>{' '}
-              {combo.quantity || 0}
+            <Text className="text-sm text-white font-medium mt-2">
+              <Text className="text-gray-200">Số lượng đặt: </Text>{' '}
+              <Text className="font-bold">{combo.quantity || 0}</Text>
             </Text>
-            <Text className="text-sm text-blue-500 font-medium">
-              <Text className="text-gray-500">Thực pick: </Text>{' '}
-              {isPickDoneCombo && !isNaN(pickedQuantityCombo)
-                ? Math.floor(pickedQuantityCombo)
-                : 0}
+            <Text className="text-sm text-white font-medium">
+              <Text className="text-gray-200">Thực pick: </Text>{' '}
+              <Text className="font-bold">
+                {isPickDoneCombo && !isNaN(pickedQuantityCombo)
+                  ? Math.floor(pickedQuantityCombo)
+                  : 0}
+              </Text>
             </Text>
           </View>
         </View>

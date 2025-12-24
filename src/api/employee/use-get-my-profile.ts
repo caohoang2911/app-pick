@@ -27,17 +27,19 @@ export const useGetMyProfile = () => {
 
   useEffect(() => {
     if (query?.data?.data && !query?.data?.error) {
-      const { driverOrderAssignSetting } = query?.data?.data;
+      const { driverOrderAssignSetting, kposShiftStatus } = query?.data?.data;
       setLoading(true);
       setTimeout(() => {
         setUserInfo({
           ...userInfo,
+          kposShiftStatus: kposShiftStatus,
           ...driverOrderAssignSetting,
         });
         setTimeout(() => {
           setUser({
             ...userInfo,
             ...driverOrderAssignSetting,
+            kposShiftStatus: kposShiftStatus,
             driverOrderAssignStatus: driverOrderAssignSetting?.status,
           });
           setLoading(false);

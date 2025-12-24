@@ -109,7 +109,6 @@ const OrderList = () => {
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setToken(data?.data?.zas || '');
-    removeItem('ipPrinterLabel');
     setTimeout(() => {
       setUserInfo({
         ...userInfo,

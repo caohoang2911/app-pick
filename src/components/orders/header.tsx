@@ -75,7 +75,7 @@ const Header = () => {
 
   const { mutate: refreshToken, isPending } = useRefreshToken((data) => {
     queryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] !== 'getMyProfile',
+      // predicate: (query) => query.queryKey[0] === 'getMyProfile',
     });
   });
 
@@ -107,7 +107,7 @@ const Header = () => {
                 color={!isPickerShiftStatusOnShift ? 'red' : 'green'}
               />
             }
-            label={!isPickerShiftStatusOnShift ? 'Ngoài ca' : 'Đang vào ca'}
+            label={!isPickerShiftStatusOnShift ? 'Chưa vào ca' : 'Đang vào ca'}
             variant={!isPickerShiftStatusOnShift ? 'danger' : 'success'}
           />
         </Pressable>

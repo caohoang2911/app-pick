@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { Text, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useValidateDeliveryOrderFail } from '~/src/api/app-pick/use-validate-delivery-order-fail';
@@ -31,7 +31,7 @@ import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { data, isPending, isFetching } = useOrderDetailQuery({
+  const { data, isPending, isFetching, refetch } = useOrderDetailQuery({
     orderCode: code,
   });
 
@@ -126,12 +126,20 @@ const OrderScanToDelivery = () => {
     return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
   }, [tags]);
 
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   const featureAvailable = status === ORDER_STATUS.SHIPPING;
 
   return (
     <>
       <View className="flex-1 mt-3">
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+          }
+        >
           {isShowAlert && (
             <View className="px-4" style={{ marginBottom: 10 }}>
               <SectionAlert style={{ backgroundColor: '#FFA500' }}>

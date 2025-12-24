@@ -48,6 +48,10 @@
       }
     }
   },
+  "submit": {
+    "dev": {},
+    "prod": {}
+  },
   "cli": {
     "version": ">= 7.3.0",
     "promptToConfigurePushNotifications": false,

@@ -38,7 +38,6 @@ import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
-import { useCheckShiftOnAppStart } from '~/src/core/hooks/useCheckShiftOnAppStart';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
@@ -94,7 +93,6 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useHandleDeepLink();
   useWatchResponse();
   useGetMyProfile();
-  useCheckShiftOnAppStart();
   return <>{children}</>;
 };
 

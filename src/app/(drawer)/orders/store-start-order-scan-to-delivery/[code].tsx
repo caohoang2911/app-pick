@@ -1,7 +1,7 @@
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo } from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { RefreshControl, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
@@ -24,8 +24,20 @@ import { OrderDetailHeader } from '~/src/types/order-pick';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
+import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+  const { checkShift } = useCheckShift(() => {
+    showAlert({
+      title: 'Xuất hóa đơn & giao hàng?',
+      message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
+      onConfirm: () => {
+        hideAlert();
+        issueInvoice({ orderCode: code });
+      },
+    });
+  });
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -36,7 +48,7 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, deliveryType, ignorePrintInvoiceStep } =
+  const { tags, deliveryType, isInvoiceSupportedByAppPick } =
     (orderDetail?.header as OrderDetailHeader) || {};
 
   useEffect(() => {
@@ -64,7 +76,7 @@ const OrderScanToDelivery = () => {
     });
 
   const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
+    useIssueInvoiceProcess(code, () => {
       startSelfShipping({ orderCode: code });
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     });
@@ -81,20 +93,13 @@ const OrderScanToDelivery = () => {
     });
   };
 
-  useEffect(() => {
-    setOrderScanedBagLabel({ orderCode: code, bagCode: 'OL74655326-DR00' });
-  }, []);
-
-  // const handleStartDeliveryWithInvoice = () => {
-  //   showAlert({
-  //     title: 'Xuất hóa đơn & giao hàng?',
-  //     message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
-  //     onConfirm: () => {
-  //       hideAlert();
-  //       issueInvoice({ orderCode: code });
-  //     },
-  //   });
-  // };
+  const handleStartDeliveryWithInvoice = () => {
+    if (!isAllDone) {
+      toggleStoreStartScanQrCodeProduct(true);
+      return;
+    }
+    checkShift();
+  };
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlert({
@@ -107,14 +112,26 @@ const OrderScanToDelivery = () => {
     });
   };
 
+  const handleStartScanQrCodeProduct = () => {
+    toggleStoreStartScanQrCodeProduct(true);
+  };
+
   const isShowAlert = useMemo(() => {
     return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
   }, [tags]);
 
+  const handleRefresh = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  }, []);
+
   return (
     <>
       <View className="flex-1 mt-3">
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+          }
+        >
           {isShowAlert && (
             <View className="px-4" style={{ marginBottom: 10 }}>
               <SectionAlert style={{ backgroundColor: '#FFA500' }}>
@@ -135,27 +152,27 @@ const OrderScanToDelivery = () => {
       </View>
       <View className="border-t border-gray-200 pb-4">
         <View className="px-4 py-3 bg-white ">
-          {/* {deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? ( */}
-          <Button
-            loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
-            onPress={handleStartDeliveryWithoutInvoice}
-            disabled={!isAllDone}
-            label={
-              !isAllDone ? 'Scan QR túi để giao hàng' : 'Bắt đầu giao hàng'
-            }
-          />
-          {/* ): (
+          {!isAllDone ? (
+            <Button
+              loading={isLoadingStartSelfShipping}
+              onPress={handleStartScanQrCodeProduct}
+              label={'Scan QR túi để giao hàng'}
+            />
+          ) : deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
+            !isInvoiceSupportedByAppPick ? (
+            <Button
+              loading={isLoadingStartSelfShipping}
+              onPress={handleStartDeliveryWithoutInvoice}
+              label={'Bắt đầu giao hàng'}
+            />
+          ) : (
             <Button
               loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
               onPress={handleStartDeliveryWithInvoice}
               disabled={!isAllDone}
-              label={
-                !isAllDone
-                  ? 'Scan QR túi để giao hàng'
-                  : 'Xuất hóa đơn & bắt đầu giao hàng'
-              }
+              label="Xuất hóa đơn & bắt đầu giao hàng"
             />
-          )} */}
+          )}
         </View>
       </View>
       {isScanQrCodeProduct && (
