@@ -20,22 +20,19 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
     onSuccess: (data: any & { data: { zas: string } }) => {
       setLoading(true);
       setToken(data?.data?.zas || '');
-      setTimeout(() => {
-        setUserInfo({
-          ...userInfo,
-          ...data?.data,
-        });
-        setTimeout(() => {
-          setUser({
-            ...userInfo,
-            ...data?.data,
-          });
-          setLoading(false);
-        }, 200);
-      }, 1000);
-      if (!data.error) {
-        cb?.(data);
-      }
+
+      setUserInfo({
+        ...userInfo,
+        ...data?.data,
+      });
+
+      setUser({
+        ...userInfo,
+        ...data?.data,
+      });
+      setLoading(false);
+      cb?.(data);
+
       setLoading(false);
     },
   });

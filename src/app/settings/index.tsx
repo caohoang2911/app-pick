@@ -204,7 +204,7 @@ const Settings = () => {
           console.log('Connected to bill printer');
           setItem('ipPrinterBill', billPrinterIp);
           showMessage({
-            message: 'Lưu IP máy in hoá đơn thành công',
+            message: 'Lưu IP máy tạo hoá đơn thành công',
             type: 'success',
           });
           if (billPrinterTimer.current) {
@@ -217,7 +217,7 @@ const Settings = () => {
 
       billPrinterTimer.current = setTimeout(() => {
         showMessage({
-          message: 'Lưu IP máy in hoá đơn thất bại',
+          message: 'Lưu IP máy tạo hoá đơn thất bại',
           type: 'danger',
         });
         client.destroy();
@@ -226,7 +226,7 @@ const Settings = () => {
     } catch (error) {
       setIsLoadingBillPrinter(false);
       showMessage({
-        message: 'Lỗi không xác định khi kết nối máy in hoá đơn',
+        message: 'Lỗi không xác định khi kết nối máy tạo hoá đơn',
         type: 'danger',
       });
     }
@@ -316,13 +316,15 @@ const Settings = () => {
               Máy in - {name}
             </Text>
             <View className="mt-4 border-t border-gray-200 pt-3">
-              <Text className="text-sm font-semibold mb-2">Máy in hoá đơn</Text>
+              <Text className="text-sm font-semibold mb-2">
+                Máy tạo hoá đơn
+              </Text>
               <View className="flex flex-row items-center gap-2 mb-3">
                 <View ref={billInputRef} collapsable={false} className="flex-1">
                   <Input
                     value={billPrinterIp}
                     className="flex-1"
-                    placeholder="Nhập IP máy in hoá đơn"
+                    placeholder="Nhập IP máy tạo hoá đơn"
                     onChangeText={setBillPrinterIp}
                     onFocus={() => {
                       activeInputRef.current = 'bill';

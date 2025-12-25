@@ -87,9 +87,9 @@ const OrderScanToDelivery = () => {
 
   const actionTypeWithInvoice = useMemo(() => {
     if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
-      return 'Xuất hóa đơn & giao cho tài xế';
+      return 'Tạo hoá đơn & giao cho tài xế';
     }
-    return 'Xuất hóa đơn & giao cho khách';
+    return 'Tạo hoá đơn & giao cho khách';
   }, [isInvoiceSupportedByAppPick]);
 
   const generateMessageIssueInvoice = useMemo(() => {
@@ -133,7 +133,7 @@ const OrderScanToDelivery = () => {
 
   const { checkShift } = useCheckShift(() => {
     showAlertDialog({
-      title: 'Xuất hóa đơn?',
+      title: 'Tạo hoá đơn?',
       message: generateMessageIssueInvoice,
       onConfirm: () => {
         hideAlert();
@@ -256,8 +256,8 @@ const OrderScanToDelivery = () => {
             <View className="px-4" style={{ marginBottom: 10 }}>
               <SectionAlert className="bg-yellow-500">
                 <Text className="text-white font-semibold">
-                  • Đơn hàng chưa in hoá đơn. Vui lòng in hoá đơn trước khi giao
-                  hàng
+                  • Đơn hàng chưa tạo hoá đơn. Vui lòng tạo hoá đơn trước khi
+                  giao hàng
                 </Text>
                 {Boolean(codAmount) && (
                   <View className="mt-2">

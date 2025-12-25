@@ -34,7 +34,7 @@ const OrderScanToDelivery = () => {
 
   const { checkShift } = useCheckShift(() => {
     showAlert({
-      title: 'Xuất hóa đơn & giao hàng?',
+      title: 'Tạo hoá đơn & giao hàng?',
       message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
       onConfirm: () => {
         hideAlert();
@@ -189,7 +189,7 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
               onPress={handleStartDeliveryWithInvoice}
-              label="Xuất hóa đơn & bắt đầu giao hàng"
+              label="Tạo hoá đơn & bắt đầu giao hàng"
             />
           )}
         </View>

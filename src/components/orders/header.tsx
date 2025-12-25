@@ -4,7 +4,7 @@ import { DrawerActions } from '@react-navigation/native';
 
 import { useNavigation } from 'expo-router';
 import { toUpper } from 'lodash';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -17,6 +17,7 @@ import { Images } from '~/assets';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
+import { useIsMutating } from '@tanstack/react-query';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import TabsStatus from '~/src/components/orders/tab-status';
 import { useAuth } from '~/src/core';
@@ -34,6 +35,7 @@ import AssignStoreBottomSheet from './assign-store-bottom-sheet';
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
 import OrderStatusBottomSheet from './order-status-bottom-sheet';
+import Skeleton from '../Skeleton';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -70,14 +72,19 @@ const Header = () => {
   };
 
   const { mutate: assignMeToStore } = useAssignMeToStore(() => {
-    refreshToken();
+    refreshTokenAsync();
   });
 
-  const { mutate: refreshToken, isPending } = useRefreshToken((data) => {
-    queryClient.invalidateQueries({
-      // predicate: (query) => query.queryKey[0] === 'getMyProfile',
+  const { mutateAsync: refreshTokenAsync, isPending: isPendingRefreshToken } =
+    useRefreshToken((data) => {
+      queryClient.invalidateQueries({});
     });
-  });
+
+  // Track mutation state from mutationKey to get isPending from any instance
+  const isLoadingRefreshToken =
+    useIsMutating({ mutationKey: ['refreshToken'] }) > 0;
+  const isLoadingGetMyProfile =
+    useIsMutating({ mutationKey: ['getMyProfile'] }) > 0;
 
   const navigation = useNavigation();
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
@@ -87,53 +94,71 @@ const Header = () => {
     assignMeToStore({ storeCode: store?.id });
   };
 
-  const handleOpenStoreSelection = () => {
+  const handleOpenStoreSelection = useCallback(() => {
     storeRef.current?.present();
-  };
+  }, []);
 
   const renderStoreSelection = useMemo(() => {
     return (
       <View className="flex flex-row items-center gap-2 mt-1 ">
-        <Pressable>
-          <Badge
-            icon={
-              <Ionicons
-                name={
-                  !isPickerShiftStatusOnShift
-                    ? 'notifications-off-outline'
-                    : 'notifications-outline'
-                }
-                size={12}
-                color={!isPickerShiftStatusOnShift ? 'red' : 'green'}
-              />
-            }
-            label={!isPickerShiftStatusOnShift ? 'Chưa vào ca' : 'Đang vào ca'}
-            variant={!isPickerShiftStatusOnShift ? 'danger' : 'success'}
-          />
-        </Pressable>
-        <View className="flex flex-row items-center gap-1 flex-1">
-          <Pressable onPress={handleOpenStoreSelection} hitSlop={10}>
-            <View className="flex flex-row items-center rounded-full px-1.5 py-1 bg-blue-50">
-              <Ionicons
-                className="mr-1"
-                name="storefront-outline"
-                size={12}
-                color={colors.blue[400]}
-              />
-              <Text className="text-xs font-medium text-blue-600">
-                {userInfo?.storeCode}
-              </Text>
-              <MaterialIcons
-                name={'keyboard-arrow-down'}
-                size={16}
-                color={colors.blue[400]}
-              />
-            </View>
+        {isLoadingRefreshToken || isLoadingGetMyProfile ? (
+          <Skeleton width={120} height={20} variant="round-rectangle" />
+        ) : (
+          <Pressable>
+            <Badge
+              icon={
+                <Ionicons
+                  name={
+                    !isPickerShiftStatusOnShift
+                      ? 'notifications-off-outline'
+                      : 'notifications-outline'
+                  }
+                  size={12}
+                  color={!isPickerShiftStatusOnShift ? 'red' : 'green'}
+                />
+              }
+              label={
+                !isPickerShiftStatusOnShift
+                  ? 'Chưa vào ca KPOS'
+                  : 'Đang vào ca KPOS'
+              }
+              variant={!isPickerShiftStatusOnShift ? 'danger' : 'success'}
+            />
           </Pressable>
+        )}
+        <View className="flex flex-row items-center gap-1 flex-1">
+          {isLoadingRefreshToken || isLoadingGetMyProfile ? (
+            <Skeleton width={100} height={20} variant="round-rectangle" />
+          ) : (
+            <Pressable onPress={handleOpenStoreSelection} hitSlop={10}>
+              <View className="flex flex-row items-center rounded-full px-1.5 py-1 bg-blue-50">
+                <Ionicons
+                  className="mr-1"
+                  name="storefront-outline"
+                  size={12}
+                  color={colors.blue[400]}
+                />
+                <Text className="text-xs font-medium text-blue-600">
+                  {userInfo?.storeCode}
+                </Text>
+                <MaterialIcons
+                  name={'keyboard-arrow-down'}
+                  size={16}
+                  color={colors.blue[400]}
+                />
+              </View>
+            </Pressable>
+          )}
         </View>
       </View>
     );
-  }, [userInfo, storeName]);
+  }, [
+    userInfo,
+    storeName,
+    isLoadingRefreshToken,
+    isPickerShiftStatusOnShift,
+    handleOpenStoreSelection,
+  ]);
 
   const renderDriverSelection = useMemo(() => {
     const isDisable = driverOrderAssignStatus === 'DISABLE';
@@ -202,9 +227,9 @@ const Header = () => {
                 <Pressable
                   className="flex flex-row items-center gap-1"
                   hitSlop={10}
-                  onPress={() => refreshToken()}
+                  onPress={() => refreshTokenAsync()}
                 >
-                  {isPending ? (
+                  {isLoadingGetMyProfile ? (
                     <ActivityIndicator size="small" color={colors.blue[400]} />
                   ) : (
                     <MaterialIcons

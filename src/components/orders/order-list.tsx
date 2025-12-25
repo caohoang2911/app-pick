@@ -11,10 +11,10 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
+import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import { queryClient } from '~/src/api/shared';
 import { setUser, useAuth } from '~/src/core';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
-import { removeItem } from '~/src/core/storage';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { setLoading } from '~/src/core/store/loading';
 import {
@@ -106,6 +106,8 @@ const OrderList = () => {
   const prevParamsRef = useRef<any>(null);
 
   const userInfo = useAuth.use.userInfo();
+
+  const { refetch: refetchGetMyProfile } = useGetMyProfile();
 
   const { mutate: refreshToken } = useRefreshToken((data) => {
     setToken(data?.data?.zas || '');
@@ -230,6 +232,7 @@ const OrderList = () => {
   // Pull-to-refresh handler
   const handleRefresh = useCallback(() => {
     refreshToken();
+    refetchGetMyProfile();
 
     isManualRefreshRef.current = true;
     setIsRefreshIndicatorVisible(true);

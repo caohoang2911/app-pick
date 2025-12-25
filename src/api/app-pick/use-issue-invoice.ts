@@ -73,7 +73,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
       timer = setTimeout(() => {
         cleanupConnection(client, timer);
         showMessage({
-          message: `Không thể kết nối với máy in hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+          message: `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
         });
         reject(new Error('Printer connection timeout'));
@@ -82,7 +82,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
       client.on('error', (error: any) => {
         cleanupConnection(client, timer);
         showMessage({
-          message: `Không thể kết nối với máy in hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+          message: `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
         });
         reject(error);
@@ -266,7 +266,7 @@ export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
       setLoading(false);
       if (!data.error) {
         showMessage({
-          message: 'Xuất hóa đơn & bắt đầu giao hàng thành công',
+          message: 'Tạo hoá đơn & bắt đầu giao hàng thành công',
           type: 'success',
         });
         cb?.();

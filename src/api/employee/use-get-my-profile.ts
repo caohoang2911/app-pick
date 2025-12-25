@@ -29,22 +29,21 @@ export const useGetMyProfile = () => {
     if (query?.data?.data && !query?.data?.error) {
       const { driverOrderAssignSetting, kposShiftStatus } = query?.data?.data;
       setLoading(true);
-      setTimeout(() => {
-        setUserInfo({
-          ...userInfo,
-          kposShiftStatus: kposShiftStatus,
-          ...driverOrderAssignSetting,
-        });
-        setTimeout(() => {
-          setUser({
-            ...userInfo,
-            ...driverOrderAssignSetting,
-            kposShiftStatus: kposShiftStatus,
-            driverOrderAssignStatus: driverOrderAssignSetting?.status,
-          });
-          setLoading(false);
-        }, 200);
-      }, 1000);
+
+      setUserInfo({
+        ...userInfo,
+        kposShiftStatus: kposShiftStatus,
+        ...driverOrderAssignSetting,
+      });
+
+      setUser({
+        ...userInfo,
+        ...driverOrderAssignSetting,
+        kposShiftStatus: kposShiftStatus,
+        driverOrderAssignStatus: driverOrderAssignSetting?.status,
+      });
+      setLoading(false);
+
       setLoading(false);
     }
   }, [query?.data]);
