@@ -1,22 +1,31 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { BarcodeScanningResult } from 'expo-camera';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { RefreshControl, Text, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
-import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
-import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
-import { Button } from '~/src/components/Button';
-import Bags from '~/src/components/order-scan-to-delivery/bags';
-import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
-import { SectionAlert } from '~/src/components/SectionAlert';
-import ScannerBox from '~/src/components/shared/ScannerBox';
 import {
   ORDER_DELIVERY_TYPE,
   ORDER_STATUS,
   ORDER_TAGS,
 } from '@/core/constants/order';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { BarcodeScanningResult } from 'expo-camera';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { RefreshControl, Text, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
+import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
+import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
+import { queryClient } from '~/src/api/shared/api-provider';
+import { Button } from '~/src/components/Button';
+import CODReceipt from '~/src/components/CODReceipt';
+import Bags from '~/src/components/order-scan-to-delivery/bags';
+import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
+import { SectionAlert } from '~/src/components/SectionAlert';
+import ScannerBox from '~/src/components/shared/ScannerBox';
+import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+import {
+  hideAlert,
+  showAlert as showAlertDialog,
+} from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';
@@ -27,15 +36,8 @@ import {
   toggleScanQrCodeProduct,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
-import { OrderDetailHeader } from '~/src/types/order-pick';
-import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
-import {
-  hideAlert,
-  showAlert as showAlertDialog,
-} from '~/src/core/store/alert-dialog';
 import { formatCurrency } from '~/src/core/utils/number';
-import { queryClient } from '~/src/api/shared/api-provider';
-import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -45,6 +47,7 @@ const ACTION_TYPE = {
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+  const base64StringReceiptRef = useRef<string>('');
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -134,7 +137,10 @@ const OrderScanToDelivery = () => {
       message: generateMessageIssueInvoice,
       onConfirm: () => {
         hideAlert();
-        issueInvoice({ orderCode: code });
+        issueInvoice({
+          orderCode: code,
+          codReceiptBase64String: base64StringReceiptRef.current || undefined,
+        });
       },
     });
   });
@@ -221,6 +227,23 @@ const OrderScanToDelivery = () => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   }, []);
 
+  const handleReceiptCaptureComplete = useCallback(
+    async (base64String: string) => {
+      try {
+        // Tối ưu base64: loại bỏ whitespace và validate
+        const optimizedBase64 = base64String.trim();
+
+        base64StringReceiptRef.current = optimizedBase64;
+      } catch (error) {
+        showMessage({
+          message: 'Có lỗi khi chụp phiếu thu',
+          type: 'danger',
+        });
+      }
+    },
+    [code],
+  );
+
   return (
     <>
       <View className="flex-1 mt-3">
@@ -260,6 +283,15 @@ const OrderScanToDelivery = () => {
           <View className="px-4 py-3 bg-white ">{renderAction}</View>
         </View>
       )}
+      <CODReceipt
+        orderCode={code}
+        invoiceNumber={orderDetail?.header?.invoiceCode || ''}
+        codAmount={Number(codAmount)}
+        employeeName={orderDetail?.header?.assignee?.name || ''}
+        employeeCode={orderDetail?.header?.assignee?.username || ''}
+        onCaptureComplete={handleReceiptCaptureComplete}
+        enableCapture={Number(codAmount) > 0}
+      />
       {isScanQrCodeProduct && (
         <ScannerBox
           visible={isScanQrCodeProduct}

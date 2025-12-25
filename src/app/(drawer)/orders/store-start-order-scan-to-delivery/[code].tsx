@@ -1,8 +1,9 @@
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { showMessage } from 'react-native-flash-message';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { useStartSelfShipping } from '~/src/api/app-pick/use-start-self-shipping';
@@ -25,16 +26,22 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+import CODReceipt from '~/src/components/CODReceipt';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+  const base64StringReceiptRef = useRef<string>('');
+
   const { checkShift } = useCheckShift(() => {
     showAlert({
       title: 'Xuất hóa đơn & giao hàng?',
       message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
       onConfirm: () => {
         hideAlert();
-        issueInvoice({ orderCode: code });
+        issueInvoice({
+          orderCode: code,
+          codReceiptBase64String: base64StringReceiptRef.current || undefined,
+        });
       },
     });
   });
@@ -48,7 +55,7 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, deliveryType, isInvoiceSupportedByAppPick } =
+  const { tags, deliveryType, isInvoiceSupportedByAppPick, codAmount } =
     (orderDetail?.header as OrderDetailHeader) || {};
 
   useEffect(() => {
@@ -120,6 +127,23 @@ const OrderScanToDelivery = () => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   }, []);
 
+  const handleReceiptCaptureComplete = useCallback(
+    async (base64String: string) => {
+      try {
+        // Tối ưu base64: loại bỏ whitespace và validate
+        const optimizedBase64 = base64String.trim();
+
+        base64StringReceiptRef.current = optimizedBase64;
+      } catch (error) {
+        showMessage({
+          message: 'Có lỗi khi chụp phiếu thu',
+          type: 'danger',
+        });
+      }
+    },
+    [code],
+  );
+
   return (
     <>
       <View className="flex-1 mt-3">
@@ -147,7 +171,7 @@ const OrderScanToDelivery = () => {
         </ScrollView>
       </View>
       <View className="border-t border-gray-200 pb-4">
-        <View className="px-4 py-3 bg-white ">
+        <View className="px-4 py-3 bg-white gap-2">
           {!isAllDone ? (
             <Button
               loading={isLoadingStartSelfShipping}
@@ -170,6 +194,15 @@ const OrderScanToDelivery = () => {
           )}
         </View>
       </View>
+      <CODReceipt
+        orderCode={code}
+        invoiceNumber={orderDetail?.header?.invoiceCode || ''}
+        codAmount={Number(codAmount)}
+        employeeName={orderDetail?.header?.assignee?.name || ''}
+        employeeCode={orderDetail?.header?.assignee?.username || ''}
+        onCaptureComplete={handleReceiptCaptureComplete}
+        enableCapture={Number(codAmount) > 0}
+      />
       {isScanQrCodeProduct && (
         <ScannerBox
           visible={isScanQrCodeProduct}

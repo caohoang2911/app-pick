@@ -13,6 +13,7 @@ import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
   orderCode: string;
+  codReceiptBase64String?: string;
 };
 
 type Response = { error: string } & AxiosResponse;
@@ -204,6 +205,35 @@ export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
           for (const printerBuffer of printerBuffers) {
             await sendToPrinter(client, printerBuffer as unknown as Uint8Array);
           }
+
+          if (params.codReceiptBase64String) {
+            const {
+              data: codReceiptPrinterBuffers,
+              error,
+              hasError,
+            } = await genXPrinterPrintDataAsync({
+              base64Image: params.codReceiptBase64String,
+            });
+
+            if (hasError && error) {
+              setLoading(false);
+              showMessage({
+                message: error,
+                type: 'danger',
+              });
+              throw new Error('Generate printer cod receipt error');
+            }
+
+            if (!error && codReceiptPrinterBuffers?.length > 0 && client) {
+              for (const codReceiptPrinterBuffer of codReceiptPrinterBuffers) {
+                await sendToPrinter(
+                  client,
+                  codReceiptPrinterBuffer as unknown as Uint8Array,
+                );
+              }
+            }
+          }
+
           // Tất cả sendToPrinter đã hoàn thành, mới destroy client
           if (client) {
             client.destroy();
