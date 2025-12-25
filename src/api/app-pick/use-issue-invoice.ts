@@ -153,7 +153,7 @@ const sendToPrinter = async (
   printerBuffer: Uint8Array,
 ) => {
   client.write(printerBuffer);
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 };
 export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();

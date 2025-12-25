@@ -94,10 +94,6 @@ const OrderScanToDelivery = () => {
   };
 
   const handleStartDeliveryWithInvoice = () => {
-    if (!isAllDone) {
-      toggleStoreStartScanQrCodeProduct(true);
-      return;
-    }
     checkShift();
   };
 
@@ -169,7 +165,6 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
               onPress={handleStartDeliveryWithInvoice}
-              disabled={!isAllDone}
               label="Xuất hóa đơn & bắt đầu giao hàng"
             />
           )}

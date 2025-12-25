@@ -5,6 +5,7 @@ import { useStartMyKposShift } from '~/src/api/app-pick/use-start-my-kpos-shift'
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { showMessage } from 'react-native-flash-message';
 import { setLoading } from '../store/loading';
+import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 
 /**
  * Hook để kiểm tra shift status khi vào app
@@ -16,6 +17,7 @@ export const useCheckShift = (successCallback: () => void) => {
   const kposShiftStatus = userInfo?.kposShiftStatus;
 
   const { mutateAsync: refreshToken } = useRefreshToken();
+  const { refetch: refetchGetMyProfile } = useGetMyProfile();
 
   const { mutate: startMyKposShift, isPending: isLoadingStartMyKposShift } =
     useStartMyKposShift(async () => {
@@ -27,6 +29,7 @@ export const useCheckShift = (successCallback: () => void) => {
       });
       hideAlert();
       await refreshToken();
+      await refetchGetMyProfile();
       successCallback?.();
     });
 
