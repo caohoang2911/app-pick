@@ -34,7 +34,10 @@ const OrderBags = () => {
 
   const deliveryType = orderDetail?.header?.deliveryType;
 
-  const isShowPackageSizePicker = deliveryType !== 'CUSTOMER_PICKUP';
+  const isShowPackageSizePicker = ![
+    'CUSTOMER_PICKUP',
+    'APARTMENT_COMPLEX_DELIVERY',
+  ].includes(deliveryType || '');
 
   const isDisabledPrintAll =
     orderBags.DRY.length === 0 &&

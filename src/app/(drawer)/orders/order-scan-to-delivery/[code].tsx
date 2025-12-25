@@ -151,8 +151,8 @@ const OrderScanToDelivery = () => {
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlertDialog({
-      title: 'Bắt đầu xác nhận giao hàng?',
-      message: 'Bạn có muốn bắt đầu xác nhận giao hàng?',
+      title: 'Xác nhận giao cho shipper?',
+      message: 'Bạn có muốn xác nhận giao hàng cho shipper?',
       onConfirm: () => {
         hideAlert();
         handoverOrder({ orderCode: code, proofImages: uploadedImages });

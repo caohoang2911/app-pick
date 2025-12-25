@@ -78,7 +78,7 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const unstable_settings = {
-  initialRouteName: '(drawer)',
+  initialRouteName: '/orders',
 };
 
 hydrateAuth();
