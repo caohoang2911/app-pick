@@ -100,11 +100,35 @@ const Header = () => {
 
   const renderStoreSelection = useMemo(() => {
     return (
-      <View className="flex flex-row items-center gap-2 mt-1 ">
+      <View className="flex gap-1 mt-1">
+        <View className="flex flex-row items-center gap-1 self-start">
+          {isLoadingRefreshToken || isLoadingGetMyProfile ? (
+            <Skeleton width={100} height={20} variant="round-rectangle" />
+          ) : (
+            <Pressable onPress={handleOpenStoreSelection} hitSlop={10}>
+              <View className="flex flex-row items-center rounded-full px-1.5 py-1 bg-blue-50">
+                <Ionicons
+                  className="mr-1"
+                  name="storefront-outline"
+                  size={12}
+                  color={colors.blue[400]}
+                />
+                <Text className="text-xs font-medium text-blue-600">
+                  {userInfo?.storeCode} - {storeName}
+                </Text>
+                <MaterialIcons
+                  name={'keyboard-arrow-down'}
+                  size={16}
+                  color={colors.blue[400]}
+                />
+              </View>
+            </Pressable>
+          )}
+        </View>
         {isLoadingRefreshToken || isLoadingGetMyProfile ? (
           <Skeleton width={120} height={20} variant="round-rectangle" />
         ) : (
-          <Pressable>
+          <View className="self-start">
             <Badge
               icon={
                 <Ionicons
@@ -124,32 +148,8 @@ const Header = () => {
               }
               variant={!isPickerShiftStatusOnShift ? 'danger' : 'success'}
             />
-          </Pressable>
+          </View>
         )}
-        <View className="flex flex-row items-center gap-1 flex-1">
-          {isLoadingRefreshToken || isLoadingGetMyProfile ? (
-            <Skeleton width={100} height={20} variant="round-rectangle" />
-          ) : (
-            <Pressable onPress={handleOpenStoreSelection} hitSlop={10}>
-              <View className="flex flex-row items-center rounded-full px-1.5 py-1 bg-blue-50">
-                <Ionicons
-                  className="mr-1"
-                  name="storefront-outline"
-                  size={12}
-                  color={colors.blue[400]}
-                />
-                <Text className="text-xs font-medium text-blue-600">
-                  {userInfo?.storeCode}
-                </Text>
-                <MaterialIcons
-                  name={'keyboard-arrow-down'}
-                  size={16}
-                  color={colors.blue[400]}
-                />
-              </View>
-            </Pressable>
-          )}
-        </View>
       </View>
     );
   }, [
@@ -215,7 +215,7 @@ const Header = () => {
             <View className="flex flex-row items-center justify-between gap-2 flex-grow">
               <View className="flex-1 mr-2">
                 <Text
-                  className="font-semibold text-lg"
+                  className="font-semibold text-base"
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
@@ -229,7 +229,7 @@ const Header = () => {
                   hitSlop={10}
                   onPress={() => refreshTokenAsync()}
                 >
-                  {isLoadingGetMyProfile ? (
+                  {isPendingRefreshToken ? (
                     <ActivityIndicator size="small" color={colors.blue[400]} />
                   ) : (
                     <MaterialIcons
