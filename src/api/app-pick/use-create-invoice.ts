@@ -124,13 +124,13 @@ const useFetchBase64ImageByInvoiceURL = (
   });
 };
 
-const issueInvoice = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/issueInvoice', params);
+const createInvoice = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/createInvoice', params);
 };
 
-const useIssueInvoice = () => {
+const useCreateInvoice = () => {
   return useMutation({
-    mutationFn: (params: Variables) => issueInvoice(params),
+    mutationFn: (params: Variables) => createInvoice(params),
   });
 };
 
@@ -156,11 +156,11 @@ const sendToPrinter = async (
   client.write(printerBuffer);
   await new Promise((resolve) => setTimeout(resolve, 100));
 };
-export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
+export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
-  const { mutateAsync: issueInvoiceAsync } = useIssueInvoice();
+  const { mutateAsync: createInvoiceAsync } = useCreateInvoice();
 
   return useMutation({
     mutationFn: async (params: Variables) => {
@@ -169,15 +169,15 @@ export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
       try {
         client = await checkPrinterConnection();
 
-        const issueInvoiceResult = await issueInvoiceAsync(params);
-        const { error: issueInvoiceError } = issueInvoiceResult;
-        if (issueInvoiceError) {
+        const createInvoiceResult = await createInvoiceAsync(params);
+        const { error: createInvoiceError } = createInvoiceResult;
+        if (createInvoiceError) {
           setLoading(false);
           showMessage({
-            message: issueInvoiceError,
+            message: createInvoiceError,
             type: 'danger',
           });
-          throw new Error('Issue invoice error');
+          throw new Error('Create invoice error');
         }
 
         const res = await fetchBase64ImageByInvoiceURLAsync(orderCode);
@@ -251,7 +251,7 @@ export const useIssueInvoiceProcess = (orderCode: string, cb?: () => void) => {
           throw new Error('Printer buffer is empty');
         }
 
-        return issueInvoiceResult;
+        return createInvoiceResult;
       } catch (error) {
         // Cleanup client nếu có lỗi
         if (client) {

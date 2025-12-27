@@ -12,7 +12,7 @@ import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
-import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
+import { useCreateInvoiceProcess } from '~/src/api/app-pick/use-create-invoice';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
@@ -73,8 +73,8 @@ const OrderScanToDelivery = () => {
     isInvoiceSupportedByAppPick,
   } = (orderDetail?.header as OrderDetailHeader) || {};
 
-  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, () => {
+  const { mutate: createInvoice, isPending: isLoadingCreateInvoice } =
+    useCreateInvoiceProcess(code, () => {
       handoverOrder({ orderCode: code, proofImages: uploadedImages });
     });
 
@@ -92,7 +92,7 @@ const OrderScanToDelivery = () => {
     return 'Tạo hoá đơn & giao cho khách';
   }, [isInvoiceSupportedByAppPick]);
 
-  const generateMessageIssueInvoice = useMemo(() => {
+  const generateMessageCreateInvoice = useMemo(() => {
     if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
       return 'Bạn có chắc chắn xuất hóa đơn & giao cho tài xế?';
     }
@@ -134,10 +134,10 @@ const OrderScanToDelivery = () => {
   const { checkShift } = useCheckShift(() => {
     showAlertDialog({
       title: 'Tạo hoá đơn?',
-      message: generateMessageIssueInvoice,
+      message: generateMessageCreateInvoice,
       onConfirm: () => {
         hideAlert();
-        issueInvoice({
+        createInvoice({
           orderCode: code,
           codReceiptBase64String: base64StringReceiptRef.current || undefined,
         });
@@ -184,7 +184,7 @@ const OrderScanToDelivery = () => {
   };
 
   const showAlert = useMemo(() => {
-    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
+    return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);
   }, [tags]);
 
   const renderAction = useMemo(() => {
@@ -193,7 +193,7 @@ const OrderScanToDelivery = () => {
       deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
       !isInvoiceSupportedByAppPick ? (
         <Button
-          loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
+          loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleStartDeliveryWithoutInvoice}
           label={actionType}
           disabled={handoverStatus === 'DISABLE'}
@@ -201,7 +201,7 @@ const OrderScanToDelivery = () => {
         />
       ) : (
         <Button
-          loading={isLoadingHandoverOrder || isLoadingIssueInvoice}
+          loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleCheckoutOrderBagsWithInvoice}
           label={actionTypeWithInvoice}
           variant="warning"

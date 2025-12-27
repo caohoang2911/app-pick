@@ -123,7 +123,7 @@ const OrderScanToDelivery = () => {
   }, []);
 
   const isShowAlert = useMemo(() => {
-    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
+    return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);
   }, [tags]);
 
   const handleRefresh = useCallback(() => {

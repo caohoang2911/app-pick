@@ -11,15 +11,18 @@ import {
 
 import { BarcodeScanningResult } from 'expo-camera';
 import { useNavigation } from 'expo-router';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import Header from '~/src/components/orders/header';
 import OrderList from '~/src/components/orders/order-list';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
+import { useAuth } from '~/src/core';
 
 const Orders = () => {
   const navigation = useNavigation();
   const isScanQrCode = useOrders.use.isScanQrCode();
+  const userInfo = useAuth.use.userInfo();
+  const prevStoreCodeRef = useRef<string | undefined>(userInfo?.storeCode);
 
   useEffect(() => {
     navigation.setOptions({
@@ -30,7 +33,23 @@ const Orders = () => {
 
   useRefreshOnFocus(async () => {});
 
-  // Check for invite action in query parameters]);
+  // Đóng ScannerBox khi storeCode thay đổi (chuyển kho)
+  useEffect(() => {
+    const currentStoreCode = userInfo?.storeCode;
+    const prevStoreCode = prevStoreCodeRef.current;
+
+    // Nếu storeCode thay đổi và ScannerBox đang mở, đóng nó
+    if (
+      prevStoreCode !== undefined &&
+      currentStoreCode !== prevStoreCode &&
+      isScanQrCode
+    ) {
+      toggleScanQrCode(false);
+    }
+
+    // Cập nhật ref với storeCode hiện tại
+    prevStoreCodeRef.current = currentStoreCode;
+  }, [userInfo?.storeCode, isScanQrCode]);
 
   const handleSuccessBarcodeScanned = useCallback(
     (result: BarcodeScanningResult) => {

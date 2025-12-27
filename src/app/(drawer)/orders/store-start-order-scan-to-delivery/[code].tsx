@@ -24,7 +24,7 @@ import {
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
+import { useCreateInvoiceProcess } from '~/src/api/app-pick/use-create-invoice';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import CODReceipt from '~/src/components/CODReceipt';
 
@@ -38,7 +38,7 @@ const OrderScanToDelivery = () => {
       message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
       onConfirm: () => {
         hideAlert();
-        issueInvoice({
+        createInvoice({
           orderCode: code,
           codReceiptBase64String: base64StringReceiptRef.current || undefined,
         });
@@ -82,8 +82,8 @@ const OrderScanToDelivery = () => {
       router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
     });
 
-  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, () => {
+  const { mutate: createInvoice, isPending: isLoadingCreateInvoice } =
+    useCreateInvoiceProcess(code, () => {
       startSelfShipping({ orderCode: code });
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     });
@@ -120,7 +120,7 @@ const OrderScanToDelivery = () => {
   };
 
   const isShowAlert = useMemo(() => {
-    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
+    return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);
   }, [tags]);
 
   const handleRefresh = useCallback(() => {
@@ -187,7 +187,7 @@ const OrderScanToDelivery = () => {
             />
           ) : (
             <Button
-              loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
+              loading={isLoadingStartSelfShipping || isLoadingCreateInvoice}
               onPress={handleStartDeliveryWithInvoice}
               label="Tạo hoá đơn & bắt đầu giao hàng"
             />
