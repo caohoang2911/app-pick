@@ -52,6 +52,7 @@ export default function DrawerLayout() {
   return (
     <ConfigWrapper>
       <Drawer
+        initialRouteName="orders"
         screenOptions={{
           headerShown: false,
           drawerStyle: { width: '75%' },
