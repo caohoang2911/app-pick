@@ -1,3 +1,4 @@
+import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -62,7 +63,6 @@ export default function CODReceipt({
       const base64String = resizedImage.base64
         ? `data:image/jpeg;base64,${resizedImage.base64}`
         : '';
-
       // Gọi callback với kết quả base64 (có prefix)
       onCaptureComplete?.(base64String);
     } catch (error) {
@@ -109,33 +109,35 @@ export default function CODReceipt({
             transform: [{ scaleX: 1 }, { scaleY: 1 }],
           }}
         >
-          <Text className="text-black text-xl font-bold mb-4">
+          <Text className="text-black text-4xl font-bold mb-4 text-center">
             PHIẾU THU TIỀN
           </Text>
 
           <View className="gap-2">
-            <Text className="text-gray-500">
+            <Text className="text-black text-2xl font-medium">
               MÃ ĐƠN HÀNG:{' '}
               <Text className="text-black font-bold">{orderCode}</Text>
             </Text>
 
-            <Text className="text-gray-500">
+            <Text className="text-black text-2xl font-medium">
               SỐ HĐ:{' '}
               <Text className="text-black font-bold">{invoiceNumber}</Text>
             </Text>
 
-            <Text className="text-gray-500">
+            <Text className="text-black text-2xl font-medium">
               COD:{' '}
               <Text className="text-black font-bold">
                 {formatCurrency(codAmount)}₫
               </Text>
             </Text>
 
-            <Text className="text-gray-500">
-              TÊN NHÂN VIÊN TẠO PHIẾU:{' '}
-              <Text className="text-black font-bold">
-                {employeeName} - {employeeCode}
-              </Text>
+            <Text className="text-black text-2xl font-medium">
+              MÃ NHÂN VIÊN:{' '}
+              <Text className="text-black font-bold">{employeeCode}</Text>
+            </Text>
+            <Text className="text-black text-2xl font-medium">
+              TÊN NHÂN VIÊN:{' '}
+              <Text className="text-black font-bold">{employeeName}</Text>
             </Text>
           </View>
         </View>

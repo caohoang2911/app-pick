@@ -94,9 +94,9 @@ const OrderScanToDelivery = () => {
 
   const generateMessageCreateInvoice = useMemo(() => {
     if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
-      return 'Bạn có chắc chắn xuất hóa đơn & giao cho tài xế?';
+      return 'Bạn có chắc chắn tạo hóa đơn & giao cho tài xế?';
     }
-    return 'Bạn có chắc chắn xuất hóa đơn & giao cho khách?';
+    return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
   }, [deliveryType]);
 
   useEffect(() => {
