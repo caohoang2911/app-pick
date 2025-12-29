@@ -11,6 +11,7 @@ interface OrderScanToDeliveryState {
   uploadedImages: string[];
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => void;
   setOrderBags: (orderBags: OrderBagItem[]) => void;
+  resetOrderBags: () => void;
   scanQrCodeSuccess: (
     result: BarcodeScanningResult,
     cb?: (orderBags: OrderBagItem[]) => void,
@@ -28,6 +29,9 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>(
     },
     setOrderBags: (orderBags: OrderBagItem[]) => {
       set({ orderBags });
+    },
+    resetOrderBags: () => {
+      set({ orderBags: [] });
     },
     setUploadedImages: (uploadedImage: string, reset?: boolean) => {
       if (reset) {
@@ -83,6 +87,10 @@ export const toggleScanQrCodeProduct = (isScanQrCodeProduct: boolean) => {
 
 export const setOrderBags = (orderBags: OrderBagItem[]) => {
   _useOrderScanToDelivery.getState().setOrderBags(orderBags);
+};
+
+export const resetOrderBags = () => {
+  _useOrderScanToDelivery.getState().resetOrderBags();
 };
 
 export const scanQrCodeSuccess = (

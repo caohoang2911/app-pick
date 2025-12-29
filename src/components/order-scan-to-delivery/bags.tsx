@@ -2,6 +2,7 @@ import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import {
+  resetOrderBags,
   setOrderBags,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
@@ -24,6 +25,15 @@ const Bags = memo(() => {
 
   // Extract data
   const bagLabels = orderInvoice?.header?.bagLabels || [];
+  const orderCode = orderInvoice?.header?.code;
+
+  // Reset orderBags khi order code thay đổi
+  useEffect(() => {
+    if (orderCode) {
+      resetOrderBags();
+      setIsInitialized(false);
+    }
+  }, [orderCode]);
 
   // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
   useEffect(() => {

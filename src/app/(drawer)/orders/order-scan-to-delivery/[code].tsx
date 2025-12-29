@@ -188,7 +188,8 @@ const OrderScanToDelivery = () => {
   }, [tags]);
 
   const renderAction = useMemo(() => {
-    if (!orderBags.length && isPending) return null;
+    const isDisabled =
+      !orderBags.length || isPending || handoverStatus === 'DISABLE';
     return isAllDone ? (
       deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
       !isInvoiceSupportedByAppPick ? (
@@ -196,7 +197,7 @@ const OrderScanToDelivery = () => {
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleStartDeliveryWithoutInvoice}
           label={actionType}
-          disabled={handoverStatus === 'DISABLE'}
+          disabled={isDisabled}
           variant="warning"
         />
       ) : (
@@ -204,6 +205,7 @@ const OrderScanToDelivery = () => {
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleCheckoutOrderBagsWithInvoice}
           label={actionTypeWithInvoice}
+          disabled={isDisabled}
           variant="warning"
         />
       )
@@ -287,8 +289,8 @@ const OrderScanToDelivery = () => {
         orderCode={code}
         invoiceNumber={orderDetail?.header?.invoiceCode || ''}
         codAmount={Number(codAmount)}
-        employeeName={orderDetail?.header?.assignee?.name || ''}
-        employeeCode={orderDetail?.header?.assignee?.username || ''}
+        employeeName={orderDetail?.header?.picker?.name || ''}
+        employeeCode={orderDetail?.header?.picker?.username || ''}
         onCaptureComplete={handleReceiptCaptureComplete}
         enableCapture={Number(codAmount) > 0}
       />

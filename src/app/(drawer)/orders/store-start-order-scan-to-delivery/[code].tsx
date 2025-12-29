@@ -32,6 +32,8 @@ const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const base64StringReceiptRef = useRef<string>('');
 
+  alert(code);
+
   const { checkShift } = useCheckShift(() => {
     showAlert({
       title: 'Tạo hoá đơn & giao hàng?',
@@ -144,6 +146,8 @@ const OrderScanToDelivery = () => {
     [code],
   );
 
+  const isDisabled = !orderBags.length || isPending;
+
   return (
     <>
       <View className="flex-1 mt-3">
@@ -176,6 +180,7 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingStartSelfShipping}
               onPress={handleStartScanQrCodeProduct}
+              disabled={isDisabled}
               label={'Scan QR túi để giao hàng'}
             />
           ) : deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
@@ -183,12 +188,14 @@ const OrderScanToDelivery = () => {
             <Button
               loading={isLoadingStartSelfShipping}
               onPress={handleStartDeliveryWithoutInvoice}
+              disabled={isDisabled}
               label={'Bắt đầu giao hàng'}
             />
           ) : (
             <Button
               loading={isLoadingStartSelfShipping || isLoadingCreateInvoice}
               onPress={handleStartDeliveryWithInvoice}
+              disabled={isDisabled}
               label="Tạo hoá đơn & bắt đầu giao hàng"
             />
           )}
@@ -198,8 +205,8 @@ const OrderScanToDelivery = () => {
         orderCode={code}
         invoiceNumber={orderDetail?.header?.invoiceCode || ''}
         codAmount={Number(codAmount)}
-        employeeName={orderDetail?.header?.assignee?.name || ''}
-        employeeCode={orderDetail?.header?.assignee?.username || ''}
+        employeeName={orderDetail?.header?.picker?.name || ''}
+        employeeCode={orderDetail?.header?.picker?.username || ''}
         onCaptureComplete={handleReceiptCaptureComplete}
         enableCapture={Number(codAmount) > 0}
       />
