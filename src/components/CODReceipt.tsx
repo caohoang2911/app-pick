@@ -64,8 +64,10 @@ export default function CODReceipt({
         ? `data:image/jpeg;base64,${resizedImage.base64}`
         : '';
       // Gọi callback với kết quả base64 (có prefix)
+
       onCaptureComplete?.(base64String);
     } catch (error) {
+      onCaptureComplete?.('');
       console.error('Error capturing receipt:', error);
       showMessage({
         message: 'Lỗi khi chụp phiếu thu',

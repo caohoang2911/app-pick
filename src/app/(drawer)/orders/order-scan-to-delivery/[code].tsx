@@ -6,13 +6,16 @@ import {
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
+import {
+  useCreateInvoice,
+  useCreateInvoiceProcess,
+} from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
-import { useCreateInvoiceProcess } from '~/src/api/app-pick/use-create-invoice';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
@@ -47,7 +50,6 @@ const ACTION_TYPE = {
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const base64StringReceiptRef = useRef<string>('');
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -73,10 +75,16 @@ const OrderScanToDelivery = () => {
     isInvoiceSupportedByAppPick,
   } = (orderDetail?.header as OrderDetailHeader) || {};
 
-  const { mutate: createInvoice, isPending: isLoadingCreateInvoice } =
+  const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
+    useCreateInvoice();
+  const invoiceCode = createInvoiceData?.data?.invoiceCode;
+
+  const { mutate: processCreateInvoice, isPending: isLoadingCreateInvoice } =
     useCreateInvoiceProcess(code, () => {
       handoverOrder({ orderCode: code, proofImages: uploadedImages });
     });
+
+  const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
 
@@ -135,12 +143,25 @@ const OrderScanToDelivery = () => {
     showAlertDialog({
       title: 'Tạo hoá đơn?',
       message: generateMessageCreateInvoice,
-      onConfirm: () => {
+      onConfirm: async () => {
         hideAlert();
-        createInvoice({
+        const createInvoiceResult = await createInvoiceAsync({
           orderCode: code,
-          codReceiptBase64String: base64StringReceiptRef.current || undefined,
         });
+
+        if (createInvoiceResult?.error) {
+          showMessage({
+            message: createInvoiceResult?.error,
+            type: 'danger',
+          });
+          return;
+        }
+
+        if (!Number(codAmount)) {
+          processCreateInvoice({
+            orderCode: code,
+          });
+        }
       },
     });
   });
@@ -230,20 +251,13 @@ const OrderScanToDelivery = () => {
   }, []);
 
   const handleReceiptCaptureComplete = useCallback(
-    async (base64String: string) => {
-      try {
-        // Tối ưu base64: loại bỏ whitespace và validate
-        const optimizedBase64 = base64String.trim();
-
-        base64StringReceiptRef.current = optimizedBase64;
-      } catch (error) {
-        showMessage({
-          message: 'Có lỗi khi chụp phiếu thu',
-          type: 'danger',
-        });
-      }
+    (base64String: string) => {
+      processCreateInvoice({
+        orderCode: code,
+        codReceiptBase64String: base64String.trim(),
+      });
     },
-    [code],
+    [code, processCreateInvoice],
   );
 
   return (
@@ -287,12 +301,12 @@ const OrderScanToDelivery = () => {
       )}
       <CODReceipt
         orderCode={code}
-        invoiceNumber={orderDetail?.header?.invoiceCode || ''}
+        invoiceNumber={invoiceCode}
         codAmount={Number(codAmount)}
         employeeName={orderDetail?.header?.picker?.name || ''}
         employeeCode={orderDetail?.header?.picker?.username || ''}
         onCaptureComplete={handleReceiptCaptureComplete}
-        enableCapture={Number(codAmount) > 0}
+        enableCapture={shouldEnableCapture}
       />
       {isScanQrCodeProduct && (
         <ScannerBox

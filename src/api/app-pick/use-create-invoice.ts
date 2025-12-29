@@ -1,19 +1,17 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
+import { Env } from '~/env';
 import { useAuth } from '~/src/core';
 import { getItem } from '~/src/core/storage';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
-import axios from 'axios';
-import { Env } from '~/env';
 import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
   orderCode: string;
-  codReceiptBase64String?: string;
 };
 
 type Response = { error: string } & AxiosResponse;
@@ -128,7 +126,7 @@ const createInvoice = async (params: Variables): Promise<Response> => {
   return await axiosClient.post('app-pick/createInvoice', params);
 };
 
-const useCreateInvoice = () => {
+export const useCreateInvoice = () => {
   return useMutation({
     mutationFn: (params: Variables) => createInvoice(params),
   });
@@ -160,28 +158,19 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
-  const { mutateAsync: createInvoiceAsync } = useCreateInvoice();
 
   return useMutation({
-    mutationFn: async (params: Variables) => {
+    mutationFn: async (params: {
+      orderCode: string;
+      codReceiptBase64String?: string;
+    }): Promise<any> => {
       setLoading(true);
       let client: TcpSocket.Socket | null = null;
       try {
         client = await checkPrinterConnection();
 
-        const createInvoiceResult = await createInvoiceAsync(params);
-        const { error: createInvoiceError } = createInvoiceResult;
-        if (createInvoiceError) {
-          setLoading(false);
-          showMessage({
-            message: createInvoiceError,
-            type: 'danger',
-          });
-          throw new Error('Create invoice error');
-        }
-
-        const res = await fetchBase64ImageByInvoiceURLAsync(orderCode);
-        const fullBase64 = validateBase64Image(res.data);
+        const base64Image = await fetchBase64ImageByInvoiceURLAsync(orderCode);
+        const fullBase64 = validateBase64Image(base64Image.data);
 
         const {
           data: printerBuffers,
@@ -251,7 +240,7 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
           throw new Error('Printer buffer is empty');
         }
 
-        return createInvoiceResult;
+        return new Promise((resolve) => resolve(null));
       } catch (error) {
         // Cleanup client nếu có lỗi
         if (client) {
