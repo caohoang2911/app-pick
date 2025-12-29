@@ -187,11 +187,11 @@ const ScannerBox = ({
 
   const handleRequestPermission = useCallback(() => {
     if (Platform.OS == 'ios' && permission?.granted) {
-      Linking.openURL('app-settings:');
-    } else {
       requestPermission();
+    } else {
+      Linking.openURL('app-settings:');
     }
-  }, []);
+  }, [permission?.granted, requestPermission]);
 
   const handleToggleScanner = useCallback(() => {
     setCurrentScannerType((prev) => !prev);
