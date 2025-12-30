@@ -240,7 +240,7 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
           throw new Error('Printer buffer is empty');
         }
 
-        return new Promise((resolve) => resolve(null));
+        return { error: null, data: null };
       } catch (error) {
         // Cleanup client nếu có lỗi
         if (client) {
@@ -251,13 +251,9 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
         throw error;
       }
     },
-    onSuccess: (data: Response) => {
+    onSuccess: (data: any) => {
       setLoading(false);
-      if (!data.error) {
-        showMessage({
-          message: 'Tạo hoá đơn & bắt đầu giao hàng thành công',
-          type: 'success',
-        });
+      if (!data?.error) {
         cb?.();
       }
     },

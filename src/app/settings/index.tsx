@@ -317,79 +317,85 @@ const Settings = () => {
               Máy in - {name}
             </Text>
             <View className="mt-4 border-t border-gray-200 pt-3">
-              <Text className="text-sm font-semibold mb-2">
+              <Text className="text-sm font-semibold mb-3">
                 Máy tạo hoá đơn
               </Text>
 
-              <View className="flex gap-2 mb-3">
+              <View className="flex gap-10 mb-3 flex-row items-center">
+                <Image
+                  source={require('~/assets/xprinter.jpg')}
+                  style={{ width: 70, height: 70 }}
+                />
                 <View
                   ref={billInputRef}
                   collapsable={false}
-                  className="flex-1 flex-row items-center gap-3"
+                  className="flex flex-1 justify-end gap-3"
                 >
-                  <Image
-                    source={require('~/assets/xprinter.jpg')}
-                    style={{ width: 40, height: 40 }}
-                  />
                   <Input
                     value={billPrinterIp}
-                    className="flex-1"
+                    textAlign="right"
+                    className="flex-1 w-full"
                     placeholder="Nhập IP máy tạo hoá đơn"
                     onChangeText={setBillPrinterIp}
                     onFocus={() => {
                       activeInputRef.current = 'bill';
                     }}
                   />
-                </View>
-                <View className="flex flex-row gap-2 justify-end">
-                  <Button
-                    loading={isLoadingBillPrinter}
-                    disabled={!billPrinterIp}
-                    label="Lưu"
-                    onPress={handleSaveBillPrinter}
-                  />
-                  <Button
-                    variant="warning"
-                    label="Reset"
-                    onPress={handleResetBillPrinter}
-                  />
+                  <View className="flex flex-row gap-2">
+                    <Button
+                      loading={isLoadingBillPrinter}
+                      disabled={!billPrinterIp}
+                      label="Lưu"
+                      className="flex-1 w-1/2"
+                      onPress={handleSaveBillPrinter}
+                    />
+                    <Button
+                      variant="warning"
+                      className="flex-1 w-1/2"
+                      label="Reset"
+                      onPress={handleResetBillPrinter}
+                    />
+                  </View>
                 </View>
               </View>
             </View>
             <View className="mt-1">
-              <Text className="text-sm font-semibold mb-2">Máy in label</Text>
-              <View className="flex gap-2 mb-3">
+              <Text className="text-sm font-semibold mb-3">Máy in label</Text>
+              <View className="flex gap-10 mb-3 flex-row items-center">
+                <Image
+                  source={require('~/assets/label-printer.jpg')}
+                  style={{ width: 70, height: 70 }}
+                />
                 <View
                   ref={labelInputRef}
                   collapsable={false}
-                  className="flex-1 flex-row items-center gap-3"
+                  className="flex flex-1 justify-end gap-3"
                 >
-                  <Image
-                    source={require('~/assets/label-printer.jpg')}
-                    style={{ width: 40, height: 40 }}
-                  />
                   <Input
                     value={labelPrinterIp}
                     className="flex-1"
                     placeholder="Nhập IP máy in label"
                     onChangeText={setLabelPrinterIp}
+                    textAlign="right"
                     onFocus={() => {
                       activeInputRef.current = 'label';
                     }}
                   />
-                </View>
-                <View className="flex flex-row gap-2 justify-end">
-                  <Button
-                    loading={isLoadingLabelPrinter}
-                    disabled={!labelPrinterIp}
-                    label="Lưu"
-                    onPress={handleSaveLabelPrinter}
-                  />
-                  <Button
-                    variant="warning"
-                    label="Reset"
-                    onPress={handleResetLabelPrinter}
-                  />
+                  <View className="flex flex-row gap-2">
+                    <Button
+                      loading={isLoadingLabelPrinter}
+                      disabled={!labelPrinterIp}
+                      label="Lưu"
+                      className="w-1/2 flex-1"
+                      onPress={handleSaveLabelPrinter}
+                    />
+                    <Button
+                      variant="warning"
+                      label="Reset"
+                      className="w-1/2 flex-1"
+                      onPress={handleResetLabelPrinter}
+                    />
+                  </View>
                 </View>
               </View>
             </View>

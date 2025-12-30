@@ -77,6 +77,10 @@ const OrderScanToDelivery = () => {
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
   const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
     useStartSelfShipping(() => {
+      showMessage({
+        message: 'Tạo hoá đơn & bắt đầu giao hàng thành công',
+        type: 'success',
+      });
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
       router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
@@ -89,7 +93,7 @@ const OrderScanToDelivery = () => {
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
       if (result?.data) {
-        setOrderScanedBagLabel({ orderCode: code, bagCode: '' });
+        setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
       }
     });
   };
