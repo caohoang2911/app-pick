@@ -1,12 +1,17 @@
 import { Feather } from '@expo/vector-icons';
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import SBottomSheet from '../SBottomSheet';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
-import { isEnableScanToDelivery } from '~/src/core/utils/order';
+import {
+  getScanToDeliveryInfo,
+  isEnableScanToDelivery,
+  isHiddenScanToDelivery,
+} from '~/src/core/utils/order';
 import { OrderStatus } from '~/src/types/order';
+import { ORDER_DELIVERY_TYPE } from '@/core/constants/order';
 
 interface OrderActionsBottomSheetProps {
   orderCode: string;
@@ -73,7 +78,7 @@ const OrderActionsBottomSheet = forwardRef<
     onPress,
   }: {
     icon: string | React.ReactNode;
-    title: string;
+    title: string | null;
     enabled?: boolean;
     onPress: () => void;
   }) => (
@@ -97,6 +102,14 @@ const OrderActionsBottomSheet = forwardRef<
     </Pressable>
   );
 
+  const shouldHideScanToDelivery =
+    useMemo(
+      () =>
+        isHiddenScanToDelivery({
+          deliveryType: deliveryType as ORDER_DELIVERY_TYPE,
+        }),
+      [deliveryType],
+    ) || false;
   return (
     <>
       <SBottomSheet
@@ -157,14 +170,22 @@ const OrderActionsBottomSheet = forwardRef<
                 onPress={handleOrderInfoWithClose}
                 enabled={true}
               />
-              <ActionItem
-                icon="package"
-                title="Scan túi - Giao hàng tại siêu thị"
-                onPress={handleScanBagDeliveryWithClose}
-                enabled={isEnableScanToDelivery({
-                  status: status as OrderStatus,
-                })}
-              />
+              {!shouldHideScanToDelivery && (
+                <ActionItem
+                  icon="package"
+                  title={
+                    getScanToDeliveryInfo({
+                      deliveryType: deliveryType as ORDER_DELIVERY_TYPE,
+                      status: status as OrderStatus,
+                      orderCode,
+                    })?.title || ''
+                  }
+                  onPress={handleScanBagDeliveryWithClose}
+                  enabled={isEnableScanToDelivery({
+                    status: status as OrderStatus,
+                  })}
+                />
+              )}
             </>
           )}
         </View>

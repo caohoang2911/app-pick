@@ -182,10 +182,7 @@ const OrderScanToDelivery = () => {
   };
 
   const disableByStatus = useMemo(() => {
-    if (
-      deliveryType === 'STORE_DELIVERY' ||
-      deliveryType === 'CUSTOMER_PICKUP'
-    ) {
+    if (deliveryType === 'CUSTOMER_PICKUP') {
       return status === ORDER_STATUS.SHIPPING;
     }
 

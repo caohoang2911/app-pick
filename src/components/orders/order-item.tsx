@@ -110,7 +110,7 @@ const OrderItem = ({
   const isDriver = useRoleDriver();
 
   const handlePress = useCallback(() => {
-    if (type === 'STORE_DELIVERY' || isDriver) {
+    if (isDriver) {
       router.push(`orders/order-invoice/${code}`);
     } else {
       router.push({

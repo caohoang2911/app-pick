@@ -1,9 +1,8 @@
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { ORDER_STATUS } from '@/core/constants/order';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
-import { ORDER_STATUS } from '@/core/constants/order';
 import { EBikeLine } from '~/src/core/svgs';
 import { OrderDetail } from '~/src/types/order-pick';
 import SBottomSheet from '../SBottomSheet';
@@ -24,24 +23,11 @@ const DeliverySelectionBottomsheet = ({
   const { code } = useLocalSearchParams<{ code: string }>();
 
   const { header } = orderDetail || {};
-  const { status, deliveryType } = header || {};
+  const { status } = header || {};
 
   const actionRef = useRef<any>();
 
-  const isStoreDelivery =
-    deliveryType === 'APARTMENT_COMPLEX_DELIVERY' ||
-    deliveryType === 'OFFLINE_HOME_DELIVERY';
-
   const actions = [
-    {
-      key: 'start-store-delivery',
-      title:
-        status === ORDER_STATUS.SHIPPING
-          ? 'Store hoàn tất giao hàng'
-          : 'Store tự giao hàng',
-      disabled: !isStoreDelivery,
-      icon: <AntDesign name="user" size={24} color="black" />,
-    },
     {
       key: 'book-ahamove',
       title: 'Book tài xế AhaMove',
@@ -122,7 +108,7 @@ const DeliverySelectionBottomsheet = ({
         visible={visible}
         title="Thao tác"
         ref={actionRef}
-        snapPoints={[320]}
+        snapPoints={[220]}
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
