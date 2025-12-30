@@ -28,6 +28,7 @@ import {
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -63,7 +64,8 @@ const OrderScanToDelivery = () => {
   const failureBottomSheetRef = useRef<any>(null);
   const segments = useSegments();
   const orderDetail = useOrderPick.use.orderDetail();
-  const { tags, status } = (orderDetail?.header as OrderDetailHeader) || {};
+  const { tags, status, codAmount } =
+    (orderDetail?.header as OrderDetailHeader) || {};
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -140,16 +142,7 @@ const OrderScanToDelivery = () => {
             <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
           }
         >
-          {isShowAlert && (
-            <View className="px-4" style={{ marginBottom: 10 }}>
-              <SectionAlert style={{ backgroundColor: '#FFA500' }}>
-                <Text className="text-white font-semibold">
-                  Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước
-                  khi giao hàng
-                </Text>
-              </SectionAlert>
-            </View>
-          )}
+          <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
             <InvoiceInfo />
             <Box>

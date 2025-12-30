@@ -21,6 +21,7 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
 import CODReceipt from '~/src/components/CODReceipt';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
+import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
@@ -39,7 +40,6 @@ import {
   toggleScanQrCodeProduct,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
-import { formatCurrency } from '~/src/core/utils/number';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const ACTION_TYPE = {
@@ -272,24 +272,7 @@ const OrderScanToDelivery = () => {
             <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
           }
         >
-          {showAlert && (
-            <View className="px-4" style={{ marginBottom: 10 }}>
-              <SectionAlert className="bg-yellow-500">
-                <Text className="text-white font-semibold">
-                  • Đơn hàng chưa tạo hoá đơn. Vui lòng tạo hoá đơn trước khi
-                  giao hàng
-                </Text>
-                {Boolean(codAmount) && (
-                  <View className="mt-2">
-                    <Text className="text-white font-semibold">
-                      • Nhân viên siêu thị cần thu COD{' '}
-                      {formatCurrency(codAmount, { unit: true })}
-                    </Text>
-                  </View>
-                )}
-              </SectionAlert>
-            </View>
-          )}
+          <InvoiceAlert show={showAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">

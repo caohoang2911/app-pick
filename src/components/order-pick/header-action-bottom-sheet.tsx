@@ -212,7 +212,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       },
       {
         key: 'more-actions',
-        title: 'Thêm',
+        title: 'Thao tác khác',
         enabled: true,
         allowSubmenu: true,
         icon: <MaterialIcons name="more-horiz" size={24} color="black" />,

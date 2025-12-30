@@ -12,7 +12,10 @@ const UserNote = () => {
 
   if (!pickerNote) return null;
 
-  const lines = pickerNote?.trim().split('\\n');
+  const lines = pickerNote
+    ?.trim()
+    .split(/\n+/)
+    .filter((line) => line.trim());
 
   return (
     <View className="mx-4 px-3 mb-3 py-2 rounded flex bg-orange-400">

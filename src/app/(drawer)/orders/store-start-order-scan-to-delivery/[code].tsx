@@ -17,6 +17,7 @@ import { Button } from '~/src/components/Button';
 import CODReceipt from '~/src/components/CODReceipt';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
@@ -172,16 +173,7 @@ const OrderScanToDelivery = () => {
             <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
           }
         >
-          {isShowAlert && (
-            <View className="px-4" style={{ marginBottom: 10 }}>
-              <SectionAlert style={{ backgroundColor: '#FFA500' }}>
-                <Text className="text-white font-semibold">
-                  Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước
-                  khi giao hàng
-                </Text>
-              </SectionAlert>
-            </View>
-          )}
+          <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">

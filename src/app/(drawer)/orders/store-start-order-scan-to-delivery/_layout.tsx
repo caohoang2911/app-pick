@@ -1,8 +1,18 @@
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import HeaderRightAction from '~/src/components/store-start-order-scan-to-delivery/header-right-action';
 import Header from '~/src/components/shared/Header';
+import { getScanToDeliveryInfo } from '~/src/core/utils/order';
+import { useOrderPick } from '~/src/core/store/order-pick';
 
 export default function OrderScanToDeliveryLayout() {
+  const { code } = useLocalSearchParams<{ code: string }>();
+  const orderDetail = useOrderPick.use.orderDetail();
+  const { deliveryType, status } = orderDetail?.header || {};
+  const title = getScanToDeliveryInfo({
+    deliveryType,
+    status,
+    orderCode: code,
+  })?.title;
   return (
     <Stack>
       <Stack.Screen
@@ -10,10 +20,7 @@ export default function OrderScanToDeliveryLayout() {
         options={{
           headerShown: true,
           header: () => (
-            <Header
-              title="Siêu thị giao hàng"
-              headerRight={<HeaderRightAction />}
-            />
+            <Header title={title} headerRight={<HeaderRightAction />} />
           ),
         }}
       />

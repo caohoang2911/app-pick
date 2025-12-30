@@ -25,6 +25,7 @@ import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
 import ProductGift from './product-gift';
 import UserNote from './user-note';
+import FulfillErrors from './fulfill-errors';
 // Memoize các component hiển thị trạng thái loading và empty
 const LoadingIndicator = memo(() => (
   <View className="text-center py-3">
@@ -388,7 +389,12 @@ const OrderPickProducts = () => {
           <RefreshControl refreshing={false} onRefresh={handleRefresh} />
         }
         ListFooterComponent={<View style={{ height: 20 }} />}
-        ListHeaderComponent={<UserNote />}
+        ListHeaderComponent={
+          <View className="flex flex-col gap-2">
+            <UserNote />
+            <FulfillErrors />
+          </View>
+        }
         data={filteredProducts || []}
         ListEmptyComponent={
           isEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />
