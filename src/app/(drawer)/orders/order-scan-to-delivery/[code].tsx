@@ -98,7 +98,7 @@ const OrderScanToDelivery = () => {
       return 'Tạo hoá đơn & giao cho tài xế';
     }
     return 'Tạo hoá đơn & giao cho khách';
-  }, [isInvoiceSupportedByAppPick]);
+  }, [deliveryType, isInvoiceSupportedByAppPick]);
 
   const generateMessageCreateInvoice = useMemo(() => {
     if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
@@ -238,14 +238,21 @@ const OrderScanToDelivery = () => {
     isAllDone,
     orderBags,
     isLoadingHandoverOrder,
+    isLoadingCreateInvoice,
     handleStartDeliveryWithoutInvoice,
+    handleCheckoutOrderBagsWithInvoice,
     actionType,
+    actionTypeWithInvoice,
+    deliveryType,
+    isInvoiceSupportedByAppPick,
     isPending,
+    handoverStatus,
+    toggleScanQrCodeProduct,
   ]);
 
   const handleRefresh = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-  }, []);
+  }, [queryClient]);
 
   const handleReceiptCaptureComplete = useCallback(
     (base64String: string) => {

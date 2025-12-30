@@ -66,7 +66,7 @@ const TabsStatus = () => {
           number: (orderStatusCounters as any)[key],
         };
       });
-  }, [orderStatusCounters]);
+  }, [orderStatusCounters, role]);
 
   const sortedDataStatusCounters = useMemo(() => {
     return sortByPriority(dataStatusCounters || []);

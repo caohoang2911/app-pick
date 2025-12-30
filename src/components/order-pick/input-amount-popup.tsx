@@ -606,6 +606,18 @@ const InputAmountPopup = () => {
   const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
 
   // Memoized callbacks
+  const reset = useCallback(() => {
+    toggleShowAmountInput(false);
+    setCurrentId(null);
+    setQuantityFromBarcode(0);
+    setActionProduct(null);
+  }, [
+    toggleShowAmountInput,
+    setCurrentId,
+    setQuantityFromBarcode,
+    setActionProduct,
+  ]);
+
   const onSubmit = useCallback(
     (values: any) => {
       if (!productName) return;
@@ -638,15 +650,10 @@ const InputAmountPopup = () => {
       quantity,
       code,
       isUnitBox,
+      setOrderTemToPicked,
+      reset,
     ],
   );
-
-  const reset = useCallback(() => {
-    toggleShowAmountInput(false);
-    setCurrentId(null);
-    setQuantityFromBarcode(0);
-    setActionProduct(null);
-  }, []);
 
   // Memoize initial values
   const initialValues = useMemo(

@@ -196,7 +196,7 @@ const EmployeeSelection = forwardRef<any, Props>(
           />
         );
       },
-      [selectedId, handleSelect, isFetching, isPending],
+      [selectedId, handleSelect],
     );
 
     const keyExtractor = useCallback(

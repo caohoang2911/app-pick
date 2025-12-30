@@ -63,6 +63,7 @@ export const useCheckShift = (successCallback: () => void) => {
     kposShiftStatus,
     startMyKposShift,
     isLoadingStartMyKposShift,
+    successCallback,
   ]);
 
   return { checkShift };

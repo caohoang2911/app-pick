@@ -178,7 +178,16 @@ const OrderPickProducts = () => {
         }
       }
     }
-  }, [keyword, orderPickProducts, orderPickProductsFlat, handleScanBarcode]);
+  }, [
+    keyword,
+    orderPickProducts,
+    orderPickProductsFlat,
+    handleScanBarcode,
+    setSuccessForBarcodeScan,
+    setCurrentId,
+    toggleShowAmountInput,
+    setKeyword,
+  ]);
 
   // Callback cho việc render item
   const renderItem = useCallback(

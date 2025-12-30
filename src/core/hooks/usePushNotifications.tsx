@@ -50,42 +50,45 @@ export const usePushNotifications: any = () => {
     }
   };
 
-  const handleGoScreen = useCallback((remoteMessage: any) => {
-    const { orderCode, targetScr } = remoteMessage || {};
+  const handleGoScreen = useCallback(
+    (remoteMessage: any) => {
+      const { orderCode, targetScr } = remoteMessage || {};
 
-    // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
-    if (navigationInProgress.current) {
-      console.log('Navigation already in progress, skipping...');
-      return;
-    }
-
-    // Đánh dấu đang trong quá trình chuyển hướng
-    navigationInProgress.current = true;
-
-    // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
-    InteractionManager.runAfterInteractions(() => {
-      try {
-        switch (targetScr) {
-          case TargetScreen.ORDER_PICK:
-            router.push(`/orders/order-pick/${orderCode}`);
-            break;
-          case TargetScreen.ORDER_INVOICE:
-            router.push(`/orders/order-invoice/${orderCode}`);
-            break;
-          default:
-            break;
-        }
-
-        setTimeout(() => {
-          navigationInProgress.current = false;
-        }, 500);
-      } catch (error) {
-        setTimeout(() => {
-          navigationInProgress.current = false;
-        }, 500);
+      // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
+      if (navigationInProgress.current) {
+        console.log('Navigation already in progress, skipping...');
+        return;
       }
-    });
-  }, []);
+
+      // Đánh dấu đang trong quá trình chuyển hướng
+      navigationInProgress.current = true;
+
+      // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
+      InteractionManager.runAfterInteractions(() => {
+        try {
+          switch (targetScr) {
+            case TargetScreen.ORDER_PICK:
+              router.push(`/orders/order-pick/${orderCode}`);
+              break;
+            case TargetScreen.ORDER_INVOICE:
+              router.push(`/orders/order-invoice/${orderCode}`);
+              break;
+            default:
+              break;
+          }
+
+          setTimeout(() => {
+            navigationInProgress.current = false;
+          }, 500);
+        } catch (error) {
+          setTimeout(() => {
+            navigationInProgress.current = false;
+          }, 500);
+        }
+      });
+    },
+    [router],
+  );
 
   useEffect(() => {
     // Theo dõi trạng thái ứng dụng để xử lý đúng khi chuyển từ background sang foreground

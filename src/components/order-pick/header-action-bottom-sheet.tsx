@@ -179,7 +179,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         orderCode: code,
       });
     },
-    [code],
+    [code, assignOrderToPicker],
   );
 
   const actions: Array<Action> = useMemo(

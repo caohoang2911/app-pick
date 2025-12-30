@@ -77,7 +77,7 @@ const HeaderActionBtn = () => {
               ),
             },
           ],
-    [orderCode, isShipping, isStorePackaged],
+    [orderCode, isShipping, isStorePackaged, isDriver, deliveryType, status],
   );
 
   const renderItem = ({

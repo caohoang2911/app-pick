@@ -332,7 +332,16 @@ const OrderPickProduct = memo(
       setSuccessForBarcodeScan(barcode);
       setCurrentId(id);
       setIsEditManual(true);
-    }, [isShowAmountInput, id, barcode, isDisable]);
+    }, [
+      isShowAmountInput,
+      id,
+      barcode,
+      isDisable,
+      toggleShowAmountInput,
+      setSuccessForBarcodeScan,
+      setCurrentId,
+      setIsEditManual,
+    ]);
 
     // Memoize image source to prevent re-renders
     const imageSource = useMemo(
@@ -342,27 +351,17 @@ const OrderPickProduct = memo(
 
     const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
     const isStatusPacked = statusOrder === OrderStatusValue.STORE_PACKED;
-    const isPicking =
-      barcode === pickingBarcode && isStatusPicking && !pickedTime && isActive;
-
     const showQuickAction = isStatusPicking || isStatusPacked;
 
     const handleReplaceProduct = useCallback(() => {
       setReplacePickedProductId(id);
-    }, []);
+    }, [setReplacePickedProductId, id]);
 
     return (
       <>
         <View
           className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}
-          style={[
-            styles.box,
-            // {
-            //   borderLeftWidth: isPicking ? 5 : 0,
-            //   borderLeftColor: isPicking ? 'rgb(59,130,246)' : '#dfdfdf',
-            //   borderStyle: 'solid',
-            // },
-          ]}
+          style={[styles.box]}
         >
           <View className="p-3">
             <ProductHeader
