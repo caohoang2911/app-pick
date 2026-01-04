@@ -43,9 +43,18 @@ export const getScanToDeliveryInfo = ({
         route: APP_ROUTES.ORDER_SCAN_TO_DELIVERY(orderCode),
       };
     } else {
+      const getRoute = () => {
+        if (
+          status === ORDER_STATUS.SHIPPING ||
+          status === ORDER_STATUS.COMPLETED
+        ) {
+          return APP_ROUTES.STORE_COMPLETE_SCAN_TO_DELIVERY(orderCode);
+        }
+        return APP_ROUTES.STORE_START_SCAN_TO_DELIVERY(orderCode);
+      };
       return {
         title: 'Scan túi - Giao hàng nội khu',
-        route: APP_ROUTES.STORE_START_SCAN_TO_DELIVERY(orderCode),
+        route: getRoute(),
       };
     }
   }

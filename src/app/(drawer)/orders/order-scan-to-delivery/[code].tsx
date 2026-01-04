@@ -25,6 +25,7 @@ import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert'
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import ShipperInfo from '~/src/components/shared/shipper-info';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import {
   hideAlert,
@@ -274,6 +275,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={showAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
+            <ShipperInfo />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />

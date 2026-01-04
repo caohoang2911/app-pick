@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import { formatCurrency } from '~/src/core/utils/number';
 
 interface CODReceiptProps {
   orderCode: string;
@@ -26,10 +27,6 @@ export default function CODReceipt({
 }: CODReceiptProps) {
   const viewShotRef = useRef<ViewShot>(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
-  };
 
   const handleCapture = useCallback(async () => {
     if (!viewShotRef.current || !isLayoutReady) {
@@ -129,7 +126,7 @@ export default function CODReceipt({
             <Text className="text-black text-2xl font-medium">
               COD:{' '}
               <Text className="text-black font-bold">
-                {formatCurrency(codAmount)}₫
+                {formatCurrency(codAmount, { unit: true })}
               </Text>
             </Text>
 

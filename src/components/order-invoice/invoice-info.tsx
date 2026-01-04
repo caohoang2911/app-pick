@@ -29,11 +29,7 @@ const InvoiceInfo = () => {
           <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className="text-gray-500">COD</Text>
           </View>
-          <Text>
-            {payment?.method === 'CASH_ON_DELIVERY'
-              ? formatCurrency(codAmount, { unit: true })
-              : '0 đ'}
-          </Text>
+          <Text>{formatCurrency(codAmount, { unit: true })}</Text>
         </View>
         <View className="flex flex-row items-center">
           <View style={{ width: COL_LEFT_WIDTH }}>

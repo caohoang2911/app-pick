@@ -1,8 +1,8 @@
+import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useLocalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useCompleteOrderScanToDelivery } from '~/src/core/store/complete-order-scan-to-delivery';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
@@ -16,16 +16,20 @@ const COL_LEFT_WIDTH = 105;
 const RowInfo = ({
   label,
   value,
+  isWarning = false,
 }: {
   label: string;
   value: string | number;
+  isWarning?: boolean;
 }) => {
   return (
     <View className="flex flex-row items-center">
       <View style={{ width: COL_LEFT_WIDTH }}>
-        <Text className="text-gray-500">{label}</Text>
+        <Text className={`text-gray-500 ${isWarning ? 'text-orange-500' : ''}`}>
+          {label}
+        </Text>
       </View>
-      <Text>{value}</Text>
+      <Text className={`${isWarning ? 'text-orange-500' : ''}`}>{value}</Text>
     </View>
   );
 };
@@ -39,14 +43,13 @@ const InvoiceInfo = () => {
   const { header } = orderInvoice || {};
   const {
     status,
-    payment,
     orderTime,
     deliveryAddress,
     statusName,
-    amount,
     customer,
     deliveryTimeRange,
     tags,
+    codAmount = 0,
   } = header || {};
 
   const config = useConfig.use.config();
@@ -95,8 +98,9 @@ const InvoiceInfo = () => {
       </View>
       <View className="flex gap-2 mt-3">
         <RowInfo
-          label={payment?.methodName || '--'}
-          value={formatCurrency(amount, { unit: true })}
+          label={'COD'}
+          value={formatCurrency(codAmount, { unit: true })}
+          isWarning
         />
         <RowInfo label="Khách hàng" value={customer?.name || ''} />
         <RowInfo label="SDT" value={customer?.phone || ''} />
