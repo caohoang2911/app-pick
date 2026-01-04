@@ -259,6 +259,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         setVisible={setSubmenuVisible}
         deliveryType={deliveryType}
         orderCode={code}
+        status={status}
+        invoiceCode={orderDetail?.header?.invoiceCode}
       />
     </>
   );

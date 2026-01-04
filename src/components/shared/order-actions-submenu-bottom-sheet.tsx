@@ -5,6 +5,9 @@ import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
 import { EBikeLine } from '~/src/core/svgs';
+import { useReprintInvoice } from '~/src/api/app-pick/use-reprint-invoice';
+import { ORDER_STATUS } from '@/core/constants/order';
+import { OrderStatusValue } from '~/src/types/order';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
@@ -16,6 +19,8 @@ interface OrderActionsSubmenuBottomSheetProps {
   setVisible: (visible: boolean) => void;
   deliveryType?: string;
   orderCode?: string;
+  status?: string;
+  invoiceCode?: string;
 }
 
 const OrderActionsSubmenuBottomSheet = ({
@@ -23,6 +28,8 @@ const OrderActionsSubmenuBottomSheet = ({
   setVisible,
   deliveryType,
   orderCode,
+  status,
+  invoiceCode,
 }: OrderActionsSubmenuBottomSheetProps) => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const actionRef = useRef<any>();
@@ -32,6 +39,21 @@ const OrderActionsSubmenuBottomSheet = ({
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     React.useState(false);
   const [orderHistoryVisible, setOrderHistoryVisible] = React.useState(false);
+
+  const { mutate: reprintInvoice, isPending: isReprintingInvoice } =
+    useReprintInvoice();
+
+  // Check if status is from STORE_PACKED onwards
+  const canReprintInvoice = useMemo(() => {
+    if (!status || !invoiceCode) return false;
+    const allowedStatuses = [
+      ORDER_STATUS.STORE_PACKED,
+      ORDER_STATUS.BOOKED_SHIPPER,
+      ORDER_STATUS.SHIPPING,
+      ORDER_STATUS.COMPLETED,
+    ];
+    return allowedStatuses.includes(status as any);
+  }, [status, invoiceCode]);
 
   useEffect(() => {
     if (visible) {
@@ -63,12 +85,18 @@ const OrderActionsSubmenuBottomSheet = ({
         icon: <Ionicons name="swap-horizontal" size={24} color="black" />,
       },
       {
+        key: 'reprint-invoice',
+        title: 'In lại hóa đơn',
+        icon: <MaterialIcons name="print" size={24} color="black" />,
+        enabled: canReprintInvoice,
+      },
+      {
         key: 'history-order',
         title: 'Lịch sử đơn hàng',
         icon: <MaterialIcons name="history" size={24} color="black" />,
       },
     ],
-    [],
+    [canReprintInvoice],
   );
 
   const renderItem = ({
@@ -76,16 +104,20 @@ const OrderActionsSubmenuBottomSheet = ({
     key,
     title,
     icon,
+    enabled = true,
   }: {
     key: string;
     title: string | React.ReactNode;
     icon: React.ReactNode;
     onClickAction: (key: string) => void;
+    enabled?: boolean;
   }) => {
     return (
       <Pressable
         onPress={() => onClickAction?.(key)}
+        disabled={!enabled}
         className="flex-row items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4"
+        style={{ opacity: enabled ? 1 : 0.5 }}
       >
         {icon}
         <Text className={`text-gray-300`}>{title}</Text>
@@ -105,6 +137,11 @@ const OrderActionsSubmenuBottomSheet = ({
       case 'change-delivery-type':
         setOrderDeliveryTypeVisible(true);
         break;
+      case 'reprint-invoice':
+        if (canReprintInvoice && (code || orderCode)) {
+          reprintInvoice({ orderCode: code || orderCode || '' });
+        }
+        break;
       case 'history-order':
         setOrderHistoryVisible(true);
         break;
@@ -119,13 +156,17 @@ const OrderActionsSubmenuBottomSheet = ({
         visible={visible}
         title="Thao tác"
         ref={actionRef}
-        snapPoints={[320]}
+        snapPoints={[360]}
         titleAlign="center"
         onClose={() => setVisible(false)}
       >
         {actions.map((action: any) => (
           <React.Fragment key={action.key}>
-            {renderItem({ ...action, onClickAction: handleClickAction })}
+            {renderItem({
+              ...action,
+              onClickAction: handleClickAction,
+              enabled: action.enabled !== undefined ? action.enabled : true,
+            })}
           </React.Fragment>
         ))}
       </SBottomSheet>

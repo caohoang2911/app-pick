@@ -1,18 +1,11 @@
-import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
 import { Env } from '~/env';
 import { getPrinterHost } from '~/src/core/utils/printer';
 import { setLoading } from '~/src/core/store/loading';
 import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
-
-type Variables = {
-  orderCode: string;
-};
-
-type Response = { error: string } & AxiosResponse;
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
 const PRINTER_PORT = 9100;
@@ -35,7 +28,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
     if (!host) {
       showMessage({
         message:
-          'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
+          'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi in hóa đơn.',
         type: 'danger',
       });
       reject(new Error('Printer not configured'));
@@ -59,7 +52,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
       timer = setTimeout(() => {
         cleanupConnection(client, timer);
         showMessage({
-          message: `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+          message: `Không thể kết nối với máy in tại IP: ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
         });
         reject(new Error('Printer connection timeout'));
@@ -68,7 +61,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
       client.on('error', (error: any) => {
         cleanupConnection(client, timer);
         showMessage({
-          message: `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+          message: `Không thể kết nối với máy in tại IP: ${host}. Vui lòng kiểm tra lại.`,
           type: 'danger',
         });
         reject(error);
@@ -110,16 +103,6 @@ const useFetchBase64ImageByInvoiceURL = (
   });
 };
 
-const createInvoice = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/createInvoice', params);
-};
-
-export const useCreateInvoice = () => {
-  return useMutation({
-    mutationFn: (params: Variables) => createInvoice(params),
-  });
-};
-
 const validateBase64Image = (base64Image: string): string => {
   const trimmedBase64 = base64Image.trim();
 
@@ -142,7 +125,8 @@ const sendToPrinter = async (
   client.write(printerBuffer);
   await new Promise((resolve) => setTimeout(resolve, 100));
 };
-export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
+
+export const useReprintInvoice = (cb?: () => void) => {
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
@@ -157,7 +141,9 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
       try {
         client = await checkPrinterConnection();
 
-        const base64Image = await fetchBase64ImageByInvoiceURLAsync(orderCode);
+        const base64Image = await fetchBase64ImageByInvoiceURLAsync(
+          params.orderCode,
+        );
         const fullBase64 = validateBase64Image(base64Image.data);
 
         const {
@@ -216,6 +202,11 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
             client.destroy();
             client = null;
           }
+
+          showMessage({
+            message: 'In lại hóa đơn thành công',
+            type: 'success',
+          });
         } else {
           if (client) {
             client.destroy();
