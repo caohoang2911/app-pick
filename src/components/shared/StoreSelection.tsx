@@ -1,4 +1,5 @@
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { debounce } from 'lodash';
 import React, {
   forwardRef,
@@ -10,7 +11,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { FlatList, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Text, TouchableOpacity, View } from 'react-native';
 import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useAuth } from '~/src/core/store/auth';
@@ -326,10 +327,12 @@ const StoreSelection = forwardRef<any, Props>(
         snapPoints={[isKeyboardVisible ? 600 : 500, '80%']}
         onClose={handleClose}
         keyboardBehavior="extend"
+        scrollEnabled={false}
+        disableScrollView={true}
       >
         <SearchBar ref={searchBarRef} onSearch={handleSearch} />
 
-        <FlatList
+        <BottomSheetFlatList
           data={filteredStores}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
@@ -339,7 +342,6 @@ const StoreSelection = forwardRef<any, Props>(
           removeClippedSubviews={true}
           ListEmptyComponent={ListEmptyComponent}
           keyboardShouldPersistTaps="handled"
-          scrollEnabled={true}
           showsVerticalScrollIndicator={false}
         />
       </SBottomSheet>

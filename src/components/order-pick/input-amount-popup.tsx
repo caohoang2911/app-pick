@@ -11,16 +11,16 @@ import React, {
 } from 'react';
 import { Platform, Text, View } from 'react-native';
 
+import {
+  PRODUCT_ACTIONS,
+  PRODUCT_PICKED_ERROR_TYPES,
+} from '@/core/constants/product';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { FontAwesome } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
 import { useConfig } from '~/src/core/store/config';
-import {
-  PRODUCT_PICKED_ERROR_TYPES,
-  PRODUCT_ACTIONS,
-} from '@/core/constants/product';
 import {
   setActionProduct,
   setCurrentId,
@@ -563,9 +563,16 @@ const InputAmountPopup = () => {
   const renderTitle = useMemo(
     () => (
       <View className="flex justify-between gap-1">
-        <Text numberOfLines={1} className="font-semibold">
-          {productName}
-        </Text>
+        <View className="flex flex-row items-center gap-1">
+          {currentProduct?.tags?.includes('GIFT') && (
+            <View className="mb-0.5">
+              <Text>🎁 </Text>
+            </View>
+          )}
+          <Text numberOfLines={1} className="font-semibold">
+            {productName}
+          </Text>
+        </View>
         <Badge
           className="self-start"
           label={`SL đặt: ${currentProduct?.quantity} ${
@@ -574,7 +581,12 @@ const InputAmountPopup = () => {
         />
       </View>
     ),
-    [productName, currentProduct?.quantity, currentProduct?.unit],
+    [
+      productName,
+      currentProduct?.quantity,
+      currentProduct?.unit,
+      currentProduct?.tags,
+    ],
   );
 
   const renderTopHeader = useMemo(

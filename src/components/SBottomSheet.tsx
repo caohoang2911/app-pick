@@ -25,6 +25,7 @@ type Props = {
   extraButton?: React.ReactNode;
   topHeader?: React.ReactNode;
   onClose: () => void;
+  disableScrollView?: boolean; // When true, children won't be wrapped in ScrollView (useful for BottomSheetFlatList)
   [key: string]: any;
 };
 
@@ -103,6 +104,7 @@ const SBottomSheet = forwardRef<any, Props>(
       hideHeader = false,
       extraButton,
       onClose,
+      disableScrollView = false,
       ...rests
     },
     ref,
@@ -180,14 +182,18 @@ const SBottomSheet = forwardRef<any, Props>(
           children={children}
           visible={visible}
         />
-        <SafeBottomSheetScrollView
-          keyboardDismissMode="on-drag"
-          bounces={true}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={true}
-        >
-          {children}
-        </SafeBottomSheetScrollView>
+        {disableScrollView ? (
+          children
+        ) : (
+          <SafeBottomSheetScrollView
+            keyboardDismissMode="on-drag"
+            bounces={true}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={true}
+          >
+            {children}
+          </SafeBottomSheetScrollView>
+        )}
         {extraButton && extraButton}
       </BottomSheetModal>
     );

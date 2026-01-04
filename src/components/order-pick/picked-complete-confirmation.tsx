@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { useConfig } from '~/src/core/store/config';
 import { Product } from '~/src/types/product';
 import { Button } from '../Button';
@@ -64,13 +65,16 @@ const PickedCompleteConfirmation = ({
                     preview={true}
                   />
                   <View className="flex-1 flex gap-2">
-                    <Text
-                      className="font-semibold"
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {item.name}
-                    </Text>
+                    <View className="flex flex-row items-center gap-1">
+                      {item.tags?.includes('GIFT') && <Text>🎁 </Text>}
+                      <Text
+                        className="font-semibold"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {item.name}
+                      </Text>
+                    </View>
                     <View className="flex gap-2 justify-between">
                       <Text>
                         <Text numberOfLines={1} className="w-full">
