@@ -31,6 +31,9 @@ import {
   useStoreStartOrderScanToDelivery,
 } from '~/src/core/store/store-start-order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import ShipperInfo from '~/src/components/shared/shipper-info';
+import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
+import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -44,8 +47,13 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, deliveryType, isInvoiceSupportedByAppPick, codAmount } =
-    (orderDetail?.header as OrderDetailHeader) || {};
+  const {
+    tags,
+    deliveryType,
+    isInvoiceSupportedByAppPick,
+    codAmount,
+    shipping,
+  } = (orderDetail?.header as OrderDetailHeader) || {};
 
   const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
     useCreateInvoice();
@@ -55,6 +63,14 @@ const OrderScanToDelivery = () => {
     useCreateInvoiceProcess(code, () => {
       startSelfShipping({ orderCode: code });
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    });
+
+  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
+    useHandoverOrder(() => {
+      setLoading(false);
+      setUploadedImages('', true);
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      router.back();
     });
 
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
@@ -101,8 +117,7 @@ const OrderScanToDelivery = () => {
 
   const { checkShift } = useCheckShift(() => {
     showAlert({
-      title: 'Tạo hoá đơn & giao hàng?',
-      message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
+      title: btnWithInvoiceLabel + '?',
       onConfirm: async () => {
         hideAlert();
         const createInvoiceResult = await createInvoiceAsync({
@@ -132,14 +147,33 @@ const OrderScanToDelivery = () => {
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlert({
-      title: 'Bắt đầu xác nhận giao hàng?',
-      message: 'Bạn có muốn bắt đầu xác nhận giao hàng?',
+      title: btnWithoutInvoiceLabel + '?',
       onConfirm: () => {
         hideAlert();
-        startSelfShipping({ orderCode: code });
+        if (isShipperDelivery) {
+          handoverOrder({ orderCode: code });
+        } else {
+          startSelfShipping({ orderCode: code });
+        }
       },
     });
   };
+
+  const isShipperDelivery = !!shipping?.driverName;
+
+  const btnWithoutInvoiceLabel = useMemo(() => {
+    if (isShipperDelivery) {
+      return 'Xác nhận giao cho tài xế';
+    }
+    return 'Xác nhận giao hàng nội khu';
+  }, [isShipperDelivery]);
+
+  const btnWithInvoiceLabel = useMemo(() => {
+    if (isShipperDelivery) {
+      return 'Tạo hoá đơn & giao cho tài xế';
+    }
+    return 'Tạo hoá đơn & giao hàng nội khu';
+  }, [isShipperDelivery]);
 
   const handleStartScanQrCodeProduct = () => {
     toggleStoreStartScanQrCodeProduct(true);
@@ -175,6 +209,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
+            <ShipperInfo />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />
@@ -197,14 +232,18 @@ const OrderScanToDelivery = () => {
               loading={isLoadingStartSelfShipping}
               onPress={handleStartDeliveryWithoutInvoice}
               disabled={isDisabled}
-              label={'Bắt đầu giao hàng'}
+              label={btnWithoutInvoiceLabel}
             />
           ) : (
             <Button
-              loading={isLoadingStartSelfShipping || isLoadingCreateInvoice}
+              loading={
+                isLoadingStartSelfShipping ||
+                isLoadingCreateInvoice ||
+                isLoadingHandoverOrder
+              }
               onPress={handleStartDeliveryWithInvoice}
               disabled={isDisabled}
-              label="Tạo hoá đơn & bắt đầu giao hàng"
+              label={btnWithInvoiceLabel}
             />
           )}
         </View>

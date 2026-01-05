@@ -29,6 +29,7 @@ import { setLoading } from '~/src/core/store/loading';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
+import ShipperInfo from '~/src/components/shared/shipper-info';
 
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -144,6 +145,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
+            <ShipperInfo />
             <InvoiceInfo />
             <Box>
               <ImageUploader
