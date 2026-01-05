@@ -1,6 +1,4 @@
-import { router, Stack } from 'expo-router';
-import ButtonBack from '~/src/components/ButtonBack';
-import Header from '~/src/components/shared/Header';
+import { Stack } from 'expo-router';
 
 export default function OrderScanToDeliveryLayout() {
   return (

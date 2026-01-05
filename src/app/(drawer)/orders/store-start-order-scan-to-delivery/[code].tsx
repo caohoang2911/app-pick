@@ -37,6 +37,7 @@ import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import Header from '~/src/components/shared/Header';
 import ButtonBack from '~/src/components/ButtonBack';
+import Loading from '~/src/components/Loading';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
@@ -66,7 +67,7 @@ const OrderScanToDelivery = () => {
     orderCode: code,
   })?.title;
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (title) {
       navigation.setOptions({
         headerShown: true,
@@ -101,11 +102,9 @@ const OrderScanToDelivery = () => {
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
   useEffect(() => {
-    setLoading(isPending || isFetching);
-  }, [isPending, isFetching]);
-
-  useEffect(() => {
-    setStoreStartOrderDetail(data?.data || {});
+    if (data?.data) {
+      setStoreStartOrderDetail(data?.data || {});
+    }
   }, [data]);
 
   if (data?.error) {
@@ -223,6 +222,10 @@ const OrderScanToDelivery = () => {
   );
 
   const isDisabled = !orderBags.length || isPending;
+
+  if (isPending) {
+    return <Loading />;
+  }
 
   return (
     <>

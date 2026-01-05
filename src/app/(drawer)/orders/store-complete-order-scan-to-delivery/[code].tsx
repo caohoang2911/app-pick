@@ -38,6 +38,7 @@ import ShipperInfo from '~/src/components/shared/shipper-info';
 import Header from '~/src/components/shared/Header';
 import ButtonBack from '~/src/components/ButtonBack';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
+import Loading from '~/src/components/Loading';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
@@ -74,10 +75,8 @@ const OrderScanToDelivery = () => {
   const failureBottomSheetRef = useRef<any>(null);
   const segments = useSegments();
   const orderDetail = useCompleteOrderScanToDelivery.use.orderDetail();
-  const { tags, status, codAmount } =
+  const { tags, status, codAmount, deliveryType } =
     (orderDetail?.header as OrderDetailHeader) || {};
-
-  const { deliveryType } = orderDetail?.header || {};
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -96,13 +95,10 @@ const OrderScanToDelivery = () => {
       ),
     });
   }, [title, navigation, code, deliveryType, status]);
-
   useEffect(() => {
-    setLoading(isPending || isFetching);
-  }, [isPending, isFetching]);
-
-  useEffect(() => {
-    setCompleteOrderDetail(data?.data || {});
+    if (data?.data) {
+      setCompleteOrderDetail(data?.data || {});
+    }
   }, [data]);
 
   useEffect(() => {
@@ -163,6 +159,10 @@ const OrderScanToDelivery = () => {
   }, [refetch]);
 
   const featureAvailable = status === ORDER_STATUS.SHIPPING;
+
+  if (isPending) {
+    return <Loading />;
+  }
 
   return (
     <>
