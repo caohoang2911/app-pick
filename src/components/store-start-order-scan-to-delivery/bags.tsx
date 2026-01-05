@@ -49,6 +49,8 @@ const Bags = memo(() => {
       }));
       setStoreStartOrderBags(initializedBags);
       setIsInitialized(true);
+    } else {
+      setStoreStartOrderBags([]);
     }
   }, [bagLabels]);
 
