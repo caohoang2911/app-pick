@@ -1,9 +1,6 @@
-
-
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 
 export default function OrdersLayout() {
-
   return (
     <Stack
       screenOptions={{
@@ -11,54 +8,60 @@ export default function OrdersLayout() {
       }}
     >
       <Stack.Screen
-        name="index" 
-        options={{ 
+        name="index"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
       <Stack.Screen
-        name="order-invoice" 
-        options={{ 
+        name="order-detail/[code]"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
       <Stack.Screen
-        name="order-bags" 
-        options={{ 
+        name="order-invoice"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
       <Stack.Screen
-        name="order-pick" 
-        options={{ 
+        name="order-bags"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
       <Stack.Screen
-        name="order-scan-to-delivery" 
-        options={{ 
+        name="order-pick"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
       <Stack.Screen
-        name="store-start-order-scan-to-delivery" 
-        options={{ 
+        name="order-scan-to-delivery"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
       <Stack.Screen
-        name="store-complete-order-scan-to-delivery" 
-        options={{ 
+        name="store-start-order-scan-to-delivery"
+        options={{
           headerShown: false,
-        }} 
+        }}
+      />
+      <Stack.Screen
+        name="store-complete-order-scan-to-delivery"
+        options={{
+          headerShown: false,
+        }}
       />
 
       <Stack.Screen
-        name="print-preview" 
-        options={{ 
+        name="print-preview"
+        options={{
           headerShown: false,
-        }} 
+        }}
       />
     </Stack>
-  )
+  );
 }

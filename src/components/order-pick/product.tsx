@@ -30,6 +30,7 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
+import { colors } from '~/src/ui/colors';
 const screenWidth = Dimensions.get('window').width;
 // Extract Row component and memoize
 const Row = memo(
@@ -82,7 +83,7 @@ const Row = memo(
         )}
       </View>
     );
-  }
+  },
 );
 
 // Memoize expensive Badge components
@@ -125,8 +126,8 @@ const WarningMessage = memo(
     isLast?: boolean;
   }) => (
     <View
-      className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}
-      style={{ backgroundColor: '#FFA500' }}
+      className={`px-3 py-2 ${isLast ? 'border-b border-gray-200' : ''}`}
+      style={{ backgroundColor: colors.orange[200] }}
     >
       <View className="flex flex-row items-center">
         <View className="size-1.5 bg-white rounded-full mr-2 self-start mt-2" />
@@ -137,7 +138,7 @@ const WarningMessage = memo(
         )}
       </View>
     </View>
-  )
+  ),
 );
 
 // Product Header component
@@ -184,7 +185,7 @@ const ProductHeader = memo(
         )}
       </View>
     </>
-  )
+  ),
 );
 
 const ProductVendor = ({ vendorName }: { vendorName: string }) => {
@@ -217,7 +218,7 @@ const BarcodeDisplay = memo(
         </View>
       </View>
     );
-  }
+  },
 );
 
 // Add ImagePreviewModal component
@@ -252,7 +253,7 @@ const ImagePreviewModal = memo(
         </View>
       </TouchableOpacity>
     </Modal>
-  )
+  ),
 );
 
 // Main component
@@ -311,16 +312,16 @@ const OrderPickProduct = memo(
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
       () => config?.productPickedErrorTypes || [],
-      [config]
+      [config],
     );
     const pickedErrorName = useMemo(
       () => getConfigNameById(productPickedErrorTypes, pickedErrorType),
-      [productPickedErrorTypes, pickedErrorType]
+      [productPickedErrorTypes, pickedErrorType],
     );
     // const isGift = useMemo(() => type === "GIFT", [type]);
     const hasSellPrice = useMemo(
       () => !isGift && Number(sellPrice) > 0,
-      [isGift, sellPrice]
+      [isGift, sellPrice],
     );
     const hasTags = useMemo(() => tags?.length > 0, [tags]);
 
@@ -331,37 +332,36 @@ const OrderPickProduct = memo(
       setSuccessForBarcodeScan(barcode);
       setCurrentId(id);
       setIsEditManual(true);
-    }, [isShowAmountInput, id, barcode, isDisable]);
+    }, [
+      isShowAmountInput,
+      id,
+      barcode,
+      isDisable,
+      toggleShowAmountInput,
+      setSuccessForBarcodeScan,
+      setCurrentId,
+      setIsEditManual,
+    ]);
 
     // Memoize image source to prevent re-renders
     const imageSource = useMemo(
       () => image || require('~/assets/default-img.jpg'),
-      [image]
+      [image],
     );
 
     const isStatusPicking = statusOrder === OrderStatusValue.STORE_PICKING;
     const isStatusPacked = statusOrder === OrderStatusValue.STORE_PACKED;
-    const isPicking =
-      barcode === pickingBarcode && isStatusPicking && !pickedTime && isActive;
-
     const showQuickAction = isStatusPicking || isStatusPacked;
 
     const handleReplaceProduct = useCallback(() => {
       setReplacePickedProductId(id);
-    }, []);
+    }, [setReplacePickedProductId, id]);
 
     return (
       <>
         <View
           className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}
-          style={[
-            styles.box,
-            {
-              borderLeftWidth: isPicking ? 5 : 1,
-              borderLeftColor: isPicking ? 'rgb(59,130,246)' : '#dfdfdf',
-              borderStyle: 'solid',
-            },
-          ]}
+          style={[styles.box]}
         >
           <View className="p-3">
             <ProductHeader
@@ -442,7 +442,7 @@ const OrderPickProduct = memo(
             </View>
           </View>
           {Boolean(
-            pickedErrorName || isWarningOverQuantity || originOrderQuantity
+            pickedErrorName || isWarningOverQuantity || originOrderQuantity,
           ) && (
             <View className="flex w-full flex-grow mt-3">
               {pickedErrorName && (
@@ -476,7 +476,7 @@ const OrderPickProduct = memo(
         />
       </>
     );
-  }
+  },
 );
 
 // Cache styles outside component to avoid recreation

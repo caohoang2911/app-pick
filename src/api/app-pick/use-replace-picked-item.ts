@@ -14,7 +14,6 @@ type Response = { error: string } & {
   data: string;
 };
 
-
 const replacePickedItem = async (params: Variables): Promise<Response> => {
   return await axiosClient.post('app-pick/replacePickedItem', params);
 };

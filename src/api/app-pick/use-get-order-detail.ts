@@ -12,7 +12,10 @@ type Response = { error: string } & {
   data: OrderDetail;
 };
 
-const getDetailOrder = async ({ orderCode }: Variables, role?: Role): Promise<Response> => {
+const getDetailOrder = async (
+  { orderCode }: Variables,
+  role?: Role,
+): Promise<Response> => {
   const params = {
     orderCode,
   };
@@ -27,7 +30,7 @@ export const useOrderDetailQuery = ({ orderCode }: Variables) => {
   return useQuery({
     queryKey: ['orderDetail', orderCode],
     queryFn: () => {
-      return getDetailOrder({ orderCode}, role);
+      return getDetailOrder({ orderCode }, role);
     },
     enabled: !!orderCode,
     staleTime: 0,

@@ -3,7 +3,7 @@
     "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "version": "1.0.24",
+    "version": "1.0.23",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,10 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.caohoang2911.seedcom-app-pick",
-      "associatedDomains": [
-        "applinks:expo.dev",
-        "applinks:oms.seedcom.vn"
-      ],
+      "associatedDomains": ["applinks:expo.dev", "applinks:oms.seedcom.vn"],
       "googleServicesFile": "./GoogleService-Info-prod.plist",
       "buildNumber": "69",
       "infoPlist": {
@@ -27,9 +24,7 @@
         "NSBonjourServices": ["_http._tcp"],
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": [
-              "apppick"
-            ]
+            "CFBundleURLSchemes": ["apppick"]
           }
         ],
         "UIBackgroundModes": ["remote-notification"]
@@ -72,10 +67,7 @@
               "pathPrefix": "/orders"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
@@ -83,15 +75,11 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      [
-        "expo-notifications"
-      ],
+      ["expo-notifications"],
       [
         "expo-font",
         {
-          "fonts": [
-            "node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"
-          ]
+          "fonts": ["node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"]
         }
       ],
       [
@@ -105,9 +93,7 @@
       [
         "expo-asset",
         {
-          "assets": [
-            "./assets/logo.png"
-          ]
+          "assets": ["./assets/logo.png"]
         }
       ],
       "@react-native-firebase/app",

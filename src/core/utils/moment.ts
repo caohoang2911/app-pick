@@ -23,10 +23,10 @@ import momentTimezone from 'moment-timezone';
 
 export const setDefaultTimeZone = () => {
   return momentTimezone.tz.setDefault('Asia/Ho_Chi_Minh');
-}
+};
 
 export const getRelativeTime = (
-  lastTime: string | Date | number | null | undefined
+  lastTime: string | Date | number | null | undefined,
 ): string => {
   if (!lastTime) return '';
 

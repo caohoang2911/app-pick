@@ -22,10 +22,10 @@ export type OrderBagItem = {
   name?: string;
   isDone?: boolean;
   lastScannedTime?: number;
-}
+};
 
 export type OrderBag = {
   DRY: Array<any>;
   FROZEN: Array<any>;
   FRESH: Array<any>;
-}
+};

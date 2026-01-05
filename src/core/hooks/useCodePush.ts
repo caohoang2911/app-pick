@@ -11,7 +11,7 @@ export const useCodepush = () => {
       return true;
     }
     return true;
-  }
+  };
 
   async function onFetchUpdateAsync() {
     try {
@@ -24,8 +24,7 @@ export const useCodepush = () => {
         } catch (error) {
           setIsDoneCodepush(true);
         }
-      }
-      else {
+      } else {
         setIsDoneCodepush(true);
       }
     } catch (error) {
@@ -41,6 +40,6 @@ export const useCodepush = () => {
 
   return {
     onFetchUpdateAsync,
-    isDoneCodepush
-  }
-}
+    isDoneCodepush,
+  };
+};

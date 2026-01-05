@@ -1,6 +1,16 @@
-import { INJECTED_SCRIPT, parseEventData, signIn, useAuth, WebViewContentReader } from '@/core';
-import { consumePendingDeepLink, processDeepLink } from '@/core/hooks/useHandleDeepLink';
+import {
+  INJECTED_SCRIPT,
+  parseEventData,
+  signIn,
+  useAuth,
+  WebViewContentReader,
+} from '@/core';
+import {
+  consumePendingDeepLink,
+  processDeepLink,
+} from '@/core/hooks/useHandleDeepLink';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
+import { NavigationHelpers } from '@/core/utils/navigation';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
@@ -12,12 +22,17 @@ import RequestPermissionStore from '../components/shared/request-permission-stor
 import { useSetAppVersionWithAutoInfo } from '../api/app-pick/use-set-app-version';
 import { EmployeeRole } from '~/src/types/employee';
 
-const WHITE_LIST_ROLE = [EmployeeRole.STORE, EmployeeRole.STORE_MANAGER, EmployeeRole.ADMIN, EmployeeRole.DRIVER  ];
+const WHITE_LIST_ROLE = [
+  EmployeeRole.STORE,
+  EmployeeRole.STORE_MANAGER,
+  EmployeeRole.ADMIN,
+  EmployeeRole.DRIVER,
+];
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
-  const [isRequestPermission, setIsRequestPermission] = useState(false)
-  const [extractedCode, setExtractedCode] = useState<string | null>(null)
+  const [isRequestPermission, setIsRequestPermission] = useState(false);
+  const [extractedCode, setExtractedCode] = useState<string | null>(null);
 
   const { setVersionWithAutoInfo } = useSetAppVersionWithAutoInfo();
 
@@ -68,29 +83,29 @@ const Authorize = () => {
 
         if (WHITE_LIST_ROLE.includes(role)) {
           signIn({ token: zas, userInfo: authInfo });
-          
+
           // Check if there's a pending deep link to navigate to
           const savedDeepLink = consumePendingDeepLink();
           if (savedDeepLink && typeof savedDeepLink === 'string') {
-    
             // Add a small delay to ensure auth is completed
             setTimeout(() => {
               try {
                 processDeepLink(savedDeepLink);
               } catch (error) {
                 // Error processing deep link
-                router.replace('/orders');
+                NavigationHelpers.replaceWithOrders();
               }
             }, 500);
           } else {
-            router.replace('/orders');
+            NavigationHelpers.replaceWithOrders();
           }
           setVersionWithAutoInfo();
         } else {
           router.back();
           showAlert({
             title: 'Chưa thể đăng nhập',
-            message: 'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
+            message:
+              'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
             onConfirm: () => {
               hideAlert();
               showMessage({
@@ -99,9 +114,8 @@ const Authorize = () => {
               });
             },
             onCancel: () => {
-      
               hideAlert();
-            }
+            },
           });
         }
         break;
@@ -109,41 +123,41 @@ const Authorize = () => {
         // Xử lý content được gửi từ website
         const { type, data: contentData, timestamp } = dataParser;
         // console.log(`[WebView Content] ${type}:`, contentData);
-        
+
         // Chỉ xử lý elementText
         switch (type) {
           case 'elementText':
-
-
-            if (JSON.stringify(contentData).includes('HRV_REQUEST_PERMISSION')) {
-              setIsRequestPermission(true)
+            if (
+              JSON.stringify(contentData).includes('HRV_REQUEST_PERMISSION')
+            ) {
+              setIsRequestPermission(true);
               // clearInterval(intervalRef.current);
-              
+
               // Extract userId from the content data
               try {
                 let code = null;
                 let userName = null;
                 let userId = null;
-                
+
                 if (contentData?.text) {
                   clearInterval(intervalRef.current);
                   // Parse the escaped JSON string
                   const parsedText = JSON.parse(contentData.text);
                   const errorMessage = parsedText.error;
-                  
-                                      // Extract code using regex (handles alphanumeric codes like sc000073)
-                    const codeMatch = errorMessage.match(/code:\s*([^,\s]+)/);
-                    if (codeMatch) {
-                      code = codeMatch[1];
-                      setExtractedCode(code); // Store in state
-                    }
-                  
-                  // Extract name using regex  
+
+                  // Extract code using regex (handles alphanumeric codes like sc000073)
+                  const codeMatch = errorMessage.match(/code:\s*([^,\s]+)/);
+                  if (codeMatch) {
+                    code = codeMatch[1];
+                    setExtractedCode(code); // Store in state
+                  }
+
+                  // Extract name using regex
                   const userNameMatch = errorMessage.match(/name:\s*([^,]+)/);
                   if (userNameMatch) {
                     userName = userNameMatch[1].trim();
                   }
-                  
+
                   // Extract id using regex
                   const userIdMatch = errorMessage.match(/id:\s*(\d+)/);
                   if (userIdMatch) {
@@ -172,10 +186,8 @@ const Authorize = () => {
     return () => clearInterval(intervalRef.current);
   }, [readElementText]);
 
-
-
-  if(isRequestPermission) {
-    return <RequestPermissionStore code={extractedCode} />
+  if (isRequestPermission) {
+    return <RequestPermissionStore code={extractedCode} />;
   }
 
   return (

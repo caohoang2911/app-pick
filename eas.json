@@ -49,20 +49,8 @@
     }
   },
   "submit": {
-    "prod": {
-      "ios": {
-        "appleId": "hongchanphat@gmail.com",
-        "ascAppId": "6680199998",
-        "appleTeamId": "4DT5296LMZ"
-      }
-    },
-    "dev": {
-      "ios": {
-        "appleId": "hongchanphat@gmail.com",
-        "ascAppId": "6736770571",
-        "appleTeamId": "4DT5296LMZ"
-      }
-    }
+    "dev": {},
+    "prod": {}
   },
   "cli": {
     "version": ">= 7.3.0",

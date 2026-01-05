@@ -43,12 +43,12 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
 
   const formattedAmount = useMemo(
     () => formatCurrency(item.amount, { unit: true }),
-    [item.amount]
+    [item.amount],
   );
 
   const timeFromNow = useMemo(
     () => getRelativeTime(item.lastTimeUpdateStatus),
-    [item.lastTimeUpdateStatus]
+    [item.lastTimeUpdateStatus],
   );
 
   return (
@@ -62,7 +62,9 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
           <View className="flex flex-row items-center gap-1">
             <Text className="font-semibold">{item.code}</Text>
 
-            {item.shortCode && <Badge label={item.shortCode} variant="warning" />}
+            {item.shortCode && (
+              <Badge label={item.shortCode} variant="warning" />
+            )}
           </View>
           <Badge
             label={item.statusName}
@@ -147,25 +149,6 @@ const InputSearch = ({
     return isLoading || isRefetching || isFetching || isSearching;
   }, [isLoading, isRefetching, isFetching, isSearching]);
 
-  const handleTextChange = useCallback((text: string) => {
-    setValue(text);
-
-    setKeyWord(text);
-
-    if (searchTimeout.current) {
-      clearTimeout(searchTimeout.current);
-    }
-    if (text.length >= MIN_LENGTH_SEARCH) {
-      setIsSearching(true);
-    }
-
-    searchTimeout.current = setTimeout(() => {
-      if (text.length >= MIN_LENGTH_SEARCH) {
-        refetchOrders();
-      }
-    }, 400);
-  }, []);
-
   const refetchOrders = useCallback(async () => {
     try {
       setIsSearching(true);
@@ -180,7 +163,29 @@ const InputSearch = ({
       console.error('Failed to fetch orders:', error);
       setIsSearching(false);
     }
-  }, [value, refetch]);
+  }, [value, refetch, queryClient]);
+
+  const handleTextChange = useCallback(
+    (text: string) => {
+      setValue(text);
+
+      setKeyWord(text);
+
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+      if (text.length >= MIN_LENGTH_SEARCH) {
+        setIsSearching(true);
+      }
+
+      searchTimeout.current = setTimeout(() => {
+        if (text.length >= MIN_LENGTH_SEARCH) {
+          refetchOrders();
+        }
+      }, 400);
+    },
+    [refetchOrders],
+  );
 
   const orderList = useMemo(() => {
     return (ordersResponse as any)?.data || [];
@@ -202,7 +207,7 @@ const InputSearch = ({
         </View>
       </TouchableOpacity>
     ),
-    [toggleScanQrCode]
+    [toggleScanQrCode],
   );
 
   const noResultsText = useMemo(() => {

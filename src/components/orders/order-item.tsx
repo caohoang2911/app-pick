@@ -10,7 +10,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import {
   ORDER_DELIVERY_TYPE,
   ORDER_STATUS_BADGE_VARIANT,
-} from '~/src/contants/order';
+} from '@/core/constants/order';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
@@ -68,7 +68,7 @@ const RowWithLabel = memo(
         )}
       </View>
     );
-  }
+  },
 );
 
 const OrderItem = ({
@@ -104,13 +104,13 @@ const OrderItem = ({
   const fulfillErrorTypes = config?.fulfillErrorTypes || [];
   const fulfillErrorTypeDisplay = getConfigNameById(
     fulfillErrorTypes,
-    fulfillError?.type
+    fulfillError?.type,
   );
 
   const isDriver = useRoleDriver();
 
   const handlePress = useCallback(() => {
-    if (type === 'STORE_DELIVERY' || isDriver) {
+    if (isDriver) {
       router.push(`orders/order-invoice/${code}`);
     } else {
       router.push({
@@ -223,8 +223,10 @@ const OrderItem = ({
             value={
               deliveryTimeRange ? (
                 <Text>
-                  {expectedDeliveryTime(deliveryTimeRange).day} {"  "}
-                  <Text className="text-orange-600 font-semibold">{expectedDeliveryTime(deliveryTimeRange).hh}</Text>
+                  {expectedDeliveryTime(deliveryTimeRange).day} {'  '}
+                  <Text className="text-orange-600 font-semibold">
+                    {expectedDeliveryTime(deliveryTimeRange).hh}
+                  </Text>
                 </Text>
               ) : (
                 '--'
@@ -282,7 +284,7 @@ const OrderItem = ({
               return (
                 <Fragment key={index}>
                   {newNotes?.map((newNote) => (
-                    <View key={newNote} className="flex flex-row">
+                    <View key={newNote} className="flex flex-row px-1 ">
                       <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5" />
                       <Text className="text-base font-semibold text-white">
                         {newNote?.trim()}

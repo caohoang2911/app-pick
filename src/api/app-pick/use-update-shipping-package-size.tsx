@@ -5,15 +5,17 @@ import { setLoading } from '~/src/core/store/loading';
 import { PackageSize } from '~/src/types/order';
 
 type Variables = {
-  size: PackageSize,
-  orderCode: string
+  size: PackageSize;
+  orderCode: string;
 };
 
 type Response = { error: string } & {
   data: 'SUCCESS';
 };
 
-const updateShippingPackageSize = async (params: Variables): Promise<Response> => {
+const updateShippingPackageSize = async (
+  params: Variables,
+): Promise<Response> => {
   return await axiosClient.post('app-pick/updateShippingPackageSize', params);
 };
 

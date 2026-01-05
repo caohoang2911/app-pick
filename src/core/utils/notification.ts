@@ -7,14 +7,13 @@ const registerForPushNotificationsAsync = async () => {
   const enabled =
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
+
   if (enabled) {
     token = await messaging().getToken();
-    console.log(token, "TOKEN");
-  };
+    console.log(token, 'TOKEN');
+  }
 
   return token;
 };
-
 
 export { registerForPushNotificationsAsync };

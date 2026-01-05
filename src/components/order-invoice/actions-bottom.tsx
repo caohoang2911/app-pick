@@ -10,11 +10,12 @@ import { setLoading } from '~/src/core/store/loading';
 const ActionsBottom = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } = useHandoverOrder(() => {
-    hideAlert();
-    setLoading(false);
-    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-  });
+  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
+    useHandoverOrder(() => {
+      hideAlert();
+      setLoading(false);
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+    });
 
   const handleCompleteOrder = () => {
     if (!code) return;
@@ -41,6 +42,6 @@ const ActionsBottom = () => {
       </View>
     </View>
   );
-}
+};
 
-export default ActionsBottom
+export default ActionsBottom;

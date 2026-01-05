@@ -1,7 +1,11 @@
 import { create } from 'zustand';
-import { OrderDelivery, OrderDetail, OrderDetailHeader } from '~/src/types/order-pick';
+import {
+  OrderDelivery,
+  OrderDetail,
+  OrderDetailHeader,
+} from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
-import { ProductAction } from '~/src/contants/product';
+import { ProductAction } from '@/core/constants/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
@@ -32,7 +36,7 @@ interface OrdersState {
   setQuantityFromBarcode: (quantity: number) => void;
   setCurrentId: (id: number | null) => void;
   setReplacePickedProductId: (id: number) => void;
-  setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => void; 
+  setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => void;
   replacePickedProductId: number | null;
   isVisibleReplaceProduct: boolean;
 }
@@ -72,13 +76,18 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     set({ isScanQrCodeProduct });
   },
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => {
-    set({ isShowAmountInput, scannedIds: id ? { ...get().scannedIds, [id]: true } : {...get().scannedIds} });
+    set({
+      isShowAmountInput,
+      scannedIds: id
+        ? { ...get().scannedIds, [id]: true }
+        : { ...get().scannedIds },
+    });
   },
   setSuccessForBarcodeScan: (barcode: string) => {
     set({ barcodeScanSuccess: barcode });
   },
   setInitOrderPickProducts: (data: any) => {
-    set({ orderPickProducts: [ ...data ] });
+    set({ orderPickProducts: [...data] });
   },
   setBarcodeScrollTo: (barcode: string) => {
     set({ barcodeScrollTo: barcode });
@@ -92,17 +101,22 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setOrderPickProduct: (product: Product) => {
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
-    
-    const newOrderPickProducts = orderPickProducts.map((productMap: Product | ProductItemGroup | any) => {
-      return { ...productMap, elements: productMap.elements?.map((productRel: Product) => {
-        const productAsTypeProduct = { ...productRel as Product };
-        if(product.id === productAsTypeProduct.id) {
-          return { ...productAsTypeProduct, ...product };
-        } else {
-          return productAsTypeProduct;
-        }
-      })};
-    });
+
+    const newOrderPickProducts = orderPickProducts.map(
+      (productMap: Product | ProductItemGroup | any) => {
+        return {
+          ...productMap,
+          elements: productMap.elements?.map((productRel: Product) => {
+            const productAsTypeProduct = { ...(productRel as Product) };
+            if (product.id === productAsTypeProduct.id) {
+              return { ...productAsTypeProduct, ...product };
+            } else {
+              return productAsTypeProduct;
+            }
+          }),
+        };
+      },
+    );
 
     set({
       barcodeScrollTo: product.barcode,
@@ -110,7 +124,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     });
   },
   setReplacePickedProductId: (id: number) => {
-    set({ replacePickedProductId: id});
+    set({ replacePickedProductId: id });
   },
   setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => {
     set({ isVisibleReplaceProduct });
@@ -122,23 +136,26 @@ export const useOrderPick = createSelectors(_useOrderPick);
 export const toggleScanQrCodeProduct = (status: boolean) =>
   _useOrderPick.getState().toggleScanQrCode(status);
 
-export const toggleShowAmountInput = (isShowAmountInput: boolean, id?: number) =>
-  _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput, id);
+export const toggleShowAmountInput = (
+  isShowAmountInput: boolean,
+  id?: number,
+) => _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput, id);
 
 export const setSuccessForBarcodeScan = (barcode: string) =>
   _useOrderPick.getState().setSuccessForBarcodeScan(barcode);
 
 export const setInitOrderPickProducts = (
-  data: Array<Product | ProductItemGroup>
+  data: Array<Product | ProductItemGroup>,
 ) => _useOrderPick.getState().setInitOrderPickProducts(data);
 
-export const setBarcodeScrollTo = (barcode: string) =>  
+export const setBarcodeScrollTo = (barcode: string) =>
   _useOrderPick.getState().setBarcodeScrollTo(barcode);
 
 export const setKeyword = (keyword: string) =>
   _useOrderPick.getState().setKeyword(keyword);
 
-export const setOrderPickProduct = (product: Product) => _useOrderPick.getState().setOrderPickProduct(product);
+export const setOrderPickProduct = (product: Product) =>
+  _useOrderPick.getState().setOrderPickProduct(product);
 
 export const setOrderDetail = (orderDetail: OrderDetail) =>
   _useOrderPick.getState().setOrderDetail(orderDetail);
@@ -149,9 +166,10 @@ export const setCurrentId = (id: number | null) =>
 export const setQuantityFromBarcode = (quantity: number) =>
   _useOrderPick.getState().setQuantityFromBarcode(quantity);
 
-
-export const setIsEditManual = (isEditManual: boolean, action?: ProductAction) =>
-  _useOrderPick.getState().setIsEditManual(isEditManual, action);
+export const setIsEditManual = (
+  isEditManual: boolean,
+  action?: ProductAction,
+) => _useOrderPick.getState().setIsEditManual(isEditManual, action);
 
 export const setActionProduct = (action: ProductAction | null) =>
   _useOrderPick.getState().setAction(action);

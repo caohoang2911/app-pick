@@ -3,9 +3,8 @@ export enum Role {
   STORE = 'STORE',
   STORE_MANAGER = 'STORE_MANAGER',
   INTERNAL_SHIPPER = 'INTERNAL_SHIPPER',
-  DRIVER = 'DRIVER'
+  DRIVER = 'DRIVER',
 }
-
 
 export type Employee = {
   employeeId?: string;
@@ -35,5 +34,5 @@ export enum EmployeeRole {
   STORE = 'STORE',
   STORE_MANAGER = 'STORE_MANAGER',
   ADMIN = 'ADMIN',
-  DRIVER = 'DRIVER'
+  DRIVER = 'DRIVER',
 }

@@ -1,12 +1,11 @@
-
-import { colors } from "./src/ui/colors"
-import { fontFamily } from "./src/ui/font-family"
+import { colors } from './src/ui/colors';
+import { fontFamily } from './src/ui/font-family';
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   // NOTE: Update this to include the paths to all of your component files.
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  presets: [require("nativewind/preset")],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors,
@@ -14,4 +13,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};

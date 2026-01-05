@@ -24,7 +24,8 @@ const alertVariants = cva('rounded-lg flex justify-center', {
 });
 
 interface AlertProps
-  extends React.ComponentPropsWithoutRef<typeof TouchableOpacity>,
+  extends
+    React.ComponentPropsWithoutRef<typeof TouchableOpacity>,
     VariantProps<typeof alertVariants> {
   labelClasses?: string;
   disabed?: boolean;
@@ -42,10 +43,7 @@ function SectionAlert({
   ...props
 }: AlertProps) {
   return (
-    <View
-      className={alertVariants({ variant, size, className })}
-      {...props}
-    >
+    <View className={alertVariants({ variant, size, className })} {...props}>
       {children}
     </View>
   );

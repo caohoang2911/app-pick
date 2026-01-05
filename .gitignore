@@ -74,3 +74,12 @@ yarn-error.*
 *.tsbuildinfo
 
 # @end expo-cli
+
+# Husky
+.husky/_
+
+# Google Services files (Firebase credentials - should not be in git)
+google-services-*.json
+GoogleService-Info-*.plist
+# android/app/google-services.json
+# ios/**/GoogleService-Info.plist

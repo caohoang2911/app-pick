@@ -1,4 +1,3 @@
-
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,13 +19,16 @@ type Response = { error: string } & {
   }[];
 };
 
-const suggestStoreEmployeesByKeyword = async (keyword?: string): Promise<Response> => {
-
+const suggestStoreEmployeesByKeyword = async (
+  keyword?: string,
+): Promise<Response> => {
   const params = {
     keyword,
   };
 
-  return await axiosClient.get('app-pick/suggestStoreEmployeesByKeyword', { params });
+  return await axiosClient.get('app-pick/suggestStoreEmployeesByKeyword', {
+    params,
+  });
 };
 
 export const useSuggestStoreEmployeesByKeyword = (keyword?: string) =>
@@ -35,5 +37,5 @@ export const useSuggestStoreEmployeesByKeyword = (keyword?: string) =>
     queryFn: () => {
       return suggestStoreEmployeesByKeyword(keyword);
     },
-    enabled: !!keyword
+    enabled: !!keyword,
   });

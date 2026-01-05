@@ -1,8 +1,8 @@
-import { useEffect } from "react";
-import { queryClient } from "../api/shared";
-import { signOut, useAuth } from "../core";
-import { useAppState } from "../core/hooks/useAppState";
-import { isTimestampExpired } from "../core/utils/moment";
+import { useEffect } from 'react';
+import { queryClient } from '../api/shared';
+import { signOut, useAuth } from '../core';
+import { useAppState } from '../core/hooks/useAppState';
+import { isTimestampExpired } from '../core/utils/moment';
 
 export const AppStateEffect = () => {
   const appState = useAppState();
@@ -11,15 +11,15 @@ export const AppStateEffect = () => {
   const isExpired = expired && isTimestampExpired(expired);
 
   useEffect(() => {
-    if (appState === 'active') {  
+    if (appState === 'active') {
       queryClient.invalidateQueries({
-        predicate: () => true
+        predicate: () => true,
       });
-      if(isExpired) {
+      if (isExpired) {
         signOut();
       }
-    }  
-  }, [appState, isExpired]);  
-  
+    }
+  }, [appState, isExpired]);
+
   return null;
 };

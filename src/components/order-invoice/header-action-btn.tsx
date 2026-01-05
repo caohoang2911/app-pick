@@ -3,11 +3,15 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { ORDER_STATUS } from '~/src/contants/order';
+import { ORDER_STATUS } from '@/core/constants/order';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';
-import { isEnableScanToDelivery } from '~/src/core/utils/order';
+import {
+  getScanToDeliveryInfo,
+  isEnableScanToDelivery,
+  isHiddenScanToDelivery,
+} from '~/src/core/utils/order';
 import SBottomSheet from '../SBottomSheet';
 import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 
@@ -15,14 +19,14 @@ const HeaderActionBtn = () => {
   const [visible, setVisible] = useState(false);
   const [deliverySelectionVisible, setDeliverySelectionVisible] =
     useState(false);
-  const { code } = useLocalSearchParams<{ code: string }>();
+  const { code: orderCode } = useLocalSearchParams<{ code: string }>();
 
   const {
     isDriver,
     handleScanBagDelivery,
     handleAssignOrder,
     handleUnassignOrder,
-  } = useDriverOrderActions(code);
+  } = useDriverOrderActions(orderCode);
 
   const orderInvoice = useOrderInvoice.use.orderInvoice();
   const { header } = orderInvoice || {};
@@ -57,8 +61,10 @@ const HeaderActionBtn = () => {
         : [
             {
               key: 'scan-bag',
-              title: 'Scan túi - Giao hàng tại siêu thị',
+              title: getScanToDeliveryInfo({ deliveryType, status, orderCode })
+                ?.title,
               enabled: isEnableScanToDelivery({ status }),
+              hidden: isHiddenScanToDelivery({ deliveryType }),
               icon: <QRScanLine />,
             },
             {
@@ -71,7 +77,7 @@ const HeaderActionBtn = () => {
               ),
             },
           ],
-    [code, isShipping, isStorePackaged]
+    [orderCode, isShipping, isStorePackaged, isDriver, deliveryType, status],
   );
 
   const renderItem = ({

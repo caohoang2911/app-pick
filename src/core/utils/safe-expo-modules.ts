@@ -55,7 +55,12 @@ export class SafePromise<T> {
   private _isSettled = false;
   private _promise: Promise<T>;
 
-  constructor(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void) {
+  constructor(
+    executor: (
+      resolve: (value: T | PromiseLike<T>) => void,
+      reject: (reason?: any) => void,
+    ) => void,
+  ) {
     this._promise = new Promise<T>((resolve, reject) => {
       const safeResolve = (value: T | PromiseLike<T>) => {
         if (!this._isSettled) {
@@ -84,14 +89,23 @@ export class SafePromise<T> {
   }
 
   then<TResult1 = T, TResult2 = never>(
-    onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
-    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+    onfulfilled?:
+      | ((value: T) => TResult1 | PromiseLike<TResult1>)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+      | undefined
+      | null,
   ): Promise<TResult1 | TResult2> {
     return this._promise.then(onfulfilled, onrejected);
   }
 
   catch<TResult = never>(
-    onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null
+    onrejected?:
+      | ((reason: any) => TResult | PromiseLike<TResult>)
+      | undefined
+      | null,
   ): Promise<T | TResult> {
     return this._promise.catch(onrejected);
   }
@@ -109,7 +123,10 @@ export class SafePromise<T> {
  * Create a safe promise that prevents PromiseAlreadySettledException
  */
 export const createSafePromise = <T>(
-  executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void
+  executor: (
+    resolve: (value: T | PromiseLike<T>) => void,
+    reject: (reason?: any) => void,
+  ) => void,
 ): SafePromise<T> => {
   return new SafePromise(executor);
 };
@@ -159,13 +176,16 @@ export const safeAppContextOperations = {
   /**
    * Safely get JSI interop with retry mechanism
    */
-  getJsiInteropWithRetry: (maxRetries: number = 3, delay: number = 100): Promise<any> => {
+  getJsiInteropWithRetry: (
+    maxRetries: number = 3,
+    delay: number = 100,
+  ): Promise<any> => {
     return new Promise((resolve, reject) => {
       let attempts = 0;
 
       const tryGetJsiInterop = () => {
         attempts++;
-        
+
         try {
           const jsiInterop = safeGetJsiInterop();
           if (jsiInterop) {
@@ -179,13 +199,15 @@ export const safeAppContextOperations = {
         if (attempts < maxRetries) {
           setTimeout(tryGetJsiInterop, delay);
         } else {
-          reject(new Error(`Failed to get jsiInterop after ${maxRetries} attempts`));
+          reject(
+            new Error(`Failed to get jsiInterop after ${maxRetries} attempts`),
+          );
         }
       };
 
       tryGetJsiInterop();
     });
-  }
+  },
 };
 
 /**
@@ -204,7 +226,7 @@ export const safeModuleInitialization = {
 
       // Check critical modules
       const criticalModules = ['jsiInterop'];
-      
+
       for (const moduleName of criticalModules) {
         if (!appContext[moduleName]) {
           console.warn(`Critical module ${moduleName} not initialized`);
@@ -225,7 +247,7 @@ export const safeModuleInitialization = {
   waitForModuleInitialization: (timeout: number = 5000): Promise<boolean> => {
     return new Promise((resolve) => {
       const startTime = Date.now();
-      
+
       const checkInitialization = () => {
         if (safeModuleInitialization.checkModuleInitialization()) {
           resolve(true);
@@ -243,7 +265,7 @@ export const safeModuleInitialization = {
 
       checkInitialization();
     });
-  }
+  },
 };
 
 /**

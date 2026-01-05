@@ -1,7 +1,7 @@
 import { OrderStatus, OrderStatusValue } from './order';
 import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
-import { ORDER_DELIVERY_TYPE, ORDER_DELIVEßRY_TYPE } from '~/src/contants/order';
+import { ORDER_DELIVERY_TYPE } from '@/core/constants/order';
 
 export type DeliveryAddress = {
   city?: number;
@@ -91,7 +91,7 @@ export interface OrderDetailHeader {
   groupShippingTotalCODAmount?: number;
   groupShippingOrderCodes?: Array<string>;
   deliveryType: ORDER_DELIVERY_TYPE;
-  handoverStatus?: "HANDOVER_TO_CUSTOMER" | "HANDOVER_TO_SHIPPER" | "DISABLE";
+  handoverStatus?: 'HANDOVER_TO_CUSTOMER' | 'HANDOVER_TO_SHIPPER' | 'DISABLE';
   printedBill?: string;
   taxAuthorityCode?: string;
   promotions?: Array<any>;
@@ -130,7 +130,7 @@ export interface OrderDetailHeader {
     penceAmount?: number;
     pointAmount?: number;
   };
-  ignorePrintInvoiceStep?: boolean;
+  isInvoiceSupportedByAppPick?: boolean;
   payment?: {
     isPaid?: boolean;
     method?: string;

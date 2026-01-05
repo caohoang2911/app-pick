@@ -28,7 +28,7 @@ const badgeVariants = cva(
     defaultVariants: {
       variant: 'default',
     },
-  }
+  },
 );
 
 const badgeTextVariants = cva('font-medium text-center', {
@@ -58,10 +58,11 @@ const badgeTextVariants = cva('font-medium text-center', {
 });
 
 export interface BadgeProps
-  extends React.ComponentPropsWithoutRef<typeof View>,
+  extends
+    React.ComponentPropsWithoutRef<typeof View>,
     VariantProps<typeof badgeVariants> {
   extraLabel?: string | React.ReactNode;
-  icon?: React.ReactNode,
+  icon?: React.ReactNode;
   label: string | React.ReactNode;
   labelClasses?: string;
 }
@@ -81,7 +82,11 @@ function Badge({
       {...props}
     >
       {icon}
-      <Text numberOfLines={1} ellipsizeMode='tail' className={`${badgeTextVariants({ variant })} ${labelClasses || "text-xs"}`}>
+      <Text
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        className={`${badgeTextVariants({ variant })} ${labelClasses || 'text-xs'}`}
+      >
         {label} {extraLabel}
       </Text>
     </View>

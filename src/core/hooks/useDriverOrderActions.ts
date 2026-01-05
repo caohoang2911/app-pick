@@ -6,6 +6,7 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/useAssignOrderShippingToMe';
 import { useDriverCancelMyOrderShipping } from '~/src/api/app-pick-driver/useDriverCancelMyOrderShipping';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
+import { NavigationHelpers } from '~/src/core/utils/navigation';
 
 export const useDriverOrderActions = (orderCode: string) => {
   const isDriver = useRoleDriver();
@@ -27,15 +28,15 @@ export const useDriverOrderActions = (orderCode: string) => {
   });
 
   const handleOrderInfo = () => {
-    router.push(`orders/order-invoice/${orderCode}`);
+    NavigationHelpers.toOrderInvoice(orderCode);
   };
 
   const handlePickOrder = () => {
-    router.push({ pathname: `orders/order-pick/${orderCode}` });
+    NavigationHelpers.toOrderPick(orderCode);
   };
 
   const handleScanBagDelivery = () => {
-    router.push(`orders/order-scan-to-delivery/${orderCode}`);
+    NavigationHelpers.toOrderScanToDelivery(orderCode);
   };
 
   const handleAssignOrder = () => {
@@ -45,7 +46,7 @@ export const useDriverOrderActions = (orderCode: string) => {
       onConfirm: () => {
         hideAlert();
         setLoading(true);
-        assignOrderToMe({ status: "ENABLE", orderCode });
+        assignOrderToMe({ status: 'ENABLE' });
       },
     });
   };
@@ -62,7 +63,10 @@ export const useDriverOrderActions = (orderCode: string) => {
     });
   };
 
-  const handleChangeDeliveryMethod = (onClose: () => void, setShowDeliveryTypeBottomSheet: (show: boolean) => void) => {
+  const handleChangeDeliveryMethod = (
+    onClose: () => void,
+    setShowDeliveryTypeBottomSheet: (show: boolean) => void,
+  ) => {
     onClose();
     setTimeout(() => {
       setShowDeliveryTypeBottomSheet(true);

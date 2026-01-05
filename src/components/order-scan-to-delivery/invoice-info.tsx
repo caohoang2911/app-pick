@@ -2,7 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ORDER_STATUS_BADGE_VARIANT } from '~/src/contants/order';
+import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useConfig } from '~/src/core/store/config';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { getConfigNameById } from '~/src/core/utils/config';
@@ -103,12 +103,12 @@ const InvoiceInfo = () => {
       </View>
       <View className="flex gap-2 mt-3">
         <RowInfo
-          label={
+          label={<Text className="text-orange-500">COD</Text>}
+          value={
             <Text className="text-orange-500">
-              COD
+              {formatCurrency(codAmount, { unit: true })}
             </Text>
           }
-          value={<Text className="text-orange-500">{formatCurrency(codAmount, { unit: true })}</Text>}
         />
         <RowInfo label="Khách hàng" value={customer?.name || ''} />
         <RowInfo label="SDT" value={customer?.phone || ''} />

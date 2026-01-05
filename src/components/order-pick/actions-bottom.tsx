@@ -5,22 +5,31 @@ import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { toggleScanQrCodeProduct, useOrderPick } from '~/src/core/store/order-pick';
+import {
+  toggleScanQrCodeProduct,
+  useOrderPick,
+} from '~/src/core/store/order-pick';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Product } from '~/src/types/product';
 import PickedCompleteConfirmation from './picked-complete-confirmation';
 import { FontAwesome } from '@expo/vector-icons';
 
-const StartPickingButton = ({ onPress, loading }: { onPress: () => void; loading: boolean }) => (
-  <Button
-    loading={loading}
-    onPress={onPress}
-    label="Bắt đầu pick"
-  />
-);
+const StartPickingButton = ({
+  onPress,
+  loading,
+}: {
+  onPress: () => void;
+  loading: boolean;
+}) => <Button loading={loading} onPress={onPress} label="Bắt đầu pick" />;
 
-const ScanButton = ({ onPress, loading }: { onPress: () => void; loading: boolean }) => (
+const ScanButton = ({
+  onPress,
+  loading,
+}: {
+  onPress: () => void;
+  loading: boolean;
+}) => (
   <Button
     loading={loading}
     onPress={onPress}
@@ -29,13 +38,13 @@ const ScanButton = ({ onPress, loading }: { onPress: () => void; loading: boolea
   />
 );
 
-const CompletePickingButton = ({ onPress, loading }: { onPress: () => void; loading: boolean }) => (
-  <Button
-    loading={loading}
-    onPress={onPress}
-    label="Đã pick xong"
-  />
-);
+const CompletePickingButton = ({
+  onPress,
+  loading,
+}: {
+  onPress: () => void;
+  loading: boolean;
+}) => <Button loading={loading} onPress={onPress} label="Đã pick xong" />;
 
 const ActionsBottom = () => {
   const [visible, setVisible] = useState(false);
@@ -61,14 +70,14 @@ const ActionsBottom = () => {
         hideAlert();
       },
       isHideCancelButton: true,
-    })
-  }
+    });
+  };
 
   const { code } = useGlobalSearchParams<{ code: string }>();
 
   const orderPickProducts = useOrderPick.use.orderPickProducts();
 
-  const orderPickProductsFlat  = getOrderPickProductsFlat(orderPickProducts) 
+  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
 
   const { shipping } = orderDetail?.header || {};
@@ -76,9 +85,11 @@ const ActionsBottom = () => {
   const { status } = header || {};
 
   const canCompletePick = useMemo(() => {
-    return orderPickProductsFlat.filter((product: Product) => {
-      return !product.pickedTime;
-    })?.length === 0;
+    return (
+      orderPickProductsFlat.filter((product: Product) => {
+        return !product.pickedTime;
+      })?.length === 0
+    );
   }, [orderPickProductsFlat]);
 
   const isShowScanButton = () => {
@@ -88,22 +99,31 @@ const ActionsBottom = () => {
     return true;
   };
 
-  const title = status !== 'STORE_PICKING' ? 'Xác nhận bắt đầu pick hàng' : 'Xác nhận đã pick hàng xong';
-  const message = status !== 'STORE_PICKING' ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng' : '';
+  const title =
+    status !== 'STORE_PICKING'
+      ? 'Xác nhận bắt đầu pick hàng'
+      : 'Xác nhận đã pick hàng xong';
+  const message =
+    status !== 'STORE_PICKING'
+      ? 'Nút scan sản phẩm sẽ được bật khi xác nhận pick hàng'
+      : '';
 
-  const productFulfillError = orderPickProductsFlat.filter((item: Product) => Number(item.quantity || 0) !== Number(item.pickedQuantity || 0));
+  const productFulfillError = orderPickProductsFlat.filter(
+    (item: Product) =>
+      Number(item.quantity || 0) !== Number(item.pickedQuantity || 0),
+  );
 
   const onConfirm = () => {
     hideAlert();
     if (status === 'STORE_PICKING') {
-      setOrderStatusPacked({ orderCode: code});
+      setOrderStatusPacked({ orderCode: code });
     } else {
       setOrderStatusPicking({ orderCode: code });
     }
-  }
+  };
 
   const handlePick = () => {
-    if(isShowScanButton()) {
+    if (isShowScanButton()) {
       toggleScanQrCodeProduct(true);
       return;
     }
@@ -111,9 +131,9 @@ const ActionsBottom = () => {
       actionRef.current?.present();
       setVisible(true);
     } else {
-      showAlert({title, message, onConfirm: () => onConfirm()});
+      showAlert({ title, message, onConfirm: () => onConfirm() });
     }
-  }
+  };
 
   const renderButton = () => {
     const loading = isLoadingOrderStatusPacked || isLoadingOrderStatusPicking;
@@ -135,9 +155,7 @@ const ActionsBottom = () => {
   if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;
   return (
     <View className="border-t border-gray-200 pb-4">
-      <View className="px-4 py-3 bg-white ">
-        {renderButton()}
-      </View>
+      <View className="px-4 py-3 bg-white ">{renderButton()}</View>
       <PickedCompleteConfirmation
         visible={visible}
         setVisible={setVisible}
@@ -150,4 +168,3 @@ const ActionsBottom = () => {
 };
 
 export default ActionsBottom;
-

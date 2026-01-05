@@ -11,13 +11,16 @@ import React, {
 } from 'react';
 import { Platform, Text, View } from 'react-native';
 
+import {
+  PRODUCT_ACTIONS,
+  PRODUCT_PICKED_ERROR_TYPES,
+} from '@/core/constants/product';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { FontAwesome } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
 import { useConfig } from '~/src/core/store/config';
-import { PRODUCT_PICKED_ERROR_TYPES, PRODUCT_ACTIONS } from '@/contants/product';
 import {
   setActionProduct,
   setCurrentId,
@@ -59,7 +62,7 @@ const DecrementButton = memo(
         </View>
       </View>
     </TouchableOpacity>
-  )
+  ),
 );
 
 const IncrementButton = memo(
@@ -73,7 +76,7 @@ const IncrementButton = memo(
         </View>
       </View>
     </TouchableOpacity>
-  )
+  ),
 );
 
 // ProductUnit Component
@@ -101,7 +104,7 @@ const ScanButton = memo(
         <FontAwesome name="qrcode" size={18} color="white" />
       </View>
     </TouchableOpacity>
-  )
+  ),
 );
 
 // QuantitySection Component
@@ -117,12 +120,15 @@ const QuantitySection = memo(
     setQuantityFromBarcode,
     toggleScanQrCodeProduct,
   }: any) => {
-    const editable = useMemo(() => action !== PRODUCT_ACTIONS.OUT_OF_STOCK, [action]);
+    const editable = useMemo(
+      () => action !== PRODUCT_ACTIONS.OUT_OF_STOCK,
+      [action],
+    );
 
     const handleDecrement = useCallback(() => {
       // setQuantityFromBarcode(0);
       const valueChange = roundToDecimalDecrease(
-        Number(values?.pickedQuantity || 0)
+        Number(values?.pickedQuantity || 0),
       );
       if (Number(valueChange) < 0) {
         setFieldValue('pickedQuantity', 0);
@@ -138,7 +144,7 @@ const QuantitySection = memo(
       if (!editable) return;
       // setQuantityFromBarcode(0);
       const valueChange = roundToDecimalIncrease(
-        Number(values?.pickedQuantity || 0)
+        Number(values?.pickedQuantity || 0),
       );
       if (Number(valueChange) < 0) {
         setFieldValue('pickedQuantity', 0);
@@ -153,7 +159,7 @@ const QuantitySection = memo(
     const handleQRScan = useCallback(() => {
       toggleScanQrCodeProduct(true);
       setQuantityFromBarcode(
-        Math.floor(Number(values?.pickedQuantity || 0) * 1000) / 1000
+        Math.floor(Number(values?.pickedQuantity || 0) * 1000) / 1000,
       );
       setScanMoreProduct(true);
     }, [
@@ -177,7 +183,7 @@ const QuantitySection = memo(
           setFieldValue('pickedErrorType', null);
         }
       },
-      [quantity, setFieldValue]
+      [quantity, setFieldValue],
     );
 
     const errorMessage = useMemo(() => {
@@ -229,7 +235,7 @@ const QuantitySection = memo(
         <Text className="text-red-500">{errorMessage}</Text>
       </View>
     );
-  }
+  },
 );
 
 // ReasonDropdown Component
@@ -254,7 +260,7 @@ const ReasonDropdown = memo(
         setFieldValue('pickedErrorType', value);
         setErrors({});
       },
-      [setFieldValue, setErrors]
+      [setFieldValue, setErrors],
     );
 
     const handleClear = useCallback(() => {
@@ -264,13 +270,14 @@ const ReasonDropdown = memo(
 
     const productPickedErrorsWithUnit = useMemo(() => {
       // return productPickedErrorTypes.map((item: any) => item.id !== 'INCORRECT_ORDERED_WEIGHT');
-      return productPickedErrorTypes.map((item: any) =>
-        item.id === 'INCORRECT_ORDERED_WEIGHT'
-          ? { ...item, disabled: toLower(unit) !== 'kg' }
-          : item
-      )?.reverse();
+      return productPickedErrorTypes
+        .map((item: any) =>
+          item.id === 'INCORRECT_ORDERED_WEIGHT'
+            ? { ...item, disabled: toLower(unit) !== 'kg' }
+            : item,
+        )
+        ?.reverse();
     }, [productPickedErrorTypes, unit]);
-    
 
     return (
       <SDropdown
@@ -286,7 +293,7 @@ const ReasonDropdown = memo(
         onClear={handleClear}
       />
     );
-  }
+  },
 );
 
 // Pack input
@@ -295,7 +302,7 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
     (name: string, value: string) => {
       setFieldValue(name, parseInt(value || '0'));
     },
-    [setFieldValue]
+    [setFieldValue],
   );
 
   const handleDecrement = useCallback(
@@ -308,7 +315,7 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
 
       setFieldValue(name, Number(valueChange));
     },
-    [setFieldValue, values]
+    [setFieldValue, values],
   );
 
   const handleIncrement = useCallback(
@@ -321,7 +328,7 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
 
       setFieldValue(name, Number(valueChange));
     },
-    [setFieldValue, values]
+    [setFieldValue, values],
   );
 
   return (
@@ -329,7 +336,9 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
       <View className="flex-1">
         <Input
           label={
-            <Text className="font-medium text-gray-500" numberOfLines={1}>Thùng nguyên kiện</Text>
+            <Text className="font-medium text-gray-500" numberOfLines={1}>
+              Thùng nguyên kiện
+            </Text>
           }
           placeholder="Nhập số lượng"
           value={values?.fullBoxQuantity?.toString()}
@@ -358,7 +367,11 @@ const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
       </View>
       <View className="flex-1">
         <Input
-          label={<Text className="font-medium text-gray-500" numberOfLines={1}>Thùng gom lẻ</Text>}
+          label={
+            <Text className="font-medium text-gray-500" numberOfLines={1}>
+              Thùng gom lẻ
+            </Text>
+          }
           placeholder="Nhập số lượng"
           value={values?.openedBoxQuantity?.toString()}
           onChangeText={(value: string) =>
@@ -409,12 +422,13 @@ const FormContent = memo(
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
       setFieldValue(
         'fullBoxQuantity',
-        (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity || 0
+        (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity ||
+          0,
       );
       setFieldValue(
         'openedBoxQuantity',
         (currentProduct as Product)?.pickedExtraQuantities?.openedBoxQuantity ||
-          0
+          0,
       );
     }, []);
 
@@ -451,7 +465,7 @@ const FormContent = memo(
         <Button onPress={handleSubmit} label={'Xác nhận'} disabled={isError} />
       </View>
     );
-  }
+  },
 );
 
 // Main Component
@@ -470,7 +484,10 @@ const InputAmountPopup = () => {
       if (currentPickedProduct) {
         setOrderPickProduct(currentPickedProduct);
         setReplacePickedProductId(currentPickedProduct?.id);
-        if (!currentPickedProduct?.pickedQuantity && currentPickedProduct?.tags?.includes('REPLACEABLE')) {
+        if (
+          !currentPickedProduct?.pickedQuantity &&
+          currentPickedProduct?.tags?.includes('REPLACEABLE')
+        ) {
           showAlert({
             title: 'Thông báo',
             message: 'Sản phẩm hết hàng, bạn có muốn thay thế sản phẩm?',
@@ -484,12 +501,12 @@ const InputAmountPopup = () => {
     },
     (error: string) => {
       setQuantityFromBarcode(0);
-    }
+    },
   );
   const config = useConfig.use.config();
   const productPickedErrorTypes = useMemo(
     () => config?.productPickedErrorTypes || [],
-    [config]
+    [config],
   );
 
   const inputBottomSheetRef = useRef<any>(null);
@@ -501,7 +518,7 @@ const InputAmountPopup = () => {
   // Memoize expensive operations
   const orderPickProductsFlat = useMemo(
     () => getOrderPickProductsFlat(orderPickProducts),
-    [orderPickProducts]
+    [orderPickProducts],
   );
 
   // Find current product - memoized to avoid recalculation on every render
@@ -511,14 +528,14 @@ const InputAmountPopup = () => {
         ? product.id === currentId
         : (barcodeCondition(barcodeScanSuccess, product.refBarcodes) ||
             product.id === currentId) &&
-          !product.pickedTime
+          !product.pickedTime,
     );
 
     if (isEmpty(product)) {
       product = orderPickProductsFlat.find(
         (product: Product) =>
           barcodeCondition(barcodeScanSuccess, product.refBarcodes) ||
-          product.id === currentId
+          product.id === currentId,
       );
     }
 
@@ -532,7 +549,10 @@ const InputAmountPopup = () => {
     orderQuantity: 0,
   };
   const displayPickedQuantity = useMemo(() => {
-    if (isNumber(quantityFromBarcode) && action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
+    if (
+      isNumber(quantityFromBarcode) &&
+      action === PRODUCT_ACTIONS.OUT_OF_STOCK
+    ) {
       return 0;
     }
     return quantityFromBarcode || pickedQuantity || 0;
@@ -543,9 +563,16 @@ const InputAmountPopup = () => {
   const renderTitle = useMemo(
     () => (
       <View className="flex justify-between gap-1">
-        <Text numberOfLines={1} className="font-semibold">
-          {productName}
-        </Text>
+        <View className="flex flex-row items-center gap-1">
+          {currentProduct?.tags?.includes('GIFT') && (
+            <View className="mb-0.5">
+              <Text>🎁 </Text>
+            </View>
+          )}
+          <Text numberOfLines={1} className="font-semibold">
+            {productName}
+          </Text>
+        </View>
         <Badge
           className="self-start"
           label={`SL đặt: ${currentProduct?.quantity} ${
@@ -554,16 +581,24 @@ const InputAmountPopup = () => {
         />
       </View>
     ),
-    [productName, currentProduct?.quantity, currentProduct?.unit]
+    [
+      productName,
+      currentProduct?.quantity,
+      currentProduct?.unit,
+      currentProduct?.tags,
+    ],
   );
 
   const renderTopHeader = useMemo(
     () => (
       <View className="flex-row items-center justify-center mb-2 -mt-5">
-        <SImage source={currentProduct?.image} style={{ width: 180, height: 180, borderRadius: 8 }} />
+        <SImage
+          source={currentProduct?.image}
+          style={{ width: 180, height: 180, borderRadius: 8 }}
+        />
       </View>
     ),
-    [currentProduct?.image]
+    [currentProduct?.image],
   );
 
   // Cleanup on unmount
@@ -583,6 +618,18 @@ const InputAmountPopup = () => {
   const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
 
   // Memoized callbacks
+  const reset = useCallback(() => {
+    toggleShowAmountInput(false);
+    setCurrentId(null);
+    setQuantityFromBarcode(0);
+    setActionProduct(null);
+  }, [
+    toggleShowAmountInput,
+    setCurrentId,
+    setQuantityFromBarcode,
+    setActionProduct,
+  ]);
+
   const onSubmit = useCallback(
     (values: any) => {
       if (!productName) return;
@@ -608,15 +655,17 @@ const InputAmountPopup = () => {
       setOrderTemToPicked({ pickedItem, orderCode: code });
       reset();
     },
-    [productName, currentProduct, barcodeScanSuccess, quantity, code, isUnitBox]
+    [
+      productName,
+      currentProduct,
+      barcodeScanSuccess,
+      quantity,
+      code,
+      isUnitBox,
+      setOrderTemToPicked,
+      reset,
+    ],
   );
-
-  const reset = useCallback(() => {
-    toggleShowAmountInput(false);
-    setCurrentId(null);
-    setQuantityFromBarcode(0);
-    setActionProduct(null);
-  }, []);
 
   // Memoize initial values
   const initialValues = useMemo(
@@ -633,7 +682,7 @@ const InputAmountPopup = () => {
             ?.openedBoxQuantity || 0,
       }),
     }),
-    [displayPickedQuantity, currentProduct, isUnitBox]
+    [displayPickedQuantity, currentProduct, isUnitBox],
   );
 
   return (
@@ -650,21 +699,35 @@ const InputAmountPopup = () => {
         useEffect(() => {
           if (action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
             setFieldValue('pickedQuantity', 0);
-            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK);
+            setFieldValue(
+              'pickedErrorType',
+              PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK,
+            );
           } else if (action === PRODUCT_ACTIONS.LOW_QUALITY) {
-            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE);
+            setFieldValue(
+              'pickedErrorType',
+              PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE,
+            );
           } else if (action === PRODUCT_ACTIONS.NEAR_EXPIRY) {
-            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED);
+            setFieldValue(
+              'pickedErrorType',
+              PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED,
+            );
           } else if (action === PRODUCT_ACTIONS.EXPIRED_ONLINE) {
-            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE);
+            setFieldValue(
+              'pickedErrorType',
+              PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE,
+            );
           } else if (action === PRODUCT_ACTIONS.INCORRECT_STOCK) {
-            setFieldValue('pickedErrorType', PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK);
+            setFieldValue(
+              'pickedErrorType',
+              PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK,
+            );
           } else {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());
           }
         }, [action, setFieldValue, isShowAmountInput]);
 
-        
         return (
           <SBottomSheet
             topHeader={renderTopHeader}

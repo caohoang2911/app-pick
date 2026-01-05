@@ -9,15 +9,21 @@ type Variables = {
 type Response = { error: string } & {};
 
 const cancelMyOrderShipping = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick-driver/cancelMyOrderShipping', params);
+  return await axiosClient.post(
+    'app-pick-driver/cancelMyOrderShipping',
+    params,
+  );
 };
 
-export const useDriverCancelMyOrderShipping = (cb?: () => void, cbError?: (error: string) => void) => {
+export const useDriverCancelMyOrderShipping = (
+  cb?: () => void,
+  cbError?: (error: string) => void,
+) => {
   return useMutation({
     mutationFn: (params: Variables) => cancelMyOrderShipping(params),
     onSuccess: (data: Response) => {
       setLoading(false);
-      if(!data.error) {
+      if (!data.error) {
         cb?.();
       } else {
         cbError?.(data.error);

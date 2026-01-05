@@ -21,7 +21,9 @@ function getCurrentVersion() {
 // Tăng version
 function incrementVersion(currentVersion) {
   try {
-    const [major, minor, patch] = currentVersion.split('.').map(num => parseInt(num, 10));
+    const [major, minor, patch] = currentVersion
+      .split('.')
+      .map((num) => parseInt(num, 10));
     if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
       return '1.0.0';
     }
@@ -48,4 +50,4 @@ function main() {
   updateVersionFile(newVersion);
 }
 
-main(); 
+main();

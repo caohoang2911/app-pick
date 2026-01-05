@@ -30,12 +30,19 @@ function PrintPreview() {
     bagCode?: string;
   }>();
 
-  const findBagLabel = orderBags[type as OrderBagType]?.find((item: any) => item.code === bagCode);
-  const orderBagsMerged = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];
+  const findBagLabel = orderBags[type as OrderBagType]?.find(
+    (item: any) => item.code === bagCode,
+  );
+  const orderBagsMerged = [
+    ...orderBags.DRY,
+    ...orderBags.FRESH,
+    ...orderBags.FROZEN,
+  ];
   const bagLabelsPrint = bagCode ? [{ ...findBagLabel }] : orderBagsMerged;
 
-  const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(() => {
-  });
+  const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(
+    () => {},
+  );
 
   const refClient = useRef<any>(null);
   const hasPrintedRef = useRef<boolean>(false);
@@ -118,7 +125,6 @@ function PrintPreview() {
     } catch (err) {
       setConnected(false);
     }
-
   }, [host]);
 
   //----------------------------------------------------
@@ -147,14 +153,17 @@ function PrintPreview() {
         const printData = new Uint8Array(printArrayData[i]);
 
         await new Promise((resolve) => {
-          setTimeout(() => {
-            if (!isCancelledRef.current && refClient.current) {
-              try {
-                refClient.current.write(printData);
-              } catch {}
-            }
-            resolve(true);
-          }, PRINT_DELAY * (i + 1));
+          setTimeout(
+            () => {
+              if (!isCancelledRef.current && refClient.current) {
+                try {
+                  refClient.current.write(printData);
+                } catch {}
+              }
+              resolve(true);
+            },
+            PRINT_DELAY * (i + 1),
+          );
         });
       }
 

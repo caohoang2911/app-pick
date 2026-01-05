@@ -1,6 +1,5 @@
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { router, useGlobalSearchParams } from 'expo-router';
@@ -13,20 +12,22 @@ import React, {
   useState,
 } from 'react';
 
+import { ORDER_STATUS } from '@/core/constants/order';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { ORDER_STATUS } from '~/src/contants/order';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { BillLine, PrintLine, QRScanLine } from '~/src/core/svgs';
-import { isEnableScanToDelivery } from '~/src/core/utils/order';
+import {
+  getScanToDeliveryInfo,
+  isEnableScanToDelivery,
+  isHiddenScanToDelivery,
+} from '~/src/core/utils/order';
 import { Badge } from '../Badge';
 import SBottomSheet from '../SBottomSheet';
-import DeliverySelectionBottomsheet from '../shared/delivery-selection-bottomsheet';
 import EmployeeSelection from '../shared/EmployeeSelection';
-import OrderDeliveryTypeBottomSheet from '../shared/order-delivery-type-bottom-sheet';
-import OrderHistoryBottomSheet from '../shared/order-history-bottom-sheet';
+import OrderActionsSubmenuBottomSheet from '../shared/order-actions-submenu-bottom-sheet';
 
 type Action = {
   key: string;
@@ -34,6 +35,7 @@ type Action = {
   enabled?: boolean;
   icon: React.ReactNode;
   allowSubmenu?: boolean;
+  hidden?: boolean;
 };
 
 type Props = {};
@@ -41,11 +43,7 @@ type Props = {};
 const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
   const { code } = useGlobalSearchParams<{ code: string }>();
   const [visible, setVisible] = useState(false);
-  const [deliverySelectionVisible, setDeliverySelectionVisible] =
-    useState(false);
-  const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
-    useState(false);
-  const [orderHistoryVisible, setOrderHistoryVisible] = useState(false);
+  const [submenuVisible, setSubmenuVisible] = useState(false);
 
   const employeeSelectionRef = useRef<any>();
 
@@ -67,18 +65,14 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
     });
   });
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        present: () => {
-          actionRef.current?.present();
-          setVisible(!visible);
-        },
-      };
-    },
-    []
-  );
+  useImperativeHandle(ref, () => {
+    return {
+      present: () => {
+        actionRef.current?.present();
+        setVisible(!visible);
+      },
+    };
+  }, []);
 
   const renderItem = ({
     onClickAction,
@@ -115,7 +109,10 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         router.push(`orders/order-invoice/${code}`);
         break;
       case 'scan-bag':
-        router.push(`orders/order-scan-to-delivery/${code}`);
+        router.push(
+          getScanToDeliveryInfo({ deliveryType, status, orderCode: code })
+            ?.route || '',
+        );
         break;
       case 'assign-order-to-picker':
         employeeSelectionRef.current?.present();
@@ -138,14 +135,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
           });
         }
         break;
-      case 'change-delivery-type':
-        setOrderDeliveryTypeVisible(true);
-        break;
-      case 'delivery-order':
-        setDeliverySelectionVisible(true);
-        break;
-      case 'history-order':
-        setOrderHistoryVisible(true);
+      case 'more-actions':
+        setSubmenuVisible(true);
         break;
       default:
         break;
@@ -188,7 +179,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         orderCode: code,
       });
     },
-    [code]
+    [code, assignOrderToPicker],
   );
 
   const actions: Array<Action> = useMemo(
@@ -213,31 +204,21 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       },
       {
         key: 'scan-bag',
-        title: 'Scan túi - Giao hàng tại siêu thị',
+        title: getScanToDeliveryInfo({ deliveryType, status, orderCode: code })
+          ?.title,
         enabled: isEnableScanToDelivery({ status }),
+        hidden: isHiddenScanToDelivery({ deliveryType }),
         icon: <QRScanLine />,
       },
       {
-        key: 'change-delivery-type',
-        title: 'Đổi phương thức giao hàng',
+        key: 'more-actions',
+        title: 'Thao tác khác',
         enabled: true,
-        icon: <Ionicons name="swap-horizontal" size={24} color="black" />,
-      },
-      {
-        key: 'history-order',
-        title: 'Lịch sử đơn hàng',
-        enabled: true,
-        icon: <MaterialIcons name="history" size={24} color="black" />,
-      },
-      {
-        key: 'delivery-order',
-        title: 'Vận chuyển',
-        enabled: deliveryType !== 'CUSTOMER_PICKUP',
         allowSubmenu: true,
-        icon: <MaterialIcons name="delivery-dining" size={24} color="black" />,
+        icon: <MaterialIcons name="more-horiz" size={24} color="black" />,
       },
     ],
-    [status, deliveryType]
+    [status, deliveryType, code],
   );
 
   return (
@@ -247,21 +228,23 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         title="Thao tác"
         extraTitle={renderExtraTitle()}
         ref={actionRef}
-        snapPoints={[520]}
+        snapPoints={[415]}
         onClose={() => {
           setVisible(false);
         }}
       >
         <View className="flex-1">
-          {actions.map((action: Action) => (
-            <React.Fragment key={action.key}>
-              {renderItem({
-                ...action,
-                onClickAction: handleClickAction,
-                enabled: action.enabled || false,
-              })}
-            </React.Fragment>
-          ))}
+          {actions
+            .filter((action: Action) => !action.hidden)
+            .map((action: Action) => (
+              <React.Fragment key={action.key}>
+                {renderItem({
+                  ...action,
+                  onClickAction: handleClickAction,
+                  enabled: action.enabled || false,
+                })}
+              </React.Fragment>
+            ))}
         </View>
       </SBottomSheet>
 
@@ -271,21 +254,13 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         selectedId={''}
         ref={employeeSelectionRef}
       />
-      <DeliverySelectionBottomsheet
-        orderDetail={orderDetail}
-        visible={deliverySelectionVisible}
-        setVisible={setDeliverySelectionVisible}
-      />
-      <OrderDeliveryTypeBottomSheet
-        setVisible={setOrderDeliveryTypeVisible}
-        visible={orderDeliveryTypeVisible}
-        deliveryType={deliveryType || null}
-      />
-      
-      <OrderHistoryBottomSheet
+      <OrderActionsSubmenuBottomSheet
+        visible={submenuVisible}
+        setVisible={setSubmenuVisible}
+        deliveryType={deliveryType}
         orderCode={code}
-        setVisible={setOrderHistoryVisible}
-        visible={orderHistoryVisible}
+        status={status}
+        invoiceCode={orderDetail?.header?.invoiceCode}
       />
     </>
   );

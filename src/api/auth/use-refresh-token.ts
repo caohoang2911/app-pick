@@ -1,6 +1,6 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { removeItem } from '~/src/core/storage';
+import { removeItem, setItem } from '~/src/core/storage';
 import { setUser, useAuth } from '~/src/core/store/auth';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { setLoading } from '~/src/core/store/loading';
@@ -20,25 +20,20 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
     onSuccess: (data: any & { data: { zas: string } }) => {
       setLoading(true);
       setToken(data?.data?.zas || '');
-      removeItem('ipPrinterLabel');
-      setTimeout(() => {
-        setUserInfo({
-          ...userInfo,
-          ...data?.data
-        });
-        setTimeout(() => {
-          setUser({
-            ...userInfo,
-            ...data?.data
-          });
-          setLoading(false);
-        }, 200);
-      }, 1000);
-      if (!data.error) {
-        cb?.(data);
-      } 
+
+      setUserInfo({
+        ...userInfo,
+        ...data?.data,
+      });
+
+      setUser({
+        ...userInfo,
+        ...data?.data,
+      });
+      setLoading(false);
+      cb?.(data);
+
       setLoading(false);
     },
   });
 };
-

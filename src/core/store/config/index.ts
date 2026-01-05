@@ -2,9 +2,13 @@ import { create } from 'zustand';
 
 import { createSelectors } from '../../utils/browser';
 import { Config } from '~/src/types/config';
-import { getConfigLocalStore, getVersionLocalStore, setConfigLocalStore, setVersionLocalStore } from './utils';
+import {
+  getConfigLocalStore,
+  getVersionLocalStore,
+  setConfigLocalStore,
+  setVersionLocalStore,
+} from './utils';
 import { ConfigResponse } from '~/src/api/config/useGetConfig';
-
 
 interface ConfigState {
   config: Config | null;
@@ -32,19 +36,15 @@ const _useConfig = create<ConfigState>((set, get) => ({
         set({ config: config as unknown as Config });
       }
 
-      if(version){
+      if (version) {
         set({ version });
       }
-
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   },
 }));
 
 export const useConfig = createSelectors(_useConfig);
 
-export const setConfig = (config: ConfigResponse | undefined) => _useConfig.getState().setConfig(config as ConfigResponse);
+export const setConfig = (config: ConfigResponse | undefined) =>
+  _useConfig.getState().setConfig(config as ConfigResponse);
 export const hydrateConfig = () => _useConfig.getState().hydrateConfig();
-
-

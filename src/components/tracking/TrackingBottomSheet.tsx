@@ -1,4 +1,9 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { View, Text, ActivityIndicator, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import SBottomSheet from '../SBottomSheet';
@@ -15,7 +20,10 @@ export interface TrackingBottomSheetRef {
   dismiss: () => void;
 }
 
-const TrackingBottomSheet = forwardRef<TrackingBottomSheetRef, TrackingBottomSheetProps>((props, ref) => {
+const TrackingBottomSheet = forwardRef<
+  TrackingBottomSheetRef,
+  TrackingBottomSheetProps
+>((props, ref) => {
   const { title = 'Theo dõi đơn hàng' } = props;
   const [visible, setVisible] = useState(false);
   const [trackingUrl, setTrackingUrl] = useState<string>('');
@@ -32,7 +40,7 @@ const TrackingBottomSheet = forwardRef<TrackingBottomSheetRef, TrackingBottomShe
     dismiss: () => {
       setVisible(false);
       bottomSheetRef.current?.dismiss();
-    }
+    },
   }));
 
   const handleClose = () => {
@@ -51,7 +59,7 @@ const TrackingBottomSheet = forwardRef<TrackingBottomSheetRef, TrackingBottomShe
   return (
     <SBottomSheet
       ref={bottomSheetRef}
-      snapPoints={["90%"]}
+      snapPoints={['90%']}
       title={title}
       titleAlign="left"
       visible={visible}
@@ -82,4 +90,4 @@ const TrackingBottomSheet = forwardRef<TrackingBottomSheetRef, TrackingBottomShe
   );
 });
 
-export default TrackingBottomSheet; 
+export default TrackingBottomSheet;

@@ -23,7 +23,7 @@ class SafeAppStateManager {
 
   public initialize() {
     if (this.isInitialized) return;
-    
+
     try {
       AppState.addEventListener('change', this.handleAppStateChange);
       this.isInitialized = true;
@@ -34,8 +34,13 @@ class SafeAppStateManager {
 
   private handleAppStateChange = (nextAppState: AppStateStatus) => {
     try {
-      console.log('App state changed from', this.currentState, 'to', nextAppState);
-      
+      console.log(
+        'App state changed from',
+        this.currentState,
+        'to',
+        nextAppState,
+      );
+
       // Notify all listeners
       this.listeners.forEach((callbacks, key) => {
         try {
@@ -105,7 +110,10 @@ class SafeAppStateManager {
       if (this.isInitialized) {
         // Note: AppState.removeEventListener is deprecated, but we'll handle it safely
         try {
-          (AppState as any).removeEventListener?.('change', this.handleAppStateChange);
+          (AppState as any).removeEventListener?.(
+            'change',
+            this.handleAppStateChange,
+          );
         } catch (e) {
           // Ignore if removeEventListener is not available
         }
@@ -149,10 +157,10 @@ export const safeMemoryManagement = {
    */
   clearLargeObjects: (objects: any[]) => {
     try {
-      objects.forEach(obj => {
+      objects.forEach((obj) => {
         if (obj && typeof obj === 'object') {
           // Clear object properties
-          Object.keys(obj).forEach(key => {
+          Object.keys(obj).forEach((key) => {
             try {
               delete obj[key];
             } catch (error) {
@@ -188,7 +196,11 @@ export const safeMemoryManagement = {
   getMemoryInfo: () => {
     try {
       // Check if performance.memory is available (Chrome/WebView only)
-      if (typeof global !== 'undefined' && global.performance && (global.performance as any).memory) {
+      if (
+        typeof global !== 'undefined' &&
+        global.performance &&
+        (global.performance as any).memory
+      ) {
         const memory = (global.performance as any).memory;
         return {
           usedJSHeapSize: memory.usedJSHeapSize,
@@ -201,7 +213,7 @@ export const safeMemoryManagement = {
       console.warn('Error getting memory info:', error);
       return null;
     }
-  }
+  },
 };
 
 /**
@@ -242,7 +254,7 @@ export const safeNavigation = {
       console.warn('Error during goBack:', error);
       return false;
     }
-  }
+  },
 };
 
 /**
@@ -256,7 +268,7 @@ class SafeTimers {
    */
   setTimeout(callback: () => void, delay: number, key?: string): string {
     const timerKey = key || `timer_${Date.now()}_${Math.random()}`;
-    
+
     try {
       const timer = setTimeout(() => {
         try {
@@ -326,9 +338,13 @@ export const initializeSafeAppManagement = () => {
     }
 
     // Setup periodic memory cleanup
-    const cleanupInterval = safeTimers.setTimeout(() => {
-      safeMemoryManagement.forceGarbageCollection();
-    }, 30000, 'memory_cleanup'); // Every 30 seconds
+    const cleanupInterval = safeTimers.setTimeout(
+      () => {
+        safeMemoryManagement.forceGarbageCollection();
+      },
+      30000,
+      'memory_cleanup',
+    ); // Every 30 seconds
 
     console.log('Safe app management initialized');
   } catch (error) {

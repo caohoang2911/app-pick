@@ -1,41 +1,58 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
-import { setActionProduct, setCurrentId, setIsEditManual, setIsVisibleReplaceProduct, setSuccessForBarcodeScan, toggleShowAmountInput, useOrderPick } from '~/src/core/store/order-pick';
+import {
+  setActionProduct,
+  setCurrentId,
+  setIsEditManual,
+  setIsVisibleReplaceProduct,
+  setSuccessForBarcodeScan,
+  toggleShowAmountInput,
+  useOrderPick,
+} from '~/src/core/store/order-pick';
 import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Product } from '~/src/types/product';
-import { PRODUCT_ACTIONS, PRODUCT_ACTION_LABELS } from '~/src/contants/product';
+import {
+  PRODUCT_ACTIONS,
+  PRODUCT_ACTION_LABELS,
+} from '@/core/constants/product';
 
 const actions = [
   {
     key: PRODUCT_ACTIONS.OUT_OF_STOCK,
     title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.OUT_OF_STOCK],
-    icon: <AntDesign name="tago" size={20} color="black" />
+    icon: <AntDesign name="tago" size={20} color="black" />,
   },
   {
     key: PRODUCT_ACTIONS.LOW_QUALITY,
     title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.LOW_QUALITY],
-    icon: <AntDesign name="tago" size={20} color="black" />
+    icon: <AntDesign name="tago" size={20} color="black" />,
   },
   {
     key: PRODUCT_ACTIONS.NEAR_EXPIRY,
     title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.NEAR_EXPIRY],
-    icon: <AntDesign name="tago" size={20} color="black" />
+    icon: <AntDesign name="tago" size={20} color="black" />,
   },
   {
     key: PRODUCT_ACTIONS.EXPIRED_ONLINE,
     title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.EXPIRED_ONLINE],
-    icon: <AntDesign name="tago" size={20} color="black" />
+    icon: <AntDesign name="tago" size={20} color="black" />,
   },
   {
     key: PRODUCT_ACTIONS.INCORRECT_STOCK,
     title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.INCORRECT_STOCK],
-    icon: <AntDesign name="tago" size={20} color="black" />
+    icon: <AntDesign name="tago" size={20} color="black" />,
   },
 ];
 
@@ -61,11 +78,12 @@ const MoreActionsBtn = ({
 
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
-  
-  const currentProduct = orderPickProductsFlat.find((product: Product) => Number(product.id) === Number(id));
+
+  const currentProduct = orderPickProductsFlat.find(
+    (product: Product) => Number(product.id) === Number(id),
+  );
 
   const { tags } = currentProduct || {};
-
 
   const shouldEnableReplaceProduct = useMemo(() => {
     return tags?.includes('REPLACEABLE');
@@ -73,70 +91,75 @@ const MoreActionsBtn = ({
 
   const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
 
-  const renderItem = useMemo(() => ({
-    onClickAction,
-    key,
-    title,
-    icon,
-    enable = true,
-  }: {
-    key: string;
-    title: string | React.ReactNode;
-    icon: React.ReactNode;
-    onClickAction: (key: string) => void;
-    enable?: boolean;
-  }) => {
-    return (
-      <Pressable
-        disabled={!enable}
-        onPress={() => onClickAction?.(key)}
-        className={`flex-row flex-grow items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4 ${!enable ? 'opacity-50' : ''}`}
-      >
-        <View className="flex-row items-center gap-4">
-          {icon}
-        </View>
-        <View className="flex-1">
-          <Text className="text-gray-300">{title}</Text>
-        </View>
-      </Pressable>
-    );
-  }, []);
+  const renderItem = useMemo(
+    () =>
+      ({
+        onClickAction,
+        key,
+        title,
+        icon,
+        enable = true,
+      }: {
+        key: string;
+        title: string | React.ReactNode;
+        icon: React.ReactNode;
+        onClickAction: (key: string) => void;
+        enable?: boolean;
+      }) => {
+        return (
+          <Pressable
+            disabled={!enable}
+            onPress={() => onClickAction?.(key)}
+            className={`flex-row flex-grow items-center px-4 py-4 border border-x-0 border-t-0 border-b-1 border-gray-200 gap-4 ${!enable ? 'opacity-50' : ''}`}
+          >
+            <View className="flex-row items-center gap-4">{icon}</View>
+            <View className="flex-1">
+              <Text className="text-gray-300">{title}</Text>
+            </View>
+          </Pressable>
+        );
+      },
+    [],
+  );
 
-  const handleClickAction = useCallback((key: string) => {
-    if(key === 'edit-pick-quantity') {
-      return;
-    }
+  const handleClickAction = useCallback(
+    (key: string) => {
+      if (key === 'edit-pick-quantity') {
+        return;
+      }
 
-    if(key === 'replace-product') {
-      setIsVisibleReplaceProduct(true);
-      onReplaceProduct();
-      return;
-    }
+      if (key === 'replace-product') {
+        setIsVisibleReplaceProduct(true);
+        onReplaceProduct();
+        return;
+      }
 
-    toggleShowAmountInput(true, id);
-    setSuccessForBarcodeScan(barcode);
-    setCurrentId(id);
-    switch (key) {
-      case PRODUCT_ACTIONS.OUT_OF_STOCK:
-        setIsEditManual(true, PRODUCT_ACTIONS.OUT_OF_STOCK);
-        break;
-      case PRODUCT_ACTIONS.LOW_QUALITY:
-        setActionProduct(PRODUCT_ACTIONS.LOW_QUALITY);
-        break;
-      case PRODUCT_ACTIONS.NEAR_EXPIRY:
-        setActionProduct(PRODUCT_ACTIONS.NEAR_EXPIRY);
-        break;
-      case PRODUCT_ACTIONS.EXPIRED_ONLINE:
-        setActionProduct(PRODUCT_ACTIONS.EXPIRED_ONLINE);
-        break;
-      case PRODUCT_ACTIONS.INCORRECT_STOCK:
-        setActionProduct(PRODUCT_ACTIONS.INCORRECT_STOCK);
-        break;
-      default:
-        break;
-    }
-    setVisible(false);
-  }, [code, id, barcode]);
+      toggleShowAmountInput(true, id);
+      setSuccessForBarcodeScan(barcode);
+      setCurrentId(id);
+      switch (key) {
+        case PRODUCT_ACTIONS.OUT_OF_STOCK:
+          setIsEditManual(true, PRODUCT_ACTIONS.OUT_OF_STOCK);
+          break;
+        case PRODUCT_ACTIONS.LOW_QUALITY:
+          setActionProduct(PRODUCT_ACTIONS.LOW_QUALITY);
+          break;
+        case PRODUCT_ACTIONS.NEAR_EXPIRY:
+          setActionProduct(PRODUCT_ACTIONS.NEAR_EXPIRY);
+          break;
+        case PRODUCT_ACTIONS.EXPIRED_ONLINE:
+          setActionProduct(PRODUCT_ACTIONS.EXPIRED_ONLINE);
+          break;
+        case PRODUCT_ACTIONS.INCORRECT_STOCK:
+          setActionProduct(PRODUCT_ACTIONS.INCORRECT_STOCK);
+          break;
+        default:
+          break;
+      }
+      setVisible(false);
+    },
+    [code, id, barcode],
+  );
 
   useEffect(() => {
     if (visible) {
@@ -144,17 +167,16 @@ const MoreActionsBtn = ({
     }
   }, [visible]);
 
-
   return (
     <>
-      <TouchableOpacity onPress={() => setVisible(true)} hitSlop={15} >
+      <TouchableOpacity onPress={() => setVisible(true)} hitSlop={15}>
         <More2Fill width={18} height={18} />
       </TouchableOpacity>
       {visible && (
-        <SBottomSheet 
-          title="Thao tác" 
-          visible={visible} 
-          onClose={() => setVisible(false)} 
+        <SBottomSheet
+          title="Thao tác"
+          visible={visible}
+          onClose={() => setVisible(false)}
           ref={actionRef}
           snapPoints={[460]}
         >
@@ -174,14 +196,13 @@ const MoreActionsBtn = ({
           })}
           {actions.map((item) => (
             <React.Fragment key={item.key}>
-              {renderItem({...item, onClickAction: handleClickAction})}
+              {renderItem({ ...item, onClickAction: handleClickAction })}
             </React.Fragment>
           ))}
         </SBottomSheet>
-       )
-      }
+      )}
     </>
-  )
-}
+  );
+};
 
 export default MoreActionsBtn;

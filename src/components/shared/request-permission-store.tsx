@@ -13,18 +13,20 @@ interface Props {
 }
 
 const RequestPermissionStore = ({ code }: Props) => {
-  const ref = useRef<any>(null)
+  const ref = useRef<any>(null);
   const version = useConfig.use.version();
   const config = useConfig.use.config();
-  
-  const { refetch, isFetching } = useGetConfig({ version: !isEmpty(config) ? version : "" });
+
+  const { refetch, isFetching } = useGetConfig({
+    version: !isEmpty(config) ? version : '',
+  });
 
   const handleRequestPermission = () => {
-    ref.current.present() 
-  }
+    ref.current.present();
+  };
 
   useEffect(() => {
-    if(isEmpty(config)){
+    if (isEmpty(config)) {
       refetch();
     }
   }, [config]);
@@ -33,20 +35,23 @@ const RequestPermissionStore = ({ code }: Props) => {
     setLoading(isFetching);
   }, [isFetching]);
 
-  if(isFetching) return null;
+  if (isFetching) return null;
 
   return (
-    <View className='flex-1 bg-white justify-center items-center'>
-      <Button label='Yêu cầu cấp quyền siêu thị' onPress={handleRequestPermission} />
+    <View className="flex-1 bg-white justify-center items-center">
+      <Button
+        label="Yêu cầu cấp quyền siêu thị"
+        onPress={handleRequestPermission}
+      />
       <StoreSelection
         ref={ref}
         onSelect={() => {}}
         selectedId={''}
         code={code}
         newbie={true}
-      />  
+      />
     </View>
-  )
-}
+  );
+};
 
-export default RequestPermissionStore
+export default RequestPermissionStore;

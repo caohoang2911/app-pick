@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, View, Text } from 'react-native';
 import { ArrowLeft } from '@/core/svgs';
-import { router } from 'expo-router';
+import { NavigationHelpers } from '@/core/utils/navigation';
 
 const ButtonBack = ({
   title,
@@ -13,20 +13,24 @@ const ButtonBack = ({
   onPress?: () => void;
 }) => {
   const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.navigate('/orders');
-    }
+    NavigationHelpers.goBack();
   };
 
   return (
     <Pressable onPress={onPress || goBack} className="text-left -ml-3">
-      <View className='p-1 flex flex-row items-center gap-2'>
+      <View className="p-1 flex flex-row items-center gap-2">
         <ArrowLeft />
-        {title && <View className='-ml-2'>
-          {typeof title == 'string' ?<Text className="font-semibold text-gray-500 text-sm">{title}</Text> : title}    
-        </View>}
+        {title && (
+          <View className="-ml-2">
+            {typeof title == 'string' ? (
+              <Text className="font-semibold text-gray-500 text-sm">
+                {title}
+              </Text>
+            ) : (
+              title
+            )}
+          </View>
+        )}
       </View>
     </Pressable>
   );

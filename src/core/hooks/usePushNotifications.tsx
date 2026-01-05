@@ -7,7 +7,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, InteractionManager, Platform } from 'react-native';
 import { useAuth } from '~/src/core';
 
-
 export enum TargetScreen {
   ORDER_PICK = 'ORDER-PICK',
   ORDER_INVOICE = 'ORDER-INVOICE',
@@ -31,7 +30,9 @@ export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();
   const userInfo = useAuth.use.userInfo();
   const [token, setToken] = useState('');
-  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
+    [],
+  );
   const appState = useRef(AppState.currentState);
   const navigationInProgress = useRef(false);
   const pathname = usePathname();
@@ -49,22 +50,22 @@ export const usePushNotifications: any = () => {
     }
   };
 
-  const handleGoScreen = useCallback((remoteMessage: any) => {
-    
-    const { orderCode, targetScr} = remoteMessage || {};
+  const handleGoScreen = useCallback(
+    (remoteMessage: any) => {
+      const { orderCode, targetScr } = remoteMessage || {};
 
-    // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
-    if(navigationInProgress.current) {
-      console.log('Navigation already in progress, skipping...');
-      return;
-    }
+      // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
+      if (navigationInProgress.current) {
+        console.log('Navigation already in progress, skipping...');
+        return;
+      }
 
-    // Đánh dấu đang trong quá trình chuyển hướng
-    navigationInProgress.current = true;
+      // Đánh dấu đang trong quá trình chuyển hướng
+      navigationInProgress.current = true;
 
-    // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
-    InteractionManager.runAfterInteractions(() => {
-      try {
+      // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
+      InteractionManager.runAfterInteractions(() => {
+        try {
           switch (targetScr) {
             case TargetScreen.ORDER_PICK:
               router.push(`/orders/order-pick/${orderCode}`);
@@ -79,18 +80,23 @@ export const usePushNotifications: any = () => {
           setTimeout(() => {
             navigationInProgress.current = false;
           }, 500);
-      } catch (error) {
-        setTimeout(() => {
-          navigationInProgress.current = false;
-        }, 500);
-      }
-    });
-  }, []); 
+        } catch (error) {
+          setTimeout(() => {
+            navigationInProgress.current = false;
+          }, 500);
+        }
+      });
+    },
+    [router],
+  );
 
   useEffect(() => {
     // Theo dõi trạng thái ứng dụng để xử lý đúng khi chuyển từ background sang foreground
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
         // App vừa được mở lại từ background, reset cờ navigation
         navigationInProgress.current = false;
       }
@@ -105,7 +111,7 @@ export const usePushNotifications: any = () => {
       if (Platform.OS === 'ios') {
         // Cần thiết cho thông báo nền iOS có âm thanh
         await messaging().setAutoInitEnabled(true);
-        
+
         // Yêu cầu quyền iOS với âm thanh được bật
         const authStatus = await messaging().requestPermission({
           alert: true,
@@ -125,17 +131,17 @@ export const usePushNotifications: any = () => {
         setToken(token);
       }
     };
-    
+
     // Chạy thiết lập
     fetchToken();
-    
+
     // Chỉ cấu hình iOS riêng
     if (Platform.OS === 'ios') {
       configureIOS();
     } else if (Platform.OS === 'android') {
       // Giữ nguyên logic Android hiện tại
       Notifications.getNotificationChannelsAsync().then((value) =>
-        setChannels(value ?? [])
+        setChannels(value ?? []),
       );
     }
 
@@ -143,25 +149,27 @@ export const usePushNotifications: any = () => {
     const handleNotificationClick = async (response: any) => {
       const data = response?.notification?.request?.content?.data || {};
       try {
-        handleGoScreen(data)
+        handleGoScreen(data);
       } catch (error) {
         console.log('Error handling notification click:', error);
       }
     };
 
     const notificationClickSubscription =
-      Notifications.addNotificationResponseReceivedListener(async (data: any) => {
-        handleNotificationClick(data);
-      });
+      Notifications.addNotificationResponseReceivedListener(
+        async (data: any) => {
+          handleNotificationClick(data);
+        },
+      );
 
     // Handle user opening the app from a notification (when the app is in the background)
     messaging().onNotificationOpenedApp((remoteMessage: any) => {
       console.log(
         'Notification caused app to open from background state:',
-        remoteMessage.data
+        remoteMessage.data,
       );
 
-      handleGoScreen(remoteMessage?.data)
+      handleGoScreen(remoteMessage?.data);
     });
 
     // Check if the app was opened from a notification (when the app was completely quit)
@@ -171,16 +179,16 @@ export const usePushNotifications: any = () => {
         if (remoteMessage) {
           console.log(
             'Notification caused app to open from quit state:',
-            remoteMessage
+            remoteMessage,
           );
-          handleGoScreen(remoteMessage?.data)
+          handleGoScreen(remoteMessage?.data);
         }
       });
 
     // Handle background messages (critical for iOS sound)
     messaging().setBackgroundMessageHandler(async (remoteMessage: any) => {
       console.log('Message handled in the background!', remoteMessage);
-      
+
       try {
         // iOS requires specific structure for sound to work
         if (Platform.OS === 'ios') {
@@ -195,8 +203,8 @@ export const usePushNotifications: any = () => {
                 aps: {
                   sound: 'ding.mp3',
                   badge: 1,
-                  "content-available": 1
-                }
+                  'content-available': 1,
+                },
               },
               sound: 'ding.mp3', // Use custom sound instead of default
             },
@@ -227,22 +235,28 @@ export const usePushNotifications: any = () => {
         // Handle foreground notifications by setting params like background clicks
         const { action } = remoteMessage.data || {};
 
-        console.log(remoteMessage, "remoteMessage")
+        console.log(remoteMessage, 'remoteMessage');
 
-        if(action === ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS) {
+        if (
+          action === ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS
+        ) {
           queryClient.resetQueries({ queryKey: ['getMyProfile'] });
         }
 
         queryClient.resetQueries({ queryKey: ['searchOrders'] });
         queryClient.resetQueries({ queryKey: ['getOrderStatusCounters'] });
-        
-        if(action !== ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS) {
-          queryClient.resetQueries({ queryKey: ['getOrderDeliveryTypeCounters'] });
+
+        if (
+          action !== ActionFromNotification.ENABLE_DRIVER_ORDER_ASSIGN_STATUS
+        ) {
+          queryClient.resetQueries({
+            queryKey: ['getOrderDeliveryTypeCounters'],
+          });
         }
 
         // Xử lý riêng cho iOS và Android
         if (Platform.OS === 'ios') {
-          // iOS foreground notifications có cấu trúc đặc biệt 
+          // iOS foreground notifications có cấu trúc đặc biệt
           await Notifications.scheduleNotificationAsync({
             content: {
               title: remoteMessage.notification?.title || '',
@@ -253,8 +267,8 @@ export const usePushNotifications: any = () => {
                 aps: {
                   sound: 'ding.mp3',
                   badge: 1,
-                  "content-available": 1
-                }
+                  'content-available': 1,
+                },
               },
               sound: 'ding.mp3', // Use custom sound instead of default
             },

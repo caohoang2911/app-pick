@@ -1,43 +1,43 @@
-import { DrawerContent } from "@/components/DrawerContent";
-import { Drawer } from "expo-router/drawer";
-import { isEmpty } from "lodash";
-import { useEffect, useState } from "react";
-import { ConfigResponse, useGetConfig } from "~/src/api/config/useGetConfig";
-import Loading from "~/src/components/Loading";
-import { useAuth } from "~/src/core";
-import { setConfig, useConfig } from "~/src/core/store/config";
+import { DrawerContent } from '@/components/DrawerContent';
+import { Drawer } from 'expo-router/drawer';
+import { isEmpty } from 'lodash';
+import { useEffect, useState } from 'react';
+import { ConfigResponse, useGetConfig } from '~/src/api/config/useGetConfig';
+import Loading from '~/src/components/Loading';
+import { useAuth } from '~/src/core';
+import { setConfig, useConfig } from '~/src/core/store/config';
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
-  const [isDone, setIsDone] = useState(false)
+  const [isDone, setIsDone] = useState(false);
   const status = useAuth.use.status();
   const version = useConfig.use.version();
   const config = useConfig.use.config();
 
-  const { data, refetch, isFetching } = useGetConfig({ version: !isEmpty(config) ? version : "" });
-  
-  useEffect(() => { 
-    if(status === 'signIn'){
+  const { data, refetch, isFetching } = useGetConfig({
+    version: !isEmpty(config) ? version : '',
+  });
+
+  useEffect(() => {
+    if (status === 'signIn') {
       refetch();
     }
   }, [status, config, isDone]);
-  
+
   useEffect(() => {
-    if(!isEmpty(config)){
+    if (!isEmpty(config)) {
       setIsDone(true);
     }
-  }, [config]);  
+  }, [config]);
 
   useEffect(() => {
     if (data?.error) return;
     if (data?.data) {
       setConfig(data.data as ConfigResponse);
-    } 
-
+    }
   }, [data]);
-  
 
   if (isFetching || !isDone) {
-    return <Loading />
+    return <Loading />;
   }
 
   // Không render gì nếu chưa đăng nhập
@@ -52,9 +52,14 @@ export default function DrawerLayout() {
   return (
     <ConfigWrapper>
       <Drawer
-        screenOptions={{ headerShown: false, drawerStyle: { width: "75%" }, swipeEdgeWidth: 0 }}
+        initialRouteName="orders"
+        screenOptions={{
+          headerShown: false,
+          drawerStyle: { width: '75%' },
+          swipeEdgeWidth: 0,
+        }}
         drawerContent={(props) => <DrawerContent {...props} />}
       />
     </ConfigWrapper>
-  )
+  );
 }

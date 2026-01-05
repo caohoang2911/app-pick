@@ -1,5 +1,12 @@
 import { AntDesign } from '@expo/vector-icons';
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {
   FlatList,
   Pressable,
@@ -10,7 +17,7 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 
 interface Item {
@@ -53,225 +60,223 @@ export interface SearchableDropdownRef {
   closeDropdown: () => void;
 }
 
-const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(({
-  items,
-  onSelect,
-  placeholder = 'Tìm kiếm...',
-  containerStyle,
-  inputStyle,
-  itemStyle,
-  itemTextStyle,
-  value,
-  selectedValue,
-  noResultsText = 'Không tìm thấy kết quả',
-  autoFocus = false,
-  onFocus,
-  onBlur,
-  focusable = true,
-  onDropdownOpen,
-  onDropdownClose,
-  right,
-  isLoading = false,
-  onChangeText,
-  renderItem,
-  allowSearch = false,
-  maxDropdownHeight = 300,
-  showDropdownOnEmptySearch = false,
-}, ref) => {
-  const [searchText, setSearchText] = useState('');
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const inputRef = useRef<TextInput>(null);
-  const containerRef = useRef<View>(null);
-
-  useImperativeHandle(ref, () => ({
-    focus: () => {
-      if (focusable && inputRef.current) {
-        inputRef.current.focus();
-      }
+const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(
+  (
+    {
+      items,
+      onSelect,
+      placeholder = 'Tìm kiếm...',
+      containerStyle,
+      inputStyle,
+      itemStyle,
+      itemTextStyle,
+      value,
+      selectedValue,
+      noResultsText = 'Không tìm thấy kết quả',
+      autoFocus = false,
+      onFocus,
+      onBlur,
+      focusable = true,
+      onDropdownOpen,
+      onDropdownClose,
+      right,
+      isLoading = false,
+      onChangeText,
+      renderItem,
+      allowSearch = false,
+      maxDropdownHeight = 300,
+      showDropdownOnEmptySearch = false,
     },
-    blur: () => {
-      if (inputRef.current) {
-        inputRef.current.blur();
-      }
-    },
-    openDropdown: () => {
-      setIsDropdownOpen(true);
-    },
-    closeDropdown: () => {
-      setIsDropdownOpen(false);
-    }
-  }));
+    ref,
+  ) => {
+    const [searchText, setSearchText] = useState('');
+    const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const inputRef = useRef<TextInput>(null);
+    const containerRef = useRef<View>(null);
 
-  useEffect(() => {
-    if (autoFocus && focusable && inputRef.current) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-    }
-  }, [autoFocus, focusable]);
-
-  useEffect(() => {
-    if (selectedValue) {
-      setSearchText(selectedValue.name);
-    } else if (value) { 
-      setSearchText(value);
-    }
-  }, [selectedValue, value]);
-
-  useEffect(() => {
-    if (searchText && allowSearch) {
-      const filtered = items.filter(item =>
-        item.name.toLowerCase().includes(searchText.toLowerCase())
-      );
-      setFilteredItems(filtered);
-    } else {
-      setFilteredItems(items);
-    }
-  }, [searchText, items]);
-
-  useEffect(() => {
-    if (isDropdownOpen) {
-      onDropdownOpen?.();
-    } else {
-      onDropdownClose?.();
-    }
-  }, [isDropdownOpen, onDropdownOpen, onDropdownClose]);
-
-  const handleSelect = (item: Item) => {
-    onSelect(item);
-    setSearchText(item.name);
-    setIsDropdownOpen(false);
-    inputRef.current?.blur();
-  };
-
-  const handleOutsideClick = () => {
-    setIsDropdownOpen(false);
-    inputRef.current?.blur();
-  };
-
-  const handleFocus = () => {
-    if (focusable) {
-      if (searchText.length > 0 || showDropdownOnEmptySearch) {
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        if (focusable && inputRef.current) {
+          inputRef.current.focus();
+        }
+      },
+      blur: () => {
+        if (inputRef.current) {
+          inputRef.current.blur();
+        }
+      },
+      openDropdown: () => {
         setIsDropdownOpen(true);
+      },
+      closeDropdown: () => {
+        setIsDropdownOpen(false);
+      },
+    }));
+
+    useEffect(() => {
+      if (autoFocus && focusable && inputRef.current) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
       }
-      onFocus?.();
-    } else {
-      inputRef.current?.blur();
-    }
-  };
+    }, [autoFocus, focusable]);
 
-  const handleBlur = () => {
-    onBlur?.();
-  };
+    useEffect(() => {
+      if (selectedValue) {
+        setSearchText(selectedValue.name);
+      } else if (value) {
+        setSearchText(value);
+      }
+    }, [selectedValue, value]);
 
-  const handleClearText = () => {
-    setSearchText('');
-    onChangeText?.('');
-    inputRef.current?.focus();
-    
-    if (showDropdownOnEmptySearch) {
-      setIsDropdownOpen(true);
-    } else {
+    useEffect(() => {
+      if (searchText && allowSearch) {
+        const filtered = items.filter((item) =>
+          item.name.toLowerCase().includes(searchText.toLowerCase()),
+        );
+        setFilteredItems(filtered);
+      } else {
+        setFilteredItems(items);
+      }
+    }, [searchText, items]);
+
+    useEffect(() => {
+      if (isDropdownOpen) {
+        onDropdownOpen?.();
+      } else {
+        onDropdownClose?.();
+      }
+    }, [isDropdownOpen, onDropdownOpen, onDropdownClose]);
+
+    const handleSelect = (item: Item) => {
+      onSelect(item);
+      setSearchText(item.name);
       setIsDropdownOpen(false);
-    }
-    
-    setFilteredItems(items);
-  };
+      inputRef.current?.blur();
+    };
 
-  return (
-    <View style={[styles.outerContainer, containerStyle]}>
+    const handleOutsideClick = () => {
+      setIsDropdownOpen(false);
+      inputRef.current?.blur();
+    };
 
-      {isDropdownOpen && (
-        <Pressable 
-          style={[styles.overlay]}
-          onPress={handleOutsideClick}
-        />
-      )}
-      <View style={styles.rowContainer}>
-        <View style={styles.inputWrapper} ref={containerRef}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              ref={inputRef}
-              value={searchText}
-              onChangeText={(text) => {
-                setSearchText(text);
-                if (text.length > 0 || showDropdownOnEmptySearch) {
-                  setIsDropdownOpen(true);
-                } else {
-                  setIsDropdownOpen(false);
-                }
-                onChangeText?.(text);
-              }}
-              placeholder={placeholder}
-              style={[styles.input, inputStyle, !focusable && styles.disabledInput]}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              editable={focusable}
-            />
-            
-            {searchText.length > 0 && (
-              <TouchableOpacity 
-                style={styles.clearButton} 
-                onPress={handleClearText}
-                activeOpacity={0.7}
-              >
-                <AntDesign name="close" size={16} color="#999" />
-              </TouchableOpacity>
-            )}
+    const handleFocus = () => {
+      if (focusable) {
+        if (searchText.length > 0 || showDropdownOnEmptySearch) {
+          setIsDropdownOpen(true);
+        }
+        onFocus?.();
+      } else {
+        inputRef.current?.blur();
+      }
+    };
+
+    const handleBlur = () => {
+      onBlur?.();
+    };
+
+    const handleClearText = () => {
+      setSearchText('');
+      onChangeText?.('');
+      inputRef.current?.focus();
+
+      if (showDropdownOnEmptySearch) {
+        setIsDropdownOpen(true);
+      } else {
+        setIsDropdownOpen(false);
+      }
+
+      setFilteredItems(items);
+    };
+
+    return (
+      <View style={[styles.outerContainer, containerStyle]}>
+        {isDropdownOpen && (
+          <Pressable style={[styles.overlay]} onPress={handleOutsideClick} />
+        )}
+        <View style={styles.rowContainer}>
+          <View style={styles.inputWrapper} ref={containerRef}>
+            <View style={styles.inputContainer}>
+              <TextInput
+                ref={inputRef}
+                value={searchText}
+                onChangeText={(text) => {
+                  setSearchText(text);
+                  if (text.length > 0 || showDropdownOnEmptySearch) {
+                    setIsDropdownOpen(true);
+                  } else {
+                    setIsDropdownOpen(false);
+                  }
+                  onChangeText?.(text);
+                }}
+                placeholder={placeholder}
+                style={[
+                  styles.input,
+                  inputStyle,
+                  !focusable && styles.disabledInput,
+                ]}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                editable={focusable}
+              />
+
+              {searchText.length > 0 && (
+                <TouchableOpacity
+                  style={styles.clearButton}
+                  onPress={handleClearText}
+                  activeOpacity={0.7}
+                >
+                  <AntDesign name="close" size={16} color="#999" />
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
+
+          {right && <View style={styles.rightComponentContainer}>{right}</View>}
         </View>
-        
-        {right && (
-          <View style={styles.rightComponentContainer}>
-            {right}
+
+        {isDropdownOpen && (
+          <View style={[styles.dropdown, { maxHeight: maxDropdownHeight }]}>
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="#999" />
+                <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
+              </View>
+            ) : filteredItems.length > 0 ? (
+              <FlatList
+                data={filteredItems}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => {
+                  if (renderItem) {
+                    return renderItem(item) as any;
+                  }
+
+                  return (
+                    <TouchableOpacity
+                      style={[styles.item, itemStyle]}
+                      onPress={() => handleSelect(item)}
+                    >
+                      <Text style={[styles.itemText, itemTextStyle]}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+                nestedScrollEnabled
+                keyboardShouldPersistTaps="handled"
+              />
+            ) : (
+              <View style={styles.noResults}>
+                <Text style={styles.noResultsText}>{noResultsText}</Text>
+              </View>
+            )}
           </View>
         )}
       </View>
-
-      {isDropdownOpen && (
-        <View style={[
-          styles.dropdown, 
-          { maxHeight: maxDropdownHeight }
-        ]}>
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color="#999" />
-              <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
-            </View>
-          ) : filteredItems.length > 0 ? (
-            <FlatList
-              data={filteredItems}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                if (renderItem) {
-                  return renderItem(item) as any;
-                }
-                
-                return (
-                  <TouchableOpacity
-                    style={[styles.item, itemStyle]}
-                    onPress={() => handleSelect(item)}
-                  >
-                    <Text style={[styles.itemText, itemTextStyle]}>
-                      {item.name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              }}
-              nestedScrollEnabled
-              keyboardShouldPersistTaps="handled"
-            />
-          ) : (
-            <View style={styles.noResults}>
-              <Text style={styles.noResultsText}>{noResultsText}</Text>
-            </View>
-          )}
-        </View>
-      )}
-    </View>
-  );
-});
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   outerContainer: {
@@ -281,7 +286,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -290,13 +295,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     zIndex: 1000,
   },
-  
+
   inputWrapper: {
     flex: 1,
     position: 'relative',
     zIndex: 1000,
   },
-  
+
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -307,7 +312,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fff',
   },
-  
+
   input: {
     height: 40,
     flex: 1,
@@ -316,12 +321,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 0,
   },
-  
+
   rightComponentContainer: {
     marginLeft: 10,
     justifyContent: 'center',
   },
-  
+
   clearButton: {
     width: 25,
     height: 25,
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
     right: 5,
     backgroundColor: '#f0f0f0',
   },
-  
+
   disabledInput: {
     backgroundColor: '#f5f5f5',
     color: '#888',

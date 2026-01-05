@@ -19,5 +19,4 @@ export const useOrderInvoice = createSelectors(_useOrderInvoice);
 export const setOrderInvoice = (orderDetail: OrderDetail) =>
   _useOrderInvoice.getState().setOrderInvoice(orderDetail);
 
-export const getOrderInvoice = () =>
-  _useOrderInvoice.getState().orderInvoice;
+export const getOrderInvoice = () => _useOrderInvoice.getState().orderInvoice;

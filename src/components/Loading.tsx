@@ -3,28 +3,26 @@ import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { View } from 'react-native';
 import { useLoading } from '../core/store/loading';
 
-const Loading = ({
-  description
-}: {
-  description?: string
-}) => {
+const Loading = ({ description }: { description?: string }) => {
   const descriptionStore = useLoading.use.description();
 
-  const shouldShowDescription = Boolean(descriptionStore) || Boolean(description);
+  const shouldShowDescription =
+    Boolean(descriptionStore) || Boolean(description);
   return (
     <>
-      <View style={styles.loading}>
-      </View>
-      <View className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10'>
-        <View className='flex gap-2 items-center'>
-          <View style={styles.box} className='w-12 h-12 rounded-lg'>
+      <View style={styles.loading}></View>
+      <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <View className="flex gap-2 items-center">
+          <View style={styles.box} className="w-12 h-12 rounded-lg">
             <ActivityIndicator color="white" />
           </View>
-          {Boolean(shouldShowDescription) && <Text>{descriptionStore || description}</Text>}
+          {Boolean(shouldShowDescription) && (
+            <Text>{descriptionStore || description}</Text>
+          )}
         </View>
       </View>
     </>
-  )
+  );
 };
 
 export default Loading;
@@ -38,8 +36,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: .3,
-    backgroundColor: "gray",
+    opacity: 0.3,
+    backgroundColor: 'gray',
     zIndex: 10,
   },
   box: {
@@ -47,5 +45,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-  }
+  },
 });

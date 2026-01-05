@@ -1,6 +1,7 @@
 import { getItem, setItem } from '@/core/storage';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -47,10 +48,10 @@ const Settings = () => {
   } = store || {};
 
   const [labelPrinterIp, setLabelPrinterIp] = useState<string>(
-    getItem('ipPrinterLabel') || storeLabelPrinterIp || ''
+    getItem('ipPrinterLabel') || storeLabelPrinterIp || '',
   );
   const [billPrinterIp, setBillPrinterIp] = useState<string>(
-    getItem('ipPrinterBill') || storeBillPrinterIp || ''
+    getItem('ipPrinterBill') || storeBillPrinterIp || '',
   );
   const [isLoadingLabelPrinter, setIsLoadingLabelPrinter] =
     useState<boolean>(false);
@@ -98,7 +99,7 @@ const Settings = () => {
                 () => {
                   // Fallback: scroll to end
                   scrollViewRef.current?.scrollToEnd({ animated: true });
-                }
+                },
               );
             } else if (
               activeInputRef.current === 'label' &&
@@ -114,20 +115,20 @@ const Settings = () => {
                     animated: true,
                   });
                 },
-                () => {}
+                () => {},
               );
             }
           },
-          Platform.OS === 'ios' ? 100 : 200
+          Platform.OS === 'ios' ? 100 : 200,
         );
-      }
+      },
     );
     const keyboardDidHideListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
         setKeyboardHeight(0);
         activeInputRef.current = null;
-      }
+      },
     );
 
     return () => {
@@ -170,7 +171,7 @@ const Settings = () => {
           }
           client.destroy();
           setIsLoadingLabelPrinter(false);
-        }
+        },
       );
 
       labelPrinterTimer.current = setTimeout(() => {
@@ -204,7 +205,7 @@ const Settings = () => {
           console.log('Connected to bill printer');
           setItem('ipPrinterBill', billPrinterIp);
           showMessage({
-            message: 'Lưu IP máy in hoá đơn thành công',
+            message: 'Lưu IP máy tạo hoá đơn thành công',
             type: 'success',
           });
           if (billPrinterTimer.current) {
@@ -212,12 +213,12 @@ const Settings = () => {
           }
           client.destroy();
           setIsLoadingBillPrinter(false);
-        }
+        },
       );
 
       billPrinterTimer.current = setTimeout(() => {
         showMessage({
-          message: 'Lưu IP máy in hoá đơn thất bại',
+          message: 'Lưu IP máy tạo hoá đơn thất bại',
           type: 'danger',
         });
         client.destroy();
@@ -226,7 +227,7 @@ const Settings = () => {
     } catch (error) {
       setIsLoadingBillPrinter(false);
       showMessage({
-        message: 'Lỗi không xác định khi kết nối máy in hoá đơn',
+        message: 'Lỗi không xác định khi kết nối máy tạo hoá đơn',
         type: 'danger',
       });
     }
@@ -316,61 +317,86 @@ const Settings = () => {
               Máy in - {name}
             </Text>
             <View className="mt-4 border-t border-gray-200 pt-3">
-              <Text className="text-sm font-semibold mb-2">Máy in hoá đơn</Text>
-              <View className="flex flex-row items-center gap-2 mb-3">
-                <View ref={billInputRef} collapsable={false} className="flex-1">
+              <Text className="text-sm font-semibold mb-3">
+                Máy tạo hoá đơn
+              </Text>
+
+              <View className="flex gap-10 mb-3 flex-row items-center">
+                <Image
+                  source={require('~/assets/xprinter.jpg')}
+                  style={{ width: 70, height: 70 }}
+                />
+                <View
+                  ref={billInputRef}
+                  collapsable={false}
+                  className="flex flex-1 justify-end gap-3"
+                >
                   <Input
                     value={billPrinterIp}
-                    className="flex-1"
-                    placeholder="Nhập IP máy in hoá đơn"
+                    textAlign="right"
+                    className="flex-1 w-full"
+                    placeholder="Nhập IP máy tạo hoá đơn"
                     onChangeText={setBillPrinterIp}
                     onFocus={() => {
                       activeInputRef.current = 'bill';
                     }}
                   />
+                  <View className="flex flex-row gap-2">
+                    <Button
+                      loading={isLoadingBillPrinter}
+                      disabled={!billPrinterIp}
+                      label="Lưu"
+                      className="flex-1 w-1/2"
+                      onPress={handleSaveBillPrinter}
+                    />
+                    <Button
+                      variant="warning"
+                      className="flex-1 w-1/2"
+                      label="Reset"
+                      onPress={handleResetBillPrinter}
+                    />
+                  </View>
                 </View>
-                <Button
-                  loading={isLoadingBillPrinter}
-                  disabled={!billPrinterIp}
-                  label="Lưu"
-                  onPress={handleSaveBillPrinter}
-                />
-                <Button
-                  variant="warning"
-                  label="Reset"
-                  onPress={handleResetBillPrinter}
-                />
               </View>
             </View>
-            <View className="mt-3">
-              <Text className="text-sm font-semibold mb-2">Máy in label</Text>
-              <View className="flex flex-row items-center gap-2 mb-3">
+            <View className="mt-1">
+              <Text className="text-sm font-semibold mb-3">Máy in label</Text>
+              <View className="flex gap-10 mb-3 flex-row items-center">
+                <Image
+                  source={require('~/assets/label-printer.jpg')}
+                  style={{ width: 70, height: 70 }}
+                />
                 <View
                   ref={labelInputRef}
                   collapsable={false}
-                  className="flex-1"
+                  className="flex flex-1 justify-end gap-3"
                 >
                   <Input
                     value={labelPrinterIp}
                     className="flex-1"
                     placeholder="Nhập IP máy in label"
                     onChangeText={setLabelPrinterIp}
+                    textAlign="right"
                     onFocus={() => {
                       activeInputRef.current = 'label';
                     }}
                   />
+                  <View className="flex flex-row gap-2">
+                    <Button
+                      loading={isLoadingLabelPrinter}
+                      disabled={!labelPrinterIp}
+                      label="Lưu"
+                      className="w-1/2 flex-1"
+                      onPress={handleSaveLabelPrinter}
+                    />
+                    <Button
+                      variant="warning"
+                      label="Reset"
+                      className="w-1/2 flex-1"
+                      onPress={handleResetLabelPrinter}
+                    />
+                  </View>
                 </View>
-                <Button
-                  loading={isLoadingLabelPrinter}
-                  disabled={!labelPrinterIp}
-                  label="Lưu"
-                  onPress={handleSaveLabelPrinter}
-                />
-                <Button
-                  variant="warning"
-                  label="Reset"
-                  onPress={handleResetLabelPrinter}
-                />
               </View>
             </View>
           </View>

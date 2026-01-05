@@ -25,29 +25,32 @@ const BagType = ({
       <View className="flex flex-col gap-2 px-4">
         <View className="flex-row justify-between items-center">
           <Text className="text-base font-semibold">{title}</Text>
-        <Text className="text-base text-gray-500">SL: {bagLabels?.length}</Text>
+          <Text className="text-base text-gray-500">
+            SL: {bagLabels?.length}
+          </Text>
         </View>
         {bagLabels?.map(({ code, type, name }) => (
           <BagItem key={code} code={code} type={type} name={name} />
         ))}
       </View>
       <View className="flex-row justify-center bg-blue-50 mt-3">
-        <Button 
-          icon={
-            <AntDesign name="pluscircleo"
-              size={17}
-              color="#3280F6"
-            />
+        <Button
+          icon={<AntDesign name="pluscircleo" size={17} color="#3280F6" />}
+          onPress={() =>
+            addOrderBag({
+              code: generateBagCode(type, code, bagLabels),
+              type,
+              name: generateBagName(type, bagLabels.length + 1),
+            })
           }
-            onPress={() => addOrderBag({ code: generateBagCode(type, code, bagLabels), type, name: generateBagName(type, bagLabels.length + 1)})}
           variant="text"
-          label={"Thêm tem"}
+          label={'Thêm tem'}
           labelClasses="text-colorPrimary text-base font-semibold"
           className="w-full"
         />
       </View>
     </View>
-  )
-}
+  );
+};
 
 export default BagType;

@@ -7,7 +7,7 @@ export function getItem<T>(key: string): T | null {
   try {
     return JSON.parse(value as string) as T;
   } catch (error) {
-    return value as T || null;
+    return (value as T) || null;
   }
 }
 

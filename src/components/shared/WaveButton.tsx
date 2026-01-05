@@ -1,5 +1,11 @@
 import React, { useRef, useEffect } from 'react';
-import { TouchableOpacity, Animated, TouchableOpacityProps, StyleSheet, View } from 'react-native';
+import {
+  TouchableOpacity,
+  Animated,
+  TouchableOpacityProps,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 interface WaveButtonProps extends TouchableOpacityProps {
   children: React.ReactNode;
@@ -53,9 +59,7 @@ const WaveButton: React.FC<WaveButtonProps> = ({
         style={styles.touchable}
         {...props}
       >
-        <View style={styles.childrenContainer}>
-          {children}
-        </View>
+        <View style={styles.childrenContainer}>{children}</View>
         <Animated.View
           style={[
             styles.wave,
@@ -107,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WaveButton; 
+export default WaveButton;

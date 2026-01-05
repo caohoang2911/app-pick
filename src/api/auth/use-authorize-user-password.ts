@@ -9,17 +9,17 @@ const authorizeUserPassword = async (params: Variables): Promise<Response> => {
 
 type Variables = { username: string; password: string };
 
-type Response = { error: string } & { data: UserInfo }
+type Response = { error: string } & { data: UserInfo };
 
 export const useAuthorizeUserPassword = (cb?: (data: Response) => void) => {
   const { setVersionWithAutoInfo } = useSetAppVersionWithAutoInfo();
   return useMutation({
-  mutationFn: (params: Variables) => authorizeUserPassword(params),
-  onSuccess: (data: Response) => {
-    if(!data.error) {
-      setVersionWithAutoInfo();
-    }
-    cb?.(data);
-  },
-});
+    mutationFn: (params: Variables) => authorizeUserPassword(params),
+    onSuccess: (data: Response) => {
+      if (!data.error) {
+        setVersionWithAutoInfo();
+      }
+      cb?.(data);
+    },
+  });
 };

@@ -1,4 +1,3 @@
-
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '~/src/core';
@@ -15,34 +14,36 @@ export type OrderCounterResponse = {
   STORE_PACKED?: number;
   SHIPPER_DELIVERY?: number;
   CUSTOMER_PICKUP?: number;
-  STORE_DELIVERY?: number;
 };
 
 type Response = { error: string } & {
   data: {
-    "CUSTOMER_PICKUP": number,
-    "STORE_DELIVERY": number,
-    "SHIPPER_DELIVERY": number
+    CUSTOMER_PICKUP: number;
+    SHIPPER_DELIVERY: number;
   };
 };
 
-const getOrderDeliveryTypeCounters = async (params: Variables): Promise<Response> => {  
-  if(params.status === 'ALL') {
+const getOrderDeliveryTypeCounters = async (
+  params: Variables,
+): Promise<Response> => {
+  if (params.status === 'ALL') {
     delete params.status;
   }
 
-  return await axiosClient.get('app-pick/getOrderDeliveryTypeCounters', { params });
+  return await axiosClient.get('app-pick/getOrderDeliveryTypeCounters', {
+    params,
+  });
 };
 
 export const useGetOrderDeliveryTypeCounters = ({ status }: Variables) => {
   const authStatus = useAuth.use.status();
-  
+
   const query = useQuery({
     queryKey: ['getOrderDeliveryTypeCounters', status],
     queryFn: () => {
       return getOrderDeliveryTypeCounters({ status });
     },
-    enabled: !!status && authStatus === 'signIn'
+    enabled: !!status && authStatus === 'signIn',
   });
 
   // Override refetch để kiểm tra điều kiện auth
@@ -51,11 +52,16 @@ export const useGetOrderDeliveryTypeCounters = ({ status }: Variables) => {
     if (authStatus === 'signIn') {
       return originalRefetch();
     }
-    return Promise.resolve({ data: null, error: null, isError: false, isLoading: false });
+    return Promise.resolve({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
   };
 
   return {
     ...query,
-    refetch: safeRefetch
+    refetch: safeRefetch,
   };
 };

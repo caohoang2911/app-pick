@@ -14,8 +14,8 @@ export const useTestSendNoti = () => {
     onSuccess: (response: Response) => {
       if (!response.error) {
         showMessage({
-        message: 'Đã gửi thông báo thành công',
-        type: 'success',
+          message: 'Đã gửi thông báo thành công',
+          type: 'success',
         });
       } else {
         showMessage({

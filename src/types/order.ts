@@ -1,4 +1,4 @@
-import { ORDER_DELIVERY_TYPE } from '../contants/order';
+import { ORDER_DELIVERY_TYPE } from '@/core/constants/order';
 import { Payment } from './order-pick';
 
 export type OrderStatus =

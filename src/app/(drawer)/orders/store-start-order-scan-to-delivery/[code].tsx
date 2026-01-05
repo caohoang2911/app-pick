@@ -1,17 +1,27 @@
+import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '@/core/constants/order';
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo } from 'react';
-import { Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { RefreshControl, Text, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
+import {
+  useCreateInvoice,
+  useCreateInvoiceProcess,
+} from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { useStartSelfShipping } from '~/src/api/app-pick/use-start-self-shipping';
+import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
+import CODReceipt from '~/src/components/CODReceipt';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
-import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '~/src/contants/order';
+import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import {
   getIsScanQrCodeProduct,
@@ -21,9 +31,7 @@ import {
   useStoreStartOrderScanToDelivery,
 } from '~/src/core/store/store-start-order-scan-to-delivery';
 import { OrderDetailHeader } from '~/src/types/order-pick';
-import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { queryClient } from '~/src/api/shared/api-provider';
-import { useIssueInvoiceProcess } from '~/src/api/app-pick/use-issue-invoice';
+
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
@@ -36,8 +44,20 @@ const OrderScanToDelivery = () => {
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
   const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
-  const { tags, deliveryType, ignorePrintInvoiceStep } =
+  const { tags, deliveryType, isInvoiceSupportedByAppPick, codAmount } =
     (orderDetail?.header as OrderDetailHeader) || {};
+
+  const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
+    useCreateInvoice();
+  const invoiceCode = createInvoiceData?.data?.invoiceCode;
+
+  const { mutate: processCreateInvoice, isPending: isLoadingCreateInvoice } =
+    useCreateInvoiceProcess(code, () => {
+      startSelfShipping({ orderCode: code });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    });
+
+  const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
   useEffect(() => {
     setLoading(isPending || isFetching);
@@ -58,15 +78,13 @@ const OrderScanToDelivery = () => {
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
   const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
     useStartSelfShipping(() => {
+      showMessage({
+        message: 'Tạo hoá đơn & bắt đầu giao hàng thành công',
+        type: 'success',
+      });
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
       router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
-    });
-
-  const { mutate: issueInvoice, isPending: isLoadingIssueInvoice } =
-    useIssueInvoiceProcess(code, ignorePrintInvoiceStep, () => {
-      startSelfShipping({ orderCode: code });
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     });
 
   const isAllDone = useMemo(() => {
@@ -76,25 +94,41 @@ const OrderScanToDelivery = () => {
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
       if (result?.data) {
-        setOrderScanedBagLabel({ orderCode: code, bagCode: '' });
+        setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
       }
     });
   };
 
-  useEffect(() => {
-    setOrderScanedBagLabel({ orderCode: code, bagCode: 'OL74655326-DR00' });
-  }, []);
+  const { checkShift } = useCheckShift(() => {
+    showAlert({
+      title: 'Tạo hoá đơn & giao hàng?',
+      message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
+      onConfirm: async () => {
+        hideAlert();
+        const createInvoiceResult = await createInvoiceAsync({
+          orderCode: code,
+        });
 
-  // const handleStartDeliveryWithInvoice = () => {
-  //   showAlert({
-  //     title: 'Xuất hóa đơn & giao hàng?',
-  //     message: 'Bạn có muốn xuất hóa đơn & bắt đầu giao hàng?',
-  //     onConfirm: () => {
-  //       hideAlert();
-  //       issueInvoice({ orderCode: code });
-  //     },
-  //   });
-  // };
+        if (createInvoiceResult?.error) {
+          showMessage({
+            message: createInvoiceResult?.error,
+            type: 'danger',
+          });
+          return;
+        }
+
+        if (!Number(codAmount)) {
+          processCreateInvoice({
+            orderCode: code,
+          });
+        }
+      },
+    });
+  });
+
+  const handleStartDeliveryWithInvoice = () => {
+    checkShift();
+  };
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlert({
@@ -107,24 +141,39 @@ const OrderScanToDelivery = () => {
     });
   };
 
+  const handleStartScanQrCodeProduct = () => {
+    toggleStoreStartScanQrCodeProduct(true);
+  };
+
   const isShowAlert = useMemo(() => {
-    return !tags?.includes(ORDER_TAGS.ORDER_PRINTED_BILLL);
+    return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);
   }, [tags]);
+
+  const handleRefresh = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  }, []);
+
+  const handleReceiptCaptureComplete = useCallback(
+    (base64String: string) => {
+      processCreateInvoice({
+        orderCode: code,
+        codReceiptBase64String: base64String.trim(),
+      });
+    },
+    [code, processCreateInvoice],
+  );
+
+  const isDisabled = !orderBags.length || isPending;
 
   return (
     <>
       <View className="flex-1 mt-3">
-        <ScrollView>
-          {isShowAlert && (
-            <View className="px-4" style={{ marginBottom: 10 }}>
-              <SectionAlert style={{ backgroundColor: '#FFA500' }}>
-                <Text className="text-white font-semibold">
-                  Hệ thống chưa ghi nhận In bill từ KDB. Vui lòng in bill trước
-                  khi giao hàng
-                </Text>
-              </SectionAlert>
-            </View>
-          )}
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+          }
+        >
+          <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
@@ -134,30 +183,41 @@ const OrderScanToDelivery = () => {
         </ScrollView>
       </View>
       <View className="border-t border-gray-200 pb-4">
-        <View className="px-4 py-3 bg-white ">
-          {/* {deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? ( */}
-          <Button
-            loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
-            onPress={handleStartDeliveryWithoutInvoice}
-            disabled={!isAllDone}
-            label={
-              !isAllDone ? 'Scan QR túi để giao hàng' : 'Bắt đầu giao hàng'
-            }
-          />
-          {/* ): (
+        <View className="px-4 py-3 bg-white gap-2">
+          {!isAllDone ? (
             <Button
-              loading={isLoadingStartSelfShipping || isLoadingIssueInvoice}
-              onPress={handleStartDeliveryWithInvoice}
-              disabled={!isAllDone}
-              label={
-                !isAllDone
-                  ? 'Scan QR túi để giao hàng'
-                  : 'Xuất hóa đơn & bắt đầu giao hàng'
-              }
+              loading={isLoadingStartSelfShipping}
+              onPress={handleStartScanQrCodeProduct}
+              disabled={isDisabled}
+              label={'Scan QR túi để giao hàng'}
             />
-          )} */}
+          ) : deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
+            !isInvoiceSupportedByAppPick ? (
+            <Button
+              loading={isLoadingStartSelfShipping}
+              onPress={handleStartDeliveryWithoutInvoice}
+              disabled={isDisabled}
+              label={'Bắt đầu giao hàng'}
+            />
+          ) : (
+            <Button
+              loading={isLoadingStartSelfShipping || isLoadingCreateInvoice}
+              onPress={handleStartDeliveryWithInvoice}
+              disabled={isDisabled}
+              label="Tạo hoá đơn & bắt đầu giao hàng"
+            />
+          )}
         </View>
       </View>
+      <CODReceipt
+        orderCode={code}
+        invoiceNumber={invoiceCode || ''}
+        codAmount={Number(codAmount)}
+        employeeName={orderDetail?.header?.picker?.name || ''}
+        employeeCode={orderDetail?.header?.picker?.username || ''}
+        onCaptureComplete={handleReceiptCaptureComplete}
+        enableCapture={shouldEnableCapture}
+      />
       {isScanQrCodeProduct && (
         <ScannerBox
           visible={isScanQrCodeProduct}

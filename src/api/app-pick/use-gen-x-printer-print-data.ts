@@ -11,7 +11,6 @@ type Response = {
   hasError?: boolean;
 };
 
-
 const genXPrinterPrintData = async (base64Image: string): Promise<Response> => {
   return await axiosClient.post<Uint8Array>('app-pick/genXPrinterPrintData', {
     base64Image: base64Image,
@@ -23,4 +22,3 @@ export const useGenXPrinterPrintData = () => {
     mutationFn: (params: Variables) => genXPrinterPrintData(params.base64Image),
   });
 };
-

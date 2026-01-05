@@ -24,13 +24,9 @@ export const safeScrollToIndex = async (
   flatListRef: React.RefObject<FlatList>,
   index: number,
   dataLength: number,
-  options: ScrollToIndexOptions = {}
+  options: ScrollToIndexOptions = {},
 ): Promise<boolean> => {
-  const {
-    animated = true,
-    viewPosition = 0.5,
-    fallbackOffset = 100
-  } = options;
+  const { animated = true, viewPosition = 0.5, fallbackOffset = 100 } = options;
 
   // Validate inputs
   if (!flatListRef.current) {
@@ -57,12 +53,12 @@ export const safeScrollToIndex = async (
     return true;
   } catch (error) {
     console.warn('scrollToIndex failed, using fallback:', error);
-    
+
     try {
       const estimatedOffset = Math.max(0, index * fallbackOffset);
-      await flatListRef.current.scrollToOffset({ 
-        offset: estimatedOffset, 
-        animated 
+      await flatListRef.current.scrollToOffset({
+        offset: estimatedOffset,
+        animated,
       });
       return true;
     } catch (fallbackError) {
@@ -81,10 +77,10 @@ export const safeScrollToIndex = async (
 export const handleScrollToIndexFailed = (
   flatListRef: React.RefObject<FlatList>,
   info: ScrollToIndexFailedInfo,
-  fallbackOffset: number = 100
+  fallbackOffset: number = 100,
 ): void => {
   console.warn('scrollToIndexFailed:', info);
-  
+
   if (!flatListRef.current) {
     console.warn('FlatList ref not available in scrollToIndexFailed');
     return;
@@ -108,7 +104,7 @@ export const handleScrollToIndexFailed = (
 export const createSafeScrollToIndexCallback = (
   flatListRef: React.RefObject<FlatList>,
   dataLength: number,
-  options: ScrollToIndexOptions = {}
+  options: ScrollToIndexOptions = {},
 ) => {
   return async (index: number): Promise<boolean> => {
     return safeScrollToIndex(flatListRef, index, dataLength, options);
@@ -123,7 +119,7 @@ export const createSafeScrollToIndexCallback = (
  */
 export const createSafeScrollToIndexFailedCallback = (
   flatListRef: React.RefObject<FlatList>,
-  fallbackOffset: number = 100
+  fallbackOffset: number = 100,
 ) => {
   return (info: ScrollToIndexFailedInfo): void => {
     handleScrollToIndexFailed(flatListRef, info, fallbackOffset);
