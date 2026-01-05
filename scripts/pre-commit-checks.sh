@@ -24,16 +24,46 @@ fi
 # Check 1: TypeScript type checking
 echo -e "\n${YELLOW}📘 Checking TypeScript types...${NC}"
 if command -v yarn &> /dev/null; then
-  if yarn tsc --noEmit 2>&1 | grep -q "error"; then
-    echo -e "${RED}❌ TypeScript errors found!${NC}"
-    yarn tsc --noEmit
+  # Capture both stdout and stderr
+  TSC_OUTPUT=$(yarn tsc --noEmit 2>&1 || true)
+  ERROR_COUNT=$(echo "$TSC_OUTPUT" | grep -o "error TS[0-9]*" | wc -l | tr -d ' ')
+  
+  if [ "$ERROR_COUNT" -gt 0 ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}❌ TypeScript errors found! (${ERROR_COUNT} error(s))${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    # Display all errors with proper formatting
+    echo "$TSC_OUTPUT"
+    echo ""
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}💡 Tips to fix:${NC}"
+    echo -e "   • Check the file path and line number above"
+    echo -e "   • Run 'yarn type-check' to see errors in detail"
+    echo -e "   • Fix all TypeScript errors before committing"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     exit 1
   fi
   echo -e "${GREEN}✅ TypeScript check passed${NC}"
 elif command -v npx &> /dev/null; then
-  if npx tsc --noEmit --pretty false 2>&1 | grep -q "error"; then
-    echo -e "${RED}❌ TypeScript errors found!${NC}"
-    npx tsc --noEmit
+  # Capture both stdout and stderr
+  TSC_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
+  ERROR_COUNT=$(echo "$TSC_OUTPUT" | grep -o "error TS[0-9]*" | wc -l | tr -d ' ')
+  
+  if [ "$ERROR_COUNT" -gt 0 ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}❌ TypeScript errors found! (${ERROR_COUNT} error(s))${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    # Display all errors with proper formatting
+    echo "$TSC_OUTPUT"
+    echo ""
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}💡 Tips to fix:${NC}"
+    echo -e "   • Check the file path and line number above"
+    echo -e "   • Run 'npx tsc --noEmit' to see errors in detail"
+    echo -e "   • Fix all TypeScript errors before committing"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     exit 1
   fi
   echo -e "${GREEN}✅ TypeScript check passed${NC}"

@@ -1,9 +1,9 @@
-import { Feather } from '@expo/vector-icons';
+import { ORDER_DELIVERY_TYPE } from '@/core/constants/order';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { router } from 'expo-router';
 import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import SBottomSheet from '../SBottomSheet';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
 import {
   getScanToDeliveryInfo,
@@ -11,7 +11,7 @@ import {
   isHiddenScanToDelivery,
 } from '~/src/core/utils/order';
 import { OrderStatus } from '~/src/types/order';
-import { ORDER_DELIVERY_TYPE } from '@/core/constants/order';
+import SBottomSheet from '../SBottomSheet';
 
 interface OrderActionsBottomSheetProps {
   orderCode: string;
@@ -34,13 +34,18 @@ const OrderActionsBottomSheet = forwardRef<
 >(({ orderCode, status, deliveryType, visible, onClose }, ref) => {
   const bottomSheetRef = useRef<OrderActionsBottomSheetRef>(null);
 
-  const {
-    isDriver,
-    handleOrderInfo,
-    handlePickOrder,
-    handleScanBagDelivery,
-    handleAssignOrder,
-  } = useDriverOrderActions(orderCode);
+  const scanToDeliveryInfo = useMemo(
+    () =>
+      getScanToDeliveryInfo({
+        deliveryType: deliveryType as ORDER_DELIVERY_TYPE,
+        status: status as OrderStatus,
+        orderCode,
+      }),
+    [deliveryType, status, orderCode],
+  );
+
+  const { isDriver, handleOrderInfo, handlePickOrder, handleAssignOrder } =
+    useDriverOrderActions(orderCode);
 
   useImperativeHandle(ref, () => ({
     present: () => {
@@ -63,7 +68,7 @@ const OrderActionsBottomSheet = forwardRef<
 
   const handleScanBagDeliveryWithClose = () => {
     onClose();
-    handleScanBagDelivery();
+    router.push(scanToDeliveryInfo?.route as string);
   };
 
   const handleAssignOrderWithClose = () => {

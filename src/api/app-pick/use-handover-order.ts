@@ -20,7 +20,7 @@ export const useHandoverOrder = (cb?: () => void) => {
     onSuccess: (data: Response) => {
       if (!data.error) {
         showMessage({
-          message: 'Đã hoàn tất đơn hàng',
+          message: 'Đã hoàn tất',
           type: 'success',
         });
         cb?.();

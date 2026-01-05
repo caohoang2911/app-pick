@@ -49,6 +49,11 @@ const ACTION_TYPE = {
   DISABLE: 'Chưa thể giao hàng',
 };
 
+const ACTION_CONFIRM_TITLE = {
+  HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách?',
+  HANDOVER_TO_SHIPPER: 'Xác nhận giao cho tài xế?',
+};
+
 const OrderScanToDelivery = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
 
@@ -173,8 +178,10 @@ const OrderScanToDelivery = () => {
 
   const handleStartDeliveryWithoutInvoice = () => {
     showAlertDialog({
-      title: 'Xác nhận giao cho shipper?',
-      message: 'Bạn có muốn xác nhận giao hàng cho shipper?',
+      title:
+        ACTION_CONFIRM_TITLE[
+          handoverStatus as keyof typeof ACTION_CONFIRM_TITLE
+        ],
       onConfirm: () => {
         hideAlert();
         handoverOrder({ orderCode: code, proofImages: uploadedImages });
