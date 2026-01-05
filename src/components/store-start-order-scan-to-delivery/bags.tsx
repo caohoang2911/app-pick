@@ -17,6 +17,16 @@ import {
 // Memoize BagType để tránh re-render không cần thiết
 const MemoizedBagType = memo(BagType);
 
+const Empty = () => {
+  return (
+    <Box>
+      <Text className="text-center text-gray-500">
+        Không có tem. Vui lòng set kích thước & In tem
+      </Text>
+    </Box>
+  );
+};
+
 // Component chính
 const Bags = memo(() => {
   // State và refs
@@ -78,7 +88,12 @@ const Bags = memo(() => {
   );
 
   // Early return nếu không có dữ liệu
-  if (!isInitialized || !orderBags || orderBags.length === 0) return null;
+  if (!isInitialized || !orderBags || orderBags.length === 0)
+    return (
+      <>
+        <Empty />
+      </>
+    );
 
   // Thêm shouldRender để tránh render các BagType không có dữ liệu
   const shouldRenderDry = orderBagTransform.DRY.length > 0;
@@ -87,7 +102,7 @@ const Bags = memo(() => {
 
   // Nếu không có bag nào, return null
   if (!shouldRenderDry && !shouldRenderFrozen && !shouldRenderFresh)
-    return null;
+    return <Empty />;
 
   return (
     <Box>
