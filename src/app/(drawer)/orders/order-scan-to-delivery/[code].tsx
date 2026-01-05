@@ -10,7 +10,6 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
-import Header from '~/src/components/shared/Header';
 import {
   useCreateInvoice,
   useCreateInvoiceProcess,
@@ -21,10 +20,12 @@ import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-ord
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
 import CODReceipt from '~/src/components/CODReceipt';
+import Loading from '~/src/components/Loading';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
+import Header from '~/src/components/shared/Header';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import ShipperInfo from '~/src/components/shared/shipper-info';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
@@ -33,18 +34,17 @@ import {
   showAlert as showAlertDialog,
 } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
-import { setOrderInvoice } from '~/src/core/store/order-invoice';
-import { setOrderDetail, useOrderPick } from '~/src/core/store/order-pick';
+// import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import {
   getIsScanQrCodeProduct,
   scanQrCodeSuccess,
+  setScanToDeliveryDetail,
   setUploadedImages,
   toggleScanQrCodeProduct,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { OrderDetailHeader } from '~/src/types/order-pick';
-import Loading from '~/src/components/Loading';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -67,14 +67,18 @@ const OrderScanToDelivery = () => {
 
   useEffect(() => {
     if (data?.data) {
-      setOrderDetail(data?.data || {});
+      setScanToDeliveryDetail(data?.data || {});
     }
   }, [data]);
 
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
-  const orderDetail = useOrderPick.use.orderDetail();
+
+  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
+  const header = useOrderScanToDelivery(
+    (state) => state.orderDetail?.header,
+  ) as OrderDetailHeader | undefined;
 
   const {
     deliveryType,
@@ -83,7 +87,10 @@ const OrderScanToDelivery = () => {
     handoverStatus,
     codAmount,
     isInvoiceSupportedByAppPick,
-  } = (orderDetail?.header as OrderDetailHeader) || {};
+  } = header || {};
+
+  // Lấy orderDetail để dùng ở các chỗ khác (picker info)
+  const orderDetail = useOrderScanToDelivery.use.orderDetail();
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -132,9 +139,9 @@ const OrderScanToDelivery = () => {
     return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
   }, [deliveryType]);
 
-  useEffect(() => {
-    setOrderInvoice(data?.data || {});
-  }, [data]);
+  // useEffect(() => {
+  //   setOrderInvoice(data?.data || {});
+  // }, [data]);
 
   useEffect(() => {
     return () => {
@@ -301,7 +308,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={showAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo />
+            <ShipperInfo orderDetail={orderDetail} />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />

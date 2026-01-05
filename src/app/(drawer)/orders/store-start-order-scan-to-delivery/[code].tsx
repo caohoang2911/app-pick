@@ -50,7 +50,11 @@ const OrderScanToDelivery = () => {
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
 
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
-  const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
+
+  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
+  const header = useStoreStartOrderScanToDelivery(
+    (state) => state.orderDetail?.header,
+  ) as OrderDetailHeader | undefined;
 
   const {
     tags,
@@ -59,7 +63,10 @@ const OrderScanToDelivery = () => {
     codAmount,
     shipping,
     status,
-  } = (orderDetail?.header as OrderDetailHeader) || {};
+  } = header || {};
+
+  // Lấy orderDetail để dùng ở các chỗ khác
+  const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -237,7 +244,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo />
+            <ShipperInfo orderDetail={orderDetail} />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />

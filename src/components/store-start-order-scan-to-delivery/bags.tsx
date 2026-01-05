@@ -1,10 +1,6 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
-import {
-  setOrderBags,
-  useOrderScanToDelivery,
-} from '~/src/core/store/order-scan-to-delivery';
+import { useShallow } from 'zustand/react/shallow';
 import { transformOrderBags } from '~/src/core/utils/order-bag';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 import Box from '../Box';
@@ -33,11 +29,12 @@ const Bags = memo(() => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Lấy dữ liệu từ store
-  const orderInvoice = useStoreStartOrderScanToDelivery.use.orderDetail();
+  // bagLabels: cần xử lý || [] nên dùng selector tùy chỉnh
+  const bagLabels = useStoreStartOrderScanToDelivery(
+    (state) => state.orderDetail?.header?.bagLabels || [],
+  );
+  // orderBags: array trực tiếp từ store, Zustand đã tự memoize, không cần useShallow
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
-
-  // Extract data
-  const bagLabels = orderInvoice?.header?.bagLabels || [];
 
   // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
   useEffect(() => {

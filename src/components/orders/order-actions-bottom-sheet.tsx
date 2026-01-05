@@ -68,6 +68,7 @@ const OrderActionsBottomSheet = forwardRef<
 
   const handleScanBagDeliveryWithClose = () => {
     onClose();
+    bottomSheetRef.current?.dismiss();
     router.push(scanToDeliveryInfo?.route as string);
   };
 
