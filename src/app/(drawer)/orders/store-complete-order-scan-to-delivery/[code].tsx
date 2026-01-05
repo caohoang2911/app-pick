@@ -1,7 +1,13 @@
-import { router, useLocalSearchParams, useSegments } from 'expo-router';
+import {
+  router,
+  useLocalSearchParams,
+  useNavigation,
+  useSegments,
+} from 'expo-router';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -30,8 +36,12 @@ import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import ShipperInfo from '~/src/components/shared/shipper-info';
+import Header from '~/src/components/shared/Header';
+import ButtonBack from '~/src/components/ButtonBack';
+import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 
 const OrderScanToDelivery = () => {
+  const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
   const { data, isPending, isFetching, refetch } = useOrderDetailQuery({
     orderCode: code,
@@ -67,6 +77,28 @@ const OrderScanToDelivery = () => {
   const orderDetail = useOrderPick.use.orderDetail();
   const { tags, status, codAmount } =
     (orderDetail?.header as OrderDetailHeader) || {};
+
+  const { deliveryType } = orderDetail?.header || {};
+
+  const title = getScanToDeliveryInfo({
+    deliveryType,
+    status,
+    orderCode: code,
+  })?.title;
+
+  useLayoutEffect(() => {
+    if (title) {
+      navigation.setOptions({
+        headerShown: true,
+        header: () => (
+          <Header
+            title={title}
+            headerLeft={<ButtonBack onPress={() => router.dismiss(1)} />}
+          />
+        ),
+      });
+    }
+  }, [title, navigation]);
 
   useEffect(() => {
     setLoading(isPending || isFetching);

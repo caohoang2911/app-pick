@@ -5,11 +5,12 @@ import {
 } from '@/core/constants/order';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BarcodeScanningResult } from 'expo-camera';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
+import Header from '~/src/components/shared/Header';
 import {
   useCreateInvoice,
   useCreateInvoiceProcess,
@@ -41,6 +42,7 @@ import {
   toggleScanQrCodeProduct,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
+import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const ACTION_TYPE = {
@@ -55,6 +57,7 @@ const ACTION_CONFIRM_TITLE = {
 };
 
 const OrderScanToDelivery = () => {
+  const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
@@ -80,6 +83,21 @@ const OrderScanToDelivery = () => {
     codAmount,
     isInvoiceSupportedByAppPick,
   } = (orderDetail?.header as OrderDetailHeader) || {};
+
+  const title = getScanToDeliveryInfo({
+    deliveryType,
+    status,
+    orderCode: code,
+  })?.title;
+
+  useLayoutEffect(() => {
+    if (title) {
+      navigation.setOptions({
+        headerShown: true,
+        header: () => <Header title={title} />,
+      });
+    }
+  }, [title, navigation]);
 
   const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
     useCreateInvoice();

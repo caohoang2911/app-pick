@@ -1,7 +1,7 @@
 import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '@/core/constants/order';
 import { BarcodeScanningResult } from 'expo-camera';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -34,8 +34,12 @@ import { OrderDetailHeader } from '~/src/types/order-pick';
 import ShipperInfo from '~/src/components/shared/shipper-info';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
+import { getScanToDeliveryInfo } from '~/src/core/utils/order';
+import Header from '~/src/components/shared/Header';
+import ButtonBack from '~/src/components/ButtonBack';
 
 const OrderScanToDelivery = () => {
+  const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
@@ -53,7 +57,28 @@ const OrderScanToDelivery = () => {
     isInvoiceSupportedByAppPick,
     codAmount,
     shipping,
+    status,
   } = (orderDetail?.header as OrderDetailHeader) || {};
+
+  const title = getScanToDeliveryInfo({
+    deliveryType,
+    status,
+    orderCode: code,
+  })?.title;
+
+  useLayoutEffect(() => {
+    if (title) {
+      navigation.setOptions({
+        headerShown: true,
+        header: () => (
+          <Header
+            title={title}
+            headerLeft={<ButtonBack onPress={() => router.dismiss(1)} />}
+          />
+        ),
+      });
+    }
+  }, [title, navigation]);
 
   const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
     useCreateInvoice();
@@ -165,7 +190,7 @@ const OrderScanToDelivery = () => {
     if (isShipperDelivery) {
       return 'Xác nhận giao cho tài xế';
     }
-    return 'Xác nhận giao hàng nội khu';
+    return 'Bắt đầu giao hàng nội khu';
   }, [isShipperDelivery]);
 
   const btnWithInvoiceLabel = useMemo(() => {
