@@ -12,6 +12,7 @@ import React, {
   useState,
 } from 'react';
 import { Linking, Text, TouchableOpacity, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useAuth } from '~/src/core/store/auth';
@@ -24,7 +25,6 @@ import { Option } from '~/src/types/commons';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import Empty from './Empty';
-import { showMessage } from 'react-native-flash-message';
 
 type StoreType = Option & { address: string; tenant: string };
 
@@ -224,11 +224,7 @@ const StoreSelection = forwardRef<any, Props>(
             const storeName = stringUtils.removeAccents(
               store.name?.toLowerCase() || '',
             );
-            const storeAddress = stringUtils.removeAccents(
-              store.address?.toLowerCase() || '',
-            );
-
-            return storeName.includes(query) || storeAddress.includes(query);
+            return storeName.includes(query);
           })
         : tenantFilteredStores;
 
@@ -259,6 +255,7 @@ const StoreSelection = forwardRef<any, Props>(
     // Memoize event handlers
     const handleClose = useCallback(() => {
       setVisible(false);
+      setSearchQuery('');
     }, []);
 
     const handleSelect = useCallback(
