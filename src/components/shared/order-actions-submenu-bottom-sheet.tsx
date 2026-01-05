@@ -13,6 +13,7 @@ import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 import OrderDeliveryTypeBottomSheet from './order-delivery-type-bottom-sheet';
 import OrderHistoryBottomSheet from './order-history-bottom-sheet';
+import { useOrderPick } from '~/src/core/store/order-pick';
 
 interface OrderActionsSubmenuBottomSheetProps {
   visible: boolean;
@@ -35,6 +36,7 @@ const OrderActionsSubmenuBottomSheet = ({
   const actionRef = useRef<any>();
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
+  const orderDetail = useOrderPick.use.orderDetail();
 
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     React.useState(false);
@@ -185,6 +187,7 @@ const OrderActionsSubmenuBottomSheet = ({
         orderCode={code || orderCode || ''}
         setVisible={setOrderHistoryVisible}
         visible={orderHistoryVisible}
+        orderDetail={orderDetail}
       />
     </>
   );

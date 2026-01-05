@@ -10,6 +10,7 @@ import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import Box from '../Box';
+import { useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
 
 const COL_LEFT_WIDTH = 105;
 
@@ -39,19 +40,16 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  const orderInvoice = useOrderInvoice.use.orderInvoice();
-  const { header } = orderInvoice || {};
+  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
+  const header = useOrderScanToDelivery((state) => state.orderDetail?.header);
   const {
     status,
-    payment,
     orderTime,
     deliveryAddress,
     statusName,
-    amount,
     customer,
     deliveryTimeRange,
     tags,
-    bagLabels,
     codAmount = 0,
   } = header || {};
 

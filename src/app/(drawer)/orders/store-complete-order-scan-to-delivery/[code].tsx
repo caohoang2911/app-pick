@@ -174,7 +174,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo />
+            <ShipperInfo orderDetail={orderDetail} />
             <InvoiceInfo />
             <Box>
               <ImageUploader

@@ -39,8 +39,10 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  const orderInvoice = useStoreStartOrderScanToDelivery.use.orderDetail();
-  const { header } = orderInvoice || {};
+  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
+  const header = useStoreStartOrderScanToDelivery(
+    (state) => state.orderDetail?.header,
+  );
   const {
     status,
     orderTime,

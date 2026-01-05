@@ -4,11 +4,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import SBottomSheet from '../SBottomSheet';
 import { useOrderPick } from '@/core/store/order-pick';
 import moment from 'moment';
+import { OrderDetail } from '~/src/types/order-pick';
 
 interface OrderHistoryBottomSheetProps {
   visible: boolean;
   setVisible: (visible: boolean) => void;
   orderCode: string;
+  orderDetail: OrderDetail;
 }
 
 export interface OrderHistoryBottomSheetRef {
@@ -18,7 +20,7 @@ export interface OrderHistoryBottomSheetRef {
 const OrderHistoryBottomSheet = forwardRef<
   OrderHistoryBottomSheetRef,
   OrderHistoryBottomSheetProps
->(({ visible, setVisible }, ref) => {
+>(({ visible, setVisible, orderDetail }, ref) => {
   const actionRef = useRef<any>();
 
   useEffect(() => {
@@ -27,7 +29,6 @@ const OrderHistoryBottomSheet = forwardRef<
     }
   }, [visible]);
 
-  const orderDetail = useOrderPick.use.orderDetail();
   const deliveryLogs = orderDetail?.delivery?.logs || [];
 
   const renderHistoryItem = (

@@ -1,13 +1,12 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
-import { useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
 import { getConfigNameById } from '~/src/core/utils/config';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { OrderDetail } from '~/src/types/order-pick';
 import Box from '../Box';
 
-const ShipperInfo = () => {
-  const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail();
+const ShipperInfo = ({ orderDetail }: { orderDetail: OrderDetail }) => {
   const { header } = orderDetail || {};
   const { shipping } = header || {};
 

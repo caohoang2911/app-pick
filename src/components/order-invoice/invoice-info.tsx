@@ -7,8 +7,8 @@ import { formatCurrency } from '~/src/core/utils/number';
 const COL_LEFT_WIDTH = 105;
 
 const InvoiceInfo = () => {
-  const orderInvoice = useOrderInvoice.use.orderInvoice();
-  const { header } = orderInvoice || {};
+  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderInvoice
+  const header = useOrderInvoice((state) => state.orderInvoice?.header);
   const {
     picker,
     deliveryAddress,

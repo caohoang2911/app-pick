@@ -4,14 +4,17 @@ import { create } from 'zustand';
 import { OrderBagItem } from '~/src/types/order-bag';
 import { createSelectors } from '../../utils/browser';
 import { isValidOrderBagCode } from '../../utils/order-bag';
+import { OrderDetail } from '~/src/types/order-pick';
 
 interface OrderScanToDeliveryState {
   isScanQrCodeProduct: boolean;
   orderBags: OrderBagItem[];
+  orderDetail: OrderDetail;
   uploadedImages: string[];
   toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => void;
   setOrderBags: (orderBags: OrderBagItem[]) => void;
   resetOrderBags: () => void;
+  setScanToDeliveryDetail: (scanToDeliveryDetail: OrderDetail) => void;
   scanQrCodeSuccess: (
     result: BarcodeScanningResult,
     cb?: (orderBags: OrderBagItem[]) => void,
@@ -24,8 +27,12 @@ const _useOrderScanToDelivery = create<OrderScanToDeliveryState>(
     isScanQrCodeProduct: false,
     orderBags: [],
     uploadedImages: [],
+    orderDetail: {},
     toggleScanQrCodeProduct: (isScanQrCodeProduct: boolean) => {
       set({ isScanQrCodeProduct });
+    },
+    setScanToDeliveryDetail: (scanToDeliveryDetail: OrderDetail) => {
+      set({ orderDetail: scanToDeliveryDetail });
     },
     setOrderBags: (orderBags: OrderBagItem[]) => {
       set({ orderBags });
@@ -106,6 +113,12 @@ export const getIsScanQrCodeProduct = () => {
 
 export const getUploadedImages = () => {
   return useOrderScanToDelivery((state) => state.uploadedImages);
+};
+
+export const setScanToDeliveryDetail = (scanToDeliveryDetail: OrderDetail) => {
+  _useOrderScanToDelivery
+    .getState()
+    .setScanToDeliveryDetail(scanToDeliveryDetail);
 };
 
 export const setUploadedImages = (uploadedImage: string, reset?: boolean) => {

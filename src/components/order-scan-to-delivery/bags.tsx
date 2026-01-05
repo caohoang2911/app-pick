@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import {
   resetOrderBags,
   setOrderBags,
@@ -29,13 +28,14 @@ const Bags = memo(() => {
   // State và refs
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Lấy dữ liệu từ store
-  const orderInvoice = useOrderInvoice.use.orderInvoice();
-  const orderBags = useOrderScanToDelivery.use.orderBags();
+  const bagLabels = useOrderScanToDelivery(
+    (state) => state.orderDetail?.header?.bagLabels,
+  );
 
-  // Extract data
-  const bagLabels = orderInvoice?.header?.bagLabels || [];
-  const orderCode = orderInvoice?.header?.code;
+  const orderCode = useOrderScanToDelivery(
+    (state) => state.orderDetail?.header?.code,
+  );
+  const orderBags = useOrderScanToDelivery.use.orderBags();
 
   // Reset orderBags khi order code thay đổi
   useEffect(() => {
@@ -47,7 +47,7 @@ const Bags = memo(() => {
 
   // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
   useEffect(() => {
-    if (bagLabels?.length > 0) {
+    if (bagLabels && bagLabels.length > 0) {
       // Tránh set lại nếu bagLabels không thay đổi
       const initializedBags = bagLabels.map((bag: any) => ({
         ...bag,
@@ -96,12 +96,6 @@ const Bags = memo(() => {
   );
 
   // Early return nếu không có dữ liệu
-  if (!isInitialized || !orderBags || orderBags.length === 0)
-    return (
-      <>
-        <Empty />
-      </>
-    );
 
   // Thêm shouldRender để tránh render các BagType không có dữ liệu
   const shouldRenderDry = orderBagTransform.DRY.length > 0;
@@ -109,7 +103,13 @@ const Bags = memo(() => {
   const shouldRenderFresh = orderBagTransform.FRESH.length > 0;
 
   // Nếu không có bag nào, return null
-  if (!shouldRenderDry && !shouldRenderFrozen && !shouldRenderFresh)
+
+  if (
+    !isInitialized ||
+    !orderBags ||
+    orderBags.length === 0 ||
+    (!shouldRenderDry && !shouldRenderFrozen && !shouldRenderFresh)
+  )
     return <Empty />;
 
   return (
