@@ -32,7 +32,6 @@ import {
   useCompleteOrderScanToDelivery,
 } from '~/src/core/store/complete-order-scan-to-delivery';
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import ShipperInfo from '~/src/components/shared/shipper-info';
@@ -74,7 +73,7 @@ const OrderScanToDelivery = () => {
   const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
   const failureBottomSheetRef = useRef<any>(null);
   const segments = useSegments();
-  const orderDetail = useOrderPick.use.orderDetail();
+  const orderDetail = useCompleteOrderScanToDelivery.use.orderDetail();
   const { tags, status, codAmount } =
     (orderDetail?.header as OrderDetailHeader) || {};
 
@@ -87,18 +86,16 @@ const OrderScanToDelivery = () => {
   })?.title;
 
   useLayoutEffect(() => {
-    if (title) {
-      navigation.setOptions({
-        headerShown: true,
-        header: () => (
-          <Header
-            title={title}
-            headerLeft={<ButtonBack onPress={() => router.dismiss(1)} />}
-          />
-        ),
-      });
-    }
-  }, [title, navigation]);
+    navigation.setOptions({
+      headerShown: true,
+      header: () => (
+        <Header
+          title={title || ''}
+          headerLeft={<ButtonBack onPress={() => router.dismiss(1)} />}
+        />
+      ),
+    });
+  }, [title, navigation, code, deliveryType, status]);
 
   useEffect(() => {
     setLoading(isPending || isFetching);

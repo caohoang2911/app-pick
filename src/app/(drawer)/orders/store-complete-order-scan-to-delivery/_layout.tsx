@@ -8,13 +8,7 @@ export default function OrderScanToDeliveryLayout() {
       <Stack.Screen
         name="[code]"
         options={{
-          headerShown: true,
-          header: () => (
-            <Header
-              title={''}
-              headerLeft={<ButtonBack onPress={() => router.dismiss(1)} />}
-            />
-          ),
+          headerShown: false,
         }}
       />
     </Stack>
