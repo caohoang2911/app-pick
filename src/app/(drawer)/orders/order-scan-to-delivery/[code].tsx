@@ -44,6 +44,7 @@ import {
 } from '~/src/core/store/order-scan-to-delivery';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import Loading from '~/src/components/Loading';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -130,10 +131,6 @@ const OrderScanToDelivery = () => {
     }
     return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
   }, [deliveryType]);
-
-  useEffect(() => {
-    setLoading(isPending || isFetching);
-  }, [isPending, isFetching]);
 
   useEffect(() => {
     setOrderInvoice(data?.data || {});
@@ -289,6 +286,10 @@ const OrderScanToDelivery = () => {
     },
     [code, processCreateInvoice],
   );
+
+  if (isPending) {
+    return <Loading />;
+  }
 
   return (
     <>
