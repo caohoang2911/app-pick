@@ -208,6 +208,7 @@ const StoreSelection = forwardRef<any, Props>(
 
     // Memoize tenant-filtered stores separately to avoid re-filtering on search changes
     const tenantFilteredStores = useMemo(() => {
+      if (newbie) return stores || [];
       if (!stores || !userTenant) return [];
 
       return stores.filter((store: StoreType) => store.tenant === userTenant);
@@ -215,7 +216,7 @@ const StoreSelection = forwardRef<any, Props>(
 
     // Memoize the filtered and sorted stores
     const filteredStores = useMemo(() => {
-      if (!tenantFilteredStores.length) return [];
+      if (!tenantFilteredStores.length) return stores;
 
       // First filter by search query
       const searchFiltered = searchQuery
