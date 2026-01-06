@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { isEmpty, toLower } from 'lodash';
 import moment from 'moment';
 import React, { Fragment, memo, useCallback, useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import Feather from '@expo/vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -94,7 +94,7 @@ const OrderItem = ({
   pickedItemProgress,
   bagLabels,
   storeCode,
-  shortCode,
+  saleChannel,
 }: Order) => {
   const router = useRouter();
 
@@ -147,8 +147,13 @@ const OrderItem = ({
             <Text className="font-semibold text-base text-colorPrimary">
               {code}
             </Text>
-            {/* <Text className="text-xs" numberOfLines={1} ellipsizeMode="tail">{shortCode || 'GEAT332'}</Text> */}
-            {shortCode && <Badge label={shortCode} variant="warning" />}
+            {saleChannel == 'GRAB_MART' && (
+              <Image
+                source={require('~/assets/grab-logo.png')}
+                style={{ width: 35, height: 35 }}
+                resizeMode="contain"
+              />
+            )}
             {groupShippingCode && (
               <Badge label={groupShippingCode} variant="warning" />
             )}
