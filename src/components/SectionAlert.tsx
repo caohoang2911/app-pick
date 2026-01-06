@@ -1,4 +1,5 @@
 import { type VariantProps, cva } from 'class-variance-authority';
+import { memo } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
 import { cn } from '../lib/utils';
@@ -32,7 +33,8 @@ interface AlertProps
   loading?: boolean;
   children?: React.ReactNode;
 }
-function SectionAlert({
+
+const SectionAlert = memo(function SectionAlert({
   labelClasses,
   className,
   variant = 'default',
@@ -47,6 +49,6 @@ function SectionAlert({
       {children}
     </View>
   );
-}
+});
 
 export { SectionAlert };

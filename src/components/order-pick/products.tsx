@@ -25,18 +25,18 @@ import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
 import ProductGift from './product-gift';
 import UserNote from './user-note';
-// Memoize các component hiển thị trạng thái loading và empty
-const LoadingIndicator = memo(() => (
+
+const LoadingIndicator = () => (
   <View className="text-center py-3">
     <ActivityIndicator className="text-gray-300" />
   </View>
-));
+);
 
-const EmptyProductList = memo(() => (
+const EmptyProductList = () => (
   <View className="mt-3">
     <Empty />
   </View>
-));
+);
 
 // Memoize các component render item
 const ProductItem = memo(

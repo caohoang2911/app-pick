@@ -57,6 +57,7 @@ export type Order = {
   groupShippingCode: string;
   fulfillError: any;
   lastTimeUpdateStatus: string;
+  saleChannel: 'GRAB_MART' | 'KINGFOOD_OFFLINE';
   storeCode: string;
   deliveryType: ORDER_DELIVERY_TYPE;
   deliveryAddress: {

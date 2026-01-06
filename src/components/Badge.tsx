@@ -1,4 +1,5 @@
 import { type VariantProps, cva } from 'class-variance-authority';
+import { memo } from 'react';
 import { Text, View } from 'react-native';
 
 const badgeVariants = cva(
@@ -66,7 +67,8 @@ export interface BadgeProps
   label: string | React.ReactNode;
   labelClasses?: string;
 }
-function Badge({
+
+const Badge = memo(function Badge({
   label,
   extraLabel,
   labelClasses,
@@ -91,6 +93,6 @@ function Badge({
       </Text>
     </View>
   );
-}
+});
 
 export { Badge, badgeVariants };

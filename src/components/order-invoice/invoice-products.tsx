@@ -1,48 +1,50 @@
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useOrderInvoice } from '~/src/core/store/order-invoice';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-const ProductItem = ({
-  image,
-  name,
-  quantity,
-  unit,
-  barcode,
-}: {
-  image: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  barcode: string;
-}) => {
-  return (
-    <View className="flex flex-row justify-between items-center py-3 px-4">
-      <View className="flex flex-row gap-3 items-center">
-        <Image
-          style={{ width: 64, height: 64 }}
-          source={image}
-          placeholder={{ blurhash }}
-          contentFit="cover"
-          transition={1000}
-        />
-        <View className="flex flex-col gap-2 flex-1">
-          <Text numberOfLines={2}>{name}</Text>
-          <View className="flex flex-row justify-between items-center">
-            <Text className="text-gray-500">{barcode}</Text>
-            <Text className="self-center text-gray-500">
-              {quantity} {unit}
-            </Text>
+const ProductItem = memo(
+  ({
+    image,
+    name,
+    quantity,
+    unit,
+    barcode,
+  }: {
+    image: string;
+    name: string;
+    quantity: number;
+    unit: string;
+    barcode: string;
+  }) => {
+    return (
+      <View className="flex flex-row justify-between items-center py-3 px-4">
+        <View className="flex flex-row gap-3 items-center">
+          <Image
+            style={{ width: 64, height: 64 }}
+            source={image}
+            placeholder={{ blurhash }}
+            contentFit="cover"
+            transition={1000}
+          />
+          <View className="flex flex-col gap-2 flex-1">
+            <Text numberOfLines={2}>{name}</Text>
+            <View className="flex flex-row justify-between items-center">
+              <Text className="text-gray-500">{barcode}</Text>
+              <Text className="self-center text-gray-500">
+                {quantity} {unit}
+              </Text>
+            </View>
           </View>
         </View>
+        {/* <Text>{quantity} {unit}</Text> */}
       </View>
-      {/* <Text>{quantity} {unit}</Text> */}
-    </View>
-  );
-};
+    );
+  },
+);
 
 const InvoiceProducts = () => {
   const orderInvoice = useOrderInvoice.use.orderInvoice();

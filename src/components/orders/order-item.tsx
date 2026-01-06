@@ -21,6 +21,15 @@ import { Badge } from '../Badge';
 import CountdownTimer from '../shared/count-down-timer';
 import MoreActionsBtn from './more-actions-btn';
 
+// Grab Logo Component - không cần memo vì không có props và quá đơn giản
+const GrabLogo = () => (
+  <Image
+    source={require('~/assets/grab-logo.png')}
+    style={{ width: 35, height: 35 }}
+    resizeMode="contain"
+  />
+);
+
 const RowWithLabel = memo(
   ({
     icon,
@@ -94,13 +103,13 @@ const OrderItem = ({
   pickedItemProgress,
   bagLabels,
   storeCode,
-  shortCode,
+  saleChannel,
 }: Order) => {
   const router = useRouter();
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
-
+  const stores = config?.stores || [];
   const fulfillErrorTypes = config?.fulfillErrorTypes || [];
   const fulfillErrorTypeDisplay = getConfigNameById(
     fulfillErrorTypes,
@@ -118,11 +127,9 @@ const OrderItem = ({
         params: { status },
       });
     }
-  }, [type, code, status, isDriver, router]);
+  }, [code, status, isDriver, router]);
 
   const shouldShowassignee = picker?.username && picker?.name;
-  const stores = config?.stores || [];
-
   const storeName = getConfigNameById(stores, storeCode);
 
   const notes = useMemo(() => {
@@ -137,7 +144,27 @@ const OrderItem = ({
     return [pickerNote].filter(Boolean);
   }, [driverNote, pickerNote, deliveryType, isDriver]);
 
-  const maxPickingTimeRemaining = maxPickingTime - moment().valueOf();
+  // Memo icons để RowWithLabel không bị re-render không cần thiết
+  const userIcon = useMemo(
+    () => <Feather name="user" size={22} color="black" />,
+    [],
+  );
+  const homeIcon = useMemo(
+    () => <Octicons name="home" size={18} color="gray" />,
+    [],
+  );
+  const mapPinIcon = useMemo(
+    () => <Feather name="map-pin" size={17} color="gray" />,
+    [],
+  );
+  const calendarIcon = useMemo(
+    () => <Feather name="calendar" size={18} color="gray" />,
+    [],
+  );
+  const packageIcon = useMemo(
+    () => <Feather name="package" size={18} color="gray" />,
+    [],
+  );
 
   return (
     <TouchableOpacity onPress={handlePress} className="flex-1">
@@ -147,13 +174,7 @@ const OrderItem = ({
             <Text className="font-semibold text-base text-colorPrimary">
               {code}
             </Text>
-            {shortCode && (
-              <Image
-                source={require('~/assets/grab-logo.png')}
-                style={{ width: 35, height: 35 }}
-                resizeMode="contain"
-              />
-            )}
+            {saleChannel === 'GRAB_MART' && <GrabLogo />}
             {groupShippingCode && (
               <Badge label={groupShippingCode} variant="warning" />
             )}
@@ -176,9 +197,7 @@ const OrderItem = ({
         <View className="py-4 px-3 pt-3 gap-3">
           <View className="flex flex-row gap-1 items-center justify-between mb-1">
             <View className="flex flex-row gap-2 items-center flex-1 ">
-              <View className="-mt-0.5">
-                <Feather name="user" size={22} color="black" />
-              </View>
+              <View className="-mt-0.5">{userIcon}</View>
               <Text
                 className="text-md font-semibold "
                 style={{ width: '85%' }}
@@ -206,24 +225,24 @@ const OrderItem = ({
           </View>
           {isDriver && (
             <RowWithLabel
-              icon={<Octicons name="home" size={18} color="gray" />}
+              icon={homeIcon}
               label="Siêu thị"
               value={storeName || ''}
             />
           )}
           <RowWithLabel
-            icon={<Feather name="map-pin" size={17} color="gray" />}
+            icon={mapPinIcon}
             label="ĐC giao"
             value={deliveryAddress?.fullAddress}
             numberOfLines={isDriver ? 2 : 1}
           />
           <RowWithLabel
-            icon={<Feather name="calendar" size={18} color="gray" />}
+            icon={calendarIcon}
             label="Ngày đặt"
             value={moment(orderTime).format('DD/MM/YYYY')}
           />
           <RowWithLabel
-            icon={<Feather name="calendar" size={18} color="gray" />}
+            icon={calendarIcon}
             label="Ngày giao"
             value={
               deliveryTimeRange ? (
@@ -240,7 +259,7 @@ const OrderItem = ({
             bagsSize={bagLabels?.length}
           />
           <RowWithLabel
-            icon={<Feather name="package" size={18} color="gray" />}
+            icon={packageIcon}
             label="NV Pick"
             value={
               shouldShowassignee ? (
@@ -252,7 +271,7 @@ const OrderItem = ({
                       size="sm"
                       autoStart
                       containerStyle={{ flex: 1 }}
-                      initialMilliseconds={maxPickingTimeRemaining}
+                      initialMilliseconds={maxPickingTime - moment().valueOf()}
                     />
                   )}
                 </>

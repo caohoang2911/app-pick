@@ -61,7 +61,7 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
         <View className="flex flex-row items-center justify-between">
           <View className="flex flex-row items-center gap-1">
             <Text className="font-semibold">{item.code}</Text>
-            {item.shortCode && (
+            {item.saleChannel == 'GRAB_MART' && (
               <Image
                 source={require('~/assets/grab-logo.png')}
                 style={{ width: 35, height: 35 }}

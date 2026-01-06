@@ -1,7 +1,7 @@
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useLocalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
-import React from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
 import { useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
@@ -122,4 +122,4 @@ const InvoiceInfo = () => {
   );
 };
 
-export default InvoiceInfo;
+export default memo(InvoiceInfo);
