@@ -74,7 +74,7 @@ const OrderActionsBottomSheet = forwardRef<
 
   const handleAssignOrderWithClose = () => {
     onClose();
-    handleAssignOrder();
+    handleAssignOrder(orderCode);
   };
 
   const ActionItem = ({
@@ -150,7 +150,7 @@ const OrderActionsBottomSheet = forwardRef<
                     color="#374151"
                   />
                 }
-                title="Gán đơn cho tôi"
+                title="Gán đơn cho tài xế nội bộ"
                 onPress={handleAssignOrderWithClose}
                 enabled={true}
               />

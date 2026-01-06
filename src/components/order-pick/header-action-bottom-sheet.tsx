@@ -60,7 +60,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
     actionRef.current?.dismiss();
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     showMessage({
-      message: 'Gán đơn cho Picker thành công',
+      message: 'Gán đơn cho NV Pick thành công',
       type: 'success',
     });
   });
@@ -192,7 +192,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       },
       {
         key: 'assign-order-to-picker',
-        title: 'Gán đơn cho Picker',
+        title: 'Gán đơn cho NV Pick',
         enabled: true,
         icon: <SimpleLineIcons name="user-follow" size={22} color="black" />,
       },
