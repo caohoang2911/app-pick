@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Keyboard, Text, TouchableOpacity, View } from 'react-native';
 import { useSearchOrdersByKeywork } from '~/src/api/app-pick/use-search-orders-by-keywork';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
@@ -61,9 +61,12 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
         <View className="flex flex-row items-center justify-between">
           <View className="flex flex-row items-center gap-1">
             <Text className="font-semibold">{item.code}</Text>
-
             {item.shortCode && (
-              <Badge label={item.shortCode} variant="warning" />
+              <Image
+                source={require('~/assets/grab-logo.png')}
+                style={{ width: 35, height: 35 }}
+                resizeMode="contain"
+              />
             )}
           </View>
           <Badge
