@@ -31,8 +31,7 @@ const renderBagItem = ({ item }: { item: OrderBagItem }) => (
 const keyExtractor = (item: OrderBagItem, index: number) =>
   `${item.code}-${index}`;
 
-// Item separator cho FlatList
-const ItemSeparator = memo(() => <View className="h-2" />);
+const ItemSeparator = () => <View className="h-2" />;
 
 const BagType = memo(
   ({

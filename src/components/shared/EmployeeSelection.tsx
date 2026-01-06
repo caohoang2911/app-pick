@@ -121,12 +121,11 @@ const SearchBar = memo(
   }),
 );
 
-// Memoize các component hiển thị trạng thái loading và empty
-const LoadingIndicator = memo(() => (
+const LoadingIndicator = () => (
   <View className="text-center py-3">
     <ActivityIndicator className="text-gray-300" />
   </View>
-));
+);
 
 type Props = {
   onSelect: (store: EmployeeType) => void;

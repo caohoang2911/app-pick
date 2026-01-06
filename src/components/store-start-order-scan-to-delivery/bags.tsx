@@ -123,4 +123,4 @@ const Bags = memo(() => {
 // Đặt displayName để dễ debug
 Bags.displayName = 'Bags';
 
-export default Bags;
+export default memo(Bags);

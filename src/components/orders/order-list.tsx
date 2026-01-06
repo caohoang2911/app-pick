@@ -70,24 +70,21 @@ const ListFooter = memo(
   },
 );
 
-// Loading component
-const LoadingIndicator = memo(() => (
+const LoadingIndicator = () => (
   <View className="text-center py-3">
     <ActivityIndicator className="text-gray-300" />
   </View>
-));
+);
 
-// Error component
-const ErrorMessage = memo(({ error }: { error: string }) => (
+const ErrorMessage = ({ error }: { error: string }) => (
   <View className="mt-2">
     <SectionAlert variant="danger">
       <Text>Error: {error}</Text>
     </SectionAlert>
   </View>
-));
+);
 
-// Empty component
-const EmptyComponent = memo(({ isFetching }: { isFetching: boolean }) => {
+const EmptyComponent = ({ isFetching }: { isFetching: boolean }) => {
   if (!isFetching) {
     return (
       <View className="mt-3">
@@ -96,7 +93,7 @@ const EmptyComponent = memo(({ isFetching }: { isFetching: boolean }) => {
     );
   }
   return null;
-});
+};
 
 const OrderList = () => {
   // References
