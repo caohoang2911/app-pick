@@ -40,7 +40,7 @@ const HeaderActionBtn = () => {
   const driverActions = [
     {
       key: 'assign-order-to-me',
-      title: 'Gán đơn cho tôi',
+      title: 'Gán đơn cho tài xế nội bộ',
       enabled: true,
       icon: <MaterialIcons name="person-add-alt" size={24} color="black" />,
     },
@@ -128,7 +128,7 @@ const HeaderActionBtn = () => {
         handleScanBagDelivery();
         break;
       case 'assign-order-to-me':
-        handleAssignOrder();
+        handleAssignOrder(orderCode);
         break;
       case 'unassign-order-to-me':
         handleUnassignOrder();

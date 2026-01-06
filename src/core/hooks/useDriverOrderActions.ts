@@ -14,7 +14,7 @@ export const useDriverOrderActions = (orderCode: string) => {
   const { mutate: assignOrderToMe } = useAssignOrderShippingToMe(() => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     showMessage({
-      message: 'Gán đơn cho tôi thành công',
+      message: 'Gán đơn cho tài xế nội bộ thành công',
       type: 'success',
     });
   });
@@ -22,7 +22,7 @@ export const useDriverOrderActions = (orderCode: string) => {
   const { mutate: cancelMyOrder } = useDriverCancelMyOrderShipping(() => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
     showMessage({
-      message: 'Huỷ gán đơn cho tôi thành công',
+      message: 'Huỷ gán đơn cho tài xế nội bộ thành công',
       type: 'success',
     });
   });
@@ -39,14 +39,14 @@ export const useDriverOrderActions = (orderCode: string) => {
     NavigationHelpers.toOrderScanToDelivery(orderCode);
   };
 
-  const handleAssignOrder = () => {
+  const handleAssignOrder = (orderCode: string) => {
     showAlert({
-      title: 'Gán đơn cho tôi',
+      title: 'Gán đơn cho tài xế nội bộ',
       message: 'Bạn có muốn gán đơn cho mình không?',
       onConfirm: () => {
         hideAlert();
         setLoading(true);
-        assignOrderToMe({ status: 'ENABLE' });
+        assignOrderToMe({ status: 'ENABLE', orderCode });
       },
     });
   };

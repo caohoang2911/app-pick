@@ -236,7 +236,7 @@ const OrderItem = ({
           />
           <RowWithLabel
             icon={<Feather name="package" size={18} color="gray" />}
-            label="NV pick"
+            label="NV Pick"
             value={
               shouldShowassignee ? (
                 `${picker?.name && `${picker?.name}`}`
