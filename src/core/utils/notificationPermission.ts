@@ -8,10 +8,20 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
  * Checks if notification permissions are granted
  * If not, shows a popup asking user to enable notifications
  * @param onPermissionGranted Callback function to execute when permission is granted
+ * @param isDoneCodepush If true, will show popup/request permission. If false, will skip (wait for codepush to complete)
  */
 export const checkNotificationPermission = async (
   onPermissionGranted?: () => void,
+  isDoneCodepush: boolean = true,
 ): Promise<boolean> => {
+  // Wait for code push to complete before showing permission popup
+  if (!isDoneCodepush) {
+    console.log(
+      '[NotificationPermission] Waiting for code push to complete...',
+    );
+    return false;
+  }
+
   // Check if physical device (notifications won't work on simulators)
   // if (!Device.isDevice) {
   //   console.log('Notifications not available on simulator/emulator');
