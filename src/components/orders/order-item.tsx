@@ -93,7 +93,6 @@ const OrderItem = ({
   pickerNote,
   driverNote,
   deliveryType,
-  type,
   fulfillError,
   groupShippingCode,
   lastTimeUpdateStatus,
@@ -270,7 +269,6 @@ const OrderItem = ({
                     <CountdownTimer
                       size="sm"
                       autoStart
-                      containerStyle={{ flex: 1 }}
                       initialMilliseconds={maxPickingTime - moment().valueOf()}
                     />
                   )}

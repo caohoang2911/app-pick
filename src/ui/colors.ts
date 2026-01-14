@@ -1,10 +1,15 @@
+import tailwindColors from 'tailwindcss/colors';
+
 export const colors = {
+  ...tailwindColors,
+  // Custom colors - ghi đè màu Tailwind
   white: '#ffffff',
   black: '#000000',
   bgPrimary: '#E2E8F0',
   colorPrimary: '#3280F6',
   contentPrimary: '#2D3748',
   gray: {
+    ...tailwindColors.gray,
     50: '#F7F7F7',
     100: '#dfdfdf',
     200: '#EDF2F7',
@@ -12,27 +17,33 @@ export const colors = {
     500: '#718096',
   },
   pink: {
+    ...tailwindColors.pink,
     50: '#FAF5FF',
     200: '#FBB6CE',
     600: '#B83280',
   },
   purple: {
+    ...tailwindColors.purple,
     50: '#FAF5FF',
     200: '#D6BCFA',
     600: '#6B46C1',
   },
   orange: {
+    ...tailwindColors.orange,
     50: '#FFFAF0',
     100: '#FFF5E6',
     200: '#FFA500',
+    500: '#FF8C00',
     600: '#C05621',
   },
   cyan: {
+    ...tailwindColors.cyan,
     50: '#EDFDFD',
     200: '#9DECF9',
     600: '#00A3C4',
   },
   blue: {
+    ...tailwindColors.blue,
     50: '#E6F1FF',
     100: '#F8FAFC',
     200: '#93C2FF',
@@ -40,6 +51,7 @@ export const colors = {
     600: '#2567CC',
   },
   green: {
+    ...tailwindColors.green,
     50: '#F0FFF4',
     200: '#9AE6B4',
     600: '#25855A',
