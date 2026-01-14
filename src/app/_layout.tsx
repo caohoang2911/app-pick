@@ -36,7 +36,6 @@ import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
@@ -92,7 +91,6 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
   useHandleDeepLink();
   useWatchResponse();
-  useGetMyProfile();
   return <>{children}</>;
 };
 
