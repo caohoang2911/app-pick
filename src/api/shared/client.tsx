@@ -4,6 +4,7 @@ import { signOut } from '~/src/core';
 import { getToken } from '~/src/core/store/auth/utils';
 import { Env } from '~/env';
 import { isDevelopment } from '~/src/core/env';
+import CrashlyticsService from '~/src/core/utils/crashlytics';
 
 const BLACK_LIST_SHOW_MESSAGE = ['/app-pick/getStoreEmployeeProfile'];
 
@@ -136,6 +137,17 @@ axiosClient.interceptors.response.use(
         message: error.message,
         data: error.response?.data,
       });
+    }
+
+    // Report non-auth API errors to Crashlytics
+    if (error.response?.status && error.response.status >= 500) {
+      CrashlyticsService.log(
+        `API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+      );
+      CrashlyticsService.recordError(
+        new Error(`API ${error.response.status}: ${error.config?.url}`),
+        'API Error',
+      );
     }
 
     if (error.response?.status === 401 || error.response?.status === 403) {

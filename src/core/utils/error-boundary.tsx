@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import CrashlyticsService from './crashlytics';
 
 interface Props {
   children: ReactNode;
@@ -18,6 +19,7 @@ interface State {
  * - ReactInstanceManager.onHostPause AssertionError
  * - JavaScript errors in components
  * - Unhandled component errors
+ *  + Reports errors to Firebase Crashlytics
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -32,6 +34,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+
+    // Report to Firebase Crashlytics
+    try {
+      CrashlyticsService.log('ErrorBoundary caught error');
+      CrashlyticsService.log(`Component Stack: ${errorInfo.componentStack}`);
+      CrashlyticsService.recordError(error, 'ErrorBoundary');
+    } catch (e) {
+      console.warn('Failed to report error to Crashlytics:', e);
+    }
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
@@ -124,8 +135,8 @@ export const useErrorHandler = () => {
   const handleError = React.useCallback((error: Error, context?: string) => {
     console.error(`Error in ${context || 'component'}:`, error);
 
-    // You can add additional error reporting here
-    // e.g., send to crash reporting service
+    // Report to Firebase Crashlytics
+    CrashlyticsService.recordError(error, context || 'useErrorHandler');
   }, []);
 
   return { handleError };

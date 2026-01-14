@@ -7,14 +7,32 @@ import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import Loading from '~/src/components/Loading';
 import { useAuth } from '~/src/core';
 import { setConfig, useConfig } from '~/src/core/store/config';
+import CrashlyticsService from '~/src/core/utils/crashlytics';
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isDone, setIsDone] = useState(false);
   const status = useAuth.use.status();
   const version = useConfig.use.version();
   const config = useConfig.use.config();
+  const userInfo = useAuth.use.userInfo();
 
   useGetMyProfile();
+
+  // Set Crashlytics user info when signed in
+  useEffect(() => {
+    if (status === 'signIn' && userInfo) {
+      const userId =
+        (userInfo as any).employeeId || userInfo.storeCode || 'unknown';
+      CrashlyticsService.setUserId(String(userId));
+
+      if (userInfo.storeCode) {
+        CrashlyticsService.setAttribute('storeCode', userInfo.storeCode);
+      }
+      if (userInfo.storeName) {
+        CrashlyticsService.setAttribute('storeName', userInfo.storeName);
+      }
+    }
+  }, [status, userInfo]);
 
   const { data, refetch, isFetching } = useGetConfig({
     version: !isEmpty(config) ? version : '',
