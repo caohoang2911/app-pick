@@ -24,19 +24,19 @@ import useCarmera from '~/src/core/hooks/useCarmera';
 import { Button } from '../Button';
 
 const codeAvailable = [
-  'aztec',
+  // 'aztec',
   'ean13',
-  'ean8',
-  'qr',
-  'pdf417',
-  'upc_e',
-  'datamatrix',
-  'code39',
-  'code93',
-  'itf14',
-  'codabar',
+  // 'ean8',
+  // 'qr',
+  // 'pdf417',
+  // 'upc_e',
+  // 'datamatrix',
+  // 'code39',
+  // 'code93',
+  // 'itf14',
+  // 'codabar',
   'code128',
-  'upc_a',
+  // 'upc_a',
 ];
 
 type Props = {
