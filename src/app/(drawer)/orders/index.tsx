@@ -17,12 +17,14 @@ import OrderList from '~/src/components/orders/order-list';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
 import { useAuth } from '~/src/core';
+import { useCodepush } from '@/core/hooks/useCodePush';
 
 const Orders = () => {
   const navigation = useNavigation();
   const isScanQrCode = useOrders.use.isScanQrCode();
   const userInfo = useAuth.use.userInfo();
   const prevStoreCodeRef = useRef<string | undefined>(userInfo?.storeCode);
+  const { isDoneCodepush } = useCodepush();
 
   useEffect(() => {
     navigation.setOptions({
@@ -65,9 +67,12 @@ const Orders = () => {
     toggleScanQrCode(false);
   }, []);
 
+  // Only check notification permission after code push is complete
   useEffect(() => {
-    checkNotificationPermission();
-  }, []);
+    if (isDoneCodepush) {
+      checkNotificationPermission(undefined, isDoneCodepush);
+    }
+  }, [isDoneCodepush]);
 
   return (
     <>

@@ -245,7 +245,7 @@ const Settings = () => {
   }, []);
 
   const handleTestPushNotification = async () => {
-    const hasPermission = await checkNotificationPermission();
+    const hasPermission = await checkNotificationPermission(undefined, true);
 
     if (!hasPermission) {
       // Permission denied, notification cannot be sent
