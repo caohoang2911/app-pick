@@ -6,8 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
-import { Easing } from 'react-native-reanimated';
+import { Dimensions, Pressable, Text, View } from 'react-native';
 import { CloseLine } from '~/src/core/svgs';
 import { SafeBottomSheetScrollView } from '~/src/core/utils/safe-scrollview';
 
@@ -37,11 +36,13 @@ const Header = ({
   topHeader,
   titleAlign,
   bottomSheetModalRef,
+  hideCloseButton,
   onClose,
 }: Props) => {
   if (hideHeader) return null;
 
   const renderCloseButton = useMemo(() => {
+    if (hideCloseButton) return null;
     return (
       <Pressable
         onPress={() => {
@@ -62,7 +63,7 @@ const Header = ({
         <CloseLine />
       </Pressable>
     );
-  }, [onClose, bottomSheetModalRef]);
+  }, [onClose, bottomSheetModalRef, hideCloseButton]);
 
   return (
     <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4">
@@ -105,6 +106,7 @@ const SBottomSheet = forwardRef<any, Props>(
       extraButton,
       onClose,
       disableScrollView = false,
+      hideCloseButton = false,
       ...rests
     },
     ref,
@@ -113,11 +115,12 @@ const SBottomSheet = forwardRef<any, Props>(
 
     const handleSheetChanges = useCallback(
       (index: number) => {
-        if (index === -1) {
+        // Prevent closing when hideCloseButton is true
+        if (index === -1 && !hideCloseButton) {
           onClose?.();
         }
       },
-      [onClose],
+      [onClose, hideCloseButton],
     );
 
     useImperativeHandle(
@@ -142,11 +145,13 @@ const SBottomSheet = forwardRef<any, Props>(
       (props: any) => (
         <BottomSheetBackdrop
           {...props}
+          enableTouchThrough={!hideCloseButton}
           disappearsOnIndex={-1}
           appearsOnIndex={0}
+          pressBehavior={hideCloseButton ? 'none' : 'close'}
         />
       ),
-      [],
+      [hideCloseButton],
     );
 
     if (!visible) {
@@ -161,8 +166,8 @@ const SBottomSheet = forwardRef<any, Props>(
         handleIndicatorStyle={{ display: 'none', padding: 0 }}
         // key={'order-pick-action'}
         backdropComponent={renderBackdrop}
-        enablePanDownToClose
-        enableHandlePanningGesture
+        enablePanDownToClose={!hideCloseButton}
+        enableHandlePanningGesture={!hideCloseButton}
         keyboardBehavior="interactive"
         onDismiss={onClose}
         keyboardBlurBehavior="restore"
@@ -171,6 +176,7 @@ const SBottomSheet = forwardRef<any, Props>(
         {...rests}
       >
         <Header
+          hideCloseButton={hideCloseButton}
           topHeader={topHeader}
           title={title}
           renderTitle={renderTitle}
