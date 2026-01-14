@@ -490,7 +490,8 @@ const InputAmountPopup = () => {
         ) {
           showAlert({
             title: 'Thông báo',
-            message: 'Sản phẩm hết hàng, bạn có muốn thay thế sản phẩm?',
+            message: 'Sản phẩm hết hàng, vui lòng chọn sản phẩm thay thế?',
+            isHideCancelButton: true,
             onConfirm: () => {
               hideAlert();
               setIsVisibleReplaceProduct(true);
