@@ -167,7 +167,6 @@ function Providers({ children }: { children: React.ReactNode }) {
     <CustomErrorBoundary
       onError={(error, errorInfo) => {
         console.error('App Error Boundary caught error:', error, errorInfo);
-        // You can add crash reporting here
       }}
     >
       <BottomSheetModalProvider>
