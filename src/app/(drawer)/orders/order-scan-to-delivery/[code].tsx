@@ -28,6 +28,7 @@ import { SectionAlert } from '~/src/components/SectionAlert';
 import Header from '~/src/components/shared/Header';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import ShipperInfo from '~/src/components/shared/shipper-info';
+import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import {
   hideAlert,
@@ -60,6 +61,9 @@ const ACTION_CONFIRM_TITLE = {
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
+
+  const user = useAuth.use.userInfo();
+  const { name, username } = user || {};
 
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
@@ -325,8 +329,8 @@ const OrderScanToDelivery = () => {
         orderCode={code}
         invoiceNumber={invoiceCode}
         codAmount={Number(codAmount)}
-        employeeName={orderDetail?.header?.picker?.name || ''}
-        employeeCode={orderDetail?.header?.picker?.username || ''}
+        employeeName={name || ''}
+        employeeCode={username || ''}
         onCaptureComplete={handleReceiptCaptureComplete}
         enableCapture={shouldEnableCapture}
       />
