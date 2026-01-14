@@ -38,6 +38,7 @@ import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import Header from '~/src/components/shared/Header';
 import ButtonBack from '~/src/components/ButtonBack';
 import Loading from '~/src/components/Loading';
+import { useAuth } from '~/src/core';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
@@ -46,6 +47,9 @@ const OrderScanToDelivery = () => {
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
+
+  const user = useAuth.use.userInfo();
+  const { name, username } = user || {};
 
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
 
@@ -287,8 +291,8 @@ const OrderScanToDelivery = () => {
         orderCode={code}
         invoiceNumber={invoiceCode || ''}
         codAmount={Number(codAmount)}
-        employeeName={orderDetail?.header?.picker?.name || ''}
-        employeeCode={orderDetail?.header?.picker?.username || ''}
+        employeeName={name || ''}
+        employeeCode={username || ''}
         onCaptureComplete={handleReceiptCaptureComplete}
         enableCapture={shouldEnableCapture}
       />
