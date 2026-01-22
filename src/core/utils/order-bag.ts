@@ -39,8 +39,11 @@ export const generateBagCode = (
     bagLabels.length > 0
       ? Math.max(
           ...bagLabels.map((bag) => {
-            const code = bag.code.split('-')[1];
-            const numberOnly = code.match(/\d+/);
+            const code = bag.code.split('-');
+
+            const lastCode = code[code.length - 1];
+
+            const numberOnly = lastCode.match(/\d+/);
             return Number(numberOnly);
           }),
         )
