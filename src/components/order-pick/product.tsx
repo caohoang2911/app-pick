@@ -120,17 +120,24 @@ const TagsBadges = memo(({ tags }: { tags: string[] }) => {
 const WarningMessage = memo(
   ({
     errorName,
+    iconVariant = 'default',
     isLast = false,
   }: {
     errorName: string | React.ReactNode;
+    iconVariant?: 'default' | 'check';
     isLast?: boolean;
   }) => (
     <View
-      className={`px-3 py-2 ${isLast ? 'border-b border-gray-200' : ''}`}
+      className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}
       style={{ backgroundColor: colors.orange[200] }}
     >
-      <View className="flex flex-row items-center">
-        <View className="size-1.5 bg-white rounded-full mr-2 self-start mt-2" />
+      <View className="flex flex-row items-center gap-1">
+        {iconVariant == 'check' ? (
+          <Text className="text-white font-semibold text-sm">✓</Text>
+        ) : (
+          <View className="size-1.5 bg-white rounded-full ml-1 mr-1.5 self-start mt-2"></View>
+        )}
+
         {typeof errorName === 'string' ? (
           <Text className="text-white font-semibold text-sm">{errorName}</Text>
         ) : (
@@ -277,7 +284,7 @@ const OrderPickProduct = memo(
     originOrderQuantity,
     isHiddenTag = false,
     vendorName,
-    pickingBarcode,
+    pickedNote,
     statusOrder,
   }: Partial<Product | any>) => {
     const { code } = useLocalSearchParams<{ code: string }>();
@@ -442,12 +449,29 @@ const OrderPickProduct = memo(
             </View>
           </View>
           {Boolean(
-            pickedErrorName || isWarningOverQuantity || originOrderQuantity,
+            pickedErrorName ||
+            isWarningOverQuantity ||
+            originOrderQuantity ||
+            pickedNote,
           ) && (
             <View className="flex w-full flex-grow mt-3">
               {pickedErrorName && (
                 <WarningMessage errorName={pickedErrorName} />
               )}
+
+              {!!pickedNote && (
+                <>
+                  <WarningMessage
+                    errorName={
+                      <Text className="text-white font-bold text-sm">
+                        {pickedNote}
+                      </Text>
+                    }
+                    iconVariant="check"
+                  />
+                </>
+              )}
+
               {isWarningOverQuantity && (
                 <WarningMessage
                   errorName={

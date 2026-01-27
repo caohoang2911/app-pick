@@ -247,7 +247,7 @@ const OrderItem = ({
               deliveryTimeRange ? (
                 <Text>
                   {expectedDeliveryTime(deliveryTimeRange).day} {'  '}
-                  <Text className="text-orange-600 font-semibold">
+                  <Text className="text-orange-500 font-semibold">
                     {expectedDeliveryTime(deliveryTimeRange).hh}
                   </Text>
                 </Text>

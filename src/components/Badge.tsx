@@ -42,7 +42,7 @@ const badgeTextVariants = cva('font-medium text-center', {
       pink: 'text-pink-600',
       danger: 'text-red-600',
       success: 'text-green-600',
-      warning: 'text-orange-600',
+      warning: 'text-orange-500',
       confirmed: 'text-blue-600',
       store_picking: 'text-orange-600',
       store_packed: 'text-purple-600',
