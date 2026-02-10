@@ -90,7 +90,8 @@ const OrderActionsSubmenuBottomSheet = ({
         key: 'reprint-invoice',
         title: 'In lại hóa đơn',
         icon: <MaterialIcons name="print" size={24} color="black" />,
-        enabled: canReprintInvoice,
+        // enabled: canReprintInvoice,
+        enabled: true,
       },
       {
         key: 'history-order',
@@ -140,9 +141,9 @@ const OrderActionsSubmenuBottomSheet = ({
         setOrderDeliveryTypeVisible(true);
         break;
       case 'reprint-invoice':
-        if (canReprintInvoice && (code || orderCode)) {
-          reprintInvoice({ orderCode: code || orderCode || '' });
-        }
+        // if (canReprintInvoice && (code || orderCode)) {
+        reprintInvoice({ orderCode: code || orderCode || '' });
+        // }
         break;
       case 'history-order':
         setOrderHistoryVisible(true);

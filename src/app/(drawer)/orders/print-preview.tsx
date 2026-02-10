@@ -15,7 +15,7 @@ import { useOrderBag } from '~/src/core/store/order-bag';
 import { OrderBagType } from '~/src/types/order-bag';
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
-const PRINT_DELAY = 150; // ms per item
+const PRINT_DELAY = 250; // ms per item
 
 function PrintPreview() {
   const [result, setResult] = useState<any>([]);
