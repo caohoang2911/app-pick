@@ -11,7 +11,7 @@ import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
-  useCreateInvoice,
+  useCreateInvoiceFlow,
   useCreateInvoiceProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
@@ -111,14 +111,21 @@ const OrderScanToDelivery = () => {
     }
   }, [title, navigation]);
 
-  const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
-    useCreateInvoice();
-  const invoiceCode = createInvoiceData?.data?.invoiceCode;
-
   const { mutate: processCreateInvoice, isPending: isLoadingCreateInvoice } =
-    useCreateInvoiceProcess(code, () => {
-      handoverOrder({ orderCode: code, proofImages: uploadedImages });
+    useCreateInvoiceProcess({
+      onSuccess: () => {
+        handoverOrder({ orderCode: code, proofImages: uploadedImages });
+      },
     });
+  const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
+    useCreateInvoiceFlow({
+      onSuccess: (orderCode) => {
+        if (!Number(codAmount)) {
+          processCreateInvoice({ orderCode });
+        }
+      },
+    });
+  const invoiceCode = createInvoiceFlowData?.data?.invoiceCode;
 
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
@@ -175,25 +182,9 @@ const OrderScanToDelivery = () => {
     showAlertDialog({
       title: 'Tạo hoá đơn?',
       message: generateMessageCreateInvoice,
-      onConfirm: async () => {
+      onConfirm: () => {
         hideAlert();
-        const createInvoiceResult = await createInvoiceAsync({
-          orderCode: code,
-        });
-
-        if (createInvoiceResult?.error) {
-          showMessage({
-            message: createInvoiceResult?.error,
-            type: 'danger',
-          });
-          return;
-        }
-
-        if (!Number(codAmount)) {
-          processCreateInvoice({
-            orderCode: code,
-          });
-        }
+        createInvoiceFlow({ orderCode: code });
       },
     });
   });

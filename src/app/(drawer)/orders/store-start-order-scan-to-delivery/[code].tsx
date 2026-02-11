@@ -1,12 +1,12 @@
 import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '@/core/constants/order';
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
-  useCreateInvoice,
+  useCreateInvoiceFlow,
   useCreateInvoiceProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
@@ -92,15 +92,22 @@ const OrderScanToDelivery = () => {
     }
   }, [title, navigation]);
 
-  const { mutateAsync: createInvoiceAsync, data: createInvoiceData } =
-    useCreateInvoice();
-  const invoiceCode = createInvoiceData?.data?.invoiceCode;
-
   const { mutate: processCreateInvoice, isPending: isLoadingCreateInvoice } =
-    useCreateInvoiceProcess(code, () => {
-      startSelfShipping({ orderCode: code });
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    useCreateInvoiceProcess({
+      onSuccess: () => {
+        startSelfShipping({ orderCode: code });
+        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      },
     });
+  const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
+    useCreateInvoiceFlow({
+      onSuccess: (orderCode) => {
+        if (!Number(codAmount)) {
+          processCreateInvoice({ orderCode });
+        }
+      },
+    });
+  const invoiceCode = createInvoiceFlowData?.data?.invoiceCode;
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
@@ -129,10 +136,6 @@ const OrderScanToDelivery = () => {
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
   const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
     useStartSelfShipping(() => {
-      showMessage({
-        message: 'Tạo hoá đơn & bắt đầu giao hàng thành công',
-        type: 'success',
-      });
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
       router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
@@ -153,25 +156,9 @@ const OrderScanToDelivery = () => {
   const { checkShift } = useCheckShift(() => {
     showAlert({
       title: btnWithInvoiceLabel + '?',
-      onConfirm: async () => {
+      onConfirm: () => {
         hideAlert();
-        const createInvoiceResult = await createInvoiceAsync({
-          orderCode: code,
-        });
-
-        if (createInvoiceResult?.error) {
-          showMessage({
-            message: createInvoiceResult?.error,
-            type: 'danger',
-          });
-          return;
-        }
-
-        if (!Number(codAmount)) {
-          processCreateInvoice({
-            orderCode: code,
-          });
-        }
+        createInvoiceFlow({ orderCode: code });
       },
     });
   });

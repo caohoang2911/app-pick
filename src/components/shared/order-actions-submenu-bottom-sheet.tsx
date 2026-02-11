@@ -1,19 +1,24 @@
+import { ORDER_STATUS } from '@/core/constants/order';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
+import {
+  useCreateInvoiceFlow,
+  useCreateInvoiceProcess,
+} from '~/src/api/app-pick/use-create-invoice';
+import { useAuth } from '~/src/core/store/auth';
+import { useOrderPick } from '~/src/core/store/order-pick';
 import { EBikeLine } from '~/src/core/svgs';
-import { useReprintInvoice } from '~/src/api/app-pick/use-reprint-invoice';
-import { ORDER_STATUS } from '@/core/constants/order';
-import { OrderStatusValue } from '~/src/types/order';
+import CODReceipt from '../CODReceipt';
 import SBottomSheet from '../SBottomSheet';
 import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 import OrderDeliveryTypeBottomSheet from './order-delivery-type-bottom-sheet';
 import OrderHistoryBottomSheet from './order-history-bottom-sheet';
-import { useOrderPick } from '~/src/core/store/order-pick';
 
 interface OrderActionsSubmenuBottomSheetProps {
   visible: boolean;
@@ -37,13 +42,28 @@ const OrderActionsSubmenuBottomSheet = ({
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
   const orderDetail = useOrderPick.use.orderDetail();
+  const { codAmount } = orderDetail?.header || {};
 
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     React.useState(false);
   const [orderHistoryVisible, setOrderHistoryVisible] = React.useState(false);
 
-  const { mutate: reprintInvoice, isPending: isReprintingInvoice } =
-    useReprintInvoice();
+  const { mutate: reprintInvoice, data: reprintInvoiceData } =
+    useCreateInvoiceProcess({
+      successMessage: 'In lại hóa đơn thành công',
+    });
+  const { mutate: createInvoiceFlow } = useCreateInvoiceFlow({
+    onSuccess: (orderCode) => {
+      if (!Number(codAmount)) {
+        reprintInvoice({ orderCode });
+      }
+    },
+  });
+
+  const user = useAuth.use.userInfo();
+  const { name, username } = user || {};
+
+  const invoiceCodeFromAPI = reprintInvoiceData?.data?.invoiceCode;
 
   // Check if status is from STORE_PACKED onwards
   const canReprintInvoice = useMemo(() => {
@@ -90,7 +110,8 @@ const OrderActionsSubmenuBottomSheet = ({
         key: 'reprint-invoice',
         title: 'In lại hóa đơn',
         icon: <MaterialIcons name="print" size={24} color="black" />,
-        enabled: canReprintInvoice,
+        // enabled: canReprintInvoice,
+        enabled: true,
       },
       {
         key: 'history-order',
@@ -140,9 +161,7 @@ const OrderActionsSubmenuBottomSheet = ({
         setOrderDeliveryTypeVisible(true);
         break;
       case 'reprint-invoice':
-        if (canReprintInvoice && (code || orderCode)) {
-          reprintInvoice({ orderCode: code || orderCode || '' });
-        }
+        createInvoiceFlow({ orderCode: code || orderCode || '' });
         break;
       case 'history-order':
         setOrderHistoryVisible(true);
@@ -151,6 +170,19 @@ const OrderActionsSubmenuBottomSheet = ({
         break;
     }
   };
+
+  const handleReceiptCaptureComplete = useCallback(
+    (base64String: string) => {
+      reprintInvoice({
+        orderCode: code || orderCode || '',
+        codReceiptBase64String: base64String.trim(),
+      });
+    },
+    [code, orderCode, reprintInvoice],
+  );
+
+  const shouldEnableCapture =
+    Number(codAmount) > 0 && !!(invoiceCodeFromAPI || invoiceCode);
 
   return (
     <>
@@ -172,6 +204,15 @@ const OrderActionsSubmenuBottomSheet = ({
           </React.Fragment>
         ))}
       </SBottomSheet>
+      <CODReceipt
+        orderCode={code}
+        invoiceNumber={invoiceCodeFromAPI || invoiceCode || ''}
+        codAmount={Number(codAmount)}
+        employeeName={name || ''}
+        employeeCode={username || ''}
+        onCaptureComplete={handleReceiptCaptureComplete}
+        enableCapture={shouldEnableCapture}
+      />
       <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
       <CancelBookShipperBottomsheet
         orderCode={code || orderCode || ''}

@@ -1,18 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Dimensions,
-  Platform,
-  Text,
-  View,
-  StyleSheet,
-  InteractionManager,
-} from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { showAlert } from '~/src/core/store/alert-dialog';
 import { useOrderBag } from '~/src/core/store/order-bag';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
-import { formatCurrency } from '~/src/core/utils/number';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 
 const WIDTH_LABEL = 472;
@@ -28,7 +20,6 @@ const LabelPrintTemplate = React.memo(
     name,
     total,
     type,
-    index = 0,
     bagLabelsPrint,
   }: {
     setUri: (uri: string) => void;
@@ -48,6 +39,10 @@ const LabelPrintTemplate = React.memo(
 
     const totalBags =
       bagLabelsPrint?.filter((item: any) => item.type === type)?.length || 0;
+
+    const typeLabel = type
+      ? OrderBagLabel[type as keyof typeof OrderBagLabel]
+      : name;
 
     const { customer, deliveryAddress, deliveryTimeRange, codAmount } =
       header || {};
@@ -113,12 +108,12 @@ const LabelPrintTemplate = React.memo(
                 <Text
                   style={styles.titleText}
                   allowFontScaling={false}
-                >{`${name}/${totalBags}`}</Text>
+                >{`${typeLabel} (${totalBags} túi)`}</Text>
                 <Text
                   style={[styles.titleText, { marginRight: 15 }]}
                   allowFontScaling={false}
                 >
-                  {total} túi
+                  Tổng {total} túi
                 </Text>
               </View>
               <View style={styles.contentRow}>

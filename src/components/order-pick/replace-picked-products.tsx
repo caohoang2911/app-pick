@@ -82,6 +82,7 @@ const ReplacePickedProducts = () => {
       visible={visible}
       hideHeader
       ref={actionRef}
+      closeOnBackdropPress={false}
       snapPoints={['80%']}
       onClose={() => {
         setIsVisibleReplaceProduct(false);
