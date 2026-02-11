@@ -5,7 +5,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
 import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
@@ -15,7 +14,7 @@ import { useOrderPick } from '~/src/core/store/order-pick';
 import { EBikeLine } from '~/src/core/svgs';
 import CODReceipt from '../CODReceipt';
 import SBottomSheet from '../SBottomSheet';
-import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
+import BookShipperActionsBottomsheet from './book-shipper-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 import OrderDeliveryTypeBottomSheet from './order-delivery-type-bottom-sheet';
 import OrderHistoryBottomSheet from './order-history-bottom-sheet';
@@ -87,12 +86,12 @@ const OrderActionsSubmenuBottomSheet = ({
     () => [
       {
         key: 'book-ahamove',
-        title: 'Book tài xế AhaMove',
+        title: 'Book tài xế',
         icon: <EBikeLine />,
       },
       {
         key: 'cancel-book-shipper',
-        title: 'Huỷ tài xế AhaMove',
+        title: 'Huỷ tài xế',
         icon: (
           <MaterialCommunityIcons
             name="book-cancel-outline"
@@ -213,7 +212,7 @@ const OrderActionsSubmenuBottomSheet = ({
         onCaptureComplete={handleReceiptCaptureComplete}
         enableCapture={shouldEnableCapture}
       />
-      <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
+      <BookShipperActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
       <CancelBookShipperBottomsheet
         orderCode={code || orderCode || ''}
         ref={cancelBookShipperBottomsheetRef}

@@ -6,7 +6,7 @@ import { Pressable, Text } from 'react-native';
 import { EBikeLine } from '~/src/core/svgs';
 import { OrderDetail } from '~/src/types/order-pick';
 import SBottomSheet from '../SBottomSheet';
-import BookAhamoveActionsBottomsheet from './book-ahamove-actions-bottomsheet';
+import BookShipperActionsBottomsheet from './book-shipper-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 
 const DeliverySelectionBottomsheet = ({
@@ -18,7 +18,7 @@ const DeliverySelectionBottomsheet = ({
   orderDetail: OrderDetail;
   setVisible: (visible: boolean) => void;
 }) => {
-  const bookAhamoveActionsBottomsheetRef = useRef<any>();
+  const bookShipperActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
   const { code } = useLocalSearchParams<{ code: string }>();
 
@@ -30,12 +30,12 @@ const DeliverySelectionBottomsheet = ({
   const actions = [
     {
       key: 'book-ahamove',
-      title: 'Book tài xế AhaMove',
+      title: 'Book tài xế',
       icon: <EBikeLine />,
     },
     {
       key: 'cancel-book-shipper',
-      title: 'Huỷ tài xế AhaMove',
+      title: 'Huỷ book tài xế',
       icon: (
         <MaterialCommunityIcons
           name="book-cancel-outline"
@@ -79,7 +79,7 @@ const DeliverySelectionBottomsheet = ({
     setVisible(false);
     switch (key) {
       case 'book-ahamove':
-        bookAhamoveActionsBottomsheetRef.current?.present();
+        bookShipperActionsBottomsheetRef.current?.present();
         break;
       case 'start-store-delivery':
         if (status !== ORDER_STATUS.SHIPPING) {
@@ -118,7 +118,7 @@ const DeliverySelectionBottomsheet = ({
           </React.Fragment>
         ))}
       </SBottomSheet>
-      <BookAhamoveActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
+      <BookShipperActionsBottomsheet ref={bookShipperActionsBottomsheetRef} />
       <CancelBookShipperBottomsheet
         orderCode={code}
         ref={cancelBookShipperBottomsheetRef}
