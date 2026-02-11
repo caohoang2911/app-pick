@@ -574,12 +574,21 @@ const InputAmountPopup = () => {
             {productName}
           </Text>
         </View>
-        <Badge
-          className="self-start"
-          label={`SL đặt: ${currentProduct?.quantity} ${
-            currentProduct?.unit || ''
-          }`}
-        />
+        <View className="flex flex-row items-center gap-1">
+          <Badge
+            className="self-start"
+            label={`SL đặt: ${currentProduct?.quantity} ${
+              currentProduct?.unit || ''
+            }`}
+          />
+          {currentProduct?.barcode && (
+            <Badge
+              className="self-start"
+              label={currentProduct.barcode}
+              variant="pink"
+            />
+          )}
+        </View>
       </View>
     ),
     [
@@ -587,6 +596,7 @@ const InputAmountPopup = () => {
       currentProduct?.quantity,
       currentProduct?.unit,
       currentProduct?.tags,
+      currentProduct?.barcode,
     ],
   );
 

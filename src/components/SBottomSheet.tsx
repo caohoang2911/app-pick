@@ -25,6 +25,8 @@ type Props = {
   topHeader?: React.ReactNode;
   onClose: () => void;
   disableScrollView?: boolean; // When true, children won't be wrapped in ScrollView (useful for BottomSheetFlatList)
+  /** Đóng sheet khi click vào backdrop overlay. Mặc định true. */
+  closeOnBackdropPress?: boolean;
   [key: string]: any;
 };
 
@@ -107,6 +109,7 @@ const SBottomSheet = forwardRef<any, Props>(
       onClose,
       disableScrollView = false,
       hideCloseButton = false,
+      closeOnBackdropPress = true,
       ...rests
     },
     ref,
@@ -145,13 +148,15 @@ const SBottomSheet = forwardRef<any, Props>(
       (props: any) => (
         <BottomSheetBackdrop
           {...props}
-          enableTouchThrough={!hideCloseButton}
+          enableTouchThrough={!closeOnBackdropPress}
           disappearsOnIndex={-1}
           appearsOnIndex={0}
-          pressBehavior={hideCloseButton ? 'none' : 'close'}
+          pressBehavior={
+            closeOnBackdropPress && !hideCloseButton ? 'close' : 'none'
+          }
         />
       ),
-      [hideCloseButton],
+      [hideCloseButton, closeOnBackdropPress],
     );
 
     if (!visible) {
@@ -166,8 +171,8 @@ const SBottomSheet = forwardRef<any, Props>(
         handleIndicatorStyle={{ display: 'none', padding: 0 }}
         // key={'order-pick-action'}
         backdropComponent={renderBackdrop}
-        enablePanDownToClose={!hideCloseButton}
-        enableHandlePanningGesture={!hideCloseButton}
+        enablePanDownToClose={closeOnBackdropPress && !hideCloseButton}
+        enableHandlePanningGesture={closeOnBackdropPress && !hideCloseButton}
         keyboardBehavior="interactive"
         onDismiss={onClose}
         keyboardBlurBehavior="restore"

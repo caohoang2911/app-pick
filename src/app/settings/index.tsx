@@ -176,7 +176,7 @@ const Settings = () => {
 
       labelPrinterTimer.current = setTimeout(() => {
         showMessage({
-          message: 'Lưu IP máy in label thất bại',
+          message: 'Không thể kết nối máy in, lưu IP máy in label thất bại',
           type: 'danger',
         });
         client.destroy();
@@ -218,7 +218,7 @@ const Settings = () => {
 
       billPrinterTimer.current = setTimeout(() => {
         showMessage({
-          message: 'Lưu IP máy tạo hoá đơn thất bại',
+          message: 'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
           type: 'danger',
         });
         client.destroy();

@@ -131,7 +131,7 @@ const WarningMessage = memo(
       className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}
       style={{ backgroundColor: colors.orange[200] }}
     >
-      <View className="flex flex-row items-center gap-1">
+      <View className="flex flex-row gap-1">
         {iconVariant == 'check' ? (
           <Text className="text-white font-semibold text-sm">✓</Text>
         ) : (
