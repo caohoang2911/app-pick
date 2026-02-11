@@ -120,6 +120,31 @@ export const useCreateInvoice = () => {
   });
 };
 
+export type UseCreateInvoiceFlowOptions = {
+  /** Gọi khi tạo hóa đơn thành công (vd: gọi in nếu không COD) */
+  onSuccess?: (orderCode: string) => void;
+};
+
+/** Flow tạo hóa đơn: gọi API createInvoice, show lỗi nếu fail, gọi onSuccess(orderCode) nếu thành công. */
+export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
+  return useMutation({
+    mutationFn: async (params: Variables): Promise<Response> => {
+      const result = await createInvoice(params);
+      if (result?.error) {
+        showMessage({
+          message: result.error,
+          type: 'danger',
+        });
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    onSuccess: (_data, variables) => {
+      options?.onSuccess?.(variables.orderCode);
+    },
+  });
+};
+
 const validateBase64Image = (base64Image: string): string => {
   const trimmedBase64 = base64Image.trim();
 
@@ -142,7 +167,16 @@ const sendToPrinter = async (
   client.write(printerBuffer);
   await new Promise((resolve) => setTimeout(resolve, 100));
 };
-export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
+
+export type UseCreateInvoiceProcessOptions = {
+  onSuccess?: () => void;
+  successMessage?: string;
+};
+
+export const useCreateInvoiceProcess = (
+  options?: UseCreateInvoiceProcessOptions,
+) => {
+  const { onSuccess, successMessage } = options ?? {};
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
@@ -157,7 +191,9 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
       try {
         client = await checkPrinterConnection();
 
-        const base64Image = await fetchBase64ImageByInvoiceURLAsync(orderCode);
+        const base64Image = await fetchBase64ImageByInvoiceURLAsync(
+          params.orderCode,
+        );
         const fullBase64 = validateBase64Image(base64Image.data);
 
         const {
@@ -178,7 +214,6 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
         }
 
         if (!error && printerBuffers?.length > 0 && client) {
-          // Gửi tuần tự từng buffer, đợi mỗi lần gửi xong mới gửi tiếp
           for (const printerBuffer of printerBuffers) {
             await sendToPrinter(client, printerBuffer as unknown as Uint8Array);
           }
@@ -211,10 +246,16 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
             }
           }
 
-          // Tất cả sendToPrinter đã hoàn thành, mới destroy client
           if (client) {
             client.destroy();
             client = null;
+          }
+
+          if (successMessage) {
+            showMessage({
+              message: successMessage,
+              type: 'success',
+            });
           }
         } else {
           if (client) {
@@ -230,7 +271,6 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
 
         return { error: null, data: null };
       } catch (error) {
-        // Cleanup client nếu có lỗi
         if (client) {
           client.destroy();
           client = null;
@@ -241,8 +281,8 @@ export const useCreateInvoiceProcess = (orderCode: string, cb?: () => void) => {
     },
     onSuccess: (data: any) => {
       setLoading(false);
-      if (!data?.error) {
-        cb?.();
+      if (data && !data.error) {
+        onSuccess?.();
       }
     },
     onError: () => {
