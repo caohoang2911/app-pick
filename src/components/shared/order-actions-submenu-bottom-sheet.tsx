@@ -41,8 +41,8 @@ const OrderActionsSubmenuBottomSheet = ({
   const actionRef = useRef<any>();
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
-  const orderDetail = useOrderPick.use.orderDetail();
-  const { codAmount } = orderDetail?.header || {};
+  const codAmount = useOrderPick((s) => s.orderDetail?.header?.codAmount);
+  const orderDetail = useOrderPick((s) => s.orderDetail);
 
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     React.useState(false);

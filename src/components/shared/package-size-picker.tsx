@@ -34,11 +34,10 @@ interface Action {
 
 export const PackageSizePicker: FC<PackageSizePickerProps> = ({}) => {
   const [visible, setVisible] = useState(false);
-  const orderDetail = useOrderPick.use.orderDetail();
-
-  const header = orderDetail?.header || {};
-
-  const { shipping, status } = header as OrderDetailHeader;
+  const header = useOrderPick((s) => s.orderDetail?.header) as
+    | OrderDetailHeader
+    | undefined;
+  const { shipping, status } = header || {};
   const actionRef = useRef<BottomSheetModal>(null);
 
   const { packageSize } = shipping || {};

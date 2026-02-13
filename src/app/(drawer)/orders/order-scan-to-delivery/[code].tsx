@@ -102,9 +102,6 @@ const OrderScanToDelivery = () => {
     isInvoiceSupportedByAppPick,
   } = header || {};
 
-  // Lấy orderDetail để dùng ở các chỗ khác (picker info)
-  const orderDetail = useOrderScanToDelivery.use.orderDetail();
-
   const title = getScanToDeliveryInfo({
     deliveryType,
     status,
@@ -136,8 +133,7 @@ const OrderScanToDelivery = () => {
     });
   // Ưu tiên invoiceCode từ API (đúng đơn hiện tại), tránh dính data đơn cũ khi chuyển đơn
   const invoiceCode =
-    data?.data?.header?.invoiceCode ??
-    createInvoiceFlowData?.data?.invoiceCode;
+    data?.data?.header?.invoiceCode ?? createInvoiceFlowData?.data?.invoiceCode;
 
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
@@ -315,7 +311,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={showAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo orderDetail={orderDetail} />
+            <ShipperInfo orderDetail={data?.data || {}} />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />

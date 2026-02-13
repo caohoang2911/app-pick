@@ -70,9 +70,6 @@ const OrderScanToDelivery = () => {
     status,
   } = header || {};
 
-  // Lấy orderDetail để dùng ở các chỗ khác
-  const orderDetail = useStoreStartOrderScanToDelivery.use.orderDetail() || {};
-
   const title = getScanToDeliveryInfo({
     deliveryType,
     status,
@@ -110,8 +107,7 @@ const OrderScanToDelivery = () => {
     });
   // Ưu tiên invoiceCode từ API (đúng đơn hiện tại), tránh dính data đơn cũ khi chuyển đơn
   const invoiceCode =
-    data?.data?.header?.invoiceCode ??
-    createInvoiceFlowData?.data?.invoiceCode;
+    data?.data?.header?.invoiceCode ?? createInvoiceFlowData?.data?.invoiceCode;
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
@@ -247,7 +243,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo orderDetail={orderDetail} />
+            <ShipperInfo orderDetail={data?.data || {}} />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />
