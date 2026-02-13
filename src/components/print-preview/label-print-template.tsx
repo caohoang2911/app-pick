@@ -21,10 +21,11 @@ const LabelPrintTemplate = React.memo(
     name,
     total,
     type,
+    index = 0,
     bagLabelsPrint,
   }: {
-    setUri: (uri: string) => void;
-    setRef: (ref: any) => void;
+    setUri: (uri: string, index: number) => void;
+    setRef?: (ref: any) => void;
     code: string;
     /** Mã đơn hàng (order code) – bắt buộc để lấy header từ store. */
     orderCode: string;
@@ -69,7 +70,7 @@ const LabelPrintTemplate = React.memo(
             height: HEIGHT_LABEL,
           }).then(
             async (uri) => {
-              setUri(uri);
+              setUri(uri, index);
             },
             (error) => {
               console.error('Oops, snapshot failed', error);
@@ -93,7 +94,7 @@ const LabelPrintTemplate = React.memo(
           clearTimeout(timer);
         }
       };
-    }, [isLayoutComplete]);
+    }, [isLayoutComplete, index, setUri]);
 
     return (
       <>
@@ -139,7 +140,7 @@ const LabelPrintTemplate = React.memo(
                       style={styles.customerNameText}
                       allowFontScaling={false}
                     >
-                      *******{phone?.slice(-3)}
+                      {phone ? `*******${phone.slice(-3)}` : '*******'}
                     </Text>
                     {/* <Text style={styles.codText} allowFontScaling={false}>COD: {formatCurrency(codAmount, {unit: true})}</Text>  */}
                   </View>
