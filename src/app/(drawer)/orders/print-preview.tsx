@@ -103,7 +103,10 @@ function PrintPreview() {
       }, 0);
       return () => clearTimeout(id);
     }
+  }, [host, orderDetailProcessing]);
 
+  useEffect(() => {
+    if (!host) return;
     const id = setTimeout(() => {
       startTransition(() => {
         setLoading(
@@ -113,7 +116,7 @@ function PrintPreview() {
       });
     }, 0);
     return () => clearTimeout(id);
-  }, [connected, host, orderDetailProcessing]);
+  }, [host, connected]);
 
   useEffect(() => {
     if (result.length === 0) return;
