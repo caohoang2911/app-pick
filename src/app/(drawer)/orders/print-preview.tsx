@@ -24,12 +24,16 @@ function PrintPreview() {
 
   const [connected, setConnected] = useState(false);
 
-  const { code, type, bagCode } = useLocalSearchParams<{
+  const {
+    code: orderCode,
+    type,
+    bagCode,
+  } = useLocalSearchParams<{
     code?: string;
     type?: string;
     bagCode?: string;
   }>();
-  useOrderDetailForCode(code);
+  useOrderDetailForCode(orderCode);
 
   const orderBags = useOrderBag.use.orderBags();
 
@@ -142,9 +146,9 @@ function PrintPreview() {
     isCancelledRef.current = false;
 
     // Mark printed
-    if (code) {
+    if (orderCode) {
       setOrderPrintedBagLabel({
-        orderCode: code,
+        orderCode: orderCode,
         labelCodes: bagLabelsPrint.map((item) => item.code),
       });
     }
@@ -195,6 +199,10 @@ function PrintPreview() {
     };
   }, []);
 
+  if (!orderCode) {
+    return null;
+  }
+
   return (
     <View style={{ padding: 10 }}>
       <ScrollView>
@@ -203,6 +211,7 @@ function PrintPreview() {
             <LabelPrintTemplate
               key={index}
               {...item}
+              orderCode={orderCode}
               index={index}
               bagLabelsPrint={bagLabelsPrint}
               total={bagLabelsPrint.length}
