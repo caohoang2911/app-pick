@@ -17,6 +17,7 @@ const LabelPrintTemplate = React.memo(
   ({
     setUri,
     code,
+    orderCode,
     name,
     total,
     type,
@@ -25,6 +26,8 @@ const LabelPrintTemplate = React.memo(
     setUri: (uri: string) => void;
     setRef: (ref: any) => void;
     code: string;
+    /** Mã đơn hàng (order code) – bắt buộc để lấy header từ store. */
+    orderCode: string;
     name: string;
     total: number;
     type: OrderBagType;
@@ -35,7 +38,7 @@ const LabelPrintTemplate = React.memo(
     const [isLayoutComplete, setIsLayoutComplete] = useState(false);
 
     const header = useOrderDetailStore((s) =>
-      code ? s.orderDetails[code]?.header : undefined,
+      orderCode ? s.orderDetails[orderCode]?.header : undefined,
     );
 
     const totalBags =
@@ -45,8 +48,7 @@ const LabelPrintTemplate = React.memo(
       ? OrderBagLabel[type as keyof typeof OrderBagLabel]
       : name;
 
-    const { customer, deliveryAddress, deliveryTimeRange, codAmount } =
-      header || {};
+    const { customer, deliveryAddress, deliveryTimeRange } = header || {};
     const { name: customerName, phone } = customer || {};
     const { fullAddress } = deliveryAddress || {};
 
