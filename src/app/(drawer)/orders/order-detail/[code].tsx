@@ -1,8 +1,15 @@
 import { BarcodeScanningResult } from 'expo-camera';
-import { useNavigation } from 'expo-router';
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import ActionsBottom from '~/src/components/order-pick/actions-bottom';
 import Header from '~/src/components/order-pick/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/header-action-bottom-sheet';
@@ -11,8 +18,10 @@ import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-pr
 import OrderPickProducts from '~/src/components/order-pick/products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   setCurrentId,
+  setOrderDetail,
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
@@ -28,6 +37,18 @@ import {
 
 const OrderPick = () => {
   const navigation = useNavigation();
+  const { code } = useLocalSearchParams<{ code: string }>();
+  useOrderDetailForCode(code);
+
+  const orderDetail = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code] : undefined,
+  );
+
+  useEffect(() => {
+    if (code && orderDetail) {
+      setOrderDetail(orderDetail);
+    }
+  }, [code, orderDetail]);
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
 
@@ -35,7 +56,6 @@ const OrderPick = () => {
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
-  const orderDetail = useOrderPick.use.orderDetail();
 
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
 

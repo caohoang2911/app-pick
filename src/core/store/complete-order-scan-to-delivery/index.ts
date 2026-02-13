@@ -1,25 +1,17 @@
 import { create } from 'zustand';
 import { OrderBagItem } from '~/src/types/order-bag';
 import { createSelectors } from '../../utils/browser';
-import { OrderDetail } from '~/src/types/order-pick';
-
 interface CompleteOrderScanToDeliveryState {
   orderBags: OrderBagItem[];
   uploadedImages: string[];
-  orderDetail: OrderDetail;
   setCompleteOrderBags: (orderBags: OrderBagItem[]) => void;
   setCompleteUploadedImages: (uploadedImage: string, reset?: boolean) => void;
-  setCompleteOrderDetail: (orderDetail: OrderDetail) => void;
 }
 
 const _useCompleteOrderScanToDelivery =
   create<CompleteOrderScanToDeliveryState>((set, get) => ({
     orderBags: [],
     uploadedImages: [],
-    orderDetail: {},
-    setCompleteOrderDetail: (orderDetail: OrderDetail) => {
-      set({ orderDetail });
-    },
     setCompleteOrderBags: (orderBags: OrderBagItem[]) => {
       set(() => ({
         orderBags,
@@ -57,10 +49,4 @@ export const setCompleteUploadedImages = (
   _useCompleteOrderScanToDelivery
     .getState()
     .setCompleteUploadedImages(uploadedImage, reset);
-};
-
-export const setCompleteOrderDetail = (orderDetail: OrderDetail) => {
-  _useCompleteOrderScanToDelivery
-    .getState()
-    .setCompleteOrderDetail(orderDetail);
 };

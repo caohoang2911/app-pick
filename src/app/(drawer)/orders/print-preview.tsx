@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import TcpSocket from 'react-native-tcp-socket';
 import { useGenRongtaPrintData } from '~/src/api/app-pick/use-gen-rongta-print-data';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderPrintedBagLabel } from '~/src/api/app-pick/use-set-order-printed-bag-label';
 import { queryClient } from '~/src/api/shared';
 import LabelPrintTemplate from '~/src/components/print-preview/label-print-template';
@@ -23,12 +24,14 @@ function PrintPreview() {
 
   const [connected, setConnected] = useState(false);
 
-  const orderBags = useOrderBag.use.orderBags();
   const { code, type, bagCode } = useLocalSearchParams<{
     code?: string;
     type?: string;
     bagCode?: string;
   }>();
+  useOrderDetailForCode(code);
+
+  const orderBags = useOrderBag.use.orderBags();
 
   const findBagLabel = orderBags[type as OrderBagType]?.find(
     (item: any) => item.code === bagCode,

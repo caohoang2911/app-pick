@@ -1,10 +1,11 @@
+import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useShallow } from 'zustand/react/shallow';
 import { transformOrderBags } from '~/src/core/utils/order-bag';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 import Box from '../Box';
 import BagType from './bag-type';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   setStoreStartOrderBags,
   useStoreStartOrderScanToDelivery,
@@ -28,19 +29,18 @@ const Bags = memo(() => {
   // State và refs
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Lấy dữ liệu từ store
-  // bagLabels: cần xử lý || [] nên dùng selector tùy chỉnh
-  const bagLabels = useStoreStartOrderScanToDelivery(
-    (state) => state.orderDetail?.header?.bagLabels || [],
+  const { code } = useLocalSearchParams<{ code?: string }>();
+  const bagLabels = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header?.bagLabels : undefined,
   );
   // orderBags: array trực tiếp từ store, Zustand đã tự memoize, không cần useShallow
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
 
   // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
   useEffect(() => {
-    if (bagLabels?.length > 0) {
-      // Tránh set lại nếu bagLabels không thay đổi
-      const initializedBags = bagLabels.map((bag: any) => ({
+    const labels = bagLabels ?? [];
+    if (labels.length > 0) {
+      const initializedBags = labels.map((bag: any) => ({
         ...bag,
         isDone: false,
       }));

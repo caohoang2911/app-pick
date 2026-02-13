@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
-import { useCompleteOrderScanToDelivery } from '~/src/core/store/complete-order-scan-to-delivery';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
@@ -39,7 +39,9 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  const header = useCompleteOrderScanToDelivery((s) => s.orderDetail?.header);
+  const header = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header : undefined,
+  );
   const {
     status,
     orderTime,

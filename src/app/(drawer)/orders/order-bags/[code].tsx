@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useUpdateOrderBagLabels } from '~/src/api/app-pick/use-update-order-bag-labels';
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
@@ -17,16 +17,16 @@ import {
   undoLastChange,
   useOrderBag,
 } from '~/src/core/store/order-bag';
-import { useOrderPick } from '~/src/core/store/order-pick';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const orderDetail = useOrderPick.use.orderDetail();
+  const { data, isPending, isFetching } = useOrderDetailForCode(code);
+  const orderDetail = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code] : undefined,
+  );
   const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
-  const { data, isPending, isFetching } = useOrderDetailQuery({
-    orderCode: code,
-  });
 
   const orderBags = useOrderBag.use.orderBags();
 
@@ -61,12 +61,13 @@ const OrderBags = () => {
   });
 
   useEffect(() => {
-    setOrderDetail(data?.data || {});
-
+    if (orderDetail) {
+      setOrderDetail(orderDetail);
+    }
     if (data && isInitialLoad) {
       setIsInitialLoad(false);
     }
-  }, [data, isInitialLoad]);
+  }, [orderDetail, data, isInitialLoad]);
 
   if (data?.error) {
     return (

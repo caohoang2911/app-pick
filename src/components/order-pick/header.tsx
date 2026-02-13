@@ -95,7 +95,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const keyword = useOrderPick.use.keyword();
   const { code } = useGlobalSearchParams<{ code: string }>();
   const [value, setValue] = useState<string>();
-  const disabled = useCanEditOrderPick();
+  const disabled = useCanEditOrderPick(code as string);
 
   useEffect(() => {
     setValue(keyword);
@@ -118,7 +118,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { status, statusName, lastTimeUpdateStatus, tags, picker } =
     header || {};
 
-  const shouldDisplayQrScan = useCanEditOrderPick();
+  const shouldDisplayQrScan = useCanEditOrderPick(code as string);
 
   return (
     <View className="px-4 bg-white">

@@ -89,7 +89,8 @@ const MoreActionsBtn = ({
     return tags?.includes('REPLACEABLE');
   }, [tags]);
 
-  const shouldDisplayEdit = useCanEditOrderPick() && isAllowEditPickQuantity;
+  const shouldDisplayEdit =
+    useCanEditOrderPick(code as string) && isAllowEditPickQuantity;
 
   const renderItem = useMemo(
     () =>

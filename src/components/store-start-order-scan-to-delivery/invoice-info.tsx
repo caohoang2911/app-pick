@@ -4,7 +4,7 @@ import { toLower } from 'lodash';
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
-import { useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
@@ -39,9 +39,8 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
-  const header = useStoreStartOrderScanToDelivery(
-    (state) => state.orderDetail?.header,
+  const header = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header : undefined,
   );
   const {
     status,

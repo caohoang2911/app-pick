@@ -4,15 +4,17 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_COUNTER_STATUS } from '@/core/constants/order';
 import { useOrderBag } from '~/src/core/store/order-bag';
-import { useOrderPick } from '~/src/core/store/order-pick';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
 
 function HeaderBag() {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const status = useOrderPick(
-    (s) => (s.orderDetail?.header as OrderDetailHeader)?.status,
+  const status = useOrderDetailStore((s) =>
+    code
+      ? (s.orderDetails[code]?.header as OrderDetailHeader)?.status
+      : undefined,
   );
 
   const totalBagsCount = useOrderBag((s) => {

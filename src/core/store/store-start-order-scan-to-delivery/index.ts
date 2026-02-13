@@ -4,13 +4,9 @@ import { create } from 'zustand';
 import { OrderBagItem } from '~/src/types/order-bag';
 import { createSelectors } from '../../utils/browser';
 import { isValidOrderBagCode } from '../../utils/order-bag';
-import { OrderDetail } from '~/src/types/order-pick';
-
 interface StoreStartOrderScanToDeliveryState {
   isScanQrCodeProduct: boolean;
-  orderDetail: OrderDetail;
   orderBags: OrderBagItem[];
-  setStoreStartOrderDetail: (orderDetail: OrderDetail) => void;
   toggleStoreStartScanQrCodeProduct: (isScanQrCodeProduct: boolean) => void;
   setStoreStartOrderBags: (orderBags: OrderBagItem[]) => void;
   scanQrCodeSuccess: (
@@ -22,11 +18,7 @@ interface StoreStartOrderScanToDeliveryState {
 const _useStoreStartOrderScanToDelivery =
   create<StoreStartOrderScanToDeliveryState>((set, get) => ({
     isScanQrCodeProduct: false,
-    orderDetail: {},
     orderBags: [],
-    setStoreStartOrderDetail: (orderDetail: OrderDetail) => {
-      set({ orderDetail });
-    },
     toggleStoreStartScanQrCodeProduct: (isScanQrCodeProduct: boolean) => {
       set({ isScanQrCodeProduct });
     },
@@ -88,12 +80,6 @@ export const scanQrCodeSuccess = (
   cb?: (orderBags: OrderBagItem[]) => void,
 ) => {
   _useStoreStartOrderScanToDelivery.getState().scanQrCodeSuccess(result, cb);
-};
-
-export const setStoreStartOrderDetail = (orderDetail: OrderDetail) => {
-  _useStoreStartOrderScanToDelivery
-    .getState()
-    .setStoreStartOrderDetail(orderDetail);
 };
 
 export const getIsScanQrCodeProduct = () => {

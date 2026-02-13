@@ -4,13 +4,12 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useConfig } from '~/src/core/store/config';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import Box from '../Box';
-import { useOrderScanToDelivery } from '~/src/core/store/order-scan-to-delivery';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 
 const COL_LEFT_WIDTH = 105;
 
@@ -36,12 +35,10 @@ const RowInfo = ({
 };
 
 const InvoiceInfo = () => {
-  const { code } = useLocalSearchParams<{
-    code: string;
-  }>();
-
-  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
-  const header = useOrderScanToDelivery((state) => state.orderDetail?.header);
+  const { code } = useLocalSearchParams<{ code?: string }>();
+  const header = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header : undefined,
+  );
   const {
     status,
     orderTime,

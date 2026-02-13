@@ -3,7 +3,7 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { showAlert } from '~/src/core/store/alert-dialog';
-import { useOrderBag } from '~/src/core/store/order-bag';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 
@@ -34,8 +34,9 @@ const LabelPrintTemplate = React.memo(
     const ref = useRef<ViewShot>(null);
     const [isLayoutComplete, setIsLayoutComplete] = useState(false);
 
-    const orderDetail = useOrderBag.use.orderDetail();
-    const { header } = orderDetail || {};
+    const header = useOrderDetailStore((s) =>
+      code ? s.orderDetails[code]?.header : undefined,
+    );
 
     const totalBags =
       bagLabelsPrint?.filter((item: any) => item.type === type)?.length || 0;
