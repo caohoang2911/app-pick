@@ -1,5 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  startTransition,
+} from 'react';
 import { ScrollView, View } from 'react-native';
 import TcpSocket from 'react-native-tcp-socket';
 import { useGenRongtaPrintData } from '~/src/api/app-pick/use-gen-rongta-print-data';
@@ -33,19 +40,22 @@ function PrintPreview() {
     type?: string;
     bagCode?: string;
   }>();
-  useOrderDetailForCode(orderCode);
+  const { isPending, isFetching } = useOrderDetailForCode(orderCode);
+
+  const orderDetailProcessing = isPending || isFetching;
 
   const orderBags = useOrderBag.use.orderBags();
 
-  const findBagLabel = orderBags[type as OrderBagType]?.find(
-    (item: any) => item.code === bagCode,
-  );
-  const orderBagsMerged = [
-    ...orderBags.DRY,
-    ...orderBags.FRESH,
-    ...orderBags.FROZEN,
-  ];
-  const bagLabelsPrint = bagCode ? [{ ...findBagLabel }] : orderBagsMerged;
+  const bagLabelsPrint = useMemo(() => {
+    const merged = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];
+    if (bagCode && type) {
+      const found = orderBags[type as OrderBagType]?.find(
+        (item: any) => item.code === bagCode,
+      );
+      return found ? [{ ...found }] : merged;
+    }
+    return merged;
+  }, [orderBags, bagCode, type]);
 
   const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(
     () => {},
@@ -70,28 +80,40 @@ function PrintPreview() {
 
   const handleSetUri = useCallback((uri: string, index: number) => {
     setResult((prev: any) => [...prev, { uri, index }]);
+    setIsDone((d) => d + 1);
   }, []);
 
   const { mutate: genRongtaPrintData, data } = useGenRongtaPrintData();
   const printArrayData = data?.data || [];
 
   useEffect(() => {
-    if (!host) {
-      showAlert({
-        message: `Chưa cài đặt máy in`,
-        onConfirm: () => {
-          router.back();
-          router.navigate('/settings');
-          hideAlert();
-        },
-        confirmText: 'Cài đặt ngay',
-        isHideCancelButton: true,
-      });
-      return;
+    if (!host && !orderDetailProcessing) {
+      setLoading(false);
+      const id = setTimeout(() => {
+        showAlert({
+          message: `Chưa cài đặt máy in`,
+          onConfirm: () => {
+            router.back();
+            router.navigate('/settings');
+            hideAlert();
+          },
+          confirmText: 'Cài đặt ngay',
+          isHideCancelButton: true,
+        });
+      }, 0);
+      return () => clearTimeout(id);
     }
 
-    setLoading(true, connected ? 'Đang xử lý ...' : 'Đang kết nối máy in ...');
-  }, [connected, host]);
+    const id = setTimeout(() => {
+      startTransition(() => {
+        setLoading(
+          true,
+          connected ? 'Đang xử lý ...' : 'Đang kết nối máy in ...',
+        );
+      });
+    }, 0);
+    return () => clearTimeout(id);
+  }, [connected, host, orderDetailProcessing]);
 
   useEffect(() => {
     if (result.length === 0) return;
@@ -113,12 +135,14 @@ function PrintPreview() {
     try {
       refClient.current = TcpSocket.createConnection(options, () => {
         clearTimeout(timer);
-        setConnected(true);
+        startTransition(() => setConnected(true));
       });
 
       timer = setTimeout(() => {
-        setLoading(false);
-        setConnected(false);
+        startTransition(() => {
+          setLoading(false);
+          setConnected(false);
+        });
         showAlert({
           message: `Không thể kết nối với máy in label tại IP: ${host}.`,
           onConfirm: () => {
@@ -209,16 +233,13 @@ function PrintPreview() {
         <View className="gap-3">
           {bagLabelsPrint.slice(0, done + 1).map((item, index) => (
             <LabelPrintTemplate
-              key={index}
+              key={item.code ?? index}
               {...item}
               orderCode={orderCode}
               index={index}
               bagLabelsPrint={bagLabelsPrint}
               total={bagLabelsPrint.length}
-              setUri={(uri) => {
-                setIsDone(done + 1);
-                handleSetUri(uri, index);
-              }}
+              setUri={handleSetUri}
             />
           ))}
         </View>

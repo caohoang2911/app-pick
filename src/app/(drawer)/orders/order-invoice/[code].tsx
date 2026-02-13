@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -7,15 +7,10 @@ import InvoiceInfo from '~/src/components/order-invoice/invoice-info';
 import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
 import ShippingInfo from '~/src/components/order-invoice/shipping-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
-import { setLoading } from '~/src/core/store/loading';
 
 const OrderInvoice = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { data, isPending, isFetching } = useOrderDetailForCode(code);
-
-  useEffect(() => {
-    setLoading(isPending || isFetching);
-  }, [isPending, isFetching]);
+  const { data } = useOrderDetailForCode(code);
 
   if (data?.error) {
     return (

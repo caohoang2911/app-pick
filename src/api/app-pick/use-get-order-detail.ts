@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
-import { OrderDetail } from '~/src/types/order-pick';
+import { useEffect } from 'react';
 import { useRole } from '~/src/core/hooks/useRole';
-import { setOrderDetailForCode } from '~/src/core/store/order-detail';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { setLoading } from '~/src/core/store/loading';
+import {
+  setOrderDetailForCode,
+  useOrderDetailStore,
+} from '~/src/core/store/order-detail';
 import { Role } from '~/src/types/employee';
+import { OrderDetail } from '~/src/types/order-pick';
 
 type Variables = {
   orderCode?: string;
@@ -56,6 +59,23 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
       setOrderDetailForCode(orderCode, query.data.data);
     }
   }, [orderCode, query.data]);
+
+  // Trì hoãn bật loading để tránh hiện trong lúc animation chuyển trang
+  const DELAY_SHOW_LOADING_MS = 300;
+  useEffect(() => {
+    if (!orderCode) return;
+    const isLoading = query.isPending || query.isFetching;
+    if (!isLoading) {
+      setLoading(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setLoading(true);
+    }, DELAY_SHOW_LOADING_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [orderCode, query.isPending, query.isFetching]);
 
   return {
     ...query,
