@@ -38,6 +38,7 @@ import { setLoading } from '~/src/core/store/loading';
 // import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import {
   getIsScanQrCodeProduct,
+  resetOrderBags,
   scanQrCodeSuccess,
   setScanToDeliveryDetail,
   setUploadedImages,
@@ -68,6 +69,14 @@ const OrderScanToDelivery = () => {
   const { data, isPending, isFetching } = useOrderDetailQuery({
     orderCode: code,
   });
+
+  // Reset store khi chuyển sang đơn khác, tránh hiển thị nhầm (đã in label, tạo HĐ, đơn hoàn tất của đơn trước)
+  useEffect(() => {
+    if (code) {
+      setScanToDeliveryDetail({});
+      resetOrderBags();
+    }
+  }, [code]);
 
   useEffect(() => {
     if (data?.data) {
@@ -125,7 +134,10 @@ const OrderScanToDelivery = () => {
         }
       },
     });
-  const invoiceCode = createInvoiceFlowData?.data?.invoiceCode;
+  // Ưu tiên invoiceCode từ API (đúng đơn hiện tại), tránh dính data đơn cũ khi chuyển đơn
+  const invoiceCode =
+    data?.data?.header?.invoiceCode ??
+    createInvoiceFlowData?.data?.invoiceCode;
 
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
