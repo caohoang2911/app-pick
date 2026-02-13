@@ -26,6 +26,7 @@ import { setLoading } from '~/src/core/store/loading';
 import {
   getIsScanQrCodeProduct,
   scanQrCodeSuccess,
+  setStoreStartOrderBags,
   setStoreStartOrderDetail,
   toggleStoreStartScanQrCodeProduct,
   useStoreStartOrderScanToDelivery,
@@ -107,7 +108,10 @@ const OrderScanToDelivery = () => {
         }
       },
     });
-  const invoiceCode = createInvoiceFlowData?.data?.invoiceCode;
+  // Ưu tiên invoiceCode từ API (đúng đơn hiện tại), tránh dính data đơn cũ khi chuyển đơn
+  const invoiceCode =
+    data?.data?.header?.invoiceCode ??
+    createInvoiceFlowData?.data?.invoiceCode;
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
@@ -118,6 +122,14 @@ const OrderScanToDelivery = () => {
     });
 
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
+
+  // Reset store khi chuyển sang đơn khác, tránh hiển thị nhầm (đã in label, tạo HĐ, đơn hoàn tất của đơn trước)
+  useEffect(() => {
+    if (code) {
+      setStoreStartOrderDetail({});
+      setStoreStartOrderBags([]);
+    }
+  }, [code]);
 
   useEffect(() => {
     if (data?.data) {
