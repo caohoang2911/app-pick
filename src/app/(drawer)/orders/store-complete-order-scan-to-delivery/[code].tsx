@@ -74,10 +74,10 @@ const OrderScanToDelivery = () => {
   const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
   const failureBottomSheetRef = useRef<any>(null);
   const segments = useSegments();
-  const orderDetail = useCompleteOrderScanToDelivery.use.orderDetail();
+  const orderDetail = useCompleteOrderScanToDelivery((s) => s.orderDetail);
+  const header = useCompleteOrderScanToDelivery((s) => s.orderDetail?.header);
   const { tags, status, codAmount, deliveryType } =
-    (orderDetail?.header as OrderDetailHeader) || {};
-
+    (header as OrderDetailHeader) || {};
   const title = getScanToDeliveryInfo({
     deliveryType,
     status,
@@ -95,6 +95,11 @@ const OrderScanToDelivery = () => {
       ),
     });
   }, [title, navigation, code, deliveryType, status]);
+
+  useEffect(() => {
+    if (code) setCompleteOrderDetail({});
+  }, [code]);
+
   useEffect(() => {
     if (data?.data) {
       setCompleteOrderDetail(data?.data || {});
@@ -174,7 +179,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo orderDetail={orderDetail} />
+            <ShipperInfo orderDetail={orderDetail || {}} />
             <InvoiceInfo />
             <Box>
               <ImageUploader

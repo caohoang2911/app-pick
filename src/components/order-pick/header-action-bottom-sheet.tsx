@@ -47,10 +47,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
 
   const employeeSelectionRef = useRef<any>();
 
-  const orderDetail = useOrderPick.use.orderDetail();
-  const { status, deliveryType } = orderDetail?.header || {};
-
-  const { customer } = orderDetail?.header || {};
+  const status = useOrderPick((s) => s.orderDetail?.header?.status);
+  const deliveryType = useOrderPick((s) => s.orderDetail?.header?.deliveryType);
+  const customer = useOrderPick((s) => s.orderDetail?.header?.customer);
+  const invoiceCodeFromHeader = useOrderPick(
+    (s) => s.orderDetail?.header?.invoiceCode,
+  );
   const { name, phone, membership } = customer || {};
   const { rank } = membership || {};
 
@@ -260,7 +262,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         deliveryType={deliveryType}
         orderCode={code}
         status={status}
-        invoiceCode={orderDetail?.header?.invoiceCode}
+        invoiceCode={invoiceCodeFromHeader}
       />
     </>
   );

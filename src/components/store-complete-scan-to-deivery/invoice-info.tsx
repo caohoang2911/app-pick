@@ -39,8 +39,7 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  const orderInvoice = useCompleteOrderScanToDelivery.use.orderDetail();
-  const { header } = orderInvoice || {};
+  const header = useCompleteOrderScanToDelivery((s) => s.orderDetail?.header);
   const {
     status,
     orderTime,

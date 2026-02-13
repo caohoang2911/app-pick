@@ -11,17 +11,16 @@ import { Badge } from '../Badge';
 function HeaderBag() {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const header = useOrderPick.use.orderDetail();
-  const { status } = (header?.header as OrderDetailHeader) || {};
+  const status = useOrderPick(
+    (s) => (s.orderDetail?.header as OrderDetailHeader)?.status,
+  );
 
-  const orderBags = useOrderBag.use.orderBags();
-  const mergeOrderBags = orderBags
-    ? [
-        ...(orderBags?.DRY || []),
-        ...(orderBags?.FRESH || []),
-        ...(orderBags?.FROZEN || []),
-      ]
-    : [];
+  const totalBagsCount = useOrderBag((s) => {
+    const b = s.orderBags;
+    return (
+      (b?.DRY?.length || 0) + (b?.FRESH?.length || 0) + (b?.FROZEN?.length || 0)
+    );
+  });
 
   return (
     <View className="bg-white mx-4 px-4 py-3 flex flex-row justify-between rounded-md items-center gap-2">
@@ -34,7 +33,7 @@ function HeaderBag() {
           variant={toLower(status as string) as any}
         />
       </View>
-      <Text>Tổng SL tem: {mergeOrderBags?.length || 0}</Text>
+      <Text>Tổng SL tem: {totalBagsCount}</Text>
     </View>
   );
 }
