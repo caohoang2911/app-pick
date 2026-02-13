@@ -40,7 +40,9 @@ function PrintPreview() {
     type?: string;
     bagCode?: string;
   }>();
-  useOrderDetailForCode(orderCode);
+  const { isPending, isFetching } = useOrderDetailForCode(orderCode);
+
+  const orderDetailProcessing = isPending || isFetching;
 
   const orderBags = useOrderBag.use.orderBags();
 
@@ -85,7 +87,8 @@ function PrintPreview() {
   const printArrayData = data?.data || [];
 
   useEffect(() => {
-    if (!host) {
+    if (!host && !orderDetailProcessing) {
+      setLoading(false);
       const id = setTimeout(() => {
         showAlert({
           message: `Chưa cài đặt máy in`,
@@ -110,7 +113,7 @@ function PrintPreview() {
       });
     }, 0);
     return () => clearTimeout(id);
-  }, [connected, host]);
+  }, [connected, host, orderDetailProcessing]);
 
   useEffect(() => {
     if (result.length === 0) return;
