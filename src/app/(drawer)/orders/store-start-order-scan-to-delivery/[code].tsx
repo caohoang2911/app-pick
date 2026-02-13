@@ -1,7 +1,13 @@
 import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '@/core/constants/order';
 import { BarcodeScanningResult } from 'expo-camera';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -9,7 +15,7 @@ import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
 } from '~/src/api/app-pick/use-create-invoice';
-import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { useStartSelfShipping } from '~/src/api/app-pick/use-start-self-shipping';
 import { queryClient } from '~/src/api/shared/api-provider';
@@ -22,12 +28,13 @@ import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { setLoading } from '~/src/core/store/loading';
+import { transformBagsData } from '~/src/core/utils/order-bag';
 import {
   getIsScanQrCodeProduct,
   scanQrCodeSuccess,
   setStoreStartOrderBags,
-  setStoreStartOrderDetail,
   toggleStoreStartScanQrCodeProduct,
   useStoreStartOrderScanToDelivery,
 } from '~/src/core/store/store-start-order-scan-to-delivery';
@@ -45,22 +52,14 @@ const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { data, isPending, isFetching } = useOrderDetailQuery({
-    orderCode: code,
-  });
+  const { data, isPending, isFetching } = useOrderDetailForCode(code);
 
-  const user = useAuth.use.userInfo();
-  const { name, username } = user || {};
-
-  const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
-
-  const isScanQrCodeProduct = getIsScanQrCodeProduct();
-
-  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderDetail
-  const header = useStoreStartOrderScanToDelivery(
-    (state) => state.orderDetail?.header,
+  const header = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header : undefined,
   ) as OrderDetailHeader | undefined;
-
+  const orderDetail = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code] : undefined,
+  );
   const {
     tags,
     deliveryType,
@@ -69,6 +68,13 @@ const OrderScanToDelivery = () => {
     shipping,
     status,
   } = header || {};
+
+  const user = useAuth.use.userInfo();
+  const { name, username } = user || {};
+
+  const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
+
+  const isScanQrCodeProduct = getIsScanQrCodeProduct();
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -97,6 +103,7 @@ const OrderScanToDelivery = () => {
         queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
       },
     });
+  const createInvoiceFlowOrderCodeRef = useRef<string | null>(null);
   const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
     useCreateInvoiceFlow({
       onSuccess: (orderCode) => {
@@ -105,9 +112,11 @@ const OrderScanToDelivery = () => {
         }
       },
     });
-  // Ưu tiên invoiceCode từ API (đúng đơn hiện tại), tránh dính data đơn cũ khi chuyển đơn
   const invoiceCode =
-    data?.data?.header?.invoiceCode ?? createInvoiceFlowData?.data?.invoiceCode;
+    orderDetail?.header?.invoiceCode ??
+    (createInvoiceFlowOrderCodeRef.current === code
+      ? createInvoiceFlowData?.data?.invoiceCode
+      : undefined);
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
@@ -119,19 +128,26 @@ const OrderScanToDelivery = () => {
 
   const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
 
-  // Reset store khi chuyển sang đơn khác, tránh hiển thị nhầm (đã in label, tạo HĐ, đơn hoàn tất của đơn trước)
-  useEffect(() => {
+  // Reset store khi đổi đơn (code) hoặc khi rời màn — store là global, tránh dính đơn khác
+  useLayoutEffect(() => {
     if (code) {
-      setStoreStartOrderDetail({});
       setStoreStartOrderBags([]);
+      toggleStoreStartScanQrCodeProduct(false);
     }
   }, [code]);
 
   useEffect(() => {
-    if (data?.data) {
-      setStoreStartOrderDetail(data?.data || {});
+    if (orderDetail?.header?.bagLabels) {
+      setStoreStartOrderBags(transformBagsData(orderDetail.header.bagLabels));
     }
-  }, [data]);
+  }, [orderDetail?.header?.bagLabels]);
+
+  useEffect(() => {
+    return () => {
+      setStoreStartOrderBags([]);
+      toggleStoreStartScanQrCodeProduct(false);
+    };
+  }, []);
 
   if (data?.error) {
     return (
@@ -166,6 +182,7 @@ const OrderScanToDelivery = () => {
       title: btnWithInvoiceLabel + '?',
       onConfirm: () => {
         hideAlert();
+        createInvoiceFlowOrderCodeRef.current = code;
         createInvoiceFlow({ orderCode: code });
       },
     });
@@ -243,7 +260,7 @@ const OrderScanToDelivery = () => {
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />
           <View className="flex flex-col gap-4">
-            <ShipperInfo orderDetail={data?.data || {}} />
+            <ShipperInfo orderDetail={orderDetail || {}} />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags />

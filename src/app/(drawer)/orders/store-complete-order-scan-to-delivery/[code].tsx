@@ -14,7 +14,8 @@ import React, {
 } from 'react';
 import { Text, View } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
-import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useValidateDeliveryOrderFail } from '~/src/api/app-pick/use-validate-delivery-order-fail';
 import Box from '~/src/components/Box';
@@ -27,7 +28,6 @@ import InvoiceInfo from '~/src/components/store-complete-scan-to-deivery/invoice
 import { ORDER_STATUS, ORDER_TAGS } from '@/core/constants/order';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import {
-  setCompleteOrderDetail,
   setCompleteUploadedImages,
   useCompleteOrderScanToDelivery,
 } from '~/src/core/store/complete-order-scan-to-delivery';
@@ -43,9 +43,19 @@ import Loading from '~/src/components/Loading';
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { data, isPending, isFetching, refetch } = useOrderDetailQuery({
-    orderCode: code,
-  });
+  const { data, isPending, isFetching, refetch } = useOrderDetailForCode(code);
+
+  // Reset trước paint khi đổi đơn, tránh hiển thị ảnh chứng từ đơn A trên màn đơn B
+  useLayoutEffect(() => {
+    if (code) setCompleteUploadedImages('', true);
+  }, [code]);
+
+  const header = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header : undefined,
+  );
+  const orderDetail = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code] : undefined,
+  );
 
   const { mutate: handoverOrder, isPending: isLoadingHandoverOrder } =
     useHandoverOrder(() => {
@@ -74,8 +84,6 @@ const OrderScanToDelivery = () => {
   const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
   const failureBottomSheetRef = useRef<any>(null);
   const segments = useSegments();
-  const orderDetail = useCompleteOrderScanToDelivery((s) => s.orderDetail);
-  const header = useCompleteOrderScanToDelivery((s) => s.orderDetail?.header);
   const { tags, status, codAmount, deliveryType } =
     (header as OrderDetailHeader) || {};
   const title = getScanToDeliveryInfo({
@@ -95,16 +103,6 @@ const OrderScanToDelivery = () => {
       ),
     });
   }, [title, navigation, code, deliveryType, status]);
-
-  useEffect(() => {
-    if (code) setCompleteOrderDetail({});
-  }, [code]);
-
-  useEffect(() => {
-    if (data?.data) {
-      setCompleteOrderDetail(data?.data || {});
-    }
-  }, [data]);
 
   useEffect(() => {
     return () => {

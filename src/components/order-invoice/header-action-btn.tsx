@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { ORDER_STATUS } from '@/core/constants/order';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';
 import {
   getScanToDeliveryInfo,
@@ -28,8 +28,10 @@ const HeaderActionBtn = () => {
     handleUnassignOrder,
   } = useDriverOrderActions(orderCode);
 
-  const orderInvoice = useOrderInvoice.use.orderInvoice();
-  const { header } = orderInvoice || {};
+  const orderDetail = useOrderDetailStore((s) =>
+    orderCode ? s.orderDetails[orderCode] : undefined,
+  );
+  const { header } = orderDetail || {};
   const { status, deliveryType } = header || {};
 
   const isShipping = status === ORDER_STATUS.SHIPPING;
@@ -163,7 +165,7 @@ const HeaderActionBtn = () => {
         ))}
       </SBottomSheet>
       <DeliverySelectionBottomsheet
-        orderDetail={orderInvoice}
+        orderDetail={orderDetail || {}}
         visible={deliverySelectionVisible}
         setVisible={setDeliverySelectionVisible}
       />

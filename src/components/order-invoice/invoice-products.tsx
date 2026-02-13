@@ -1,7 +1,8 @@
+import { useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -47,8 +48,11 @@ const ProductItem = memo(
 );
 
 const InvoiceProducts = () => {
-  const orderInvoice = useOrderInvoice.use.orderInvoice();
-  const { delivery } = orderInvoice || {};
+  const { code } = useLocalSearchParams<{ code?: string }>();
+  const orderDetail = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code] : undefined,
+  );
+  const { delivery } = orderDetail || {};
 
   const { items: orderItems } = delivery || {};
 

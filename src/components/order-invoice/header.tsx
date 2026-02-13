@@ -5,7 +5,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useConfig } from '~/src/core/store/config';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { OrderDetail } from '~/src/types/order-pick';
@@ -40,9 +40,11 @@ const HeaderTags = ({ tags }: { tags?: string[] }) => {
 
 const OrderPickHeader = () => {
   const { code } = useGlobalSearchParams<{ code: string }>();
-  const orderDetail: OrderDetail = useOrderInvoice.use.orderInvoice();
+  const orderDetail = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code] : undefined,
+  ) as OrderDetail | undefined;
 
-  const { header } = orderDetail;
+  const { header } = orderDetail || {};
   const { status, statusName, lastTimeUpdateStatus, tags } = header || {};
 
   return (

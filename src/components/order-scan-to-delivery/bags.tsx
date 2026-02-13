@@ -1,5 +1,7 @@
+import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   resetOrderBags,
   setOrderBags,
@@ -28,22 +30,18 @@ const Bags = memo(() => {
   // State và refs
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const bagLabels = useOrderScanToDelivery(
-    (state) => state.orderDetail?.header?.bagLabels,
-  );
-
-  const orderCode = useOrderScanToDelivery(
-    (state) => state.orderDetail?.header?.code,
+  const { code } = useLocalSearchParams<{ code?: string }>();
+  const bagLabels = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header?.bagLabels : undefined,
   );
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
-  // Reset orderBags khi order code thay đổi
   useEffect(() => {
-    if (orderCode) {
+    if (code) {
       resetOrderBags();
       setIsInitialized(false);
     }
-  }, [orderCode]);
+  }, [code]);
 
   // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
   useEffect(() => {

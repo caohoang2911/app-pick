@@ -1,14 +1,17 @@
+import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { useOrderInvoice } from '~/src/core/store/order-invoice';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 
 const COL_LEFT_WIDTH = 105;
 
 const InvoiceInfo = () => {
-  // Tối ưu: lấy header trực tiếp từ selector thay vì toàn bộ orderInvoice
-  const header = useOrderInvoice((state) => state.orderInvoice?.header);
+  const { code } = useLocalSearchParams<{ code?: string }>();
+  const header = useOrderDetailStore((s) =>
+    code ? s.orderDetails[code]?.header : undefined,
+  );
   const {
     picker,
     deliveryAddress,

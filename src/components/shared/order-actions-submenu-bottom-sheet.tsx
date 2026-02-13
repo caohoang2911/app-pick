@@ -9,8 +9,9 @@ import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
 } from '~/src/api/app-pick/use-create-invoice';
+import { queryClient } from '~/src/api/shared/api-provider';
 import { useAuth } from '~/src/core/store/auth';
-import { useOrderPick } from '~/src/core/store/order-pick';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { EBikeLine } from '~/src/core/svgs';
 import CODReceipt from '../CODReceipt';
 import SBottomSheet from '../SBottomSheet';
@@ -40,21 +41,34 @@ const OrderActionsSubmenuBottomSheet = ({
   const actionRef = useRef<any>();
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
-  const codAmount = useOrderPick((s) => s.orderDetail?.header?.codAmount);
-  const orderDetail = useOrderPick((s) => s.orderDetail);
+  const orderDetail = useOrderDetailStore((s) =>
+    code || orderCode ? s.orderDetails[code || orderCode || ''] : undefined,
+  );
+  const codAmount = orderDetail?.header?.codAmount;
+
+  const [reprintWithCapture, setReprintWithCapture] = React.useState(false);
 
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     React.useState(false);
   const [orderHistoryVisible, setOrderHistoryVisible] = React.useState(false);
 
+  const invalidateOrderDetail = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  }, []);
+
   const { mutate: reprintInvoice, data: reprintInvoiceData } =
     useCreateInvoiceProcess({
       successMessage: 'In lại hóa đơn thành công',
+      onSuccess: () => {
+        setReprintWithCapture(true);
+        invalidateOrderDetail();
+      },
     });
   const { mutate: createInvoiceFlow } = useCreateInvoiceFlow({
-    onSuccess: (orderCode) => {
+    onSuccess: (orderCodeFromApi) => {
+      invalidateOrderDetail();
       if (!Number(codAmount)) {
-        reprintInvoice({ orderCode });
+        reprintInvoice({ orderCode: orderCodeFromApi });
       }
     },
   });
@@ -181,7 +195,9 @@ const OrderActionsSubmenuBottomSheet = ({
   );
 
   const shouldEnableCapture =
-    Number(codAmount) > 0 && !!(invoiceCodeFromAPI || invoiceCode);
+    reprintWithCapture &&
+    Number(codAmount) > 0 &&
+    !!(invoiceCodeFromAPI || invoiceCode);
 
   return (
     <>
@@ -227,7 +243,7 @@ const OrderActionsSubmenuBottomSheet = ({
         orderCode={code || orderCode || ''}
         setVisible={setOrderHistoryVisible}
         visible={orderHistoryVisible}
-        orderDetail={orderDetail}
+        orderDetail={orderDetail || {}}
       />
     </>
   );
