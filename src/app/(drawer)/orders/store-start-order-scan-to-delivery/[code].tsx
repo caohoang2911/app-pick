@@ -7,30 +7,36 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
+import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { useStartSelfShipping } from '~/src/api/app-pick/use-start-self-shipping';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
+import ButtonBack from '~/src/components/ButtonBack';
 import CODReceipt from '~/src/components/CODReceipt';
-import { SectionAlert } from '~/src/components/SectionAlert';
-import ScannerBox from '~/src/components/shared/ScannerBox';
+import Loading from '~/src/components/Loading';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
+import { SectionAlert } from '~/src/components/SectionAlert';
+import Header from '~/src/components/shared/Header';
+import ScannerBox from '~/src/components/shared/ScannerBox';
+import ShipperInfo from '~/src/components/shared/shipper-info';
 import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
+import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { setLoading } from '~/src/core/store/loading';
-import { transformBagsData } from '~/src/core/utils/order-bag';
+import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 import {
   getIsScanQrCodeProduct,
   scanQrCodeSuccess,
@@ -38,21 +44,16 @@ import {
   toggleStoreStartScanQrCodeProduct,
   useStoreStartOrderScanToDelivery,
 } from '~/src/core/store/store-start-order-scan-to-delivery';
-import { OrderDetailHeader } from '~/src/types/order-pick';
-import ShipperInfo from '~/src/components/shared/shipper-info';
-import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
-import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
-import Header from '~/src/components/shared/Header';
-import ButtonBack from '~/src/components/ButtonBack';
-import Loading from '~/src/components/Loading';
-import { useAuth } from '~/src/core';
+import { transformBagsData } from '~/src/core/utils/order-bag';
+import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
   const { data, isPending, isFetching } = useOrderDetailForCode(code);
+  const [showPrintReceipt, setShowPrintReceipt] = useState(false);
 
   const header = useOrderDetailStore((s) =>
     code ? s.orderDetails[code]?.header : undefined,
@@ -60,6 +61,7 @@ const OrderScanToDelivery = () => {
   const orderDetail = useOrderDetailStore((s) =>
     code ? s.orderDetails[code] : undefined,
   );
+
   const {
     tags,
     deliveryType,
@@ -107,6 +109,7 @@ const OrderScanToDelivery = () => {
   const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
     useCreateInvoiceFlow({
       onSuccess: (orderCode) => {
+        setShowPrintReceipt(true);
         if (!Number(codAmount)) {
           processCreateInvoice({ orderCode });
         }
@@ -126,7 +129,8 @@ const OrderScanToDelivery = () => {
       router.back();
     });
 
-  const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
+  const shouldEnableCapture =
+    Number(codAmount) > 0 && !!invoiceCode && showPrintReceipt;
 
   // Reset store khi đổi đơn (code) hoặc khi rời màn — store là global, tránh dính đơn khác
   useLayoutEffect(() => {
@@ -137,8 +141,14 @@ const OrderScanToDelivery = () => {
   }, [code]);
 
   useEffect(() => {
-    if (orderDetail?.header?.bagLabels) {
-      setStoreStartOrderBags(transformBagsData(orderDetail.header.bagLabels));
+    if (orderDetail?.header?.bagLabels?.length) {
+      const bagsType = transformBagsData(orderDetail.header.bagLabels);
+      const flatBags = [
+        ...bagsType.DRY,
+        ...bagsType.FROZEN,
+        ...bagsType.FRESH,
+      ]?.map((bag) => ({ ...bag, isDone: bag.isDone ?? false }));
+      setStoreStartOrderBags(flatBags);
     }
   }, [orderDetail?.header?.bagLabels]);
 
@@ -166,6 +176,7 @@ const OrderScanToDelivery = () => {
     });
 
   const isAllDone = useMemo(() => {
+    if (!Array.isArray(orderBags) || orderBags.length === 0) return false;
     return orderBags.every((bag) => bag.isDone || bag.lastScannedTime);
   }, [orderBags]);
 
@@ -236,6 +247,7 @@ const OrderScanToDelivery = () => {
 
   const handleReceiptCaptureComplete = useCallback(
     (base64String: string) => {
+      setShowPrintReceipt(false);
       processCreateInvoice({
         orderCode: code,
         codReceiptBase64String: base64String.trim(),
@@ -244,7 +256,7 @@ const OrderScanToDelivery = () => {
     [code, processCreateInvoice],
   );
 
-  const isDisabled = !orderBags.length || isPending;
+  const isDisabled = !orderBags?.length || isPending;
 
   if (isPending) {
     return <Loading />;

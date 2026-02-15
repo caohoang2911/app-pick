@@ -12,9 +12,9 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   useCreateInvoiceFlow,
@@ -41,7 +41,6 @@ import {
   showAlert as showAlertDialog,
 } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
-// import { setOrderInvoice } from '~/src/core/store/order-invoice';
 import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   getIsScanQrCodeProduct,
@@ -68,6 +67,7 @@ const ACTION_CONFIRM_TITLE = {
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
+  const [showPrintReceipt, setShowPrintReceipt] = useState(false);
 
   const user = useAuth.use.userInfo();
   const { name, username } = user || {};
@@ -121,12 +121,14 @@ const OrderScanToDelivery = () => {
     useCreateInvoiceProcess({
       onSuccess: () => {
         handoverOrder({ orderCode: code, proofImages: uploadedImages });
+        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
       },
     });
   const createInvoiceFlowOrderCodeRef = useRef<string | null>(null);
   const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
     useCreateInvoiceFlow({
       onSuccess: (orderCode) => {
+        setShowPrintReceipt(true);
         if (!Number(codAmount)) {
           processCreateInvoice({ orderCode });
         }
@@ -139,7 +141,8 @@ const OrderScanToDelivery = () => {
       ? createInvoiceFlowData?.data?.invoiceCode
       : undefined);
 
-  const shouldEnableCapture = Number(codAmount) > 0 && !!invoiceCode;
+  const shouldEnableCapture =
+    Number(codAmount) > 0 && !!invoiceCode && showPrintReceipt;
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
 
@@ -230,7 +233,7 @@ const OrderScanToDelivery = () => {
   }, [deliveryType, status]);
 
   const isAllDone = useMemo(() => {
-    return orderBags.every((bag) => bag.isDone || bag.lastScannedTime);
+    return orderBags?.every((bag) => bag.isDone || bag.lastScannedTime);
   }, [orderBags, disableByStatus]);
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {

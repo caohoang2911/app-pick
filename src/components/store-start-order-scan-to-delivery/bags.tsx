@@ -1,15 +1,12 @@
 import { useLocalSearchParams } from 'expo-router';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { transformOrderBags } from '~/src/core/utils/order-bag';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 import Box from '../Box';
 import BagType from './bag-type';
 import { useOrderDetailStore } from '~/src/core/store/order-detail';
-import {
-  setStoreStartOrderBags,
-  useStoreStartOrderScanToDelivery,
-} from '~/src/core/store/store-start-order-scan-to-delivery';
+import { useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
 
 // Memoize BagType để tránh re-render không cần thiết
 const MemoizedBagType = memo(BagType);
@@ -26,30 +23,13 @@ const Empty = () => {
 
 // Component chính
 const Bags = memo(() => {
-  // State và refs
-  const [isInitialized, setIsInitialized] = useState(false);
-
   const { code } = useLocalSearchParams<{ code?: string }>();
   const bagLabels = useOrderDetailStore((s) =>
     code ? s.orderDetails[code]?.header?.bagLabels : undefined,
   );
-  // orderBags: array trực tiếp từ store, Zustand đã tự memoize, không cần useShallow
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
 
-  // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
-  useEffect(() => {
-    const labels = bagLabels ?? [];
-    if (labels.length > 0) {
-      const initializedBags = labels.map((bag: any) => ({
-        ...bag,
-        isDone: false,
-      }));
-      setStoreStartOrderBags(initializedBags);
-      setIsInitialized(true);
-    } else {
-      setStoreStartOrderBags([]);
-    }
-  }, [bagLabels]);
+  // orderBags được đồng bộ từ parent qua transformBagsData (có name, isDone)
 
   // Memoize transformed bags để tránh tính toán lại
   const orderBagTransform = useMemo(() => {
@@ -87,7 +67,7 @@ const Bags = memo(() => {
   );
 
   // Early return nếu không có dữ liệu
-  if (!isInitialized || !orderBags || orderBags.length === 0)
+  if (!orderBags?.length)
     return (
       <>
         <Empty />
