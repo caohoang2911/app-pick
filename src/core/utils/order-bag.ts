@@ -61,7 +61,10 @@ export const generateBagName = (type: OrderBagType, index: number) => {
   return `${OrderBagLabel[type]} - ${index}`;
 };
 
-export const transformOrderBags = (orderBags: OrderBagItem[]) => {
+export const transformOrderBags = (orderBags: OrderBagItem[] | undefined) => {
+  if (!Array.isArray(orderBags)) {
+    return { DRY: [], FROZEN: [], FRESH: [] };
+  }
   const dry = orderBags.filter((bag) => bag.type === 'DRY');
   const frozen = orderBags.filter((bag) => bag.type === 'FROZEN');
   const fresh = orderBags.filter((bag) => bag.type === 'FRESH');
