@@ -19,6 +19,7 @@ import BookShipperActionsBottomsheet from './book-shipper-actions-bottomsheet';
 import CancelBookShipperBottomsheet from './cancel-book-shipper-bottom-sheet';
 import OrderDeliveryTypeBottomSheet from './order-delivery-type-bottom-sheet';
 import OrderHistoryBottomSheet from './order-history-bottom-sheet';
+import { setLoading } from '~/src/core/store/loading';
 
 interface OrderActionsSubmenuBottomSheetProps {
   visible: boolean;
@@ -52,8 +53,8 @@ const OrderActionsSubmenuBottomSheet = ({
     React.useState(false);
   const [orderHistoryVisible, setOrderHistoryVisible] = React.useState(false);
 
-  const invalidateOrderDetail = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  const invalidateOrderDetail = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   }, []);
 
   const { mutate: reprintInvoice, data: reprintInvoiceData } =
@@ -65,10 +66,12 @@ const OrderActionsSubmenuBottomSheet = ({
       },
     });
   const { mutate: createInvoiceFlow } = useCreateInvoiceFlow({
-    onSuccess: (orderCodeFromApi) => {
-      invalidateOrderDetail();
+    onSuccess: async (orderCodeFromApi) => {
+      await invalidateOrderDetail();
       if (!Number(codAmount)) {
         reprintInvoice({ orderCode: orderCodeFromApi });
+      } else {
+        setLoading(false);
       }
     },
   });
@@ -174,6 +177,7 @@ const OrderActionsSubmenuBottomSheet = ({
         setOrderDeliveryTypeVisible(true);
         break;
       case 'reprint-invoice':
+        setLoading(true);
         createInvoiceFlow({ orderCode: code || orderCode || '' });
         break;
       case 'history-order':
