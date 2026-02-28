@@ -64,7 +64,7 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
   const DELAY_SHOW_LOADING_MS = 300;
   useEffect(() => {
     if (!orderCode) return;
-    const isLoading = query.isPending || query.isFetching;
+    const isLoading = query.isPending;
     if (!isLoading) {
       setLoading(false);
       return;

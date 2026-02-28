@@ -112,6 +112,8 @@ const OrderScanToDelivery = () => {
         setShowPrintReceipt(true);
         if (!Number(codAmount)) {
           processCreateInvoice({ orderCode });
+        } else {
+          setLoading(false);
         }
       },
     });
@@ -194,6 +196,7 @@ const OrderScanToDelivery = () => {
       onConfirm: () => {
         hideAlert();
         createInvoiceFlowOrderCodeRef.current = code;
+        setLoading(true);
         createInvoiceFlow({ orderCode: code });
       },
     });

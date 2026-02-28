@@ -142,6 +142,9 @@ export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
     onSuccess: (_data, variables) => {
       options?.onSuccess?.(variables.orderCode);
     },
+    onError: () => {
+      setLoading(false);
+    },
   });
 };
 
