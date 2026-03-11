@@ -14,6 +14,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
+  usePrintCodReceiptProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
@@ -98,22 +99,40 @@ const OrderScanToDelivery = () => {
     }
   }, [title, navigation]);
 
-  const { mutate: processCreateInvoice, isPending: isLoadingCreateInvoice } =
-    useCreateInvoiceProcess({
-      onSuccess: () => {
-        startSelfShipping({ orderCode: code });
-        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-      },
+  const invalidateOrderDetail = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  }, []);
+
+  const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
+    useStartSelfShipping(() => {
+      setLoading(false);
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
     });
+
+  const {
+    mutateAsync: processCreateInvoice,
+    isPending: isLoadingCreateInvoice,
+  } = useCreateInvoiceProcess();
+
+  const { mutate: printCodReceipt } = usePrintCodReceiptProcess({
+    successMessage: 'In phiếu thu COD thành công',
+    onSettled: () => {
+      startSelfShipping({ orderCode: code });
+    },
+  });
+
   const createInvoiceFlowOrderCodeRef = useRef<string | null>(null);
   const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
     useCreateInvoiceFlow({
-      onSuccess: (orderCode) => {
-        setShowPrintReceipt(true);
-        if (!Number(codAmount)) {
-          processCreateInvoice({ orderCode });
-        } else {
+      onSuccess: async (orderCode) => {
+        await invalidateOrderDetail();
+        await processCreateInvoice({ orderCode });
+        if (!!Number(codAmount)) {
+          setShowPrintReceipt(true);
           setLoading(false);
+        } else {
+          startSelfShipping({ orderCode: code });
         }
       },
     });
@@ -131,8 +150,7 @@ const OrderScanToDelivery = () => {
       router.back();
     });
 
-  const shouldEnableCapture =
-    Number(codAmount) > 0 && !!invoiceCode && showPrintReceipt;
+  const shouldEnableCapture = Number(codAmount) > 0 && showPrintReceipt;
 
   // Reset store khi đổi đơn (code) hoặc khi rời màn — store là global, tránh dính đơn khác
   useLayoutEffect(() => {
@@ -170,12 +188,6 @@ const OrderScanToDelivery = () => {
   }
 
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
-  const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
-    useStartSelfShipping(() => {
-      setLoading(false);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-      router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
-    });
 
   const isAllDone = useMemo(() => {
     if (!Array.isArray(orderBags) || orderBags.length === 0) return false;
@@ -251,12 +263,9 @@ const OrderScanToDelivery = () => {
   const handleReceiptCaptureComplete = useCallback(
     (base64String: string) => {
       setShowPrintReceipt(false);
-      processCreateInvoice({
-        orderCode: code,
-        codReceiptBase64String: base64String.trim(),
-      });
+      printCodReceipt({ codReceiptBase64String: base64String.trim() });
     },
-    [code, processCreateInvoice],
+    [printCodReceipt],
   );
 
   const isDisabled = !orderBags?.length || isPending;

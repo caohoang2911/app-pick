@@ -19,6 +19,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
+  usePrintCodReceiptProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
@@ -117,21 +118,31 @@ const OrderScanToDelivery = () => {
     }
   }, [title, navigation]);
 
-  const { mutate: processCreateInvoice, isPending: isLoadingCreateInvoice } =
-    useCreateInvoiceProcess({
-      onSuccess: () => {
-        handoverOrder({ orderCode: code, proofImages: uploadedImages });
-        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
-      },
-    });
+  const invalidateOrderDetail = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+  }, []);
+
+  const {
+    mutateAsync: processCreateInvoice,
+    isPending: isLoadingCreateInvoice,
+  } = useCreateInvoiceProcess({
+    onSuccess: () => {
+      handoverOrder({ orderCode: code, proofImages: uploadedImages });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    },
+  });
+  const { mutateAsync: printCodReceipt } = usePrintCodReceiptProcess({
+    successMessage: 'In phiếu thu COD thành công',
+  });
+
   const createInvoiceFlowOrderCodeRef = useRef<string | null>(null);
   const { mutate: createInvoiceFlow, data: createInvoiceFlowData } =
     useCreateInvoiceFlow({
-      onSuccess: (orderCode) => {
-        setShowPrintReceipt(true);
-        if (!Number(codAmount)) {
-          processCreateInvoice({ orderCode });
-        } else {
+      onSuccess: async (orderCode) => {
+        await invalidateOrderDetail();
+        await processCreateInvoice({ orderCode });
+        if (!!Number(codAmount)) {
+          setShowPrintReceipt(true);
           setLoading(false);
         }
       },
@@ -143,8 +154,7 @@ const OrderScanToDelivery = () => {
       ? createInvoiceFlowData?.data?.invoiceCode
       : undefined);
 
-  const shouldEnableCapture =
-    Number(codAmount) > 0 && !!invoiceCode && showPrintReceipt;
+  const shouldEnableCapture = Number(codAmount) > 0 && showPrintReceipt;
 
   const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
 
@@ -301,13 +311,10 @@ const OrderScanToDelivery = () => {
   }, [queryClient]);
 
   const handleReceiptCaptureComplete = useCallback(
-    (base64String: string) => {
-      processCreateInvoice({
-        orderCode: code,
-        codReceiptBase64String: base64String.trim(),
-      });
+    async (base64String: string) => {
+      await printCodReceipt({ codReceiptBase64String: base64String.trim() });
     },
-    [code, processCreateInvoice],
+    [printCodReceipt],
   );
 
   if (isPending) {

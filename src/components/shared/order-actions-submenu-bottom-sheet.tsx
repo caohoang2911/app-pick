@@ -9,6 +9,7 @@ import { showMessage } from 'react-native-flash-message';
 import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
+  usePrintCodReceiptProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { useAuth } from '~/src/core/store/auth';
@@ -58,20 +59,23 @@ const OrderActionsSubmenuBottomSheet = ({
     await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
   }, []);
 
-  const { mutate: reprintInvoice, data: reprintInvoiceData } =
+  const { mutateAsync: reprintInvoice, data: reprintInvoiceData } =
     useCreateInvoiceProcess({
       successMessage: 'In lại hóa đơn thành công',
-      onSuccess: () => {
-        setReprintWithCapture(true);
+      onSuccess: async () => {
         invalidateOrderDetail();
       },
     });
+  const { mutate: printCodReceipt } = usePrintCodReceiptProcess({
+    successMessage: 'In phiếu thu COD thành công',
+    onSuccess: () => invalidateOrderDetail(),
+  });
   const { mutate: createInvoiceFlow } = useCreateInvoiceFlow({
     onSuccess: async (orderCodeFromApi) => {
       await invalidateOrderDetail();
-      if (!Number(codAmount)) {
-        reprintInvoice({ orderCode: orderCodeFromApi });
-      } else {
+      await reprintInvoice({ orderCode: orderCodeFromApi });
+      if (!!Number(codAmount)) {
+        setReprintWithCapture(true);
         setLoading(false);
       }
     },
@@ -191,18 +195,13 @@ const OrderActionsSubmenuBottomSheet = ({
 
   const handleReceiptCaptureComplete = useCallback(
     (base64String: string) => {
-      reprintInvoice({
-        orderCode: code || orderCode || '',
-        codReceiptBase64String: base64String.trim(),
-      });
+      setReprintWithCapture(false);
+      printCodReceipt({ codReceiptBase64String: base64String.trim() });
     },
-    [code, orderCode, reprintInvoice],
+    [printCodReceipt],
   );
 
-  const shouldEnableCapture =
-    reprintWithCapture &&
-    Number(codAmount) > 0 &&
-    !!(invoiceCodeFromAPI || invoiceCode);
+  const shouldEnableCapture = reprintWithCapture && Number(codAmount) > 0;
 
   return (
     <>
