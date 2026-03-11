@@ -48,21 +48,89 @@ type Props = {
 const deviceWidth = Dimensions.get('screen').width;
 const deviceHeight = Dimensions.get('screen').height;
 
-const SCAN_SQUARE_SIZE = deviceWidth - 150;
+/** Kích thước vùng quét (khung SVG). Thu nhỏ để dễ nhắm đúng 1 mã khi có nhiều barcode/QR gần nhau. */
+const SCAN_AREA_SCALE = 0.5;
+const SCAN_SQUARE_SIZE = Math.min(deviceWidth, deviceHeight) * SCAN_AREA_SCALE;
+
+export type ScanRegion = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+function getScanRegion(isQRScanner: boolean): ScanRegion {
+  const width = SCAN_SQUARE_SIZE;
+  const height = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
+  return {
+    x: deviceWidth / 2 - width / 2,
+    y: deviceHeight / 2 - height / 2,
+    width,
+    height,
+  };
+}
+
+/** Kiểm tra barcode có nằm trong vùng quét không (bounds có thể là pixel hoặc normalized 0–1). */
+function isBarcodeInScanRegion(
+  result: BarcodeScanningResult,
+  region: ScanRegion,
+): boolean {
+  let cx: number;
+  let cy: number;
+  let isNormalized = false;
+
+  const bounds = result.bounds;
+  const points = result.cornerPoints;
+
+  if (
+    bounds?.origin &&
+    bounds?.size &&
+    bounds.size.width > 0 &&
+    bounds.size.height > 0
+  ) {
+    cx = bounds.origin.x + bounds.size.width / 2;
+    cy = bounds.origin.y + bounds.size.height / 2;
+    isNormalized = bounds.origin.x <= 1 && bounds.origin.y <= 1;
+  } else if (points?.length) {
+    cx = points.reduce((s, p) => s + p.x, 0) / points.length;
+    cy = points.reduce((s, p) => s + p.y, 0) / points.length;
+    isNormalized = points.some((p) => p.x <= 1 && p.y <= 1);
+  } else {
+    return false;
+  }
+
+  if (isNormalized) {
+    const rx = region.x / deviceWidth;
+    const ry = region.y / deviceHeight;
+    const rw = region.width / deviceWidth;
+    const rh = region.height / deviceHeight;
+    return cx >= rx && cx <= rx + rw && cy >= ry && cy <= ry + rh;
+  }
+  return (
+    cx >= region.x &&
+    cx <= region.x + region.width &&
+    cy >= region.y &&
+    cy <= region.y + region.height
+  );
+}
 
 const ScannerLayout = ({
   onClose,
   isQRScanner,
   onToggleScanner,
+  scanRegion,
 }: {
   onClose: any;
   isQRScanner?: boolean;
   onToggleScanner?: () => void;
+  scanRegion: ScanRegion;
 }) => {
-  const holeWidth = SCAN_SQUARE_SIZE;
-  const holeHeight = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
-  const holeX = deviceWidth / 2 - holeWidth / 2;
-  const holeY = deviceHeight / 2 - holeHeight / 2;
+  const {
+    x: holeX,
+    y: holeY,
+    width: holeWidth,
+    height: holeHeight,
+  } = scanRegion;
 
   const clipPathId = `clip-${isQRScanner ? 'qr' : 'barcode'}-${Date.now()}`;
   return (
@@ -169,6 +237,11 @@ const ScannerBox = ({
     }, 50);
   }, [currentScannerType]);
 
+  const scanRegion = useMemo(
+    () => getScanRegion(currentScannerType),
+    [currentScannerType],
+  );
+
   const codeAvailableForScanner = useMemo(() => {
     if (currentScannerType) {
       console.log('📸 Camera: QR Mode');
@@ -180,11 +253,12 @@ const ScannerBox = ({
 
   const handleBarcodeScanned = useCallback(
     (result: BarcodeScanningResult) => {
+      if (!isBarcodeInScanRegion(result, scanRegion)) return;
       console.log('✅ Quét thành công:', result.type, '-', result.data);
       onDestroy?.();
       onSuccessBarcodeScanned?.(result);
     },
-    [onDestroy, onSuccessBarcodeScanned],
+    [onDestroy, onSuccessBarcodeScanned, scanRegion],
   );
 
   if (!visible) return <></>;
@@ -227,6 +301,7 @@ const ScannerBox = ({
                 onClose={onDestroy}
                 isQRScanner={currentScannerType}
                 onToggleScanner={handleToggleScanner}
+                scanRegion={scanRegion}
               />
             </CameraView>
           ) : (
