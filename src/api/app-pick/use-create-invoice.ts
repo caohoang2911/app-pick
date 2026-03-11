@@ -185,10 +185,7 @@ export const useCreateInvoiceProcess = (
     useFetchBase64ImageByInvoiceURL();
 
   return useMutation({
-    mutationFn: async (params: {
-      orderCode: string;
-      codReceiptBase64String?: string;
-    }): Promise<any> => {
+    mutationFn: async (params: { orderCode: string }): Promise<any> => {
       setLoading(true);
       let client: TcpSocket.Socket | null = null;
       try {
@@ -219,34 +216,6 @@ export const useCreateInvoiceProcess = (
         if (!error && printerBuffers?.length > 0 && client) {
           for (const printerBuffer of printerBuffers) {
             await sendToPrinter(client, printerBuffer as unknown as Uint8Array);
-          }
-
-          if (params.codReceiptBase64String) {
-            const {
-              data: codReceiptPrinterBuffers,
-              error,
-              hasError,
-            } = await genXPrinterPrintDataAsync({
-              base64Image: params.codReceiptBase64String,
-            });
-
-            if (hasError && error) {
-              setLoading(false);
-              showMessage({
-                message: error,
-                type: 'danger',
-              });
-              throw new Error('Generate printer cod receipt error');
-            }
-
-            if (!error && codReceiptPrinterBuffers?.length > 0 && client) {
-              for (const codReceiptPrinterBuffer of codReceiptPrinterBuffers) {
-                await sendToPrinter(
-                  client,
-                  codReceiptPrinterBuffer as unknown as Uint8Array,
-                );
-              }
-            }
           }
 
           if (client) {
@@ -290,6 +259,96 @@ export const useCreateInvoiceProcess = (
     },
     onError: () => {
       setLoading(false);
+    },
+  });
+};
+
+export type UsePrintCodReceiptProcessOptions = {
+  onSuccess?: () => void;
+  /** Gọi khi kết thúc tiến trình (thành công hoặc thất bại). */
+  onSettled?: () => void;
+  successMessage?: string;
+};
+
+/** Flow in riêng phiếu thu COD (sau khi đã có ảnh chụp). */
+export const usePrintCodReceiptProcess = (
+  options?: UsePrintCodReceiptProcessOptions,
+) => {
+  const { onSuccess, onSettled, successMessage } = options ?? {};
+  const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
+
+  return useMutation({
+    mutationFn: async (params: {
+      codReceiptBase64String: string;
+    }): Promise<any> => {
+      setLoading(true, 'Đang in phiếu thu COD...');
+      let client: TcpSocket.Socket | null = null;
+      try {
+        client = await checkPrinterConnection();
+
+        const trimmedBase64 = params.codReceiptBase64String.trim();
+        if (!BASE64_REGEX.test(trimmedBase64)) {
+          setLoading(false);
+          throw new Error('Định dạng dữ liệu phiếu thu COD không hợp lệ');
+        }
+
+        const {
+          data: printerBuffers,
+          error,
+          hasError,
+        } = await genXPrinterPrintDataAsync({
+          base64Image: trimmedBase64,
+        });
+
+        if (hasError && error) {
+          setLoading(false);
+          throw new Error(error);
+        }
+
+        if (!error && printerBuffers?.length > 0 && client) {
+          for (const printerBuffer of printerBuffers) {
+            await sendToPrinter(client, printerBuffer as unknown as Uint8Array);
+          }
+          if (client) {
+            client.destroy();
+            client = null;
+          }
+          if (successMessage) {
+            showMessage({
+              message: successMessage,
+              type: 'success',
+            });
+          }
+          return { error: null, data: null };
+        }
+
+        if (client) {
+          client.destroy();
+          client = null;
+        }
+        throw new Error(error?.toString() || 'Không thể in phiếu thu COD');
+      } finally {
+        setLoading(false);
+      }
+    },
+    onSuccess: (data: any) => {
+      if (data && !data.error) {
+        onSuccess?.();
+      }
+    },
+    onError: (error: any) => {
+      setLoading(false);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'In phiếu thu COD thất bại. Vui lòng thử lại.';
+      showMessage({
+        message,
+        type: 'danger',
+      });
+    },
+    onSettled: () => {
+      onSettled?.();
     },
   });
 };
