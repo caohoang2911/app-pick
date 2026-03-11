@@ -11,8 +11,10 @@ import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 type Variables = {
   orderCode: string;
 };
-
-type Response = { error: string } & AxiosResponse;
+type Response = { error: string } & {
+  status: 'SUCCESS' | 'FAIL';
+  data: any;
+};
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
 const PRINTER_PORT = 9100;
@@ -125,11 +127,18 @@ export type UseCreateInvoiceFlowOptions = {
   onSuccess?: (orderCode: string) => void;
 };
 
-/** Flow tạo hóa đơn: gọi API createInvoice, show lỗi nếu fail, gọi onSuccess(orderCode) nếu thành công. */
+const CREATE_INVOICE_MSG = {
+  success: 'Tạo hóa đơn thành công',
+  fail: 'Tạo hóa đơn thất bại, vui lòng liên hệ CS',
+} as const;
+
+/** Flow tạo hóa đơn: gọi API createInvoice, show message cố định (không dùng nội dung lỗi từ server). */
 export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
   return useMutation({
     mutationFn: async (params: Variables): Promise<Response> => {
       const result = await createInvoice(params);
+      const isFail = result?.status === 'FAIL';
+
       if (result?.error) {
         showMessage({
           message: result.error,
@@ -137,6 +146,21 @@ export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
         });
         throw new Error(result.error);
       }
+
+      if (isFail) {
+        showMessage({
+          message: CREATE_INVOICE_MSG.fail,
+          type: 'warning',
+        });
+
+        return result;
+      }
+
+      showMessage({
+        message: CREATE_INVOICE_MSG.success,
+        type: 'success',
+      });
+
       return result;
     },
     onSuccess: (_data, variables) => {

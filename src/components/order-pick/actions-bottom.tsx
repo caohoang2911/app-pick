@@ -1,6 +1,6 @@
 import { Button } from '@/components/Button';
 import { router, useGlobalSearchParams } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
@@ -55,6 +55,8 @@ const ActionsBottom = () => {
     isPending: isLoadingOrderStatusPicking,
   } = useSetOrderStatusPicking();
 
+  const hasAnyPickedRef = useRef(false);
+
   const {
     mutate: setOrderStatusPacked,
     isPending: isLoadingOrderStatusPacked,
@@ -63,6 +65,7 @@ const ActionsBottom = () => {
   });
 
   const showAlertPacked = () => {
+    if (!hasAnyPickedRef.current) return;
     showAlert({
       message: 'Đã pick xong, bạn có muốn set kích thước & in tem',
       onConfirm: () => {
@@ -78,6 +81,10 @@ const ActionsBottom = () => {
   const orderPickProducts = useOrderPick.use.orderPickProducts();
 
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  hasAnyPickedRef.current = orderPickProductsFlat.some(
+    (p: Product) => Number(p.pickedQuantity || 0) > 0,
+  );
+
   const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
 
   const { shipping } = orderDetail?.header || {};
