@@ -200,8 +200,7 @@ const ScannerBox = ({
 }: Props) => {
   const { permission, facing, requestPermission } = useCarmera();
   const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
-  const [scannerKey, setScannerKey] = useState(0);
-  const [isCameraVisible, setIsCameraVisible] = useState(true);
+  const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
@@ -209,9 +208,7 @@ const ScannerBox = ({
   }, [isQRScanner]);
 
   useEffect(() => {
-    if (visible) {
-      setIsCameraVisible(true);
-    }
+    if (!visible) setIsCameraReady(false);
   }, [visible]);
 
   const handleRequestPermission = useCallback(() => {
@@ -223,19 +220,8 @@ const ScannerBox = ({
   }, [permission?.granted, requestPermission]);
 
   const handleToggleScanner = useCallback(() => {
-    console.log(
-      '🔄 Toggle to:',
-      !currentScannerType ? 'QR Mode' : 'Barcode Mode',
-    );
-
-    setIsCameraVisible(false);
-
-    setTimeout(() => {
-      setCurrentScannerType((prev) => !prev);
-      setScannerKey((prev) => prev + 1);
-      setIsCameraVisible(true);
-    }, 50);
-  }, [currentScannerType]);
+    setCurrentScannerType((prev) => !prev);
+  }, []);
 
   const scanRegion = useMemo(
     () => getScanRegion(currentScannerType),
@@ -285,28 +271,24 @@ const ScannerBox = ({
     <Portal>
       <View style={styles.fullScreenContainer}>
         <View style={styles.cameraContainer}>
-          {isCameraVisible ? (
-            <CameraView
-              key={`camera-${currentScannerType ? 'qr' : 'barcode'}-${scannerKey}`}
-              ref={cameraRef}
-              style={styles.camera}
-              facing={facing}
-              onBarcodeScanned={handleBarcodeScanned}
-              barcodeScannerSettings={{
-                barcodeTypes: codeAvailableForScanner as BarcodeType[],
-              }}
-            >
-              <ScannerLayout
-                key={`scanner-${currentScannerType ? 'qr' : 'barcode'}-${scannerKey}`}
-                onClose={onDestroy}
-                isQRScanner={currentScannerType}
-                onToggleScanner={handleToggleScanner}
-                scanRegion={scanRegion}
-              />
-            </CameraView>
-          ) : (
-            <View style={styles.camera} />
-          )}
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing={facing}
+            onCameraReady={() => setIsCameraReady(true)}
+            onBarcodeScanned={isCameraReady ? handleBarcodeScanned : undefined}
+            barcodeScannerSettings={{
+              barcodeTypes: codeAvailableForScanner as BarcodeType[],
+            }}
+          >
+            <ScannerLayout
+              onClose={onDestroy}
+              isQRScanner={currentScannerType}
+              onToggleScanner={handleToggleScanner}
+              scanRegion={scanRegion}
+            />
+          </CameraView>
+          {!isCameraReady && <View style={styles.cameraLoadingOverlay} />}
         </View>
       </View>
     </Portal>
@@ -339,6 +321,10 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  cameraLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'black',
   },
   camera: {
     flex: 1,
