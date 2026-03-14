@@ -139,7 +139,7 @@ export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
       const result = await createInvoice(params);
       const isFail = result?.status === 'FAIL';
 
-      if (result?.error) {
+      if (result?.error && !isFail) {
         showMessage({
           message: result.error,
           type: 'danger',

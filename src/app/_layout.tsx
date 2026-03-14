@@ -40,9 +40,7 @@ import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
-import CameraPreloader from '../components/shared/CameraPreloader';
 import { useAppState } from '../core/hooks/useAppState';
-import { useCameraPreloader } from '../core/hooks/useCameraPreloader';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -127,8 +125,6 @@ function RootLayoutNav() {
 function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
   const loading = useLoading.use.loading();
-  const { shouldPreload } = useCameraPreloader();
-
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -180,7 +176,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                     {loading && <Loading />}
                     {children}
                     <AlertDialog />
-                    {shouldPreload && <CameraPreloader />}
                   </SafeAreaView>
                   <AlertDialog />
                   <FlashMessage
