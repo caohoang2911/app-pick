@@ -3,7 +3,7 @@
     "name": "App Pick",
     "slug": "seedcom-app-pick",
     "scheme": "apppick",
-    "version": "1.0.23",
+    "version": "1.0.24",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,6 +19,7 @@
       "googleServicesFile": "./GoogleService-Info-prod.plist",
       "buildNumber": "69",
       "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng cần truy cập camera để quét mã vạch và mã QR.",
         "NSPhotoLibraryUsageDescription": "Ứng dụng cần truy cập thư viện ảnh để người dùng có thể chọn và tải ảnh lên.",
         "NSLocalNetworkUsageDescription": "Ứng dụng cần quyền truy cập mạng cục bộ để kết nối với máy in",
         "NSBonjourServices": ["_http._tcp"],
@@ -83,11 +84,9 @@
         }
       ],
       [
-        "expo-camera",
+        "react-native-vision-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
+          "cameraPermissionText": "Allow $(PRODUCT_NAME) to access your camera"
         }
       ],
       [

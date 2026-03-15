@@ -1,41 +1,36 @@
-import { CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useCameraPermission } from 'react-native-vision-camera';
 
 export default function useCarmera() {
-  const [facing, setFacing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useCameraPermissions();
-  const [isPermissionChecked, setIsPermissionChecked] = useState(false);
+  const { hasPermission, requestPermission: vcRequestPermission } =
+    useCameraPermission();
 
-  // Preload permission check when hook is first used
   useEffect(() => {
-    if (!isPermissionChecked) {
-      setIsPermissionChecked(true);
-      // Pre-request permission to speed up future camera usage
-      if (!permission?.granted) {
-        requestPermission();
-      }
+    if (!hasPermission) {
+      vcRequestPermission();
     }
-  }, [permission, requestPermission, isPermissionChecked]);
-
-  const toggleCameraFacing = useCallback(() => {
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
   }, []);
 
-  const optimizedRequestPermission = useCallback(async () => {
+  const permission = {
+    granted: hasPermission,
+    canAskAgain: true,
+  };
+
+  const requestPermission = useCallback(async () => {
     try {
-      const result = await requestPermission();
-      return result;
+      const granted = await vcRequestPermission();
+      return { granted, canAskAgain: true };
     } catch (error) {
       console.error('Error requesting camera permission:', error);
       return null;
     }
-  }, [requestPermission]);
+  }, [vcRequestPermission]);
 
   return {
-    facing,
+    facing: 'back' as const,
     permission,
-    requestPermission: optimizedRequestPermission,
-    toggleCameraFacing,
-    isPermissionChecked,
+    requestPermission,
+    toggleCameraFacing: () => {},
+    isPermissionChecked: true,
   };
 }

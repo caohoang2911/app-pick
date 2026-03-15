@@ -602,7 +602,7 @@ const InputAmountPopup = () => {
 
   const renderTopHeader = useMemo(
     () => (
-      <View className="flex-row items-center justify-center mb-2 -mt-5">
+      <View className="flex-row items-center justify-center mb-2">
         <SImage
           source={currentProduct?.image}
           style={{ width: 180, height: 180, borderRadius: 8 }}
