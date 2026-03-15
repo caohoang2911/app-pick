@@ -9,7 +9,7 @@ import {
   useOrders,
 } from '@/core/store/orders';
 
-import { BarcodeScanningResult } from 'expo-camera';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 import { useNavigation } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
 import Header from '~/src/components/orders/header';

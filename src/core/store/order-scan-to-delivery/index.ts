@@ -1,4 +1,4 @@
-import { BarcodeScanningResult } from 'expo-camera';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 import { showMessage } from 'react-native-flash-message';
 import { create } from 'zustand';
 import { OrderBagItem } from '~/src/types/order-bag';

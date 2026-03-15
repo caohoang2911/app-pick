@@ -4,7 +4,7 @@ import {
   ORDER_TAGS,
 } from '@/core/constants/order';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { BarcodeScanningResult } from 'expo-camera';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, {
   useCallback,

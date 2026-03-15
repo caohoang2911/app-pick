@@ -1,4 +1,4 @@
-import { BarcodeScanningResult } from 'expo-camera';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, {
   useCallback,

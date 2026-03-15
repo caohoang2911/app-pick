@@ -1,12 +1,14 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {
-  Barcode,
-  BarcodeType,
-  useBarcodeScanner,
-} from '@mgcrea/vision-camera-barcode-scanner';
 import { Portal } from '@gorhom/portal';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { BarcodeScanningResult, BarcodeType, CameraView } from 'expo-camera';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Dimensions,
   Linking,
@@ -16,29 +18,22 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useRunOnJS, useSharedValue } from 'react-native-worklets-core';
 import Svg, { ClipPath, Defs, Rect } from 'react-native-svg';
-import {
-  Camera,
-  CameraDevice,
-  useCameraDevice,
-} from 'react-native-vision-camera';
-import { BarcodeScanningResult } from '~/src/types/scanner';
-import { Button } from '../Button';
 import useCarmera from '~/src/core/hooks/useCarmera';
+import { Button } from '../Button';
 
-export type { BarcodeScanningResult } from '~/src/types/scanner';
+export type { BarcodeScanningResult } from 'expo-camera';
 
-const codeAvailableBarcode: BarcodeType[] = [
-  'ean-13',
-  'ean-8',
-  'upc-e',
-  'code-39',
-  'code-93',
-  'itf',
+const codeAvailable: BarcodeType[] = [
+  'ean13',
+  'ean8',
+  'upc_e',
+  'code39',
+  'code93',
+  'itf14',
   'codabar',
-  'code-128',
-  'upc-a',
+  'code128',
+  'upc_a',
 ];
 
 type Props = {
@@ -72,28 +67,55 @@ function getScanRegion(isQRScanner: boolean): ScanRegion {
   };
 }
 
-/**
- * Chuyển đổi tọa độ từ portrait screen space sang iOS Vision landscape space.
- * iOS Vision framework xử lý camera frame ở landscape orientation (native sensor).
- * - Portrait x (left→right) tương ứng Vision y (bottom→top in landscape)
- * - Portrait y (top→bottom) tương ứng Vision x (left→right in landscape)
- */
-function toVisionRegion(region: ScanRegion) {
-  const px = region.x / deviceWidth;
-  const py = region.y / deviceHeight;
-  const pw = region.width / deviceWidth;
-  const ph = region.height / deviceHeight;
-  return { x: py, y: px, width: ph, height: pw };
-}
-
-// Pre-compute stable region values (không đổi theo lifecycle)
+// Pre-compute để tránh tính lại mỗi render
 const QR_SCAN_REGION = getScanRegion(true);
 const BARCODE_SCAN_REGION = getScanRegion(false);
-const QR_VISION_REGION = toVisionRegion(QR_SCAN_REGION);
-const BARCODE_VISION_REGION = toVisionRegion(BARCODE_SCAN_REGION);
+
+function isBarcodeInScanRegion(
+  result: BarcodeScanningResult,
+  region: ScanRegion,
+): boolean {
+  let cx: number;
+  let cy: number;
+  let isNormalized = false;
+
+  const bounds = result.bounds;
+  const points = result.cornerPoints;
+
+  if (
+    bounds?.origin &&
+    bounds?.size &&
+    bounds.size.width > 0 &&
+    bounds.size.height > 0
+  ) {
+    cx = bounds.origin.x + bounds.size.width / 2;
+    cy = bounds.origin.y + bounds.size.height / 2;
+    isNormalized = bounds.origin.x <= 1 && bounds.origin.y <= 1;
+  } else if (points?.length) {
+    cx = points.reduce((s, p) => s + p.x, 0) / points.length;
+    cy = points.reduce((s, p) => s + p.y, 0) / points.length;
+    isNormalized = points.some((p) => p.x <= 1 && p.y <= 1);
+  } else {
+    return false;
+  }
+
+  if (isNormalized) {
+    const rx = region.x / deviceWidth;
+    const ry = region.y / deviceHeight;
+    const rw = region.width / deviceWidth;
+    const rh = region.height / deviceHeight;
+    return cx >= rx && cx <= rx + rw && cy >= ry && cy <= ry + rh;
+  }
+  return (
+    cx >= region.x &&
+    cx <= region.x + region.width &&
+    cy >= region.y &&
+    cy <= region.y + region.height
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ScannerLayout – memo để tránh re-render SVG khi parent thay đổi state khác
+// ScannerLayout – clipPathId stable (không dùng Date.now()) để tránh SVG flicker
 // ─────────────────────────────────────────────────────────────────────────────
 const ScannerLayout = React.memo(
   ({
@@ -113,6 +135,7 @@ const ScannerLayout = React.memo(
       width: holeWidth,
       height: holeHeight,
     } = scanRegion;
+    // ID stable, không dùng Date.now() – tránh re-render SVG mỗi frame
     const clipPathId = isQRScanner ? 'clip-qr' : 'clip-barcode';
 
     return (
@@ -174,7 +197,7 @@ const ScannerLayout = React.memo(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ScannerBox – main component (1 Camera, đổi props khi toggle → không destroy)
+// ScannerBox
 // ─────────────────────────────────────────────────────────────────────────────
 const ScannerBox = ({
   visible,
@@ -182,20 +205,15 @@ const ScannerBox = ({
   onSuccessBarcodeScanned,
   isQRScanner = true,
 }: Props) => {
-  const { permission, requestPermission } = useCarmera();
+  const { permission, facing, requestPermission } = useCarmera();
   const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const device = useCameraDevice('back');
-  const cameraRef = useRef<Camera>(null);
-
-  /** scannedShared: guard chống double-fire, đọc được từ worklet thread */
-  const scannedShared = useSharedValue(false);
+  const cameraRef = useRef<CameraView>(null);
 
   /**
-   * Refs luôn trỏ tới props mới nhất, cập nhật mỗi render.
-   * Dùng để handleBarcodeScanned có empty deps (hoàn toàn stable) mà vẫn gọi
-   * đúng callback hiện tại → tránh stale closure khi onDestroy/onSuccessBarcodeScanned
-   * thay đổi reference do parent không wrap useCallback hoặc deps thay đổi.
+   * Dùng ref cho callbacks để tránh stale closure trong handleBarcodeScanned.
+   * handleBarcodeScanned có thể được capture bởi CameraView native side,
+   * ref đảm bảo luôn gọi đúng phiên bản mới nhất.
    */
   const onDestroyRef = useRef(onDestroy);
   onDestroyRef.current = onDestroy;
@@ -207,85 +225,52 @@ const ScannerBox = ({
   }, [isQRScanner]);
 
   useEffect(() => {
-    /** Reset scannedShared trên MỌI thay đổi của visible (cả mở lẫn đóng).
-     * Đảm bảo scanner không bị stuck nếu có edge case nào đó khi session trước
-     * chưa reset được (exception trong callback, timing issue, v.v.) */
-    scannedShared.value = false;
-    if (!visible) {
-      setIsCameraReady(false);
-    }
+    if (!visible) setIsCameraReady(false);
   }, [visible]);
 
   const handleRequestPermission = useCallback(() => {
     if (Platform.OS === 'ios' && permission?.granted) {
       requestPermission();
     } else {
-      Linking.openURL('app-settings:');
+      Linking.openSettings();
     }
   }, [permission?.granted, requestPermission]);
 
   const handleToggleScanner = useCallback(() => {
-    // Chỉ reset guard khi đổi mode. Không set isCameraReady(false) vì Camera không remount
-    // → onInitialized không gọi lại → overlay đen sẽ không tắt.
-    scannedShared.value = false;
+    /**
+     * FIX: Reset isCameraReady khi toggle mode.
+     * Khi barcodeTypes thay đổi, CameraView reinitialize scanner bên dưới.
+     * Nếu không reset, onBarcodeScanned vẫn active trong lúc camera đang reset
+     * → có thể fire với barcode types cũ hoặc không fire được do internal state mismatch.
+     */
+    setIsCameraReady(false);
     setCurrentScannerType((prev) => !prev);
   }, []);
 
-  /** Stable callback truyền vào QRCamera/BarcodeCamera.
-   * Khi Camera native báo đã khởi tạo xong → ẩn overlay đen. */
-  const handleCameraReady = useCallback(() => {
-    setIsCameraReady(true);
-  }, []);
+  const scanRegion = currentScannerType ? QR_SCAN_REGION : BARCODE_SCAN_REGION;
 
-  /** handleBarcodeScanned hoàn toàn stable (empty deps) nhờ dùng refs.
-   * Frame processor của @mgcrea capture callback 1 lần tại mount →
-   * dùng ref.current đảm bảo luôn gọi đúng phiên bản mới nhất của props. */
-  const handleBarcodeScanned = useRunOnJS((barcode: Barcode) => {
-    const result: BarcodeScanningResult = {
-      type: barcode.type,
-      data: barcode.value ?? '',
-      cornerPoints: barcode.cornerPoints,
-    };
+  const codeAvailableForScanner = useMemo<BarcodeType[]>(() => {
+    return currentScannerType ? ['qr'] : codeAvailable;
+  }, [currentScannerType]);
+
+  /**
+   * FIX CHÍNH: Bỏ scanRegion ra khỏi deps, dùng ref thay thế.
+   *
+   * Vấn đề cũ: handleBarcodeScanned phụ thuộc scanRegion trong deps.
+   * Khi toggle mode → scanRegion thay đổi → handleBarcodeScanned tạo instance mới
+   * → CameraView nhận prop onBarcodeScanned mới → trigger re-setup scanner nội bộ
+   * → trong khoảng thời gian re-setup đó, scan không hoạt động.
+   *
+   * Fix: scanRegion đưa vào ref, callback hoàn toàn stable (empty deps).
+   */
+  const scanRegionRef = useRef(scanRegion);
+  scanRegionRef.current = scanRegion;
+
+  const handleBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
+    if (!isBarcodeInScanRegion(result, scanRegionRef.current)) return;
     onDestroyRef.current?.();
     onSuccessRef.current?.(result);
-  }, []);
-
-  const { props: qrCameraProps } = useBarcodeScanner({
-    fps: 3,
-    barcodeTypes: ['qr'],
-    regionOfInterest: QR_VISION_REGION,
-    scanMode: 'continuous',
-    onBarcodeScanned: (barcodes) => {
-      'worklet';
-      if (scannedShared.value || barcodes.length === 0) return;
-      scannedShared.value = true;
-      handleBarcodeScanned(barcodes[0]);
-    },
-  });
-
-  const { props: barcodeCameraProps } = useBarcodeScanner({
-    fps: 3,
-    barcodeTypes: codeAvailableBarcode,
-    regionOfInterest: BARCODE_VISION_REGION,
-    scanMode: 'continuous',
-    onBarcodeScanned: (barcodes) => {
-      'worklet';
-      if (scannedShared.value || barcodes.length === 0) return;
-      scannedShared.value = true;
-      handleBarcodeScanned(barcodes[0]);
-    },
-  });
-
-  const handleTapFocus = useCallback(async (e: any) => {
-    try {
-      const { locationX: x, locationY: y } = e.nativeEvent;
-      await cameraRef.current?.focus({ x, y });
-    } catch (_) {
-      // focus có thể throw nếu device không hỗ trợ, bỏ qua
-    }
-  }, []);
-
-  const scanRegion = currentScannerType ? QR_SCAN_REGION : BARCODE_SCAN_REGION;
+  }, []); // empty deps → callback stable hoàn toàn, không bao giờ tạo instance mới
 
   if (!visible) return null;
   if (!permission) return <View />;
@@ -304,33 +289,32 @@ const ScannerBox = ({
     );
   }
 
-  if (!device) return <View />;
-
   return (
     <Portal>
       <View style={styles.fullScreenContainer}>
         <View style={styles.cameraContainer}>
-          <Pressable style={styles.camera} onPress={handleTapFocus}>
-            <Camera
-              ref={cameraRef}
-              style={styles.camera}
-              device={device as CameraDevice}
-              isActive={visible}
-              onInitialized={handleCameraReady}
-              videoStabilizationMode="off"
-              photoHdr={false}
-              videoHdr={false}
-              {...(currentScannerType ? qrCameraProps : barcodeCameraProps)}
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing={facing}
+            onCameraReady={() => setIsCameraReady(true)}
+            /**
+             * Chỉ bật onBarcodeScanned sau khi camera sẵn sàng.
+             * Quan trọng: handleBarcodeScanned stable → CameraView không re-setup
+             * scanner mỗi lần parent re-render.
+             */
+            onBarcodeScanned={isCameraReady ? handleBarcodeScanned : undefined}
+            barcodeScannerSettings={{
+              barcodeTypes: codeAvailableForScanner,
+            }}
+          >
+            <ScannerLayout
+              onClose={onDestroy!}
+              isQRScanner={currentScannerType}
+              onToggleScanner={handleToggleScanner}
+              scanRegion={scanRegion}
             />
-          </Pressable>
-
-          <ScannerLayout
-            onClose={onDestroy!}
-            isQRScanner={currentScannerType}
-            onToggleScanner={handleToggleScanner}
-            scanRegion={scanRegion}
-          />
-
+          </CameraView>
           {!isCameraReady && <View style={styles.cameraLoadingOverlay} />}
         </View>
       </View>

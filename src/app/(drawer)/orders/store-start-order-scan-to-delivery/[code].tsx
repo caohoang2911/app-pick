@@ -1,5 +1,5 @@
 import { ORDER_DELIVERY_TYPE, ORDER_TAGS } from '@/core/constants/order';
-import { BarcodeScanningResult } from 'expo-camera';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, {
   useCallback,
