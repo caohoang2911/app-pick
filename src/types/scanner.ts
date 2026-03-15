@@ -8,3 +8,10 @@ export type BarcodeScanningResult = {
   };
   cornerPoints?: Array<{ x: number; y: number }>;
 };
+
+export type ScanRegion = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};

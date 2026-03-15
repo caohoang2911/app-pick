@@ -8,8 +8,8 @@ import {
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { StatusBar, Text, TouchableOpacity } from 'react-native';
-import FlashMessage, { hideMessage } from 'react-native-flash-message';
+import { StatusBar } from 'react-native';
+import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -35,12 +35,16 @@ import {
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
 import { useAppState } from '../core/hooks/useAppState';
+import FlashMessageWithMarkdown from '../components/FlashMessageWithMarkdown';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -123,6 +127,7 @@ function RootLayoutNav() {
 }
 
 function Providers({ children }: { children: React.ReactNode }) {
+  const insets = useSafeAreaInsets();
   const status = useAuth.use.status();
   const loading = useLoading.use.loading();
   const hideSplash = useCallback(async () => {
@@ -183,32 +188,10 @@ function Providers({ children }: { children: React.ReactNode }) {
                     duration={5000}
                     style={{
                       paddingRight: 36,
+                      paddingBottom: Math.max(insets.bottom, 8),
                     }}
                     statusBarHeight={StatusBar.currentHeight}
-                    renderCustomContent={(data) => (
-                      <TouchableOpacity
-                        style={{
-                          position: 'absolute',
-                          right: -15,
-                          top: -10,
-                          paddingTop: 10,
-                        }}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        onPress={() => {
-                          hideMessage();
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: '#fff',
-                            fontSize: 18,
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          ✕
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                    MessageComponent={FlashMessageWithMarkdown}
                   />
                 </AuthWrapper>
               </NotificationWrapper>
