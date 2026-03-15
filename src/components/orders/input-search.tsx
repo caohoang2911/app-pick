@@ -202,15 +202,20 @@ const InputSearch = ({
     // This is handled by the OrderItem component now
   }, []);
 
+  const handleScanQrCode = useCallback(() => {
+    Keyboard.dismiss();
+    toggleScanQrCode(true);
+  }, [toggleScanQrCode]);
+
   const rightComponent = useMemo(
     () => (
-      <TouchableOpacity onPress={() => toggleScanQrCode(true)}>
+      <TouchableOpacity onPress={handleScanQrCode}>
         <View className="bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
           <FontAwesome name="qrcode" size={24} color="white" />
         </View>
       </TouchableOpacity>
     ),
-    [toggleScanQrCode],
+    [handleScanQrCode],
   );
 
   const noResultsText = useMemo(() => {

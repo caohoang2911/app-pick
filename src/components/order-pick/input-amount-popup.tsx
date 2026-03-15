@@ -284,6 +284,7 @@ const ReasonDropdown = memo(
         data={productPickedErrorsWithUnit}
         label="Chọn lý do"
         labelClasses="font-medium"
+        mode="modal"
         dropdownPosition="top"
         placeholder="Vui lòng chọn"
         allowClear={true}

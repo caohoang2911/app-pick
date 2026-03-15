@@ -1,5 +1,3 @@
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   Barcode,
   BarcodeType,
@@ -8,7 +6,6 @@ import {
 import { Portal } from '@gorhom/portal';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Dimensions,
   Linking,
   Platform,
   Pressable,
@@ -17,17 +14,23 @@ import {
   View,
 } from 'react-native';
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core';
-import Svg, { ClipPath, Defs, Rect } from 'react-native-svg';
 import {
   Camera,
   CameraDevice,
   useCameraDevice,
 } from 'react-native-vision-camera';
-import { BarcodeScanningResult } from '~/src/types/scanner';
+import { BarcodeScanningResult, ScanRegion } from '~/src/types/scanner';
 import { Button } from '../Button';
 import useCarmera from '~/src/core/hooks/useCarmera';
+import ScannerLayout from './ScannerBoxLayout';
+import {
+  BARCODE_SCAN_REGION,
+  BARCODE_VISION_REGION,
+  QR_SCAN_REGION,
+  QR_VISION_REGION,
+} from './scannerRegion';
 
-export type { BarcodeScanningResult } from '~/src/types/scanner';
+export type { BarcodeScanningResult, ScanRegion } from '~/src/types/scanner';
 
 const codeAvailableBarcode: BarcodeType[] = [
   'ean-13',
@@ -47,131 +50,6 @@ type Props = {
   onSuccessBarcodeScanned?: (result: BarcodeScanningResult) => void;
   isQRScanner?: boolean;
 };
-
-const deviceWidth = Dimensions.get('screen').width;
-const deviceHeight = Dimensions.get('screen').height;
-
-const SCAN_AREA_SCALE = 0.5;
-const SCAN_SQUARE_SIZE = Math.min(deviceWidth, deviceHeight) * SCAN_AREA_SCALE;
-
-export type ScanRegion = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-function getScanRegion(isQRScanner: boolean): ScanRegion {
-  const width = SCAN_SQUARE_SIZE;
-  const height = SCAN_SQUARE_SIZE / (isQRScanner ? 1 : 2);
-  return {
-    x: deviceWidth / 2 - width / 2,
-    y: deviceHeight / 2 - height / 2,
-    width,
-    height,
-  };
-}
-
-/**
- * Chuyển đổi tọa độ từ portrait screen space sang iOS Vision landscape space.
- * iOS Vision framework xử lý camera frame ở landscape orientation (native sensor).
- * - Portrait x (left→right) tương ứng Vision y (bottom→top in landscape)
- * - Portrait y (top→bottom) tương ứng Vision x (left→right in landscape)
- */
-function toVisionRegion(region: ScanRegion) {
-  const px = region.x / deviceWidth;
-  const py = region.y / deviceHeight;
-  const pw = region.width / deviceWidth;
-  const ph = region.height / deviceHeight;
-  return { x: py, y: px, width: ph, height: pw };
-}
-
-// Pre-compute stable region values (không đổi theo lifecycle)
-const QR_SCAN_REGION = getScanRegion(true);
-const BARCODE_SCAN_REGION = getScanRegion(false);
-const QR_VISION_REGION = toVisionRegion(QR_SCAN_REGION);
-const BARCODE_VISION_REGION = toVisionRegion(BARCODE_SCAN_REGION);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ScannerLayout – memo để tránh re-render SVG khi parent thay đổi state khác
-// ─────────────────────────────────────────────────────────────────────────────
-const ScannerLayout = React.memo(
-  ({
-    onClose,
-    isQRScanner,
-    onToggleScanner,
-    scanRegion,
-  }: {
-    onClose: () => void;
-    isQRScanner?: boolean;
-    onToggleScanner?: () => void;
-    scanRegion: ScanRegion;
-  }) => {
-    const {
-      x: holeX,
-      y: holeY,
-      width: holeWidth,
-      height: holeHeight,
-    } = scanRegion;
-    const clipPathId = isQRScanner ? 'clip-qr' : 'clip-barcode';
-
-    return (
-      <View style={styles.layout}>
-        <Svg height="100%" width="100%">
-          <Defs>
-            <ClipPath id={clipPathId}>
-              <Rect width="100%" height="100%" />
-              <Rect x={holeX} y={holeY} width={holeWidth} height={holeHeight} />
-            </ClipPath>
-          </Defs>
-          <Rect
-            width="100%"
-            height="100%"
-            fill="rgba(0,0,0,0.6)"
-            clipPath={`url(#${clipPathId})`}
-          />
-          <Rect
-            x={holeX}
-            y={holeY}
-            width={holeWidth}
-            height={holeHeight}
-            stroke="white"
-            strokeWidth={3}
-            fill="transparent"
-          />
-        </Svg>
-
-        <View
-          style={[
-            styles.currentScannerTextContainer,
-            { top: holeY + holeHeight + 10 },
-          ]}
-        >
-          <Text style={styles.currentScannerText}>
-            {isQRScanner ? 'QR Code' : 'Barcode'}
-          </Text>
-        </View>
-
-        <View className="ml-auto absolute top-14 right-5 z-10">
-          <Pressable onPress={onClose} hitSlop={15}>
-            <AntDesign name="closecircleo" size={20} color="white" />
-          </Pressable>
-        </View>
-
-        <View className="absolute left-1/2 -translate-x-1/2 bottom-14 z-10">
-          <Pressable onPress={onToggleScanner} style={styles.toggleButton}>
-            <View style={styles.toggleButtonContent}>
-              <Ionicons name="swap-horizontal" size={16} color="white" />
-              <Text style={styles.toggleButtonText}>
-                {isQRScanner ? 'Chuyển sang Barcode' : 'Chuyển sang QR Code'}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
-      </View>
-    );
-  },
-);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ScannerBox – main component (1 Camera, đổi props khi toggle → không destroy)
@@ -373,47 +251,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-  },
-  layout: {
-    position: 'absolute',
-    width: deviceWidth,
-    height: deviceHeight,
-    backgroundColor: 'transparent',
-    zIndex: 15,
-  },
-  toggleButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'white',
-  },
-  toggleButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  toggleButtonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  currentScannerTextContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    zIndex: 20,
-  },
-  currentScannerText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    backgroundColor: 'transparent',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
   },
 });
 

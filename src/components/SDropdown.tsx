@@ -1,6 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Animated,
+  Keyboard,
+  Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,6 +14,40 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { cn } from '@/lib/utils';
 import { CheckCircleFill, CloseLine } from '../core/svgs';
 import ArrowDown from '../core/svgs/ArrowDown';
+
+const ScrollDownHint = ({ onPress }: { onPress: () => void }) => {
+  const bounce = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounce, {
+          toValue: 4,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounce, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [bounce]);
+  return (
+    <Pressable style={styles.scrollDownBtn} onPress={onPress}>
+      <Animated.View
+        style={[
+          styles.scrollDownIconWrap,
+          { transform: [{ translateY: bounce }] },
+        ]}
+      >
+        <ArrowDown width={20} height={20} color="#555" />
+      </Animated.View>
+    </Pressable>
+  );
+};
 
 export interface SDropdownProps {
   label?: string;
@@ -24,6 +62,7 @@ export interface SDropdownProps {
   allowClear?: boolean;
   onSelect?: (value: string) => void;
   onClear?: () => void;
+  mode?: 'default' | 'modal' | 'auto';
   [key: string]: any;
 }
 
@@ -41,29 +80,209 @@ const SDropdown = ({
   onSelect,
   onClear,
   disabled,
+  mode = 'default',
+  modalProps,
+  maxHeight = 400,
   ...rests
 }: SDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const ref = useRef<any>(null);
+  const scrollRef = useRef<any>(null);
+  const contentHeightRef = useRef(0);
+  const scrollLayoutHeightRef = useRef(0);
+  const hasScrolledToSelectedRef = useRef(false);
 
-  const renderItem = (item: any) => {
+  const selectedItem = data.find((item: any) => item[valueField] === value);
+  const selectedIndex = data.findIndex(
+    (item: any) => item[valueField] === value,
+  );
+
+  const scrollToSelectedItem = useCallback(() => {
+    if (selectedIndex < 0 || !scrollRef.current) return;
+    const itemHeight = 45;
+    const y = Math.max(0, selectedIndex * itemHeight - 40);
+    scrollRef.current.scrollTo({ y, animated: true });
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (mode === 'modal' && !modalVisible) {
+      hasScrolledToSelectedRef.current = false;
+    }
+  }, [mode, modalVisible]);
+  const displayText = selectedItem
+    ? String(selectedItem[labelField] ?? '')
+    : placeholder;
+
+  const renderItem = (item: any) => (
+    <TouchableOpacity
+      key={String(item[valueField])}
+      style={[styles.item, item.disabled && { opacity: 0.5 }]}
+      onPress={() => {
+        if (item.disabled) return;
+        onSelect?.(item?.[valueField]);
+        setIsFocus(false);
+        setModalVisible(false);
+        ref.current?.close();
+      }}
+    >
+      <Text>{item[labelField]}</Text>
+      {value === item?.[valueField] && (
+        <CheckCircleFill width={20} height={20} color="green" />
+      )}
+    </TouchableOpacity>
+  );
+
+  const triggerRight = (
+    <View style={styles.triggerRight}>
+      {allowClear && value && (
+        <Pressable
+          style={styles.clearBtn}
+          onPress={(e) => {
+            e?.stopPropagation?.();
+            if (disabled) return;
+            setIsFocus(false);
+            onClear?.();
+          }}
+        >
+          <CloseLine width={18} height={18} color="#999999" />
+        </Pressable>
+      )}
+      <ArrowDown width={20} height={20} color="#999999" />
+    </View>
+  );
+
+  if (mode === 'modal') {
     return (
-      <TouchableOpacity
-        style={[styles.item, item.disabled && { opacity: 0.5 }]}
-        onPress={() => {
-          if (item.disabled) return;
-          onSelect?.(item?.[valueField]);
-          setIsFocus(false);
-          ref.current?.close();
-        }}
-      >
-        <Text>{item[labelField]}</Text>
-        {value === item?.[valueField] && (
-          <CheckCircleFill width={20} height={20} color="green" />
+      <View className={cn('flex flex-col gap-1.5')} style={styles.container}>
+        {label && (
+          <Text className={cn('text-base', labelClasses)}>{label}</Text>
         )}
-      </TouchableOpacity>
+        <Pressable
+          onPress={() => {
+            if (disabled) return;
+            Keyboard.dismiss();
+            setShowScrollDown(false);
+            setModalVisible(true);
+            setIsFocus(true);
+          }}
+          style={[
+            styles.dropdown,
+            isFocus && styles.dropdownFocused,
+            disabled && styles.dropdownDisabled,
+          ]}
+        >
+          <Text
+            style={[
+              styles.triggerText,
+              !selectedItem && styles.triggerPlaceholder,
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {displayText}
+          </Text>
+          {triggerRight}
+        </Pressable>
+
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          {...modalProps}
+          presentationStyle="overFullScreen"
+          onRequestClose={() => {
+            setModalVisible(false);
+            setIsFocus(false);
+          }}
+        >
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => {
+              setModalVisible(false);
+              setIsFocus(false);
+            }}
+          >
+            <Pressable
+              style={styles.modalContent}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle} numberOfLines={1}>
+                  {label || placeholder}
+                </Text>
+                <Pressable
+                  hitSlop={12}
+                  onPress={() => {
+                    setModalVisible(false);
+                    setIsFocus(false);
+                  }}
+                  style={styles.modalCloseBtn}
+                >
+                  <CloseLine width={22} height={22} color="#666" />
+                </Pressable>
+              </View>
+              <View style={styles.modalScrollWrap}>
+                <ScrollView
+                  ref={scrollRef}
+                  style={[styles.modalScroll, { maxHeight }]}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator
+                  onContentSizeChange={(_w, h) => {
+                    contentHeightRef.current = h;
+                    const layoutH = scrollLayoutHeightRef.current;
+                    setShowScrollDown(layoutH > 0 && h > layoutH);
+                    if (
+                      modalVisible &&
+                      !hasScrolledToSelectedRef.current &&
+                      selectedIndex >= 0
+                    ) {
+                      hasScrolledToSelectedRef.current = true;
+                      setTimeout(() => scrollToSelectedItem(), 50);
+                    }
+                  }}
+                  onLayout={(e) => {
+                    const { height } = e.nativeEvent.layout;
+                    scrollLayoutHeightRef.current = height;
+                    const contentH = contentHeightRef.current;
+                    setShowScrollDown(contentH > height);
+                  }}
+                  onScroll={(e) => {
+                    const { contentOffset, contentSize, layoutMeasurement } =
+                      e.nativeEvent;
+                    const canScroll =
+                      contentSize.height > layoutMeasurement.height;
+                    const nearBottom =
+                      contentOffset.y >=
+                      contentSize.height - layoutMeasurement.height - 20;
+                    setShowScrollDown(canScroll && !nearBottom);
+                  }}
+                  scrollEventThrottle={32}
+                >
+                  {data.map((item: any) => renderItem(item))}
+                </ScrollView>
+                {showScrollDown ? (
+                  <ScrollDownHint
+                    onPress={() => {
+                      scrollRef.current?.scrollTo({
+                        y:
+                          contentHeightRef.current -
+                          scrollLayoutHeightRef.current +
+                          20,
+                        animated: true,
+                      });
+                    }}
+                  />
+                ) : null}
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      </View>
     );
-  };
+  }
 
   return (
     <View className={cn('flex flex-col gap-1.5')} style={styles.container}>
@@ -72,8 +291,8 @@ const SDropdown = ({
         ref={ref}
         style={[
           styles.dropdown,
-          isFocus && { borderColor: '	border-color: rgb(203 213 225)' },
-          disabled && { backgroundColor: 'rgb(243 244 246)' },
+          isFocus && styles.dropdownFocused,
+          disabled && styles.dropdownDisabled,
         ]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
@@ -90,22 +309,7 @@ const SDropdown = ({
         containerStyle={styles.containerStyle}
         onFocus={() => setIsFocus(true)}
         selectedTextProps={{ numberOfLines: 1, ellipsizeMode: 'tail' }}
-        renderRightIcon={() => (
-          <View className="flex items-center justify-center gap-1 flex-row">
-            {allowClear && value && (
-              <Pressable
-                className="bg-gray-50 rounded-full p-1"
-                onPress={() => {
-                  setIsFocus(false);
-                  onClear?.();
-                }}
-              >
-                <CloseLine width={18} height={18} color="#999999" />
-              </Pressable>
-            )}
-            <ArrowDown width={20} height={20} color="#999999" />
-          </View>
-        )}
+        renderRightIcon={() => triggerRight}
         renderItem={(item: any) => renderItem(item)}
         onBlur={() => setIsFocus(false)}
         onChange={(item: any) => {
@@ -127,13 +331,36 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 44,
-    borderColor: 'border-color: rgb(203 213 225)',
+    borderColor: 'rgb(203 213 225)',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    // paddingLeft: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-
+  dropdownFocused: {
+    borderColor: 'rgb(203 213 225)',
+  },
+  dropdownDisabled: {
+    backgroundColor: 'rgb(243 244 246)',
+  },
+  triggerText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#111',
+  },
+  triggerPlaceholder: {
+    color: '#999999',
+  },
+  triggerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  clearBtn: {
+    padding: 4,
+  },
   icon: {
     marginRight: 5,
   },
@@ -167,5 +394,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  modalContent: {
+    alignSelf: 'stretch',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    overflow: 'hidden',
+    maxHeight: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111',
+    flex: 1,
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  modalScrollWrap: {
+    position: 'relative',
+    maxHeight: 320,
+  },
+  modalScroll: {
+    maxHeight: 320,
+  },
+  scrollDownBtn: {
+    position: 'absolute',
+    bottom: 6,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
+  scrollDownIconWrap: {
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
 });
