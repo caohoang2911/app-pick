@@ -1,4 +1,3 @@
-import { BarcodeScanningResult } from '~/src/types/scanner';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, {
   useCallback,
@@ -14,8 +13,8 @@ import ActionsBottom from '~/src/components/order-pick/actions-bottom';
 import Header from '~/src/components/order-pick/header';
 import OrderPickHeadeActionBottomSheet from '~/src/components/order-pick/header-action-bottom-sheet';
 import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
-import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-products';
 import OrderPickProducts from '~/src/components/order-pick/products';
+import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
 import { useOrderDetailStore } from '~/src/core/store/order-detail';
@@ -26,6 +25,8 @@ import {
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
+  resetOrderPick,
+  setCurrentCode,
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { splitBarcode } from '~/src/core/utils/number';
@@ -34,11 +35,26 @@ import {
   getOrderPickProductsFlat,
   handleScanBarcode,
 } from '~/src/core/utils/order-bag';
+import { BarcodeScanningResult } from '~/src/types/scanner';
+import Loading from '~/src/components/Loading';
 
 const OrderPick = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
-  useOrderDetailForCode(code);
+
+  const currentCode = useOrderPick.use.currentCode();
+
+  const { isOrderDetailLoading, orderDetailError } =
+    useOrderDetailForCode(code);
+
+  useEffect(() => {
+    if (!code) return;
+    if (currentCode !== code) {
+      // Chỉ reset khi chuyển sang đơn KHÁC.
+      resetOrderPick();
+      setCurrentCode(code);
+    }
+  }, [code, currentCode]);
 
   const orderDetail = useOrderDetailStore((s) =>
     code ? s.orderDetails[code] : undefined,
@@ -149,10 +165,14 @@ const OrderPick = () => {
     ],
   );
 
-  if (!orderDetail) {
+  if (isOrderDetailLoading) {
+    return <Loading />;
+  }
+
+  if (orderDetailError) {
     return (
-      <SectionAlert>
-        <Text>Không tìm thấy đơn hàng</Text>
+      <SectionAlert variant="danger">
+        <Text>{orderDetailError}</Text>
       </SectionAlert>
     );
   }
@@ -160,11 +180,9 @@ const OrderPick = () => {
   return (
     <>
       <View className="flex-1 bg-gray-50 pt-2">
-        <OrderPickProducts />
+        <OrderPickProducts key={code} />
       </View>
       <ActionsBottom />
-      {/* bottomshet */}
-      {/* {isScanQrCodeProduct && ( */}
       <ScannerBox
         isQRScanner={false}
         visible={isScanQrCodeProduct}
@@ -173,7 +191,6 @@ const OrderPick = () => {
           toggleScanQrCodeProduct(false);
         }}
       />
-      {/* )} */}
       <OrderPickHeadeActionBottomSheet ref={headerAcrtionRef} />
       <InputAmountPopup />
       <ReplacePickedProducts />

@@ -1,16 +1,16 @@
+import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { ActivityIndicator, Dimensions, Keyboard, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
-import { useOrderDetailQuery } from '~/src/api/app-pick/use-get-order-detail';
+import { queryClient } from '~/src/api/shared';
 import {
   setCurrentId,
   setInitOrderPickProducts,
   setKeyword,
-  setOrderDetail,
-  setSuccessForBarcodeScan,
   setLastScannedId,
+  setSuccessForBarcodeScan,
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
@@ -19,7 +19,6 @@ import {
   getOrderPickProductsFlat,
   handleScanBarcode,
 } from '~/src/core/utils/order-bag';
-import { OrderStatus } from '~/src/types/order';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
@@ -90,12 +89,25 @@ const ProductItem = memo(
 
 // Component chính
 const OrderPickProducts = () => {
-  const { code } = useLocalSearchParams<{
-    code: string;
-    status: OrderStatus;
-  }>();
-
+  const { code } = useLocalSearchParams<{ code: string }>();
   const keyword = useOrderPick.use.keyword();
+  const orderDetail = useOrderPick.use.orderDetail();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  // Keep pull-to-refresh but delegate to root query cache
+  const handleRefresh = useCallback(async () => {
+    if (!code) return;
+    setIsRefreshing(true);
+    try {
+      await queryClient.refetchQueries({
+        queryKey: ['orderDetail', code],
+        exact: true,
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [code]);
+
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
   const lastScannedId = useOrderPick.use.lastScannedId();
@@ -106,43 +118,17 @@ const OrderPickProducts = () => {
     );
   }, [lastScannedId, orderPickProductsFlat]);
   const flatListRef = useRef<FlatList>(null);
-  // Query data
-  const { data, refetch, isPending, isFetching, isLoading } =
-    useOrderDetailQuery({
-      orderCode: code,
-    });
 
-  // Cập nhật order detail chỉ khi data thay đổi
+  // Khởi tạo products từ orderDetail đã có sẵn ở store (set từ màn root)
   useEffect(() => {
-    if (data?.data) {
-      setOrderDetail(data.data);
-    }
-  }, [data]);
-
-  // Khởi tạo products từ API response
-  useEffect(() => {
-    const itemGroups = data?.data?.delivery?.itemGroups;
+    const itemGroups = orderDetail?.delivery?.itemGroups;
     if (itemGroups) {
       const tempArr = Object.values(itemGroups).map((item: any) => item);
       setInitOrderPickProducts([...tempArr] as never[]);
     }
-  }, [data?.data?.delivery?.itemGroups]);
+  }, [orderDetail?.delivery?.itemGroups]);
 
-  // Tối ưu hóa filter products bằng useMemo
   const filteredProducts = orderPickProducts;
-  // const filteredProducts = useMemo(() => {
-  //   if (!keyword || !orderPickProducts) return orderPickProducts;
-
-  //   return orderPickProducts.filter((products: any) => {
-  //     return products?.elements?.some((product: Product) => {
-  //       const normalizedKeyword = stringUtils.removeAccents(keyword.toLowerCase());
-  //       const normalizedName = stringUtils.removeAccents((product.name || '').toLowerCase());
-  //       const normalizedBarcode = (product.barcode || '').toLowerCase() + (product.baseBarcode || '').toLowerCase();
-
-  //       return normalizedName.includes(normalizedKeyword) || normalizedBarcode.includes(normalizedKeyword);
-  //     });
-  //   });
-  // }, [keyword, orderPickProducts]);
 
   useEffect(() => {
     if (!keyword) return;
@@ -236,11 +222,6 @@ const OrderPickProducts = () => {
     return `item_${index}`;
   }, []);
 
-  // Handle refresh
-  const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
   // Handle scroll failure with enhanced error handling
   const handleScrollToIndexFailed = useCallback(
     (info: {
@@ -302,9 +283,9 @@ const OrderPickProducts = () => {
   );
 
   // Tính toán các giá trị mô tả trạng thái
-  const isLoaded = !(isPending || isFetching || isLoading);
+  const hasOrderDetail = !!orderDetail?.delivery;
   const isEmpty =
-    isLoaded && (!filteredProducts || filteredProducts.length === 0);
+    hasOrderDetail && (!filteredProducts || filteredProducts.length === 0);
 
   const getPickingBarcode = useMemo(() => {
     return (
@@ -362,11 +343,6 @@ const OrderPickProducts = () => {
     }, 100);
   }, [filteredProducts, scrollTargetIndex]);
 
-  // Render component loading
-  if (isPending || isFetching || isLoading) {
-    return <LoadingIndicator />;
-  }
-
   // Window dimensions
   const { height } = Dimensions.get('window');
   const itemHeight = 200; // Ước tính chiều cao trung bình
@@ -386,7 +362,7 @@ const OrderPickProducts = () => {
         showsHorizontalScrollIndicator={false}
         keyExtractor={keyExtractor}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={handleRefresh} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
         ListFooterComponent={<View style={{ height: 20 }} />}
         ListHeaderComponent={
@@ -402,7 +378,7 @@ const OrderPickProducts = () => {
           renderItem({
             item,
             index,
-            statusOrder: data?.data?.header?.status as string,
+            statusOrder: orderDetail?.header?.status as string,
             pickingBarcode: getPickingBarcode,
           })
         }

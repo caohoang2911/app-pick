@@ -10,6 +10,7 @@ import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
   orderDetail: OrderDetail;
+  currentCode: string | null;
   isScanQrCodeProduct: boolean;
   isShowAmountInput: boolean;
   barcodeScanSuccess: string;
@@ -41,10 +42,13 @@ interface OrdersState {
   setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => void;
   replacePickedProductId: number | null;
   isVisibleReplaceProduct: boolean;
+  resetOrderPick: () => void;
+  setCurrentCode: (code: string) => void;
 }
 
 const _useOrderPick = create<OrdersState>((set, get) => ({
   orderDetail: {} as OrderDetail,
+  currentCode: null,
   isScanQrCodeProduct: false,
   isShowAmountInput: false,
   keyword: '',
@@ -60,6 +64,29 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   action: null,
   replacePickedProductId: null,
   isVisibleReplaceProduct: false,
+  resetOrderPick: () => {
+    set({
+      orderDetail: {} as OrderDetail,
+      isScanQrCodeProduct: false,
+      isShowAmountInput: false,
+      keyword: '',
+      barcodeScrollTo: '',
+      orderPickProducts: [],
+      barcodeScanSuccess: '',
+      lastScannedId: null,
+      quantityFromBarcode: 0,
+      scannedIds: {},
+      currentId: null,
+      isEditManual: false,
+      isScanMoreProduct: false,
+      action: null,
+      replacePickedProductId: null,
+      isVisibleReplaceProduct: false,
+    });
+  },
+  setCurrentCode: (code: string) => {
+    set({ currentCode: code });
+  },
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
@@ -141,6 +168,11 @@ export const useOrderPick = createSelectors(_useOrderPick);
 
 export const toggleScanQrCodeProduct = (status: boolean) =>
   _useOrderPick.getState().toggleScanQrCode(status);
+
+export const resetOrderPick = () => _useOrderPick.getState().resetOrderPick();
+
+export const setCurrentCode = (code: string) =>
+  _useOrderPick.getState().setCurrentCode(code);
 
 export const toggleShowAmountInput = (
   isShowAmountInput: boolean,

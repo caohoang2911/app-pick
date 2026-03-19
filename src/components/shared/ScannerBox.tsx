@@ -165,27 +165,30 @@ const ScannerBox = ({
 
   const scanRegion = currentScannerType ? QR_SCAN_REGION : BARCODE_SCAN_REGION;
 
-  if (!visible) return null;
-  if (!permission) return <View />;
+  // ✅ Render nội dung bên trong Portal dựa theo các trạng thái
+  const renderContent = () => {
+    if (!permission) return <View />;
 
-  if (!permission.granted) {
-    return (
-      <View style={styles.container} className="px-4">
-        <Text className="text-center">
-          Bạn không có quyền truy cập vào camera
-        </Text>
-        <View className="self-center flex-row justify-center mt-4 gap-3">
-          <Button onPress={onDestroy} variant="secondary" label="Trở lại" />
-          <Button onPress={handleRequestPermission} label="Yêu cầu truy cập" />
+    if (!permission.granted) {
+      return (
+        <View style={styles.container} className="px-4">
+          <Text className="text-center">
+            Bạn không có quyền truy cập vào camera
+          </Text>
+          <View className="self-center flex-row justify-center mt-4 gap-3">
+            <Button onPress={onDestroy} variant="secondary" label="Trở lại" />
+            <Button
+              onPress={handleRequestPermission}
+              label="Yêu cầu truy cập"
+            />
+          </View>
         </View>
-      </View>
-    );
-  }
+      );
+    }
 
-  if (!device) return <View />;
+    if (!device) return <View />;
 
-  return (
-    <Portal>
+    return (
       <View style={styles.fullScreenContainer}>
         <View style={styles.cameraContainer}>
           <Pressable style={styles.camera} onPress={handleTapFocus}>
@@ -193,7 +196,7 @@ const ScannerBox = ({
               ref={cameraRef}
               style={styles.camera}
               device={device as CameraDevice}
-              isActive={visible}
+              isActive={visible || false}
               onInitialized={handleCameraReady}
               videoStabilizationMode="off"
               photoHdr={false}
@@ -212,8 +215,12 @@ const ScannerBox = ({
           {!isCameraReady && <View style={styles.cameraLoadingOverlay} />}
         </View>
       </View>
-    </Portal>
-  );
+    );
+  };
+
+  // ✅ Portal luôn mounted, chỉ ẩn/hiện nội dung bên trong
+  // Tránh Portal register/unregister gây remount toàn bộ tree
+  return <Portal>{visible ? renderContent() : null}</Portal>;
 };
 
 const styles = StyleSheet.create({

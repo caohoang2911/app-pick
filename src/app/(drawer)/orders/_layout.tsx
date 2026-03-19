@@ -14,12 +14,6 @@ export default function OrdersLayout() {
         }}
       />
       <Stack.Screen
-        name="order-detail/[code]"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="order-invoice"
         options={{
           headerShown: false,

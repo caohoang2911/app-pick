@@ -39,11 +39,13 @@ import Header from '~/src/components/shared/Header';
 import ButtonBack from '~/src/components/ButtonBack';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import Loading from '~/src/components/Loading';
+import { queryClient } from '~/src/api/shared/api-provider';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { data, isPending, isFetching, refetch } = useOrderDetailForCode(code);
+  const { isOrderDetailLoading, isOrderDetailFetching, orderDetailError } =
+    useOrderDetailForCode(code);
 
   // Reset trước paint khi đổi đơn, tránh hiển thị ảnh chứng từ đơn A trên màn đơn B
   useLayoutEffect(() => {
@@ -110,10 +112,10 @@ const OrderScanToDelivery = () => {
     };
   }, []);
 
-  if (data?.error) {
+  if (orderDetailError) {
     return (
       <SectionAlert variant="danger">
-        <Text>{data?.error}</Text>
+        <Text>{orderDetailError}</Text>
       </SectionAlert>
     );
   }
@@ -158,12 +160,12 @@ const OrderScanToDelivery = () => {
   }, [tags]);
 
   const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    queryClient.invalidateQueries({ queryKey: ['orderDetail'], exact: true });
+  }, []);
 
   const featureAvailable = status === ORDER_STATUS.SHIPPING;
 
-  if (isPending) {
+  if (isOrderDetailLoading) {
     return <Loading />;
   }
 
@@ -172,7 +174,10 @@ const OrderScanToDelivery = () => {
       <View className="flex-1 mt-3">
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+            <RefreshControl
+              refreshing={isOrderDetailFetching}
+              onRefresh={handleRefresh}
+            />
           }
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />

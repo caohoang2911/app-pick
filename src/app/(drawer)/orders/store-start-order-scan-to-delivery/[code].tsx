@@ -53,7 +53,8 @@ const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { data, isPending, isFetching } = useOrderDetailForCode(code);
+  const { isOrderDetailLoading, isOrderDetailFetching, orderDetailError } =
+    useOrderDetailForCode(code);
   const [showPrintReceipt, setShowPrintReceipt] = useState(false);
 
   const header = useOrderDetailStore((s) =>
@@ -179,10 +180,10 @@ const OrderScanToDelivery = () => {
     };
   }, []);
 
-  if (data?.error) {
+  if (orderDetailError) {
     return (
       <SectionAlert variant="danger">
-        <Text>{data?.error}</Text>
+        <Text>{orderDetailError}</Text>
       </SectionAlert>
     );
   }
@@ -268,9 +269,9 @@ const OrderScanToDelivery = () => {
     [printCodReceipt],
   );
 
-  const isDisabled = !orderBags?.length || isPending;
+  const isDisabled = !orderBags?.length || isOrderDetailLoading;
 
-  if (isPending) {
+  if (isOrderDetailLoading) {
     return <Loading />;
   }
 
@@ -279,7 +280,10 @@ const OrderScanToDelivery = () => {
       <View className="flex-1 mt-3">
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+            <RefreshControl
+              refreshing={isOrderDetailFetching}
+              onRefresh={handleRefresh}
+            />
           }
         >
           <InvoiceAlert show={isShowAlert} codAmount={codAmount} />

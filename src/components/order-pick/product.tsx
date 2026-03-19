@@ -440,6 +440,7 @@ const OrderPickProduct = memo(
                     transition={200}
                     cachePolicy="none"
                     preview={true}
+                    key={imageSource}
                   />
                   {pickedTime ? (
                     <View

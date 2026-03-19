@@ -4,7 +4,6 @@ import {
   ORDER_TAGS,
 } from '@/core/constants/order';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { BarcodeScanningResult } from '~/src/types/scanner';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, {
   useCallback,
@@ -53,6 +52,7 @@ import {
 } from '~/src/core/store/order-scan-to-delivery';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -73,7 +73,8 @@ const OrderScanToDelivery = () => {
   const user = useAuth.use.userInfo();
   const { name, username } = user || {};
 
-  const { data, isPending, isFetching } = useOrderDetailForCode(code);
+  const { isOrderDetailLoading, isOrderDetailFetching, orderDetailError } =
+    useOrderDetailForCode(code);
 
   // Reset trước paint khi đổi đơn, tránh flash dữ liệu đơn A (nhãn đã in, hoá đơn...) trên màn đơn B
   useLayoutEffect(() => {
@@ -177,10 +178,6 @@ const OrderScanToDelivery = () => {
     return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
   }, [deliveryType]);
 
-  // useEffect(() => {
-  //   setOrderInvoice(data?.data || {});
-  // }, [data]);
-
   useEffect(() => {
     return () => {
       resetOrderBags();
@@ -189,10 +186,14 @@ const OrderScanToDelivery = () => {
     };
   }, []);
 
-  if (data?.error) {
+  if (isOrderDetailLoading) {
+    return <Loading />;
+  }
+
+  if (orderDetailError) {
     return (
       <SectionAlert variant="danger">
-        <Text>{data?.error}</Text>
+        <Text>{orderDetailError}</Text>
       </SectionAlert>
     );
   }
@@ -263,7 +264,7 @@ const OrderScanToDelivery = () => {
 
   const renderAction = useMemo(() => {
     const isDisabled =
-      !orderBags.length || isPending || handoverStatus === 'DISABLE';
+      !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
     return isAllDone ? (
       deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
       !isInvoiceSupportedByAppPick ? (
@@ -301,7 +302,7 @@ const OrderScanToDelivery = () => {
     actionTypeWithInvoice,
     deliveryType,
     isInvoiceSupportedByAppPick,
-    isPending,
+    isOrderDetailLoading,
     handoverStatus,
     toggleScanQrCodeProduct,
   ]);
@@ -317,7 +318,7 @@ const OrderScanToDelivery = () => {
     [printCodReceipt],
   );
 
-  if (isPending) {
+  if (isOrderDetailLoading) {
     return <Loading />;
   }
 
@@ -326,7 +327,10 @@ const OrderScanToDelivery = () => {
       <View className="flex-1 mt-3">
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />
+            <RefreshControl
+              refreshing={isOrderDetailFetching}
+              onRefresh={handleRefresh}
+            />
           }
         >
           <InvoiceAlert show={showAlert} codAmount={codAmount} />

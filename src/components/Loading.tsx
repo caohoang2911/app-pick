@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { View } from 'react-native';
+import React from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { Portal } from '@gorhom/portal';
 import { useLoading } from '../core/store/loading';
 
 const Loading = ({ description }: { description?: string }) => {
@@ -9,41 +9,53 @@ const Loading = ({ description }: { description?: string }) => {
   const shouldShowDescription =
     Boolean(descriptionStore) || Boolean(description);
   return (
-    <>
-      <View style={styles.loading}></View>
-      <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-        <View className="flex gap-2 items-center">
-          <View style={styles.box} className="w-12 h-12 rounded-lg">
-            <ActivityIndicator color="white" />
+    <Portal>
+      <View style={styles.root}>
+        <View style={styles.backdrop} />
+        <View style={styles.center}>
+          <View style={styles.box}>
+            <ActivityIndicator color="#fff" size="small" />
           </View>
-          {Boolean(shouldShowDescription) && (
-            <Text>{descriptionStore || description}</Text>
+          {shouldShowDescription && (
+            <Text style={styles.description}>
+              {descriptionStore || description}
+            </Text>
           )}
         </View>
       </View>
-    </>
+    </Portal>
   );
 };
 
 export default Loading;
 
 const styles = StyleSheet.create({
-  loading: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
+  root: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
+    elevation: 1000,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  center: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
-    opacity: 0.3,
-    backgroundColor: 'gray',
-    zIndex: 10,
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 24,
   },
   box: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
+  },
+  description: {
+    color: '#fff',
+    textAlign: 'center',
   },
 });
