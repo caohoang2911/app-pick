@@ -9,7 +9,10 @@ import { OrderDetail } from '~/src/types/order-pick';
  */
 interface OrderDetailState {
   orderDetails: Record<string, OrderDetail>;
+  loadingByCode: Record<string, boolean>;
   setOrderDetail: (orderCode: string, orderDetail: OrderDetail) => void;
+  setLoadingByCode: (orderCode: string, isLoading: boolean) => void;
+  getLoadingByCode: (orderCode: string) => boolean;
   getOrderDetail: (orderCode: string) => OrderDetail | undefined;
   clearOrderDetail: (orderCode: string) => void;
   clearAll: () => void;
@@ -17,6 +20,7 @@ interface OrderDetailState {
 
 const _useOrderDetailStore = create<OrderDetailState>((set, get) => ({
   orderDetails: {},
+  loadingByCode: {},
   setOrderDetail: (orderCode: string, orderDetail: OrderDetail) => {
     set((state) => ({
       orderDetails: {
@@ -25,15 +29,26 @@ const _useOrderDetailStore = create<OrderDetailState>((set, get) => ({
       },
     }));
   },
+  setLoadingByCode: (orderCode: string, isLoading: boolean) => {
+    set((state) => ({
+      loadingByCode: {
+        ...state.loadingByCode,
+        [orderCode]: isLoading,
+      },
+    }));
+  },
+  getLoadingByCode: (orderCode: string) => !!get().loadingByCode[orderCode],
   getOrderDetail: (orderCode: string) => get().orderDetails[orderCode],
   clearOrderDetail: (orderCode: string) => {
     set((state) => {
       const next = { ...state.orderDetails };
+      const nextLoading = { ...state.loadingByCode };
       delete next[orderCode];
-      return { orderDetails: next };
+      delete nextLoading[orderCode];
+      return { orderDetails: next, loadingByCode: nextLoading };
     });
   },
-  clearAll: () => set({ orderDetails: {} }),
+  clearAll: () => set({ orderDetails: {}, loadingByCode: {} }),
 }));
 
 export const useOrderDetailStore = createSelectors(_useOrderDetailStore);
@@ -42,6 +57,11 @@ export const setOrderDetailForCode = (
   orderCode: string,
   orderDetail: OrderDetail,
 ) => _useOrderDetailStore.getState().setOrderDetail(orderCode, orderDetail);
+
+export const setOrderDetailLoadingByCode = (
+  orderCode: string,
+  isLoading: boolean,
+) => _useOrderDetailStore.getState().setLoadingByCode(orderCode, isLoading);
 
 export const getOrderDetailByCode = (
   orderCode: string,

@@ -7,21 +7,23 @@ import InvoiceInfo from '~/src/components/order-invoice/invoice-info';
 import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
 import ShippingInfo from '~/src/components/order-invoice/shipping-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
+import Loading from '~/src/components/Loading';
 
 const OrderInvoice = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { data } = useOrderDetailForCode(code);
+  const { isOrderDetailLoading, orderDetailError } =
+    useOrderDetailForCode(code);
 
-  if (data?.error) {
+  if (orderDetailError) {
     return (
       <SectionAlert variant="danger">
-        <Text>{data?.error}</Text>
+        <Text>{orderDetailError}</Text>
       </SectionAlert>
     );
   }
 
-  if (!data) {
-    return null;
+  if (isOrderDetailLoading) {
+    return <Loading />;
   }
 
   return (

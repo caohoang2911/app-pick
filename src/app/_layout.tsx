@@ -28,10 +28,7 @@ import { useLoading } from '@/core/store/loading';
 import { setDefaultTimeZone } from '@/core/utils/moment';
 import { ErrorBoundary as CustomErrorBoundary } from '@/core/utils/error-boundary';
 import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
-import {
-  initializeSafeAppManagement,
-  cleanupSafeAppManagement,
-} from '@/core/utils/safe-app-management';
+
 import '@/ui/global.css';
 import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
@@ -45,6 +42,10 @@ import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
 import { useAppState } from '../core/hooks/useAppState';
 import FlashMessageWithMarkdown from '../components/FlashMessageWithMarkdown';
+import {
+  cleanupSafeAppManagement,
+  initializeSafeAppManagement,
+} from '../core/utils/safe-app-management';
 
 const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   const { token } = usePushNotifications();
@@ -157,7 +158,11 @@ function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!loaded) {
-    return <Loading />;
+    return (
+      <PortalProvider>
+        <Loading />
+      </PortalProvider>
+    );
   }
 
   if (!loaded && !error) {

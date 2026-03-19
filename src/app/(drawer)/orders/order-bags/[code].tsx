@@ -7,6 +7,7 @@ import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useUpdateOrderBagLabels } from '~/src/api/app-pick/use-update-order-bag-labels';
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
+import Loading from '~/src/components/Loading';
 import Bags from '~/src/components/order-bags/bags';
 import HeaderBag from '~/src/components/order-bags/header-bag';
 import { SectionAlert } from '~/src/components/SectionAlert';
@@ -22,7 +23,9 @@ import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { data, isPending, isFetching } = useOrderDetailForCode(code);
+  const { isOrderDetailLoading, orderDetailError } =
+    useOrderDetailForCode(code);
+
   const orderDetail = useOrderDetailStore((s) =>
     code ? s.orderDetails[code] : undefined,
   );
@@ -64,18 +67,10 @@ const OrderBags = () => {
     if (orderDetail) {
       setOrderDetail(orderDetail);
     }
-    if (data && isInitialLoad) {
+    if (!isOrderDetailLoading && isInitialLoad) {
       setIsInitialLoad(false);
     }
-  }, [orderDetail, data, isInitialLoad]);
-
-  if (data?.error) {
-    return (
-      <SectionAlert variant="danger">
-        <Text>{data?.error}</Text>
-      </SectionAlert>
-    );
-  }
+  }, [orderDetail, isOrderDetailLoading, isInitialLoad]);
 
   const { shipping } = orderDetail?.header as OrderDetailHeader;
   const { packageSize } = shipping || {};
@@ -115,13 +110,17 @@ const OrderBags = () => {
     }
   }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN, isInitialLoad]);
 
-  useEffect(() => {
-    if (isPending || isFetching) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
-  }, [isPending, isFetching]);
+  if (isOrderDetailLoading) {
+    return <Loading />;
+  }
+
+  if (orderDetailError) {
+    return (
+      <SectionAlert variant="danger">
+        <Text>{orderDetailError}</Text>
+      </SectionAlert>
+    );
+  }
 
   return (
     <View className="flex-1 mb-4">

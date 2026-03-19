@@ -56,6 +56,9 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
   const orderDetail = useOrderDetailStore((s) =>
     orderCode ? s.orderDetails[orderCode] : undefined,
   );
+  const orderDetailError = query.data?.error;
+  const hasOrderDetail = !!orderDetail;
+  const isOrderDetailLoading = isOrderDetailPending;
 
   useEffect(() => {
     if (orderCode && query.data?.data) {
@@ -65,8 +68,6 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
 
   useEffect(() => {
     if (!orderCode) return;
-    // Loading in store is used for initial blocking UI only.
-    // Background refetching is exposed separately via isOrderDetailFetching.
     setOrderDetailLoadingByCode(orderCode, isOrderDetailPending);
   }, [orderCode, isOrderDetailPending]);
 
@@ -91,6 +92,9 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
     ...query,
     isOrderDetailPending,
     isOrderDetailFetching,
+    isOrderDetailLoading,
+    orderDetailError,
+    hasOrderDetail,
     orderDetail: orderDetail ?? ({} as OrderDetail),
   };
 };
