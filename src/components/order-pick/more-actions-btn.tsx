@@ -54,6 +54,11 @@ const actions = [
     title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.INCORRECT_STOCK],
     icon: <AntDesign name="tago" size={20} color="black" />,
   },
+  {
+    key: PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT],
+    icon: <AntDesign name="tago" size={20} color="black" />,
+  },
 ];
 
 interface MoreActionsBtnProps {
@@ -86,8 +91,8 @@ const MoreActionsBtn = ({
   const { tags } = currentProduct || {};
 
   const shouldEnableReplaceProduct = useMemo(() => {
-    return tags?.includes('REPLACEABLE');
-  }, [tags]);
+    return tags?.includes('REPLACEABLE') && !currentProduct?.pickedErrorType;
+  }, [tags, currentProduct?.pickedErrorType]);
 
   const shouldDisplayEdit =
     useCanEditOrderPick(code as string) && isAllowEditPickQuantity;
@@ -154,6 +159,9 @@ const MoreActionsBtn = ({
         case PRODUCT_ACTIONS.INCORRECT_STOCK:
           setActionProduct(PRODUCT_ACTIONS.INCORRECT_STOCK);
           break;
+        case PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT:
+          setActionProduct(PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT);
+          break;
         default:
           break;
       }
@@ -179,7 +187,7 @@ const MoreActionsBtn = ({
           visible={visible}
           onClose={() => setVisible(false)}
           ref={actionRef}
-          snapPoints={[460]}
+          snapPoints={[480]}
         >
           {renderItem({
             key: 'edit-pick-quantity',

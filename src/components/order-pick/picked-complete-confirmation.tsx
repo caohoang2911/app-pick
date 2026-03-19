@@ -48,12 +48,14 @@ const PickedCompleteConfirmation = ({
         </View>
       }
     >
-      <View className="flex-1 px-4 pt-1 mb-4">
-        <View className="flex gap-4 mt-3">
+      <View className="flex-1 px-4 pt-1 mb-4 ">
+        <View className="flex flex-col flex-1 gap-4 py-3">
           {productFulfillError?.map((item: Product, index: number) => {
-            const isLastItem = index === productFulfillError.length - 1;
             return (
-              <View key={index} className="flex gap-2">
+              <View
+                key={index}
+                className="flex px-3 py-3 overflow-hidden gap-2 bg-white rounded-md shadow-lg shadow-black-500 border border-gray-100"
+              >
                 <View className=" flex-row gap-3">
                   <SImage
                     source={item.image}
@@ -93,7 +95,7 @@ const PickedCompleteConfirmation = ({
                 </View>
                 {item.pickedErrorType && (
                   <View
-                    className="px-2 py-1 flex gap-1 rounded-xs   odd:border-b odd:border-gray-200"
+                    className="px-2 py-1 flex gap-1 rounded-md "
                     style={{ backgroundColor: '#FFA500' }}
                   >
                     <View className="flex flex-row items-center">
@@ -111,9 +113,6 @@ const PickedCompleteConfirmation = ({
                       </Text>
                     </View>
                   </View>
-                )}
-                {!isLastItem && (
-                  <View className="flex-1 bg-gray-200" style={{ height: 1 }} />
                 )}
               </View>
             );

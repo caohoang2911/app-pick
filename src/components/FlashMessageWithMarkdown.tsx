@@ -79,8 +79,14 @@ const styles = StyleSheet.create({
   },
   closeBtnIcon: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeBtnIconInner: {
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -91,6 +97,8 @@ const styles = StyleSheet.create({
   closeText: {
     fontSize: 14,
     fontWeight: '700',
+    lineHeight: 14,
+    ...(Platform.OS === 'android' && { textAlignVertical: 'center' }),
   },
 });
 
@@ -149,19 +157,21 @@ const FlashMessageWithMarkdown = React.forwardRef<
         }}
       >
         <View style={styles.closeBtnIcon}>
-          <Text
-            style={[
-              styles.closeText,
-              {
-                color: theme.close,
-                textShadowColor: 'rgba(0,0,0,0.35)',
-                textShadowOffset: { width: 0, height: 1 },
-                textShadowRadius: 1,
-              },
-            ]}
-          >
-            ✕
-          </Text>
+          <View style={styles.closeBtnIconInner}>
+            <Text
+              style={[
+                styles.closeText,
+                {
+                  color: theme.close,
+                  textShadowColor: 'rgba(0,0,0,0.35)',
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 1,
+                },
+              ]}
+            >
+              ✕
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     </Pressable>
