@@ -99,6 +99,7 @@
     "react-native-screens": "^3.32.0",
     "react-native-svg": "15.2.0",
     "react-native-tcp-socket": "^6.2.0",
+    "react-native-volume-manager": "^1.10.0",
     "react-native-view-shot": "3.8.0",
     "react-native-vision-camera": "^4.7.3",
     "react-native-web": "~0.19.10",

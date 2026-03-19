@@ -273,7 +273,6 @@ const OrderPickProduct = memo(
     baseBarcode,
     sellPrice,
     unit,
-    indexBarcodeWithoutPickedTime,
     orderQuantity,
     stockOnhand,
     tags = [],
@@ -291,14 +290,11 @@ const OrderPickProduct = memo(
     const isShowAmountInput = useOrderPick.use.isShowAmountInput();
     const config = useConfig.use.config();
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
-    const orderPickProducts = useOrderPick.use.orderPickProducts();
-    const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
 
-    const indexById = orderPickProductsFlat?.findIndex((item: Product) => {
-      return item.id === id;
-    });
+    const lastScannedId = useOrderPick.use.lastScannedId();
 
-    const isActive = indexById === indexBarcodeWithoutPickedTime;
+    const isActive =
+      id != null && lastScannedId != null && id === lastScannedId;
 
     const isGift = useMemo(() => {
       return tags?.includes('GIFT');
@@ -325,6 +321,50 @@ const OrderPickProduct = memo(
       () => getConfigNameById(productPickedErrorTypes, pickedErrorType),
       [productPickedErrorTypes, pickedErrorType],
     );
+
+    const warningItems = useMemo(() => {
+      const items: Array<{
+        key: string;
+        errorName: React.ReactNode;
+        iconVariant?: 'default' | 'check';
+      }> = [];
+      if (pickedErrorName) {
+        items.push({ key: 'pickedErrorName', errorName: pickedErrorName });
+      }
+      if (pickedNote) {
+        items.push({
+          key: 'pickedNote',
+          errorName: (
+            <Text className="text-white font-bold text-sm">{pickedNote}</Text>
+          ),
+          iconVariant: 'check',
+        });
+      }
+      if (isWarningOverQuantity) {
+        items.push({
+          key: 'isWarningOverQuantity',
+          errorName: 'Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng',
+        });
+      }
+      if (originOrderQuantity) {
+        items.push({
+          key: 'originOrderQuantity',
+          errorName: (
+            <Text className="text-white font-semibold text-sm">
+              Vui lòng pick theo số lượng{' '}
+              <Text className="font-bold">{originOrderQuantity}</Text>
+            </Text>
+          ),
+        });
+      }
+      return items;
+    }, [
+      pickedErrorName,
+      pickedNote,
+      isWarningOverQuantity,
+      originOrderQuantity,
+    ]);
+
     // const isGift = useMemo(() => type === "GIFT", [type]);
     const hasSellPrice = useMemo(
       () => !isGift && Number(sellPrice) > 0,
@@ -367,8 +407,8 @@ const OrderPickProduct = memo(
     return (
       <>
         <View
-          className={`bg-white shadow relative ${isDisable && 'opacity-40'}`}
-          style={[styles.box]}
+          className={`bg-white overflow-hidden relative ${isDisable && 'opacity-40'}`}
+          style={[styles.box, isActive && styles.activeBox]}
         >
           <View className="p-3">
             <ProductHeader
@@ -448,48 +488,16 @@ const OrderPickProduct = memo(
               </View>
             </View>
           </View>
-          {Boolean(
-            pickedErrorName ||
-            isWarningOverQuantity ||
-            originOrderQuantity ||
-            pickedNote,
-          ) && (
+          {warningItems.length > 0 && (
             <View className="flex w-full flex-grow mt-3">
-              {pickedErrorName && (
-                <WarningMessage errorName={pickedErrorName} />
-              )}
-
-              {!!pickedNote && (
-                <>
-                  <WarningMessage
-                    errorName={
-                      <Text className="text-white font-bold text-sm">
-                        {pickedNote}
-                      </Text>
-                    }
-                    iconVariant="check"
-                  />
-                </>
-              )}
-
-              {isWarningOverQuantity && (
+              {warningItems.map((item, index) => (
                 <WarningMessage
-                  errorName={
-                    'Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng'
-                  }
+                  key={item.key}
+                  errorName={item.errorName}
+                  iconVariant={item.iconVariant}
+                  isLast={index === warningItems.length - 1}
                 />
-              )}
-              {originOrderQuantity && (
-                <WarningMessage
-                  isLast={true}
-                  errorName={
-                    <Text className="text-white font-semibold text-sm">
-                      Vui lòng pick theo số lượng{' '}
-                      <Text className="font-bold">{originOrderQuantity}</Text>
-                    </Text>
-                  }
-                />
-              )}
+              ))}
             </View>
           )}
         </View>
@@ -520,7 +528,7 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         borderWidth: 1,
         borderTopColor: '#dfdfdf',
-        borderBottomColor: '#dfdfdf',
+        borderBottomColor: 'transparent',
         borderLeftColor: '#dfdfdf',
         borderRightColor: '#dfdfdf',
       },
@@ -535,11 +543,15 @@ const styles = StyleSheet.create({
         elevation: 9,
         borderWidth: 1,
         borderTopColor: '#dfdfdf',
-        borderBottomColor: '#dfdfdf',
+        borderBottomColor: 'transparent',
         borderLeftColor: '#dfdfdf',
         borderRightColor: '#dfdfdf',
       },
     }),
+  },
+  activeBox: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#22c55e',
   },
   productImage: {
     width: (Dimensions.get('window').width - 32) / 3,

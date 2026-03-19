@@ -25,6 +25,7 @@ import {
   setActionProduct,
   setCurrentId,
   setIsVisibleReplaceProduct,
+  setLastScannedId,
   setOrderPickProduct,
   setQuantityFromBarcode,
   setReplacePickedProductId,
@@ -484,6 +485,8 @@ const InputAmountPopup = () => {
     () => {
       if (currentPickedProduct) {
         setOrderPickProduct(currentPickedProduct);
+        // Dùng để scroll tới item vừa pick (vừa scan/apply)
+        setLastScannedId(currentPickedProduct.id ?? null);
         setReplacePickedProductId(currentPickedProduct?.id);
         if (
           !currentPickedProduct?.pickedQuantity &&
@@ -734,6 +737,11 @@ const InputAmountPopup = () => {
             setFieldValue(
               'pickedErrorType',
               PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK,
+            );
+          } else if (action === PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT) {
+            setFieldValue(
+              'pickedErrorType',
+              PRODUCT_PICKED_ERROR_TYPES.PICK_WEIGHT_EXCEEDS_LIMIT,
             );
           } else {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());

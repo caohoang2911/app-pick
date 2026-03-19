@@ -15,6 +15,7 @@ interface OrdersState {
   barcodeScanSuccess: string;
   keyword: string;
   barcodeScrollTo: string;
+  lastScannedId: number | null;
   orderPickProducts: Array<Product | ProductItemGroup>;
   quantityFromBarcode: number;
   scannedIds: Record<string, boolean>;
@@ -31,6 +32,7 @@ interface OrdersState {
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
   setBarcodeScrollTo: (barcode: string) => void;
+  setLastScannedId: (id: number | null) => void;
   setInitOrderPickProducts: (data: Array<Product | ProductItemGroup>) => void;
   setOrderPickProduct: (product: Product) => void;
   setQuantityFromBarcode: (quantity: number) => void;
@@ -49,6 +51,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   barcodeScrollTo: '',
   orderPickProducts: [],
   barcodeScanSuccess: '',
+  lastScannedId: null,
   quantityFromBarcode: 0,
   scannedIds: {},
   currentId: null,
@@ -85,6 +88,9 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   },
   setSuccessForBarcodeScan: (barcode: string) => {
     set({ barcodeScanSuccess: barcode });
+  },
+  setLastScannedId: (id: number | null) => {
+    set({ lastScannedId: id });
   },
   setInitOrderPickProducts: (data: any) => {
     set({ orderPickProducts: [...data] });
@@ -150,6 +156,9 @@ export const setInitOrderPickProducts = (
 
 export const setBarcodeScrollTo = (barcode: string) =>
   _useOrderPick.getState().setBarcodeScrollTo(barcode);
+
+export const setLastScannedId = (id: number | null) =>
+  _useOrderPick.getState().setLastScannedId(id);
 
 export const setKeyword = (keyword: string) =>
   _useOrderPick.getState().setKeyword(keyword);

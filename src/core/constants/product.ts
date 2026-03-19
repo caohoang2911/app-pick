@@ -7,18 +7,7 @@ export const PRODUCT_PICKED_ERROR_TYPES = {
   EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE:
     'EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE',
   INCORRECT_ORDERED_WEIGHT: 'INCORRECT_ORDERED_WEIGHT',
-} as const;
-
-export const PRODUCT_PICKED_ERROR_TYPE_LABELS = {
-  [PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK]: 'Hết hàng',
-  [PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE]: 'Chất lượng kém',
-  [PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK]: 'Sai tồn kho',
-  [PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED]:
-    'SP cận hạn sử dụng, chưa dán tem giảm giá',
-  [PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE]:
-    'SP quá hạn bán online, chưa đến hạn giảm giá',
-  [PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT]:
-    'Sai cân nặng đặt hàng',
+  PICK_WEIGHT_EXCEEDS_LIMIT: 'PICK_WEIGHT_EXCEEDS_LIMIT',
 } as const;
 
 export const PRODUCT_ACTIONS = {
@@ -27,6 +16,7 @@ export const PRODUCT_ACTIONS = {
   NEAR_EXPIRY: 'near-expiry',
   EXPIRED_ONLINE: 'expired-online',
   INCORRECT_STOCK: 'incorrect-stock',
+  PICK_WEIGHT_EXCEEDS_LIMIT: 'pick-weight-exceeds-limit',
 } as const;
 
 export const PRODUCT_ACTION_LABELS = {
@@ -36,6 +26,8 @@ export const PRODUCT_ACTION_LABELS = {
   [PRODUCT_ACTIONS.EXPIRED_ONLINE]:
     'SP quá hạn bán online, chưa đến hạn giảm giá',
   [PRODUCT_ACTIONS.INCORRECT_STOCK]: 'Sản phẩm sai tồn',
+  [PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT]:
+    'SP vượt quá trọng lượng tối đa được phép chọn',
 } as const;
 
 export type ProductAction =

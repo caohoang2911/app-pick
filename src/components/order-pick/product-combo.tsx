@@ -7,12 +7,10 @@ const ProductCombo = ({
   combo,
   statusOrder,
   pickingBarcode,
-  indexBarcodeWithoutPickedTime,
 }: {
   combo: ProductItemGroup;
   statusOrder: string;
   pickingBarcode: string;
-  indexBarcodeWithoutPickedTime?: number;
 }) => {
   const { elementRatio } = combo || {};
 
@@ -66,7 +64,6 @@ const ProductCombo = ({
                 isHiddenTag
                 statusOrder={statusOrder}
                 pickingBarcode={pickingBarcode}
-                indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime}
               />
             </Fragment>
           ))}

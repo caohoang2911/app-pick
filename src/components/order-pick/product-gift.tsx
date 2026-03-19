@@ -8,12 +8,10 @@ const ProductCombo = ({
   giftPack,
   statusOrder,
   pickingBarcode,
-  indexBarcodeWithoutPickedTime,
 }: {
   giftPack: GiftPack;
   statusOrder: string;
   pickingBarcode: string;
-  indexBarcodeWithoutPickedTime?: number;
 }) => {
   const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
     return product.pickedQuantity === 0 || product.pickedQuantity === null;
@@ -35,7 +33,6 @@ const ProductCombo = ({
               {...product}
               key={product.id}
               index={index}
-              indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime}
               disable={isHasPickedQuantity}
               statusOrder={statusOrder}
               pickingBarcode={pickingBarcode}

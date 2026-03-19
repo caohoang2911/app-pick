@@ -10,6 +10,7 @@ import {
   setKeyword,
   setOrderDetail,
   setSuccessForBarcodeScan,
+  setLastScannedId,
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
@@ -45,20 +46,17 @@ const ProductItem = memo(
     isLast,
     pickingBarcode,
     statusOrder,
-    indexBarcodeWithoutPickedTime,
   }: {
     item: Product | ProductItemGroup | any;
     isLast: boolean;
     pickingBarcode: string;
     statusOrder?: string;
-    indexBarcodeWithoutPickedTime?: number;
   }) => {
     const renderProduct = () => {
       if (item.type === 'COMBO' && 'elements' in item) {
         return (
           <ProductCombo
             statusOrder={statusOrder || ''}
-            indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime}
             pickingBarcode={pickingBarcode}
             combo={item as ProductItemGroup}
           />
@@ -68,7 +66,6 @@ const ProductItem = memo(
         return (
           <ProductGift
             statusOrder={statusOrder || ''}
-            indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime}
             pickingBarcode={pickingBarcode}
             giftPack={item as ProductItemGroup}
           />
@@ -77,7 +74,6 @@ const ProductItem = memo(
       return (
         <OrderPickProduct
           statusOrder={statusOrder || ''}
-          indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime}
           pickingBarcode={pickingBarcode}
           {...(item.elements?.[0] as Product)}
         />
@@ -102,6 +98,13 @@ const OrderPickProducts = () => {
   const keyword = useOrderPick.use.keyword();
   const orderPickProducts = useOrderPick.use.orderPickProducts();
   const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const lastScannedId = useOrderPick.use.lastScannedId();
+  const activeIndexByLastScannedId = useMemo(() => {
+    if (!lastScannedId) return -1;
+    return orderPickProductsFlat.findIndex(
+      (p: Product) => p.id === lastScannedId,
+    );
+  }, [lastScannedId, orderPickProductsFlat]);
   const flatListRef = useRef<FlatList>(null);
   // Query data
   const { data, refetch, isPending, isFetching, isLoading } =
@@ -173,6 +176,7 @@ const OrderPickProducts = () => {
         if (currentProduct) {
           setSuccessForBarcodeScan(productBarcode?.barcode || '');
           setCurrentId(currentProduct?.id);
+          setLastScannedId(currentProduct?.id ?? null);
           toggleShowAmountInput(true, currentProduct?.id);
           setKeyword('');
         }
@@ -185,6 +189,7 @@ const OrderPickProducts = () => {
     handleScanBarcode,
     setSuccessForBarcodeScan,
     setCurrentId,
+    setLastScannedId,
     toggleShowAmountInput,
     setKeyword,
   ]);
@@ -204,23 +209,16 @@ const OrderPickProducts = () => {
     }) => {
       const isLast = index === (filteredProducts?.length || 0) - 1;
 
-      const indexBarcodeWithoutPickedTime = orderPickProductsFlat?.findIndex(
-        (item: Product) => {
-          return item.barcode === pickingBarcode && !item.pickedTime;
-        },
-      );
-
       return (
         <ProductItem
           statusOrder={statusOrder}
           item={item}
           isLast={isLast}
           pickingBarcode={pickingBarcode}
-          indexBarcodeWithoutPickedTime={indexBarcodeWithoutPickedTime}
         />
       );
     },
-    [filteredProducts?.length, orderPickProductsFlat],
+    [filteredProducts?.length, activeIndexByLastScannedId],
   );
 
   // Key extractor tối ưu
@@ -316,18 +314,21 @@ const OrderPickProducts = () => {
     );
   }, [orderPickProductsFlat]);
 
-  const getBarcodeIndexFilteredProducts = useMemo(() => {
-    return filteredProducts.findIndex((product: any) => {
-      return product.elements?.some((element: Product) => {
-        return element.barcode === getPickingBarcode && !element.pickedTime;
+  const scrollTargetIndex = useMemo(() => {
+    if (lastScannedId) {
+      const idx = filteredProducts.findIndex((product: any) => {
+        return product.elements?.some(
+          (element: Product) => element.id === lastScannedId,
+        );
       });
-    });
-  }, [filteredProducts]);
+      if (idx !== -1) return idx;
+    }
+
+    return -1;
+  }, [filteredProducts, getPickingBarcode, lastScannedId]);
 
   useEffect(() => {
-    if (!getPickingBarcode) return;
-
-    const index = getBarcodeIndexFilteredProducts;
+    const index = scrollTargetIndex;
     if (index === -1) return;
 
     const dataLength = filteredProducts?.length || 0;
@@ -359,7 +360,7 @@ const OrderPickProducts = () => {
         }
       }
     }, 100);
-  }, [getPickingBarcode, getBarcodeIndexFilteredProducts, filteredProducts]);
+  }, [filteredProducts, scrollTargetIndex]);
 
   // Render component loading
   if (isPending || isFetching || isLoading) {

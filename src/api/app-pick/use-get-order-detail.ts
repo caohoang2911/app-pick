@@ -5,6 +5,7 @@ import { useRole } from '~/src/core/hooks/useRole';
 import { setLoading } from '~/src/core/store/loading';
 import {
   setOrderDetailForCode,
+  setOrderDetailLoadingByCode,
   useOrderDetailStore,
 } from '~/src/core/store/order-detail';
 import { Role } from '~/src/types/employee';
@@ -50,6 +51,8 @@ export const useOrderDetailQuery = ({ orderCode }: Variables) => {
  */
 export const useOrderDetailForCode = (orderCode: string | undefined) => {
   const query = useOrderDetailQuery({ orderCode });
+  const isOrderDetailPending = query.isPending;
+  const isOrderDetailFetching = query.isFetching;
   const orderDetail = useOrderDetailStore((s) =>
     orderCode ? s.orderDetails[orderCode] : undefined,
   );
@@ -60,11 +63,18 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
     }
   }, [orderCode, query.data]);
 
+  useEffect(() => {
+    if (!orderCode) return;
+    // Loading in store is used for initial blocking UI only.
+    // Background refetching is exposed separately via isOrderDetailFetching.
+    setOrderDetailLoadingByCode(orderCode, isOrderDetailPending);
+  }, [orderCode, isOrderDetailPending]);
+
   // Trì hoãn bật loading để tránh hiện trong lúc animation chuyển trang
   const DELAY_SHOW_LOADING_MS = 300;
   useEffect(() => {
     if (!orderCode) return;
-    const isLoading = query.isPending;
+    const isLoading = isOrderDetailPending;
     if (!isLoading) {
       setLoading(false);
       return;
@@ -75,10 +85,12 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
     return () => {
       clearTimeout(timer);
     };
-  }, [orderCode, query.isPending, query.isFetching]);
+  }, [orderCode, isOrderDetailPending]);
 
   return {
     ...query,
+    isOrderDetailPending,
+    isOrderDetailFetching,
     orderDetail: orderDetail ?? ({} as OrderDetail),
   };
 };
