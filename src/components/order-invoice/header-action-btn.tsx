@@ -4,8 +4,8 @@ import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { ORDER_STATUS } from '@/core/constants/order';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useDriverOrderActions } from '~/src/core/hooks/useDriverOrderActions';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { More2Fill, QRScanLine } from '~/src/core/svgs';
 import {
   getScanToDeliveryInfo,
@@ -28,9 +28,7 @@ const HeaderActionBtn = () => {
     handleUnassignOrder,
   } = useDriverOrderActions(orderCode);
 
-  const orderDetail = useOrderDetailStore((s) =>
-    orderCode ? s.orderDetails[orderCode] : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(orderCode);
   const { header } = orderDetail || {};
   const { status, deliveryType } = header || {};
 

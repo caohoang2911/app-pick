@@ -3,13 +3,13 @@ import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Badge } from '../Badge';
 import Box from '../Box';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 
 const COL_LEFT_WIDTH = 105;
 
@@ -36,9 +36,8 @@ const RowInfo = ({
 
 const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{ code?: string }>();
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const header = orderDetail?.header;
   const {
     status,
     orderTime,

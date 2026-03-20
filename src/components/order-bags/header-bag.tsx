@@ -3,19 +3,15 @@ import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_COUNTER_STATUS } from '@/core/constants/order';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useOrderBag } from '~/src/core/store/order-bag';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
-import { OrderDetailHeader } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
 
 function HeaderBag() {
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const status = useOrderDetailStore((s) =>
-    code
-      ? (s.orderDetails[code]?.header as OrderDetailHeader)?.status
-      : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const status = orderDetail?.header?.status;
 
   const totalBagsCount = useOrderBag((s) => {
     const b = s.orderBags;

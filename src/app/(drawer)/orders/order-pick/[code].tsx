@@ -17,7 +17,6 @@ import OrderPickProducts from '~/src/components/order-pick/products';
 import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   setCurrentId,
   setOrderDetail,
@@ -44,7 +43,7 @@ const OrderPick = () => {
 
   const currentCode = useOrderPick.use.currentCode();
 
-  const { isOrderDetailLoading, orderDetailError } =
+  const { isOrderDetailLoading, orderDetailError, orderDetail } =
     useOrderDetailForCode(code);
 
   useEffect(() => {
@@ -55,10 +54,6 @@ const OrderPick = () => {
       setCurrentCode(code);
     }
   }, [code, currentCode]);
-
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  );
 
   useEffect(() => {
     if (code && orderDetail) {

@@ -4,8 +4,8 @@ import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useConfig } from '~/src/core/store/config';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { OrderDetail } from '~/src/types/order-pick';
@@ -40,11 +40,10 @@ const HeaderTags = ({ tags }: { tags?: string[] }) => {
 
 const OrderPickHeader = () => {
   const { code } = useGlobalSearchParams<{ code: string }>();
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  ) as OrderDetail | undefined;
+  const { orderDetail } = useOrderDetailForCode(code);
+  const orderDetailData = orderDetail as OrderDetail | undefined;
 
-  const { header } = orderDetail || {};
+  const { header } = orderDetailData || {};
   const { status, statusName, lastTimeUpdateStatus, tags } = header || {};
 
   return (

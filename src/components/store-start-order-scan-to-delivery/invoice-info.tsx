@@ -4,7 +4,7 @@ import { toLower } from 'lodash';
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
@@ -39,9 +39,8 @@ const InvoiceInfo = () => {
     code: string;
   }>();
 
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const header = orderDetail?.header;
   const {
     status,
     orderTime,

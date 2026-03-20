@@ -17,6 +17,7 @@ import { getConfigNameById } from '~/src/core/utils/config';
 import { expectedDeliveryTime, getRelativeTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Order } from '~/src/types/order';
+import { prefetchOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { Badge } from '../Badge';
 import CountdownTimer from '../shared/count-down-timer';
 import MoreActionsBtn from './more-actions-btn';
@@ -118,6 +119,10 @@ const OrderItem = ({
   const isDriver = useRoleDriver();
 
   const handlePress = useCallback(() => {
+    prefetchOrderDetailForCode({
+      orderCode: code,
+      isDriver,
+    });
     if (isDriver) {
       router.push(`orders/order-invoice/${code}`);
     } else {

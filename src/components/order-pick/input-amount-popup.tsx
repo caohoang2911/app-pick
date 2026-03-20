@@ -54,8 +54,16 @@ import SImage from '../SImage';
 // QuantityControls Component
 const DecrementButton = memo(
   ({ onPress, disabled }: { onPress: () => void; disabled: boolean }) => (
-    <TouchableOpacity disabled={disabled} onPress={onPress}>
-      <View className="size-8 rounded-full bg-gray-200">
+    <TouchableOpacity
+      disabled={disabled}
+      className="overflow-hidden"
+      onPress={onPress}
+      style={{ marginLeft: -9 }}
+    >
+      <View
+        className="rounded-md bg-gray-200"
+        style={{ width: 38, height: 38 }}
+      >
         <View className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
           <Text className="text-2xl w-full h-full text-center text-blue-500">
             -
@@ -68,8 +76,15 @@ const DecrementButton = memo(
 
 const IncrementButton = memo(
   ({ onPress, disabled }: { onPress: () => void; disabled: boolean }) => (
-    <TouchableOpacity disabled={disabled} onPress={onPress}>
-      <View className="size-8 rounded-full bg-gray-200">
+    <TouchableOpacity
+      disabled={disabled}
+      onPress={onPress}
+      style={{ marginRight: -9 }}
+    >
+      <View
+        className=" rounded-md bg-gray-200"
+        style={{ width: 38, height: 38 }}
+      >
         <View className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
           <Text className="text-2xl w-full h-full text-center text-blue-500">
             +

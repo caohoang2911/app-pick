@@ -3,10 +3,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams } from 'expo-router';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useUpdateShippingPackageSize } from '~/src/api/app-pick/use-update-shipping-package-size';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   OrderStatusValue,
   PackageSize,
@@ -35,9 +35,8 @@ interface Action {
 export const PackageSizePicker: FC<PackageSizePickerProps> = ({}) => {
   const [visible, setVisible] = useState(false);
   const { code: orderCode } = useLocalSearchParams<{ code: string }>();
-  const header = useOrderDetailStore((s) =>
-    orderCode ? s.orderDetails[orderCode]?.header : undefined,
-  ) as OrderDetailHeader | undefined;
+  const { orderDetail } = useOrderDetailForCode(orderCode);
+  const header = orderDetail?.header as OrderDetailHeader | undefined;
   const { shipping, status } = header || {};
   const actionRef = useRef<BottomSheetModal>(null);
 

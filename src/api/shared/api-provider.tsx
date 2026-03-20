@@ -5,7 +5,7 @@ import * as React from 'react';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 30, // 30 giây
+      staleTime: 30 * 1000, // 30 giây
       refetchOnWindowFocus: false, // tắt refetch khi app về foreground
       retry: 1,
     },

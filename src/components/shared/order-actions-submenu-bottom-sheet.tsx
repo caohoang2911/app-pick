@@ -11,9 +11,9 @@ import {
   useCreateInvoiceProcess,
   usePrintCodReceiptProcess,
 } from '~/src/api/app-pick/use-create-invoice';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { useAuth } from '~/src/core/store/auth';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { EBikeLine } from '~/src/core/svgs';
 import CODReceipt from '../CODReceipt';
 import SBottomSheet from '../SBottomSheet';
@@ -44,9 +44,7 @@ const OrderActionsSubmenuBottomSheet = ({
   const actionRef = useRef<any>();
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
-  const orderDetail = useOrderDetailStore((s) =>
-    code || orderCode ? s.orderDetails[code || orderCode || ''] : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code || orderCode);
   const codAmount = orderDetail?.header?.codAmount;
 
   const [reprintWithCapture, setReprintWithCapture] = React.useState(false);

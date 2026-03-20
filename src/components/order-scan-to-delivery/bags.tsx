@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import {
   resetOrderBags,
   setOrderBags,
@@ -31,9 +31,8 @@ const Bags = memo(() => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const { code } = useLocalSearchParams<{ code?: string }>();
-  const bagLabels = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header?.bagLabels : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const bagLabels = orderDetail?.header?.bagLabels;
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
   useEffect(() => {

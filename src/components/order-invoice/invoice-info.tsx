@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 
@@ -9,9 +9,8 @@ const COL_LEFT_WIDTH = 105;
 
 const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{ code?: string }>();
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const header = orderDetail?.header;
   const {
     picker,
     deliveryAddress,

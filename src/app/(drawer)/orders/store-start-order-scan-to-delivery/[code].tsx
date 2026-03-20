@@ -36,7 +36,6 @@ import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 import {
   getIsScanQrCodeProduct,
@@ -53,16 +52,15 @@ const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const { isOrderDetailLoading, isOrderDetailFetching, orderDetailError } =
-    useOrderDetailForCode(code);
+  const {
+    isOrderDetailLoading,
+    isOrderDetailFetching,
+    orderDetailError,
+    orderDetail,
+  } = useOrderDetailForCode(code);
   const [showPrintReceipt, setShowPrintReceipt] = useState(false);
 
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  ) as OrderDetailHeader | undefined;
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  );
+  const header = orderDetail?.header as OrderDetailHeader | undefined;
 
   const {
     tags,
