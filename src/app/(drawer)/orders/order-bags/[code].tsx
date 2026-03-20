@@ -18,17 +18,12 @@ import {
   undoLastChange,
   useOrderBag,
 } from '~/src/core/store/order-bag';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { isOrderDetailLoading, orderDetailError } =
+  const { isOrderDetailLoading, orderDetailError, orderDetail } =
     useOrderDetailForCode(code);
-
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  );
   const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
 
   const orderBags = useOrderBag.use.orderBags();

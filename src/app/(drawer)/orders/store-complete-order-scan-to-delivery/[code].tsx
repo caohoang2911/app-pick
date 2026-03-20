@@ -15,7 +15,6 @@ import React, {
 import { Text, View } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useValidateDeliveryOrderFail } from '~/src/api/app-pick/use-validate-delivery-order-fail';
 import Box from '~/src/components/Box';
@@ -44,20 +43,19 @@ import { queryClient } from '~/src/api/shared/api-provider';
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
-  const { isOrderDetailLoading, isOrderDetailFetching, orderDetailError } =
-    useOrderDetailForCode(code);
+  const {
+    isOrderDetailLoading,
+    isOrderDetailFetching,
+    orderDetailError,
+    orderDetail,
+  } = useOrderDetailForCode(code);
 
   // Reset trước paint khi đổi đơn, tránh hiển thị ảnh chứng từ đơn A trên màn đơn B
   useLayoutEffect(() => {
     if (code) setCompleteUploadedImages('', true);
   }, [code]);
 
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  );
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  );
+  const header = orderDetail?.header;
 
   const { mutate: handoverOrder, isPending: isLoadingHandoverOrder } =
     useHandoverOrder(() => {

@@ -1,15 +1,13 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useRef } from 'react';
 import { StyleSheet, View, Text, Platform } from 'react-native';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import TrackingButton from './tracking-button';
 const COL_LEFT_WIDTH = 105;
 
 const ShippingInfo = () => {
   const { code } = useLocalSearchParams<{ code?: string }>();
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
   const { header } = orderDetail || {};
   const { shipping } = header || {};
 

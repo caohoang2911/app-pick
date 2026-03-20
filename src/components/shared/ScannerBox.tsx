@@ -6,6 +6,7 @@ import {
 import { Portal } from '@gorhom/portal';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Animated,
   Linking,
   Platform,
   Pressable,
@@ -65,6 +66,7 @@ const ScannerBox = ({
   const [isCameraReady, setIsCameraReady] = useState(false);
   const device = useCameraDevice('back');
   const cameraRef = useRef<Camera>(null);
+  const overlayOpacity = useRef(new Animated.Value(1)).current;
 
   /** scannedShared: guard chống double-fire, đọc được từ worklet thread */
   const scannedShared = useSharedValue(false);
@@ -91,8 +93,18 @@ const ScannerBox = ({
     scannedShared.value = false;
     if (!visible) {
       setIsCameraReady(false);
+      overlayOpacity.setValue(1);
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    Animated.timing(overlayOpacity, {
+      toValue: isCameraReady ? 0 : 1,
+      duration: isCameraReady ? 180 : 120,
+      useNativeDriver: true,
+    }).start();
+  }, [isCameraReady, visible, overlayOpacity]);
 
   const handleRequestPermission = useCallback(() => {
     if (Platform.OS === 'ios' && permission?.granted) {
@@ -112,7 +124,9 @@ const ScannerBox = ({
   /** Stable callback truyền vào QRCamera/BarcodeCamera.
    * Khi Camera native báo đã khởi tạo xong → ẩn overlay đen. */
   const handleCameraReady = useCallback(() => {
-    setIsCameraReady(true);
+    setTimeout(() => {
+      setIsCameraReady(true);
+    }, 200);
   }, []);
 
   /** handleBarcodeScanned hoàn toàn stable (empty deps) nhờ dùng refs.
@@ -211,9 +225,11 @@ const ScannerBox = ({
             onToggleScanner={handleToggleScanner}
             scanRegion={scanRegion}
           />
-
-          {!isCameraReady && <View style={styles.cameraLoadingOverlay} />}
         </View>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.cameraLoadingOverlay, { opacity: overlayOpacity }]}
+        />
       </View>
     );
   };
@@ -253,6 +269,7 @@ const styles = StyleSheet.create({
   cameraLoadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'black',
+    zIndex: 1000,
   },
   camera: {
     flex: 1,

@@ -1,13 +1,7 @@
-import { axiosClient } from '@/api/shared';
+import { axiosClient, queryClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRole } from '~/src/core/hooks/useRole';
-import { setLoading } from '~/src/core/store/loading';
-import {
-  setOrderDetailForCode,
-  setOrderDetailLoadingByCode,
-  useOrderDetailStore,
-} from '~/src/core/store/order-detail';
 import { Role } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-pick';
 
@@ -30,6 +24,24 @@ const getDetailOrder = async (
   return await axiosClient.get(`${contextPath}/getOrderDetail`, { params });
 };
 
+type PrefetchVariables = {
+  orderCode?: string;
+  isDriver?: boolean;
+};
+
+export const prefetchOrderDetailForCode = async ({
+  orderCode,
+  isDriver = false,
+}: PrefetchVariables) => {
+  if (!orderCode) return;
+  const role = isDriver ? Role.DRIVER : undefined;
+  return queryClient.prefetchQuery({
+    queryKey: ['orderDetail', orderCode],
+    queryFn: () => getDetailOrder({ orderCode }, role),
+    staleTime: 30 * 1000,
+  });
+};
+
 export const SHARE_SECRET_KEY = 'uifTjoY24DRGWz3NjcVa7w';
 
 export const useOrderDetailQuery = ({ orderCode }: Variables) => {
@@ -40,53 +52,41 @@ export const useOrderDetailQuery = ({ orderCode }: Variables) => {
       return getDetailOrder({ orderCode }, role);
     },
     enabled: !!orderCode,
-    staleTime: 0,
+    staleTime: 30 * 1000,
     gcTime: Infinity,
   });
 };
 
+const useDelayedBoolean = (value: boolean, delayMs = 300) => {
+  const [delayedValue, setDelayedValue] = useState(false);
+
+  useEffect(() => {
+    if (!value) {
+      setDelayedValue(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setDelayedValue(true);
+    }, delayMs);
+
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+
+  return delayedValue;
+};
+
 /**
- * Một nguồn order detail: fetch và sync vào store theo code.
- * Trả về orderDetail từ store (đúng đơn), tránh dính đơn khác.
+ * Một nguồn order detail từ React Query cache theo code.
  */
 export const useOrderDetailForCode = (orderCode: string | undefined) => {
   const query = useOrderDetailQuery({ orderCode });
-  const isOrderDetailPending = query.isPending;
+  const isOrderDetailPending = useDelayedBoolean(query.isLoading);
   const isOrderDetailFetching = query.isFetching;
-  const orderDetail = useOrderDetailStore((s) =>
-    orderCode ? s.orderDetails[orderCode] : undefined,
-  );
+  const orderDetail = query.data?.data;
   const orderDetailError = query.data?.error;
   const hasOrderDetail = !!orderDetail;
   const isOrderDetailLoading = isOrderDetailPending;
-
-  useEffect(() => {
-    if (orderCode && query.data?.data) {
-      setOrderDetailForCode(orderCode, query.data.data);
-    }
-  }, [orderCode, query.data]);
-
-  useEffect(() => {
-    if (!orderCode) return;
-    setOrderDetailLoadingByCode(orderCode, isOrderDetailPending);
-  }, [orderCode, isOrderDetailPending]);
-
-  // Trì hoãn bật loading để tránh hiện trong lúc animation chuyển trang
-  const DELAY_SHOW_LOADING_MS = 300;
-  useEffect(() => {
-    if (!orderCode) return;
-    const isLoading = isOrderDetailPending;
-    if (!isLoading) {
-      setLoading(false);
-      return;
-    }
-    const timer = setTimeout(() => {
-      setLoading(true);
-    }, DELAY_SHOW_LOADING_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [orderCode, isOrderDetailPending]);
 
   return {
     ...query,

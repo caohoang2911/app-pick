@@ -16,8 +16,8 @@ import { ORDER_STATUS } from '@/core/constants/order';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import { BillLine, PrintLine, QRScanLine } from '~/src/core/svgs';
 import {
   getScanToDeliveryInfo,
@@ -47,9 +47,8 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
 
   const employeeSelectionRef = useRef<any>();
 
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const header = orderDetail?.header;
   const status = header?.status;
   const deliveryType = header?.deliveryType;
   const customer = header?.customer;

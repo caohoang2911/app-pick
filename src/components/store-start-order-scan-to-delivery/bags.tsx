@@ -5,7 +5,7 @@ import { transformOrderBags } from '~/src/core/utils/order-bag';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 import Box from '../Box';
 import BagType from './bag-type';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useStoreStartOrderScanToDelivery } from '~/src/core/store/store-start-order-scan-to-delivery';
 
 // Memoize BagType để tránh re-render không cần thiết
@@ -24,9 +24,8 @@ const Empty = () => {
 // Component chính
 const Bags = memo(() => {
   const { code } = useLocalSearchParams<{ code?: string }>();
-  const bagLabels = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header?.bagLabels : undefined,
-  );
+  const { orderDetail } = useOrderDetailForCode(code);
+  const bagLabels = orderDetail?.header?.bagLabels;
   const orderBags = useStoreStartOrderScanToDelivery.use.orderBags();
 
   // orderBags được đồng bộ từ parent qua transformBagsData (có name, isDone)

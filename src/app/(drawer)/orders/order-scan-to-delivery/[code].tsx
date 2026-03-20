@@ -41,7 +41,6 @@ import {
   showAlert as showAlertDialog,
 } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderDetailStore } from '~/src/core/store/order-detail';
 import {
   getIsScanQrCodeProduct,
   resetOrderBags,
@@ -73,8 +72,12 @@ const OrderScanToDelivery = () => {
   const user = useAuth.use.userInfo();
   const { name, username } = user || {};
 
-  const { isOrderDetailLoading, isOrderDetailFetching, orderDetailError } =
-    useOrderDetailForCode(code);
+  const {
+    isOrderDetailLoading,
+    isOrderDetailFetching,
+    orderDetailError,
+    orderDetail,
+  } = useOrderDetailForCode(code);
 
   // Reset trước paint khi đổi đơn, tránh flash dữ liệu đơn A (nhãn đã in, hoá đơn...) trên màn đơn B
   useLayoutEffect(() => {
@@ -88,12 +91,7 @@ const OrderScanToDelivery = () => {
 
   const isScanQrCodeProduct = getIsScanQrCodeProduct();
 
-  const header = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code]?.header : undefined,
-  ) as OrderDetailHeader | undefined;
-  const orderDetail = useOrderDetailStore((s) =>
-    code ? s.orderDetails[code] : undefined,
-  );
+  const header = orderDetail?.header as OrderDetailHeader | undefined;
 
   const {
     deliveryType,
