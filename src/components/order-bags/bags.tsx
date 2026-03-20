@@ -16,14 +16,14 @@ const Bags = () => {
           bagLabels={orderBags.DRY}
         />
         <BagType
-          title={OrderBagLabel.FRESH}
-          type={OrderBagType.FRESH}
-          bagLabels={orderBags.FRESH}
-        />
-        <BagType
           title={OrderBagLabel.FROZEN}
           type={OrderBagType.FROZEN}
           bagLabels={orderBags.FROZEN}
+        />
+        <BagType
+          title={OrderBagLabel.FRESH}
+          type={OrderBagType.FRESH}
+          bagLabels={orderBags.FRESH}
         />
       </View>
     </View>

@@ -12,7 +12,7 @@ export const useDriverOrderActions = (orderCode: string) => {
   const isDriver = useRoleDriver();
 
   const { mutate: assignOrderToMe } = useAssignOrderShippingToMe(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', orderCode] });
     showMessage({
       message: 'Gán đơn cho tài xế nội bộ thành công',
       type: 'success',
@@ -20,7 +20,7 @@ export const useDriverOrderActions = (orderCode: string) => {
   });
 
   const { mutate: cancelMyOrder } = useDriverCancelMyOrderShipping(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', orderCode] });
     showMessage({
       message: 'Huỷ gán đơn cho tài xế nội bộ thành công',
       type: 'success',

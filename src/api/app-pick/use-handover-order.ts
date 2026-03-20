@@ -1,4 +1,4 @@
-import { axiosClient } from '@/api/shared';
+import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
@@ -17,8 +17,11 @@ const handoverOrder = async (params: Variables): Promise<Response> => {
 export const useHandoverOrder = (cb?: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => handoverOrder(params),
-    onSuccess: (data: Response) => {
+    onSuccess: (data: Response, variables: Variables) => {
       if (!data.error) {
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables.orderCode],
+        });
         showMessage({
           message: 'Đã hoàn tất',
           type: 'success',

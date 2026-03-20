@@ -204,7 +204,9 @@ function PrintPreview() {
       if (isCancelledRef.current) return;
       setTimeout(async () => {
         if (!isCancelledRef.current && router.canGoBack()) {
-          await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+          await queryClient.invalidateQueries({
+            queryKey: ['orderDetail', orderCode],
+          });
           router.back();
         }
       }, 400);

@@ -15,9 +15,11 @@ const startSelfShipping = async (params: Variables): Promise<Response> => {
 export const useStartSelfShipping = (cb: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => startSelfShipping(params),
-    onSuccess: (response: Response) => {
+    onSuccess: (response: Response, variables: Variables) => {
       if (!response.error) {
-        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables.orderCode],
+        });
         showMessage({
           message: 'Đơn hàng bắt đầu giao hàng',
           type: 'success',

@@ -18,8 +18,7 @@ const BagType = ({
   type: OrderBagType;
 }) => {
   const { code } = useLocalSearchParams<{ code: string }>();
-  const orderBags = useOrderBag.use.orderBags();
-  const total = orderBags[type]?.length || 0;
+
   return (
     <View className="bg-white mx-4 pt-3 rounded-md overflow-hidden">
       <View className="flex flex-col gap-2 px-4">

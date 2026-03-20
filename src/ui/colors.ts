@@ -1,7 +1,6 @@
 import tailwindColors from 'tailwindcss/colors';
 
 export const colors = {
-  ...tailwindColors,
   // Custom colors - ghi đè màu Tailwind
   white: '#ffffff',
   black: '#000000',

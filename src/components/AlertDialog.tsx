@@ -36,11 +36,14 @@ const AlertDialog = () => {
         <View style={styles.modalBackground}>
           <View className=" bg-white rounded-lg" style={{ width: 270 }}>
             <View className="px-4 py-5">
-              {title && (
-                <Text className="text-center text-lg font-semibold">
-                  {title}
-                </Text>
-              )}
+              {title &&
+                (typeof title === 'string' ? (
+                  <Text className="text-center text-lg font-semibold">
+                    {title}
+                  </Text>
+                ) : (
+                  <View className="items-center">{title}</View>
+                ))}
               {message && (
                 <Text
                   className="text-center text-sm mt-2"

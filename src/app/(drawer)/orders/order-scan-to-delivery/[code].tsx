@@ -52,6 +52,7 @@ import {
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { BarcodeScanningResult } from '~/src/types/scanner';
+import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -118,7 +119,7 @@ const OrderScanToDelivery = () => {
   }, [title, navigation]);
 
   const invalidateOrderDetail = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   }, []);
 
   const {
@@ -127,7 +128,7 @@ const OrderScanToDelivery = () => {
   } = useCreateInvoiceProcess({
     onSuccess: () => {
       handoverOrder({ orderCode: code, proofImages: uploadedImages });
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
     },
   });
   const { mutateAsync: printCodReceipt } = usePrintCodReceiptProcess({
@@ -200,7 +201,7 @@ const OrderScanToDelivery = () => {
     useHandoverOrder(() => {
       setLoading(false);
       setUploadedImages('', true);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
       router.back();
     });
 
@@ -306,7 +307,7 @@ const OrderScanToDelivery = () => {
   ]);
 
   const handleRefresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   }, [queryClient]);
 
   const handleReceiptCaptureComplete = useCallback(
@@ -317,7 +318,7 @@ const OrderScanToDelivery = () => {
   );
 
   if (isOrderDetailLoading) {
-    return <Loading />;
+    return <ScanBagsSkeleton />;
   }
 
   return (

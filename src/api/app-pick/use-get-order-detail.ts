@@ -81,7 +81,7 @@ const useDelayedBoolean = (value: boolean, delayMs = 300) => {
  */
 export const useOrderDetailForCode = (orderCode: string | undefined) => {
   const query = useOrderDetailQuery({ orderCode });
-  const isOrderDetailPending = useDelayedBoolean(query.isLoading);
+  const isOrderDetailPending = query.isLoading;
   const isOrderDetailFetching = query.isFetching;
   const orderDetail = query.data?.data;
   const orderDetailError = query.data?.error;

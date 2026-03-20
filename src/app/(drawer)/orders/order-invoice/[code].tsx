@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useLayoutEffect } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -7,12 +7,19 @@ import InvoiceInfo from '~/src/components/order-invoice/invoice-info';
 import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
 import ShippingInfo from '~/src/components/order-invoice/shipping-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
-import Loading from '~/src/components/Loading';
+import OrderInvoiceSkeleton from '~/src/components/shared/skeleton/order-detail-skeleton';
 
 const OrderInvoice = () => {
+  const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
   const { isOrderDetailLoading, orderDetailError } =
     useOrderDetailForCode(code);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: !isOrderDetailLoading,
+    });
+  }, [isOrderDetailLoading, navigation]);
 
   if (orderDetailError) {
     return (
@@ -23,7 +30,7 @@ const OrderInvoice = () => {
   }
 
   if (isOrderDetailLoading) {
-    return <Loading />;
+    return <OrderInvoiceSkeleton />;
   }
 
   return (

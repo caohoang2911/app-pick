@@ -1,4 +1,4 @@
-import { axiosClient } from '@/api/shared';
+import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { showMessage } from 'react-native-flash-message';
 import { setLoading } from '~/src/core/store/loading';
@@ -20,10 +20,13 @@ const updateOrderBagLabels = async (params: Variables): Promise<Response> => {
 export const useUpdateOrderBagLabels = (cb?: (error?: string) => void) => {
   return useMutation({
     mutationFn: (params: Variables) => updateOrderBagLabels(params),
-    onSuccess: (data: Response) => {
+    onSuccess: (data: Response, variables: Variables) => {
       if (data?.error) {
         cb?.(data.error);
       } else {
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables.orderCode],
+        });
         cb?.(); // No error, success case
       }
       setLoading(false);

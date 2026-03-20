@@ -16,9 +16,11 @@ const setOrderStatusPacked = async (params: Variables): Promise<Response> => {
 export const useSetOrderStatusPacked = (cb?: () => void) => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderStatusPacked(params),
-    onSuccess: (response: Response) => {
+    onSuccess: (response: Response, variables: Variables) => {
       if (!response.error) {
-        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables?.orderCode],
+        });
         cb?.();
       }
     },

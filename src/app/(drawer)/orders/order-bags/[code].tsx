@@ -47,7 +47,7 @@ const OrderBags = () => {
       setLoading(false);
       // Fallback: Undo the last change when there's an error
       undoLastChange();
-      queryClient.invalidateQueries({ queryKey: ['order-pick'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
       showMessage({
         message: `Lỗi cập nhật: ${error}. Đã hoàn tác thay đổi vừa thực hiện.`,
         type: 'danger',
@@ -91,19 +91,27 @@ const OrderBags = () => {
   };
 
   useEffect(() => {
-    if (hasUpdateOrderBagLabels && !isInitialLoad) {
-      const mergedOrderBags = [
-        ...orderBags.DRY,
-        ...orderBags.FRESH,
-        ...orderBags.FROZEN,
-      ];
-      setLoading(true);
-      updateOrderBagLabels({
-        data: mergedOrderBags,
-        orderCode: code,
-      });
-    }
-  }, [orderBags.DRY, orderBags.FRESH, orderBags.FROZEN, isInitialLoad]);
+    if (!code || !hasUpdateOrderBagLabels || isInitialLoad) return;
+
+    const mergedOrderBags = [
+      ...orderBags.DRY,
+      ...orderBags.FRESH,
+      ...orderBags.FROZEN,
+    ];
+    setLoading(true);
+    updateOrderBagLabels({
+      data: mergedOrderBags,
+      orderCode: code,
+    });
+  }, [
+    code,
+    hasUpdateOrderBagLabels,
+    isInitialLoad,
+    orderBags.DRY,
+    orderBags.FRESH,
+    orderBags.FROZEN,
+    updateOrderBagLabels,
+  ]);
 
   if (isOrderDetailLoading) {
     return <Loading />;
