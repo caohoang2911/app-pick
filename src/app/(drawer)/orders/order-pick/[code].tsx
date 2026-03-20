@@ -17,6 +17,7 @@ import OrderPickProducts from '~/src/components/order-pick/products';
 import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
+import OrderPickSkeleton from '~/src/components/shared/skeleton/order-pick-skeleton';
 import {
   setCurrentId,
   setOrderDetail,
@@ -82,12 +83,12 @@ const OrderPick = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerShown: true,
+      headerShown: !isOrderDetailLoading,
       header: () => {
         return <Header onClickHeaderAction={openHeaderAction} />;
       },
     });
-  }, [orderDetail]);
+  }, [isOrderDetailLoading, orderDetail]);
 
   const openHeaderAction = () => {
     headerAcrtionRef.current?.present();
@@ -161,7 +162,7 @@ const OrderPick = () => {
   );
 
   if (isOrderDetailLoading) {
-    return <Loading />;
+    return <OrderPickSkeleton />;
   }
 
   if (orderDetailError) {

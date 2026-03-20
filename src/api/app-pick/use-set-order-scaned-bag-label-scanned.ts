@@ -1,4 +1,4 @@
-import { axiosClient } from '@/api/shared';
+import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 
 type Variables = {
@@ -17,6 +17,12 @@ const setOrderBagLabelScanned = async (
 export const useSetOrderScanedBagLabelScanned = () => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderBagLabelScanned(params),
-    onSuccess: (response: Response) => {},
+    onSuccess: (response: Response, variables: Variables) => {
+      if (!response.error) {
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables.orderCode],
+        });
+      }
+    },
   });
 };

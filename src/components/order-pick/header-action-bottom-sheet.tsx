@@ -60,7 +60,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
 
   const { mutate: assignOrderToPicker } = useAssignOrderToPicker(() => {
     actionRef.current?.dismiss();
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
     showMessage({
       message: 'Gán đơn cho NV Pick thành công',
       type: 'success',

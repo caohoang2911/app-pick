@@ -2,42 +2,35 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { DrawerActions } from '@react-navigation/native';
 
+import { useIsFetching, useIsMutating } from '@tanstack/react-query';
 import { useNavigation } from 'expo-router';
 import { toUpper } from 'lodash';
-import { useMemo, useRef, useCallback } from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  Text,
-  View,
-} from 'react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Images } from '~/assets';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
-import { useIsMutating } from '@tanstack/react-query';
 import { Avatar, AvatarImage } from '~/src/components/Avatar';
 import TabsStatus from '~/src/components/orders/tab-status';
 import { useAuth } from '~/src/core';
 import { useRole, useRoleDriver } from '~/src/core/hooks/useRole';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
-import { toggleScanQrCode } from '~/src/core/store/orders';
+import { toggleScanQrCode, useOrders } from '~/src/core/store/orders';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { Option } from '~/src/types/commons';
 import { Role } from '~/src/types/employee';
 import { colors } from '~/src/ui/colors';
 import { Badge } from '../Badge';
+import OrderListHeaderSkeleton from '../shared/skeleton/order-list-header-skeleton';
 import StoreSelection from '../shared/StoreSelection';
+import Skeleton from '../Skeleton';
 import AssignStoreBottomSheet from './assign-store-bottom-sheet';
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
 import OrderStatusBottomSheet from './order-status-bottom-sheet';
-import Skeleton from '../Skeleton';
-
-const windowWidth = Dimensions.get('window').width;
 
 const MAX_DRIVER_ASSIGNED_STORE_CODES = 2;
 
@@ -59,6 +52,16 @@ const Header = () => {
   const isPickerShiftStatusOnShift = userInfo?.kposShiftStatus === 'ON_SHIFT';
 
   const isDriver = useRoleDriver();
+  const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+  const deliveryType = useOrders.use.deliveryType();
+  const fromScanQrCode = useOrders.use.fromScanQrCode();
+  const searchParams = useMemo(
+    () => ({
+      status: fromScanQrCode ? 'ALL' : selectedOrderCounter,
+      deliveryType: fromScanQrCode ? null : deliveryType,
+    }),
+    [selectedOrderCounter, deliveryType, fromScanQrCode],
+  );
 
   const orderStatusBottomSheetRef = useRef<any>(null);
   const assignStoreBottomSheetRef = useRef<any>(null);
@@ -85,6 +88,25 @@ const Header = () => {
     useIsMutating({ mutationKey: ['refreshToken'] }) > 0;
   const isLoadingGetMyProfile =
     useIsMutating({ mutationKey: ['getMyProfile'] }) > 0;
+  const isLoadingOrderListInitial =
+    useIsFetching({
+      queryKey: ['searchOrders', searchParams],
+      exact: true,
+      predicate: (query) =>
+        query.state.status === 'pending' &&
+        query.state.data === undefined &&
+        query.getObserversCount() > 0,
+    }) > 0;
+  const canShowInitialSkeletonRef = useRef(true);
+
+  useEffect(() => {
+    if (canShowInitialSkeletonRef.current && !isLoadingOrderListInitial) {
+      canShowInitialSkeletonRef.current = false;
+    }
+  }, [isLoadingOrderListInitial]);
+
+  const shouldShowInitialSkeleton =
+    canShowInitialSkeletonRef.current && isLoadingOrderListInitial;
 
   const navigation = useNavigation();
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
@@ -201,6 +223,10 @@ const Header = () => {
       </View>
     );
   }, [userInfo, storeName, driverAssignedStoreCodes, driverOrderAssignStatus]);
+
+  if (shouldShowInitialSkeleton) {
+    return <OrderListHeaderSkeleton />;
+  }
 
   return (
     <View className="py-2 bg-blue-100">

@@ -1,10 +1,11 @@
 import { createSelectors } from '@/core/utils/browser';
+import { ReactNode } from 'react';
 import { create } from 'zustand';
 
 export interface AlertState {
   isVisible: boolean;
-  message: string;
-  title: string;
+  message: ReactNode;
+  title: ReactNode;
   cancelText: string;
   confirmText: string;
   loading: boolean;
@@ -23,8 +24,8 @@ export interface AlertState {
     isHideCancelButton,
     isHideConfirmButton,
   }: {
-    title?: string;
-    message?: string;
+    title?: ReactNode;
+    message?: ReactNode;
     cancelText?: string;
     confirmText?: string;
     onConfirm: () => void;
@@ -58,8 +59,8 @@ const _useAlertStore = create<AlertState>((set) => ({
     isHideCancelButton,
     isHideConfirmButton,
   }: {
-    title?: string;
-    message?: string;
+    title?: ReactNode;
+    message?: ReactNode;
     cancelText?: string;
     confirmText?: string;
     onConfirm?: () => void;
@@ -96,8 +97,8 @@ export const showAlert = ({
   isHideCancelButton,
   isHideConfirmButton,
 }: {
-  title?: string;
-  message?: string;
+  title?: string | ReactNode;
+  message?: ReactNode;
   cancelText?: string;
   confirmText?: string;
   onConfirm: () => void;

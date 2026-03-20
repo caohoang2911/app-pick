@@ -39,6 +39,7 @@ import ButtonBack from '~/src/components/ButtonBack';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import Loading from '~/src/components/Loading';
 import { queryClient } from '~/src/api/shared/api-provider';
+import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
@@ -164,7 +165,7 @@ const OrderScanToDelivery = () => {
   const featureAvailable = status === ORDER_STATUS.SHIPPING;
 
   if (isOrderDetailLoading) {
-    return <Loading />;
+    return <ScanBagsSkeleton />;
   }
 
   return (

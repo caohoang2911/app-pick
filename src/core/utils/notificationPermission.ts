@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import React from 'react';
+import { Platform, Text } from 'react-native';
 // import * as Device from 'expo-device';
 import * as Linking from 'expo-linking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
@@ -102,8 +103,36 @@ export const showSoundOffWarningPopup = (
 ) => {
   const percent = Math.round(volumeThreshold * 100);
   showAlert({
-    title: 'Âm thanh thông báo',
-    message: `Thiết bị đang ở chế độ im lặng hoặc âm lượng rất thấp (dưới ${percent}%). Hãy bật âm thanh để nghe thông báo về đơn hàng.`,
+    title: React.createElement(
+      Text,
+      { style: { fontSize: 17, fontWeight: '600' } },
+      'Âm thanh thông báo',
+    ),
+    message: React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(
+        Text,
+        { style: { fontSize: 13 } },
+        'Thiết bị đang ở ',
+      ),
+      React.createElement(
+        Text,
+        { style: { fontWeight: '700', fontSize: 13 } },
+        'chế độ im lặng',
+      ),
+      React.createElement(Text, { style: { fontSize: 13 } }, ' hoặc âm lượng '),
+      React.createElement(
+        Text,
+        { style: { fontWeight: '700', fontSize: 13 } },
+        `rất thấp (dưới ${percent}%)`,
+      ),
+      React.createElement(
+        Text,
+        { style: { fontSize: 14 } },
+        '. Hãy bật âm thanh để nghe thông báo về đơn hàng.',
+      ),
+    ),
     cancelText: 'Để sau',
     isHideConfirmButton: true,
     onConfirm: () => {

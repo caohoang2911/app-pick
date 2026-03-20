@@ -11,7 +11,7 @@ import {
 
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import { useNavigation } from 'expo-router';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import Header from '~/src/components/orders/header';
 import OrderList from '~/src/components/orders/order-list';
 import ScannerBox from '~/src/components/shared/ScannerBox';
@@ -26,7 +26,7 @@ const Orders = () => {
   const prevStoreCodeRef = useRef<string | undefined>(userInfo?.storeCode);
   const { isDoneCodepush } = useCodepush();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
       header: () => <Header />,

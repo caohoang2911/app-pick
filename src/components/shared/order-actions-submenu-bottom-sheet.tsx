@@ -54,7 +54,7 @@ const OrderActionsSubmenuBottomSheet = ({
   const [orderHistoryVisible, setOrderHistoryVisible] = React.useState(false);
 
   const invalidateOrderDetail = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   }, []);
 
   const { mutateAsync: reprintInvoice, data: reprintInvoiceData } =

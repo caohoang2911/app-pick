@@ -11,14 +11,8 @@ const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{ code?: string }>();
   const { orderDetail } = useOrderDetailForCode(code);
   const header = orderDetail?.header;
-  const {
-    picker,
-    deliveryAddress,
-    codAmount,
-    customer,
-    deliveryTimeRange,
-    payment,
-  } = header || {};
+  const { picker, deliveryAddress, codAmount, customer, deliveryTimeRange } =
+    header || {};
 
   const shouldDisplayPicker = useMemo(() => {
     return picker?.username && picker?.name;

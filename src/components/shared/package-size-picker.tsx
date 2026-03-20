@@ -44,7 +44,7 @@ export const PackageSizePicker: FC<PackageSizePickerProps> = ({}) => {
 
   const { mutate: updateShippingPackageSize } = useUpdateShippingPackageSize(
     () => {
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', orderCode] });
       setVisible(false);
     },
   );

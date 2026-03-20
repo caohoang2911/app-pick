@@ -37,7 +37,7 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
   const { mutate: updateOrderDeliveryType } = useUpdateOrderDeliveryType({
     cbSuccess: () => {
       setVisible(false);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
       showMessage({
         message: 'Cập nhật thành công',
         type: 'success',
@@ -106,6 +106,7 @@ const OrderDeliveryTypeBottomSheet = forwardRef<
             {orderDeliveryTypes?.map(
               (deliveryType: { id: string; name: string }) => (
                 <RadioButtonItem
+                  key={String(deliveryType.id)}
                   value={String(deliveryType.id)}
                   label={<Text className="pl-2 py-4">{deliveryType.name}</Text>}
                 />

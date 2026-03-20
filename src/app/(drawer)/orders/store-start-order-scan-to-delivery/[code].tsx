@@ -47,6 +47,7 @@ import {
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
+import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
@@ -99,13 +100,13 @@ const OrderScanToDelivery = () => {
   }, [title, navigation]);
 
   const invalidateOrderDetail = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   }, []);
 
   const { mutate: startSelfShipping, isPending: isLoadingStartSelfShipping } =
     useStartSelfShipping(() => {
       setLoading(false);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
       router.replace(`/orders/store-complete-order-scan-to-delivery/${code}`);
     });
 
@@ -145,7 +146,7 @@ const OrderScanToDelivery = () => {
     useHandoverOrder(() => {
       setLoading(false);
       setUploadedImages('', true);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
       router.back();
     });
 
@@ -256,7 +257,7 @@ const OrderScanToDelivery = () => {
   }, [tags]);
 
   const handleRefresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+    queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
   }, []);
 
   const handleReceiptCaptureComplete = useCallback(
@@ -270,7 +271,7 @@ const OrderScanToDelivery = () => {
   const isDisabled = !orderBags?.length || isOrderDetailLoading;
 
   if (isOrderDetailLoading) {
-    return <Loading />;
+    return <ScanBagsSkeleton />;
   }
 
   return (

@@ -15,9 +15,11 @@ const setOrderStatusPicking = async (params: Variables): Promise<Response> => {
 export const useSetOrderStatusPicking = () => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderStatusPicking(params),
-    onSuccess: (response: Response) => {
+    onSuccess: (response: Response, variables: Variables) => {
       if (!response.error) {
-        queryClient.invalidateQueries({ queryKey: ['orderDetail'] });
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables?.orderCode],
+        });
         showMessage({
           message: 'Xác nhận thành công',
           type: 'success',

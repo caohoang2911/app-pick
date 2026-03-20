@@ -24,6 +24,7 @@ import {
 } from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
 import Empty from '../shared/Empty';
+import OrderListSkeleton from '../shared/skeleton/order-list-skeleton';
 import OrderItem from './order-item';
 
 // Tách OrderItem thành component riêng để tránh re-render toàn bộ danh sách
@@ -68,12 +69,6 @@ const ListFooter = memo(
 
     return <View />;
   },
-);
-
-const LoadingIndicator = () => (
-  <View className="text-center py-3">
-    <ActivityIndicator className="text-gray-300" />
-  </View>
 );
 
 const ErrorMessage = ({ error }: { error: string }) => (
@@ -288,7 +283,7 @@ const OrderList = () => {
 
   // Conditional rendering based on state
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <OrderListSkeleton />;
   }
 
   if (hasError) {
