@@ -50,9 +50,9 @@ const ProductCardSkeleton = ({ animStyle }: { animStyle: any }) => (
       <Bone w={90} h={90} style={{ borderRadius: 8 }} animStyle={animStyle} />
       <View style={{ flex: 1, gap: 8, paddingTop: 4 }}>
         {[
-          ['55%', '25%', '25%'],
-          ['55%', '25%', '25%'],
-          ['55%', '35%', '25%'],
+          ['50%', '20%', '25%'],
+          ['50%', '20%', '25%'],
+          ['50%', '20%', '25%'],
         ].map((cols, i) => (
           <View key={i} style={styles.sb}>
             {cols.map((w, j) => (

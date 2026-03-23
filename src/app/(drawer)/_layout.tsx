@@ -8,6 +8,7 @@ import Loading from '~/src/components/Loading';
 import { useAuth } from '~/src/core';
 import { setConfig, useConfig } from '~/src/core/store/config';
 import CrashlyticsService from '~/src/core/utils/crashlytics';
+import { PortalProvider } from '@gorhom/portal';
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isDone, setIsDone] = useState(false);
@@ -58,7 +59,11 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [data]);
 
   if (isFetching || !isDone) {
-    return <Loading />;
+    return (
+      <PortalProvider>
+        <Loading />
+      </PortalProvider>
+    );
   }
 
   // Không render gì nếu chưa đăng nhập

@@ -16,6 +16,7 @@ const AlertDialog = () => {
     confirmText,
     isHideCancelButton,
     isHideConfirmButton,
+    blockDismiss,
     message,
     title,
     loading,
@@ -31,7 +32,7 @@ const AlertDialog = () => {
         animationType="fade"
         transparent={true}
         visible={isVisible}
-        onRequestClose={hideAlert}
+        onRequestClose={blockDismiss ? () => {} : hideAlert}
       >
         <View style={styles.modalBackground}>
           <View className=" bg-white rounded-lg" style={{ width: 270 }}>

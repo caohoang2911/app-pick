@@ -1,26 +1,32 @@
 import { useLogin } from '@/api/auth';
 import { Button } from '@/components/Button';
-import { setRedirectUrl, signIn, useAuth } from '@/core';
+import { setRedirectUrl, signIn } from '@/core';
 import {
   consumePendingDeepLink,
   processDeepLink,
 } from '@/core/hooks/useHandleDeepLink';
 import { NavigationHelpers } from '@/core/utils/navigation';
-import { ROUTES } from '@/core/constants/routes';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import { Formik } from 'formik';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import * as Yup from 'yup';
 import { useAuthorizeUserPassword } from '../api/auth/use-authorize-user-password';
 import { Input } from '../components/Input';
+import { setLoading } from '../core/store/loading';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 export default function Login() {
-  const { mutate: login, data, isPending } = useLogin();
+  const {
+    mutate: login,
+    data,
+    isPending,
+    reset: resetLoginMutation,
+  } = useLogin();
+  const loginTimeoutRef = useRef<NodeJS.Timeout>();
 
   const { mutate: loginRegular, isPending: isPendingRegular } =
     useAuthorizeUserPassword((data) => {
@@ -58,6 +64,33 @@ export default function Login() {
       NavigationHelpers.toAuthorize();
     }
   }, [data]);
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isPending) {
+      if (loginTimeoutRef.current) {
+        clearTimeout(loginTimeoutRef.current);
+      }
+      return;
+    }
+
+    loginTimeoutRef.current = setTimeout(() => {
+      resetLoginMutation();
+      showMessage({
+        message: 'Đăng nhập quá thời gian, vui lòng thử lại',
+        type: 'danger',
+      });
+    }, 15000);
+
+    return () => {
+      if (loginTimeoutRef.current) {
+        clearTimeout(loginTimeoutRef.current);
+      }
+    };
+  }, [isPending, resetLoginMutation]);
 
   const handleLogin = () => {
     login();
@@ -101,7 +134,6 @@ export default function Login() {
               {({
                 values,
                 errors,
-                isValid,
                 handleBlur,
                 setFieldValue,
                 handleSubmit,

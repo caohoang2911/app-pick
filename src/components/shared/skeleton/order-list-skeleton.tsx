@@ -54,14 +54,18 @@ const OrderCardSkeleton = ({
         <View style={styles.infoRow}>
           <B w={20} h={20} style={{ borderRadius: 10, flexShrink: 0 }} />
           <B w={130} h={15} />
-          <B w={130} h={13} style={{ marginLeft: 'auto' }} />
+          <B
+            w="38%"
+            h={13}
+            style={{ marginLeft: 'auto', minWidth: 90, flexShrink: 1 }}
+          />
         </View>
 
         {/* ĐC giao */}
         <View style={styles.infoRow}>
           <B w={18} h={18} style={{ borderRadius: 3, flexShrink: 0 }} />
           <B w={80} h={13} />
-          <B w={170} h={13} />
+          <B w="45%" h={13} style={{ minWidth: 110, flexShrink: 1 }} />
         </View>
 
         {/* Ngày đặt */}
@@ -75,7 +79,7 @@ const OrderCardSkeleton = ({
         <View style={styles.infoRow}>
           <B w={18} h={18} style={{ borderRadius: 3, flexShrink: 0 }} />
           <B w={58} h={13} />
-          <B w={160} h={13} />
+          <B w="42%" h={13} style={{ minWidth: 100, flexShrink: 1 }} />
         </View>
 
         {/* NV Pick */}
@@ -83,9 +87,13 @@ const OrderCardSkeleton = ({
           <B w={18} h={18} style={{ borderRadius: 3, flexShrink: 0 }} />
           <B w={52} h={13} />
           {hasWarning ? (
-            <B w={170} h={34} style={{ borderRadius: 8 }} />
+            <B
+              w="45%"
+              h={34}
+              style={{ borderRadius: 8, minWidth: 120, flexShrink: 1 }}
+            />
           ) : (
-            <B w={110} h={13} />
+            <B w="35%" h={13} style={{ minWidth: 90, flexShrink: 1 }} />
           )}
         </View>
 
@@ -117,7 +125,15 @@ const OrderListSkeleton = () => {
   );
 
   return (
-    <ScrollView style={styles.container} scrollEnabled={false}>
+    <ScrollView
+      style={styles.container}
+      scrollEnabled={false}
+      bounces={false}
+      overScrollMode="never"
+      alwaysBounceVertical={false}
+      showsVerticalScrollIndicator={false}
+      nestedScrollEnabled={false}
+    >
       <OrderCardSkeleton animStyle={animStyle} />
       <OrderCardSkeleton animStyle={animStyle} hasWarning />
       <OrderCardSkeleton animStyle={animStyle} hasWarning />
@@ -128,12 +144,11 @@ const OrderListSkeleton = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
-    padding: 14,
+    marginTop: 12,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 8,
     marginBottom: 12,
     borderWidth: 0.5,
     borderColor: 'rgba(0,0,0,0.08)',
@@ -141,14 +156,14 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     backgroundColor: '#F3F4F6',
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     paddingVertical: 10,
     borderBottomWidth: 0.5,
     borderBottomColor: 'rgba(0,0,0,0.08)',
   },
   cardBody: {
     padding: 14,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
   },
   sb: {
     flexDirection: 'row',
@@ -161,7 +176,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pill: {
-    borderRadius: 12,
+    borderRadius: 8,
   },
   infoRow: {
     flexDirection: 'row',
