@@ -43,7 +43,7 @@ function iosUpdateOpenLabel(url: string) {
 }
 
 const RELEASE_CHANNEL_PREFIX =
-  process.env.EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX?.trim() ?? 'dev-';
+  process.env.EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX?.trim() ?? 'prod-';
 
 type GitHubRelease = {
   tag_name: string;
