@@ -46,6 +46,7 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { Input } from '../Input';
+import ProductPickingGuidelines from './product-picking-guidelines';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import SImage from '../SImage';
@@ -232,7 +233,7 @@ const QuantitySection = memo(
             </View>
           </View>
         </View>
-        <Text className="text-red-500">{errorMessage}</Text>
+        {errorMessage && <Text className="text-red-500">{errorMessage}</Text>}
       </View>
     );
   },
@@ -570,9 +571,7 @@ const InputAmountPopup = () => {
               <Text>🎁 </Text>
             </View>
           )}
-          <Text numberOfLines={1} className="font-semibold">
-            {productName}
-          </Text>
+          <Text className="font-semibold">{productName}</Text>
         </View>
         <View className="flex flex-row items-center gap-1">
           <Badge
@@ -589,6 +588,13 @@ const InputAmountPopup = () => {
             />
           )}
         </View>
+        {!!currentProduct?.productPickingGuidelines && (
+          <View className="flex flex-row items-center gap-1 w-full mt-4">
+            <ProductPickingGuidelines
+              guidelines={currentProduct?.productPickingGuidelines}
+            />
+          </View>
+        )}
       </View>
     ),
     [
@@ -597,6 +603,7 @@ const InputAmountPopup = () => {
       currentProduct?.unit,
       currentProduct?.tags,
       currentProduct?.barcode,
+      currentProduct?.productPickingGuidelines,
     ],
   );
 
@@ -744,7 +751,7 @@ const InputAmountPopup = () => {
             topHeader={renderTopHeader}
             renderTitle={renderTitle}
             ref={inputBottomSheetRef}
-            snapPoints={[isUnitBox ? 605 : 530]}
+            snapPoints={[isUnitBox ? 680 : 605]}
             onClose={reset}
             visible={isShowAmountInput}
           >

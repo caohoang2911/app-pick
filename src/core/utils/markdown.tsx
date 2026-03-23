@@ -11,7 +11,7 @@ interface MarkdownTextProps {
 
 /**
  * Simple markdown parser cho React Native
- * Hỗ trợ: **bold**, *italic*, [link](url)
+ * Hỗ trợ: *bold*, _italic_, [link](url)
  */
 export const MarkdownText: React.FC<MarkdownTextProps> = ({
   children,
@@ -28,8 +28,8 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
 
   // Regex patterns - ưu tiên link trước
   const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
-  const boldPattern = /(\*\*|__)(.+?)\1/g;
-  const italicPattern = /(\*|_)(.+?)\1/g;
+  const boldPattern = /\*(.+?)\*/g;
+  const italicPattern = /_(.+?)_/g;
   const bracketPattern = /\[([^\]]+)\](?!\()/g; // [text] không phải link
 
   const matches: Array<{
@@ -65,7 +65,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
         type: 'bold',
         start: match.index,
         end: match.index + match[0].length,
-        content: match[2],
+        content: match[1],
       });
     }
   }
@@ -84,7 +84,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
         type: 'italic',
         start: match.index,
         end: match.index + match[0].length,
-        content: match[2],
+        content: match[1],
       });
     }
   }
