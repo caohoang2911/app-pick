@@ -8,17 +8,17 @@ import {
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { StatusBar } from 'react-native';
+import { StatusBar, View } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
 
-// Import  global CSS file
 import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { hydrateAuth, useAuth } from '@/core';
+import { useAutoUpdate } from '@/core/hooks/useAutoUpdate';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
@@ -38,6 +38,7 @@ import {
 } from 'react-native-safe-area-context';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
+import { UpdateDownloadModal } from '../components/UpdateDownloadModal';
 import { AppStateEffect } from '../components/AppStateEffect';
 import NetworkStatus from '../components/NetWorkStatus';
 import { useAppState } from '../core/hooks/useAppState';
@@ -47,22 +48,25 @@ import {
   initializeSafeAppManagement,
 } from '../core/utils/safe-app-management';
 
-const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
+// ─── NotificationWrapper ───────────────────────────────────────────────────────
+// Nhận isDoneCodepush từ Providers để không gọi useCodepush 2 lần
+const NotificationWrapper = ({
+  children,
+  isDoneCodepush,
+}: {
+  children: React.ReactNode;
+  isDoneCodepush: boolean;
+}) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
-
   const { isUpdateAvailable } = Updates.useUpdates();
-
-  const { isDoneCodepush, onFetchUpdateAsync } = useCodepush();
-
+  const { onFetchUpdateAsync } = useCodepush();
   const appState = useAppState();
-
-  const { mutate: setFCMRegistrationToken, data } =
-    useSetFCMRegistrationToken();
+  const { mutate: setFCMRegistrationToken } = useSetFCMRegistrationToken();
 
   useEffect(() => {
     if (token && status === 'signIn') {
-      setFCMRegistrationToken({ token: token });
+      setFCMRegistrationToken({ token });
     }
   }, [token, status]);
 
@@ -79,17 +83,17 @@ const NotificationWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// ─── Constants ────────────────────────────────────────────────────────────────
 export const unstable_settings = {
   initialRouteName: '(drawer)',
 };
 
 hydrateAuth();
 hydrateConfig();
-// initConfigDate();
 setDefaultTimeZone();
-
 SplashScreen.preventAutoHideAsync();
 
+// ─── AuthWrapper ──────────────────────────────────────────────────────────────
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
   useHandleDeepLink();
@@ -97,6 +101,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// ─── RootLayout ───────────────────────────────────────────────────────────────
 export default function RootLayout() {
   const navigationRef = useNavigationContainerRef();
   useReactNavigationDevTools(navigationRef);
@@ -107,19 +112,19 @@ function RootLayoutNav() {
   return (
     <Providers>
       <Stack
+        initialRouteName="(drawer)"
         screenOptions={{
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
+          headerStyle: { backgroundColor: '#fff' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerTitleStyle: { fontWeight: 'bold' },
         }}
       >
+        <Stack.Screen
+          name="index"
+          options={{ headerShown: false, animation: 'none' }}
+        />
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
-
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
@@ -127,10 +132,20 @@ function RootLayoutNav() {
   );
 }
 
+// ─── Providers ────────────────────────────────────────────────────────────────
 function Providers({ children }: { children: React.ReactNode }) {
   const insets = useSafeAreaInsets();
   const status = useAuth.use.status();
   const loading = useLoading.use.loading();
+
+  // ✅ CodePush chạy trước
+  const { isDoneCodepush } = useCodepush();
+
+  // ✅ GitHub auto-update chỉ chạy sau khi CodePush xong
+  const { isChecking, progress, isDownloading } = useAutoUpdate({
+    enabled: isDoneCodepush,
+  });
+
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -147,11 +162,9 @@ function Providers({ children }: { children: React.ReactNode }) {
     }
   }, [loaded, error]);
 
-  // Setup error handlers for Expo modules
   useEffect(() => {
     setupExpoModulesErrorHandler();
     initializeSafeAppManagement();
-
     return () => {
       cleanupSafeAppManagement();
     };
@@ -165,9 +178,7 @@ function Providers({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!loaded && !error) {
-    return null;
-  }
+  if (!loaded && !error) return null;
 
   return (
     <CustomErrorBoundary
@@ -179,28 +190,53 @@ function Providers({ children }: { children: React.ReactNode }) {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <PortalProvider>
             <APIProvider>
-              <NotificationWrapper>
-                <AuthWrapper>
-                  <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                    <NetworkStatus />
-                    {loading && <Loading />}
-                    {children}
-                    <AlertDialog />
-                  </SafeAreaView>
-                  <AlertDialog />
-                  <FlashMessage
-                    position="bottom"
-                    duration={5000}
-                    style={{
-                      paddingRight: 36,
-                      paddingBottom: Math.max(insets.bottom, 8),
-                    }}
-                    statusBarHeight={StatusBar.currentHeight}
-                    MessageComponent={FlashMessageWithMarkdown}
-                  />
-                </AuthWrapper>
-              </NotificationWrapper>
-              <AppStateEffect />
+              <View style={{ flex: 1 }}>
+                <View
+                  style={{ flex: 1 }}
+                  pointerEvents={isDownloading ? 'none' : 'auto'}
+                  collapsable={false}
+                >
+                  {/* Block toàn màn hình: check + tải APK (giống Android) — AlertDialog mount bên ngoài để vẫn bấm được khi isChecking */}
+                  {isChecking ? (
+                    <Loading
+                      description={
+                        isDownloading
+                          ? 'Đang tải bản cập nhật...'
+                          : 'Đang kiểm tra cập nhật...'
+                      }
+                    />
+                  ) : (
+                    <NotificationWrapper isDoneCodepush={isDoneCodepush}>
+                      <AuthWrapper>
+                        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                          <NetworkStatus />
+                          {loading && <Loading />}
+                          {children}
+                        </SafeAreaView>
+                        <FlashMessage
+                          position="bottom"
+                          duration={5000}
+                          style={{
+                            paddingRight: 36,
+                            paddingBottom: Math.max(insets.bottom, 8),
+                          }}
+                          statusBarHeight={StatusBar.currentHeight}
+                          MessageComponent={FlashMessageWithMarkdown}
+                        />
+                      </AuthWrapper>
+                    </NotificationWrapper>
+                  )}
+                </View>
+
+                <AlertDialog />
+
+                <AppStateEffect />
+
+                <UpdateDownloadModal
+                  visible={isDownloading}
+                  progress={progress}
+                />
+              </View>
             </APIProvider>
           </PortalProvider>
         </GestureHandlerRootView>

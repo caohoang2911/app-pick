@@ -98,9 +98,21 @@ const Header = () => {
         query.getObserversCount() > 0,
     }) > 0;
   const canShowInitialSkeletonRef = useRef(true);
+  const hasSeenInitialLoadingRef = useRef(false);
 
   useEffect(() => {
-    if (canShowInitialSkeletonRef.current && !isLoadingOrderListInitial) {
+    if (isLoadingOrderListInitial) {
+      hasSeenInitialLoadingRef.current = true;
+      return;
+    }
+
+    // Only lock skeleton after we have truly seen initial loading once.
+    // This avoids turning it off too early during first mount race.
+    if (
+      canShowInitialSkeletonRef.current &&
+      hasSeenInitialLoadingRef.current &&
+      !isLoadingOrderListInitial
+    ) {
       canShowInitialSkeletonRef.current = false;
     }
   }, [isLoadingOrderListInitial]);

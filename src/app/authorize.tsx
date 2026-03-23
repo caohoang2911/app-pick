@@ -13,7 +13,7 @@ import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { NavigationHelpers } from '@/core/utils/navigation';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
@@ -202,6 +202,12 @@ const Authorize = () => {
       onLoadEnd={() => {
         setLoading(false, 'Vui lòng đợi...');
       }}
+      onError={() => {
+        setLoading(false);
+      }}
+      onHttpError={() => {
+        setLoading(false);
+      }}
       onNavigationStateChange={handleNavigationStateChange}
       injectedJavaScript={INJECTED_SCRIPT}
       onMessage={onMessage}
@@ -216,7 +222,7 @@ const Authorize = () => {
       useSharedProcessPool
       startInLoadingState={false}
       allowsBackForwardNavigationGestures={false}
-      incognito={true}
+      incognito={Platform.OS === 'ios'}
     />
   );
 };

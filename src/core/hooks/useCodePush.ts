@@ -1,17 +1,11 @@
-import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 export const useCodepush = () => {
   const [isDoneCodepush, setIsDoneCodepush] = useState(false);
 
-  const allowUpdateByBuildNumber = () => {
-    if (Platform.OS === 'ios') {
-      return true;
-    }
-    return true;
-  };
+  const allowUpdateByBuildNumber = () => true;
 
   async function onFetchUpdateAsync() {
     try {
@@ -19,7 +13,13 @@ export const useCodepush = () => {
       if (update.isAvailable && allowUpdateByBuildNumber()) {
         try {
           await Updates.fetchUpdateAsync();
-          await Updates.reloadAsync();
+          if (Platform.OS === 'ios') {
+            await Updates.reloadAsync();
+          } else if (AppState.currentState === 'active') {
+            // Android: small delay before reload to reduce startup-race crashes.
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            await Updates.reloadAsync();
+          }
           setIsDoneCodepush(true);
         } catch (error) {
           setIsDoneCodepush(true);

@@ -11,6 +11,8 @@ export interface AlertState {
   loading: boolean;
   isHideCancelButton: boolean;
   isHideConfirmButton: boolean;
+  /** Khi true: không đóng bằng nút Back (Android) — dùng cho thông báo bắt buộc */
+  blockDismiss: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   showAlert: ({
@@ -23,6 +25,7 @@ export interface AlertState {
     loading,
     isHideCancelButton,
     isHideConfirmButton,
+    blockDismiss,
   }: {
     title?: ReactNode;
     message?: ReactNode;
@@ -33,6 +36,7 @@ export interface AlertState {
     loading?: boolean;
     isHideCancelButton?: boolean;
     isHideConfirmButton?: boolean;
+    blockDismiss?: boolean;
   }) => void;
   hideAlert: () => void;
 }
@@ -46,6 +50,7 @@ const _useAlertStore = create<AlertState>((set) => ({
   loading: false,
   isHideCancelButton: false,
   isHideConfirmButton: false,
+  blockDismiss: false,
   onConfirm: () => {},
   onCancel: () => {},
   showAlert: ({
@@ -58,6 +63,7 @@ const _useAlertStore = create<AlertState>((set) => ({
     loading,
     isHideCancelButton,
     isHideConfirmButton,
+    blockDismiss,
   }: {
     title?: ReactNode;
     message?: ReactNode;
@@ -68,6 +74,7 @@ const _useAlertStore = create<AlertState>((set) => ({
     loading?: boolean;
     isHideCancelButton?: boolean;
     isHideConfirmButton?: boolean;
+    blockDismiss?: boolean;
   }) =>
     set({
       isVisible: true,
@@ -80,8 +87,9 @@ const _useAlertStore = create<AlertState>((set) => ({
       loading,
       isHideCancelButton,
       isHideConfirmButton,
+      blockDismiss: blockDismiss ?? false,
     }),
-  hideAlert: () => set({ isVisible: false }),
+  hideAlert: () => set({ isVisible: false, blockDismiss: false }),
 }));
 
 export const useAlertStore = createSelectors(_useAlertStore);
@@ -96,6 +104,7 @@ export const showAlert = ({
   loading,
   isHideCancelButton,
   isHideConfirmButton,
+  blockDismiss,
 }: {
   title?: string | ReactNode;
   message?: ReactNode;
@@ -106,6 +115,7 @@ export const showAlert = ({
   loading?: boolean;
   isHideCancelButton?: boolean;
   isHideConfirmButton?: boolean;
+  blockDismiss?: boolean;
 }) => {
   useAlertStore.getState().showAlert({
     title,
@@ -117,6 +127,7 @@ export const showAlert = ({
     loading,
     isHideCancelButton,
     isHideConfirmButton,
+    blockDismiss,
   });
 };
 
