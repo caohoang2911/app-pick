@@ -304,16 +304,19 @@ const OrderItem = ({
           )}
         </View>
         {notes.length > 0 && (
-          <View className="px-3 py-2 flex bg-orange-500 odd:border-b w-full odd:border-gray-200">
+          <View className="w-full bg-orange-500 px-3 py-3">
             {notes.map((note, index) => {
               if (isEmpty(note)) return null;
               const newNotes = note.trim().split('\\n');
               return (
                 <Fragment key={index}>
-                  {newNotes?.map((newNote) => (
-                    <View key={newNote} className="flex flex-row px-1 ">
+                  {newNotes?.map((newNote, noteIndex) => (
+                    <View
+                      key={`${newNote}-${noteIndex}`}
+                      className="flex flex-row py-1"
+                    >
                       <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5" />
-                      <Text className="text-base font-semibold text-white">
+                      <Text className="flex-1 text-base font-semibold text-white">
                         {newNote?.trim()}
                       </Text>
                     </View>
@@ -324,10 +327,10 @@ const OrderItem = ({
           </View>
         )}
         {fulfillError?.type && (
-          <View className="px-3 py-2 rounded-b flex flex-row items-center gap-1 bg-red-400">
-            <View className="flex flex-row items-center">
-              <View className="size-1.5 bg-white rounded-full mr-2" />
-              <Text className="text-base font-semibold text-white">
+          <View className="rounded-b bg-red-400 px-3 py-3">
+            <View className="flex flex-row items-start">
+              <View className="mr-2 mt-2 size-1.5 rounded-full bg-white" />
+              <Text className="flex-1 text-base font-semibold text-white">
                 {fulfillErrorTypeDisplay}
               </Text>
             </View>
