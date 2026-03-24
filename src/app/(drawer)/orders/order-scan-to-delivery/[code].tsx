@@ -94,14 +94,8 @@ const OrderScanToDelivery = () => {
 
   const header = orderDetail?.header as OrderDetailHeader | undefined;
 
-  const {
-    deliveryType,
-    status,
-    tags,
-    handoverStatus,
-    codAmount,
-    isInvoiceSupportedByAppPick,
-  } = header || {};
+  const { deliveryType, status, tags, handoverStatus, codAmount } =
+    header || {};
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -168,7 +162,7 @@ const OrderScanToDelivery = () => {
       return 'Tạo hoá đơn & giao cho tài xế';
     }
     return 'Tạo hoá đơn & giao cho khách';
-  }, [deliveryType, isInvoiceSupportedByAppPick]);
+  }, [deliveryType]);
 
   const generateMessageCreateInvoice = useMemo(() => {
     if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
@@ -265,8 +259,7 @@ const OrderScanToDelivery = () => {
     const isDisabled =
       !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
     return isAllDone ? (
-      deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
-      !isInvoiceSupportedByAppPick ? (
+      deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? (
         <Button
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleStartDeliveryWithoutInvoice}
@@ -300,7 +293,6 @@ const OrderScanToDelivery = () => {
     actionType,
     actionTypeWithInvoice,
     deliveryType,
-    isInvoiceSupportedByAppPick,
     isOrderDetailLoading,
     handoverStatus,
     toggleScanQrCodeProduct,

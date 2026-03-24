@@ -130,7 +130,6 @@ export interface OrderDetailHeader {
     penceAmount?: number;
     pointAmount?: number;
   };
-  isInvoiceSupportedByAppPick?: boolean;
   payment?: {
     isPaid?: boolean;
     method?: string;
