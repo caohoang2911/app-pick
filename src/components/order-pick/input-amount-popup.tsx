@@ -792,7 +792,7 @@ const InputAmountPopup = () => {
             return 605;
           }
           return 520;
-        }, [isUnitBox]);
+        }, [isUnitBox, currentProduct?.productPickingGuidelines]);
 
         return (
           <SBottomSheet
