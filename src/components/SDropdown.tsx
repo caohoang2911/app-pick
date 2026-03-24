@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Animated,
   Keyboard,
@@ -93,6 +99,20 @@ const SDropdown = ({
   const contentHeightRef = useRef(0);
   const scrollLayoutHeightRef = useRef(0);
   const hasScrolledToSelectedRef = useRef(false);
+  const { height: modalHeight, ...nativeModalProps } = modalProps || {};
+
+  const resolvedModalHeight = useMemo(() => {
+    const fallbackHeight = maxHeight;
+    if (typeof modalHeight !== 'number' || Number.isNaN(modalHeight)) {
+      return fallbackHeight;
+    }
+    return Math.max(220, modalHeight);
+  }, [modalHeight, maxHeight]);
+
+  const resolvedScrollHeight = useMemo(() => {
+    // Reserve header/action space inside modal.
+    return Math.max(120, resolvedModalHeight - 64);
+  }, [resolvedModalHeight]);
 
   const selectedItem = data.find((item: any) => item[valueField] === value);
   const selectedIndex = data.findIndex(
@@ -191,7 +211,7 @@ const SDropdown = ({
           transparent
           animationType="fade"
           statusBarTranslucent
-          {...modalProps}
+          {...nativeModalProps}
           presentationStyle="overFullScreen"
           onRequestClose={() => {
             setModalVisible(false);
@@ -206,7 +226,7 @@ const SDropdown = ({
             }}
           >
             <Pressable
-              style={styles.modalContent}
+              style={[styles.modalContent, { maxHeight: resolvedModalHeight }]}
               onPress={(e) => e.stopPropagation()}
             >
               <View style={styles.modalHeader}>
@@ -224,10 +244,18 @@ const SDropdown = ({
                   <CloseLine width={22} height={22} color="#666" />
                 </Pressable>
               </View>
-              <View style={styles.modalScrollWrap}>
+              <View
+                style={[
+                  styles.modalScrollWrap,
+                  { maxHeight: resolvedScrollHeight },
+                ]}
+              >
                 <ScrollView
                   ref={scrollRef}
-                  style={[styles.modalScroll, { maxHeight }]}
+                  style={[
+                    styles.modalScroll,
+                    { maxHeight: resolvedScrollHeight },
+                  ]}
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator
                   onContentSizeChange={(_w, h) => {
@@ -409,6 +437,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     maxHeight: 400,
+    paddingBottom: 10,
   },
   modalHeader: {
     flexDirection: 'row',
