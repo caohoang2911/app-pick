@@ -67,8 +67,8 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             className={cn(
               'border border-slate-300 rounded-lg bg-white text-base text-gray-900',
               clsx({
-                'pl-10': prefix,
-                'pr-10': hasSuffixOrClear,
+                'pl-11': prefix,
+                'pr-11': hasSuffixOrClear,
                 'pl-3': !prefix,
                 'pr-3': !hasSuffixOrClear,
                 'bg-gray-100 text-gray-400': !editable,
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
       paddingTop: 8,
       paddingBottom: 8,
     }),
+    lineHeight: 16,
   },
   inputDisabled: {
     opacity: Platform.OS === 'android' ? 0.6 : 1,

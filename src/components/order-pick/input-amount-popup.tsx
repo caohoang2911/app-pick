@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Dimensions, Platform, Text, View } from 'react-native';
 
 import {
   PRODUCT_ACTIONS,
@@ -296,10 +296,23 @@ const ReasonDropdown = memo(
         ?.reverse();
     }, [productPickedErrorTypes, unit]);
 
+    const dropdownModalHeight = useMemo(() => {
+      const screenHeight = Dimensions.get('window').height;
+      const maxHeight = Math.floor(screenHeight * 0.75);
+      const itemCount = productPickedErrorsWithUnit?.length || 0;
+      const estimatedItemHeight = 52;
+      const baseHeight = 170; // title, search/input, paddings
+      const calculatedHeight = baseHeight + itemCount * estimatedItemHeight;
+      return Math.min(maxHeight, calculatedHeight);
+    }, [productPickedErrorsWithUnit]);
+
     return (
       <SDropdown
         data={productPickedErrorsWithUnit}
         label="Chọn lý do"
+        modalProps={{
+          height: dropdownModalHeight,
+        }}
         labelClasses="font-medium"
         mode="modal"
         dropdownPosition="top"
@@ -770,12 +783,23 @@ const InputAmountPopup = () => {
           }
         }, [action, setFieldValue, isShowAmountInput]);
 
+        const bottomSheetHeight = useMemo(() => {
+          if (isUnitBox) {
+            return 600;
+          }
+
+          if (!!currentProduct?.productPickingGuidelines) {
+            return 605;
+          }
+          return 520;
+        }, [isUnitBox]);
+
         return (
           <SBottomSheet
             topHeader={renderTopHeader}
             renderTitle={renderTitle}
             ref={inputBottomSheetRef}
-            snapPoints={[isUnitBox ? 680 : 605]}
+            snapPoints={[bottomSheetHeight]}
             onClose={reset}
             visible={isShowAmountInput}
           >

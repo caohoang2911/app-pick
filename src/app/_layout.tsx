@@ -77,7 +77,7 @@ const NotificationWrapper = ({
   }, [appState]);
 
   if (!isDoneCodepush && isUpdateAvailable) {
-    return <Loading description="Đang cập nhật phiên bản mới..." />;
+    return <></>;
   }
 
   return <>{children}</>;
@@ -197,14 +197,12 @@ function Providers({ children }: { children: React.ReactNode }) {
                   collapsable={false}
                 >
                   {/* Block toàn màn hình: check + tải APK (giống Android) — AlertDialog mount bên ngoài để vẫn bấm được khi isChecking */}
-                  {isChecking ? (
-                    <Loading
-                      description={
-                        isDownloading
-                          ? 'Đang tải bản cập nhật...'
-                          : 'Đang kiểm tra cập nhật...'
-                      }
-                    />
+                  {!isDoneCodepush ? (
+                    <Loading description="Đang tải bản cập nhật mới..." />
+                  ) : isChecking && !isDownloading ? (
+                    <Loading description="Đang kiểm tra cập nhật..." />
+                  ) : isDownloading ? (
+                    <Loading description="Đang tải bản cập nhật..." />
                   ) : (
                     <NotificationWrapper isDoneCodepush={isDoneCodepush}>
                       <AuthWrapper>
