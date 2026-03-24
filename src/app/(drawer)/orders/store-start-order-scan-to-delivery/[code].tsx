@@ -63,14 +63,7 @@ const OrderScanToDelivery = () => {
 
   const header = orderDetail?.header as OrderDetailHeader | undefined;
 
-  const {
-    tags,
-    deliveryType,
-    isInvoiceSupportedByAppPick,
-    codAmount,
-    shipping,
-    status,
-  } = header || {};
+  const { tags, deliveryType, codAmount, shipping, status } = header || {};
 
   const user = useAuth.use.userInfo();
   const { name, username } = user || {};
@@ -304,8 +297,7 @@ const OrderScanToDelivery = () => {
               disabled={isDisabled}
               label={'Scan QR túi để giao hàng'}
             />
-          ) : deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ||
-            !isInvoiceSupportedByAppPick ? (
+          ) : deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? (
             <Button
               loading={isLoadingStartSelfShipping}
               onPress={handleStartDeliveryWithoutInvoice}
