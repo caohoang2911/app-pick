@@ -138,6 +138,8 @@ function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
   const loading = useLoading.use.loading();
 
+  const { isUpdateAvailable } = Updates.useUpdates();
+
   // ✅ CodePush chạy trước
   const { isDoneCodepush } = useCodepush();
 
@@ -197,7 +199,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                   collapsable={false}
                 >
                   {/* Block toàn màn hình: check + tải APK (giống Android) — AlertDialog mount bên ngoài để vẫn bấm được khi isChecking */}
-                  {!isDoneCodepush ? (
+                  {!isDoneCodepush && isUpdateAvailable ? (
                     <Loading description="Đang tải bản cập nhật mới..." />
                   ) : isChecking && !isDownloading ? (
                     <Loading description="Đang kiểm tra cập nhật..." />
