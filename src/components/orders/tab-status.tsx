@@ -1,8 +1,20 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import clsx from 'clsx';
 import { useFocusEffect } from 'expo-router';
-import React, { memo, useCallback, useEffect, useRef, useMemo } from 'react';
-import { Text, View } from 'react-native';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Text,
+  View,
+} from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
 import {
@@ -15,33 +27,60 @@ import { useAuth } from '~/src/core';
 import { setSelectedOrderCounter, useOrders } from '~/src/core/store/orders';
 import { Role } from '~/src/types/employee';
 
+/**
+ * Một số máy không gọi onMomentumScrollEnd sau scrollToIndex — vẫn cần fallback.
+ */
+const FALLBACK_COMMIT_AFTER_MS = 450;
+
 const TabsStatus = () => {
   const ref = useRef<any>();
   const cachingOrderStatusCounters = useRef<any>(null);
+  /** Tab user vừa bấm: commit store + API khi scroll dừng (onMomentumScrollEnd). */
+  const pendingCommitTabIdRef = useRef<string | null>(null);
+  const fallbackCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const { storeCode, role } = useAuth.use.userInfo();
-  const { data, refetch } = useGetOrderStatusCounters();
+  const { data, refetch, isStale } = useGetOrderStatusCounters();
   const orderStatusCounters = data?.data
     ? { ...cachingOrderStatusCounters.current, ...data.data }
     : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+  /** Highlight ngay khi bấm; store cập nhật sau scroll để list đỡ lag. */
+  const [pendingTabId, setPendingTabId] = useState<string | null>(null);
+  const displaySelected = pendingTabId ?? selectedOrderCounter;
 
   useEffect(() => {
     cachingOrderStatusCounters.current = orderStatusCounters;
   }, [orderStatusCounters]);
 
+  useEffect(() => {
+    if (pendingTabId != null && pendingTabId === selectedOrderCounter) {
+      setPendingTabId(null);
+    }
+  }, [pendingTabId, selectedOrderCounter]);
+
+  useEffect(() => {
+    return () => {
+      if (fallbackCommitTimerRef.current != null) {
+        clearTimeout(fallbackCommitTimerRef.current);
+      }
+    };
+  }, []);
+
   const isFirtTime = useRef(true);
 
   useFocusEffect(
     useCallback(() => {
-      if (!isFirtTime.current) {
+      if (!isFirtTime.current && isStale) {
         refetch();
       }
       return () => {
         isFirtTime.current = false;
       };
-    }, []),
+    }, [isStale, refetch]),
   );
 
   useEffect(() => {
@@ -72,66 +111,54 @@ const TabsStatus = () => {
     return sortByPriority(dataStatusCounters || []);
   }, [dataStatusCounters]);
 
-  const goTabSelected = useCallback(
-    (id?: string) => {
-      const index = sortedDataStatusCounters.findIndex(
-        (status) =>
-          status.id === (selectedOrderCounter as any) || status.id === id,
-      );
-      if (index === -1) return;
+  const sortedDataRef = useRef(sortedDataStatusCounters);
+  sortedDataRef.current = sortedDataStatusCounters;
 
-      // Enhanced validation for scrollToIndex
-      const dataLength = sortedDataStatusCounters?.length || 0;
-      if (dataLength === 0) {
-        console.warn('No data available for scrolling');
-        return;
-      }
+  /** Ref + callback ổn định: chỉ đọc sorted mới nhất — tránh effect phụ thuộc goTabSelected (đổi mỗi lần refetch → scroll nhầm về tab đầu). */
+  const scrollToTabId = useCallback((tabId: string) => {
+    const sorted = sortedDataRef.current;
+    const index = sorted.findIndex((s) => s.id === tabId);
+    if (index === -1) return;
 
-      if (index < 0 || index >= dataLength) {
-        console.warn(
-          'Invalid scroll index:',
+    const dataLength = sorted.length;
+    if (dataLength === 0) {
+      if (__DEV__) console.warn('No data available for scrolling');
+      return;
+    }
+
+    if (!ref.current) {
+      if (__DEV__) console.warn('FlatList ref not available');
+      return;
+    }
+
+    const runScroll = () => {
+      if (!ref.current || index < 0 || index >= dataLength) return;
+      try {
+        ref.current.scrollToIndex({
+          animated: true,
           index,
-          'Data length:',
-          dataLength,
-        );
-        return;
-      }
-
-      // Add additional safety check
-      if (!ref.current) {
-        console.warn('FlatList ref not available');
-        return;
-      }
-
-      setTimeout(() => {
-        if (ref.current && index >= 0 && index < dataLength) {
-          try {
-            ref.current.scrollToIndex({
-              animated: true,
-              index: index,
-              viewPosition: 0.5,
-            });
-          } catch (error) {
-            console.warn('scrollToIndex failed, using fallback:', error);
-            // Fallback to scrollToOffset if scrollToIndex fails
-            const estimatedOffset = Math.max(0, index * 120); // Ensure non-negative offset
-            try {
-              ref.current.scrollToOffset({
-                offset: estimatedOffset,
-                animated: true,
-              });
-            } catch (fallbackError) {
-              console.warn(
-                'scrollToOffset fallback also failed:',
-                fallbackError,
-              );
-            }
+          viewPosition: 0.5,
+        });
+      } catch (error) {
+        if (__DEV__) {
+          console.warn('scrollToIndex failed, using fallback:', error);
+        }
+        const estimatedOffset = Math.max(0, index * 120);
+        try {
+          ref.current.scrollToOffset({
+            offset: estimatedOffset,
+            animated: true,
+          });
+        } catch (fallbackError) {
+          if (__DEV__) {
+            console.warn('scrollToOffset fallback also failed:', fallbackError);
           }
         }
-      }, 500);
-    },
-    [selectedOrderCounter, sortedDataStatusCounters],
-  );
+      }
+    };
+
+    requestAnimationFrame(runScroll);
+  }, []);
 
   // Handle scroll failure with enhanced error handling
   const handleScrollToIndexFailed = useCallback(
@@ -161,22 +188,58 @@ const TabsStatus = () => {
     [],
   );
 
+  // Chỉ khi tab được chọn (store) đổi — không gắn scrollToTabId/sorted vào dep refetch để tránh kéo list về đầu khi counters API về.
   useEffect(() => {
-    goTabSelected(selectedOrderCounter);
-  }, [selectedOrderCounter, goTabSelected]);
+    if (selectedOrderCounter == null) return;
+    scrollToTabId(String(selectedOrderCounter));
+  }, [selectedOrderCounter, scrollToTabId]);
+
+  const commitPendingTabAfterScroll = useCallback(() => {
+    const id = pendingCommitTabIdRef.current;
+    if (id == null) return;
+
+    pendingCommitTabIdRef.current = null;
+    if (fallbackCommitTimerRef.current != null) {
+      clearTimeout(fallbackCommitTimerRef.current);
+      fallbackCommitTimerRef.current = null;
+    }
+
+    setSelectedOrderCounter(id as any);
+  }, []);
+
+  const handleMomentumScrollEnd = useCallback(
+    (_e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      commitPendingTabAfterScroll();
+    },
+    [commitPendingTabAfterScroll],
+  );
 
   const handleTabPress = useCallback(
     (itemId: string) => {
-      refetch();
-      goTabSelected(itemId);
-      setSelectedOrderCounter(itemId as any);
+      if (itemId === selectedOrderCounter) return;
+
+      if (fallbackCommitTimerRef.current != null) {
+        clearTimeout(fallbackCommitTimerRef.current);
+        fallbackCommitTimerRef.current = null;
+      }
+
+      pendingCommitTabIdRef.current = itemId;
+      setPendingTabId(itemId);
+      scrollToTabId(itemId);
+
+      fallbackCommitTimerRef.current = setTimeout(() => {
+        fallbackCommitTimerRef.current = null;
+        if (pendingCommitTabIdRef.current === itemId) {
+          commitPendingTabAfterScroll();
+        }
+      }, FALLBACK_COMMIT_AFTER_MS);
     },
-    [refetch, goTabSelected],
+    [commitPendingTabAfterScroll, scrollToTabId, selectedOrderCounter],
   );
 
   const renderTabItem = useCallback(
     ({ item, index }: { item: any; index: number }) => {
-      const isStatusSeleted = item.id === selectedOrderCounter;
+      const isStatusSeleted = item.id === displaySelected;
       const isFirst = index === 0;
       const isLast = index === sortedDataStatusCounters?.length - 1;
 
@@ -211,7 +274,7 @@ const TabsStatus = () => {
         </TouchableOpacity>
       );
     },
-    [selectedOrderCounter, sortedDataStatusCounters?.length, handleTabPress],
+    [displaySelected, sortedDataStatusCounters?.length, handleTabPress],
   );
 
   if (error) return <></>;
@@ -226,6 +289,7 @@ const TabsStatus = () => {
       renderItem={renderTabItem}
       keyExtractor={(item) => item.id}
       onScrollToIndexFailed={handleScrollToIndexFailed}
+      onMomentumScrollEnd={handleMomentumScrollEnd}
       horizontal
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}
@@ -238,5 +302,5 @@ const TabsStatus = () => {
 export default memo(TabsStatus);
 
 function sortByPriority(data: Array<any>) {
-  return data.sort((a, b) => a.priority - b.priority);
+  return [...data].sort((a, b) => a.priority - b.priority);
 }

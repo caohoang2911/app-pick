@@ -56,8 +56,8 @@ function DeliveryType() {
   }, [refetch]);
 
   const counters = data?.data
-    ? { ...cachingDeliveryTypeCounters.current, ...data.data }
-    : {};
+    ? { ...(cachingDeliveryTypeCounters.current || {}), ...data.data }
+    : { ...(cachingDeliveryTypeCounters.current || {}) };
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
@@ -130,8 +130,13 @@ function DeliveryType() {
   }, [counters, orderDeliveryTypes, deliveryType]);
 
   useEffect(() => {
-    cachingDeliveryTypeCounters.current = counters;
-  }, [counters]);
+    if (data?.data) {
+      cachingDeliveryTypeCounters.current = {
+        ...(cachingDeliveryTypeCounters.current || {}),
+        ...data.data,
+      };
+    }
+  }, [data?.data]);
 
   return (
     <View
