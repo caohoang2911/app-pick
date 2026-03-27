@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,6 +7,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+import ButtonBack from '@/components/ButtonBack';
 
 const Bone = ({
   w,
@@ -69,7 +70,7 @@ const ProductCardSkeleton = ({ animStyle }: { animStyle: any }) => (
   </View>
 );
 
-const OrderPickSkeleton = () => {
+const OrderPickSkeleton = ({ code }: { code: string }) => {
   const shimmer = useSharedValue(1);
 
   useEffect(() => {
@@ -87,15 +88,18 @@ const OrderPickSkeleton = () => {
   return (
     <ScrollView style={styles.container} scrollEnabled={false}>
       {/* Header picker */}
-      <View style={[styles.sb, { marginBottom: 6 }]}>
+      <View style={[styles.sb, {}]}>
         <View style={styles.row}>
-          <Bone
+          {/* <Bone
             w={16}
             h={16}
             style={{ borderRadius: 3 }}
             animStyle={animStyle}
+          /> */}
+          <ButtonBack
+            title={<Text className="text-base font-semibold">{code}</Text>}
           />
-          <Bone w={180} h={14} animStyle={animStyle} />
+          {/* <Bone w={180} h={14} animStyle={animStyle} /> */}
         </View>
         <Bone w={60} h={13} animStyle={animStyle} />
       </View>
@@ -128,7 +132,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F3F4F6',
-    padding: 14,
+    paddingHorizontal: 14,
   },
   card: {
     backgroundColor: '#FFFFFF',
