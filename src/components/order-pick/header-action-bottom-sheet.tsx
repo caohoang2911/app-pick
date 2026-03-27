@@ -6,6 +6,7 @@ import { router, useGlobalSearchParams } from 'expo-router';
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -67,14 +68,21 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
     });
   });
 
-  useImperativeHandle(ref, () => {
-    return {
+  useImperativeHandle(
+    ref,
+    () => ({
       present: () => {
-        actionRef.current?.present();
-        setVisible(!visible);
+        setVisible(true);
       },
-    };
-  }, []);
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    if (visible) {
+      actionRef.current?.present();
+    }
+  }, [visible]);
 
   const renderItem = ({
     onClickAction,

@@ -70,6 +70,7 @@ const OrderPick = () => {
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
 
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
+  const isVisibleReplaceProduct = useOrderPick.use.isVisibleReplaceProduct();
 
   const isEditManual = useOrderPick.use.isEditManual();
   const currentId = useOrderPick.use.currentId();
@@ -162,7 +163,7 @@ const OrderPick = () => {
   );
 
   if (isOrderDetailLoading) {
-    return <OrderPickSkeleton />;
+    return <OrderPickSkeleton code={code} />;
   }
 
   if (orderDetailError) {
@@ -179,17 +180,19 @@ const OrderPick = () => {
         <OrderPickProducts key={code} />
       </View>
       <ActionsBottom />
-      <ScannerBox
-        isQRScanner={false}
-        visible={isScanQrCodeProduct}
-        onSuccessBarcodeScanned={handleSuccessBarCode}
-        onDestroy={() => {
-          toggleScanQrCodeProduct(false);
-        }}
-      />
+      {isScanQrCodeProduct && (
+        <ScannerBox
+          isQRScanner={false}
+          visible={isScanQrCodeProduct}
+          onSuccessBarcodeScanned={handleSuccessBarCode}
+          onDestroy={() => {
+            toggleScanQrCodeProduct(false);
+          }}
+        />
+      )}
       <OrderPickHeadeActionBottomSheet ref={headerAcrtionRef} />
-      <InputAmountPopup />
-      <ReplacePickedProducts />
+      {isShowAmountInput ? <InputAmountPopup /> : null}
+      {isVisibleReplaceProduct ? <ReplacePickedProducts /> : null}
     </>
   );
 };
