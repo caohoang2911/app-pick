@@ -1,11 +1,5 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -29,10 +23,10 @@ import {
   setCurrentCode,
   useOrderPick,
 } from '~/src/core/store/order-pick';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { splitBarcode } from '~/src/core/utils/number';
 import {
   barcodeCondition,
-  getOrderPickProductsFlat,
   handleScanBarcode,
 } from '~/src/core/utils/order-bag';
 import { BarcodeScanningResult } from '~/src/types/scanner';
@@ -64,7 +58,6 @@ const OrderPick = () => {
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
 
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
@@ -77,10 +70,7 @@ const OrderPick = () => {
 
   const headerAcrtionRef = useRef<any>();
 
-  const orderPickProductsFlat = useMemo(
-    () => getOrderPickProductsFlat(orderPickProducts),
-    [orderPickProducts],
-  );
+  const orderPickProductsFlat = useOrderPickProductsFlat();
 
   useLayoutEffect(() => {
     navigation.setOptions({

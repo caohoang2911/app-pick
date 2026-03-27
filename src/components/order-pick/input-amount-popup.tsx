@@ -34,15 +34,13 @@ import {
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import {
   formatDecimal,
   roundToDecimalDecrease,
   roundToDecimalIncrease,
 } from '~/src/core/utils/number';
-import {
-  barcodeCondition,
-  getOrderPickProductsFlat,
-} from '~/src/core/utils/order-bag';
+import { barcodeCondition } from '~/src/core/utils/order-bag';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
@@ -545,15 +543,10 @@ const InputAmountPopup = () => {
 
   const inputBottomSheetRef = useRef<any>(null);
 
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
   const isEditManual = useOrderPick.use.isEditManual();
   const currentId = useOrderPick.use.currentId();
 
-  // Memoize expensive operations
-  const orderPickProductsFlat = useMemo(
-    () => getOrderPickProductsFlat(orderPickProducts),
-    [orderPickProducts],
-  );
+  const orderPickProductsFlat = useOrderPickProductsFlat();
 
   // Find current product - memoized to avoid recalculation on every render
   const currentProduct = useMemo(() => {

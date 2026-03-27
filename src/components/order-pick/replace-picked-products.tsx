@@ -10,7 +10,7 @@ import {
   setIsVisibleReplaceProduct,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { Product } from '~/src/types/product';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
@@ -44,11 +44,7 @@ const ReplacePickedProducts = () => {
     setSelectedProductId(product.id);
   };
 
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const orderPickProductsFlat = useMemo(
-    () => getOrderPickProductsFlat(orderPickProducts),
-    [orderPickProducts],
-  );
+  const orderPickProductsFlat = useOrderPickProductsFlat();
 
   const product = orderPickProductsFlat.find(
     (p: Product) => p.id === replacePickedProductId,

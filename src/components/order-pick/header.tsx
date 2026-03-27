@@ -19,8 +19,8 @@ import {
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { getConfigNameById } from '~/src/core/utils/config';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { getRelativeTime } from '~/src/core/utils/moment';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { Employee } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
@@ -57,8 +57,7 @@ const HeaderTags = ({ tags }: { tags?: string[] }) => {
 
 const Picker = ({ picker }: { picker: { username: string; name: string } }) => {
   if (!picker) return null;
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const orderPickProductsFlat = useOrderPickProductsFlat();
 
   const totalPickedDone = useMemo(() => {
     return orderPickProductsFlat?.filter(

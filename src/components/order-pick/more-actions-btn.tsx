@@ -21,7 +21,7 @@ import {
 } from '~/src/core/store/order-pick';
 import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { Product } from '~/src/types/product';
 import {
   PRODUCT_ACTIONS,
@@ -81,8 +81,7 @@ const MoreActionsBtn = ({
   const [visible, setVisible] = useState(false);
   const actionRef = useRef<any>();
 
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const orderPickProductsFlat = useOrderPickProductsFlat();
 
   const currentProduct = orderPickProductsFlat.find(
     (product: Product) => Number(product.id) === Number(id),
