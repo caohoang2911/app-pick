@@ -26,42 +26,34 @@ type Response = { error: string } & {
 const getOrderDeliveryTypeCounters = async (
   params: Variables,
 ): Promise<Response> => {
-  if (params.status === 'ALL') {
-    delete params.status;
-  }
+  const normalizedParams =
+    params.status === 'ALL' ? {} : { status: params.status };
 
   return await axiosClient.get('app-pick/getOrderDeliveryTypeCounters', {
-    params,
+    params: normalizedParams,
   });
 };
 
 export const useGetOrderDeliveryTypeCounters = ({ status }: Variables) => {
   const authStatus = useAuth.use.status();
+  const canFetch = !!status && authStatus === 'signIn';
 
   const query = useQuery({
     queryKey: ['getOrderDeliveryTypeCounters', status],
-    queryFn: () => {
+    queryFn: async () => {
+      if (!status) {
+        return {
+          error: '',
+          data: {
+            CUSTOMER_PICKUP: 0,
+            SHIPPER_DELIVERY: 0,
+          },
+        };
+      }
+
       return getOrderDeliveryTypeCounters({ status });
     },
-    enabled: !!status && authStatus === 'signIn',
+    enabled: canFetch,
   });
-
-  // Override refetch để kiểm tra điều kiện auth
-  const originalRefetch = query.refetch;
-  const safeRefetch = () => {
-    if (authStatus === 'signIn') {
-      return originalRefetch();
-    }
-    return Promise.resolve({
-      data: null,
-      error: null,
-      isError: false,
-      isLoading: false,
-    });
-  };
-
-  return {
-    ...query,
-    refetch: safeRefetch,
-  };
+  return query;
 };
