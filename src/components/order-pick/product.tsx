@@ -24,7 +24,6 @@ import {
 import { CheckCircleFill } from '~/src/core/svgs';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { formatCurrency } from '~/src/core/utils/number';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
 import { OrderStatusValue } from '~/src/types/order';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';

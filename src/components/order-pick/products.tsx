@@ -1,8 +1,14 @@
-import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Dimensions, Keyboard, View } from 'react-native';
+import {
+  Dimensions,
+  InteractionManager,
+  Keyboard,
+  ListRenderItemInfo,
+  Platform,
+  View,
+} from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { queryClient } from '~/src/api/shared';
 import {
@@ -14,9 +20,9 @@ import {
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import {
   barcodeCondition,
-  getOrderPickProductsFlat,
   handleScanBarcode,
 } from '~/src/core/utils/order-bag';
 import { Product, ProductItemGroup } from '~/src/types/product';
@@ -25,12 +31,6 @@ import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
 import ProductGift from './product-gift';
 import UserNote from './user-note';
-
-const LoadingIndicator = () => (
-  <View className="text-center py-3">
-    <ActivityIndicator className="text-gray-300" />
-  </View>
-);
 
 const EmptyProductList = () => (
   <View className="mt-3">
@@ -109,14 +109,8 @@ const OrderPickProducts = () => {
   }, [code]);
 
   const orderPickProducts = useOrderPick.use.orderPickProducts();
-  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const orderPickProductsFlat = useOrderPickProductsFlat();
   const lastScannedId = useOrderPick.use.lastScannedId();
-  const activeIndexByLastScannedId = useMemo(() => {
-    if (!lastScannedId) return -1;
-    return orderPickProductsFlat.findIndex(
-      (p: Product) => p.id === lastScannedId,
-    );
-  }, [lastScannedId, orderPickProductsFlat]);
   const flatListRef = useRef<FlatList>(null);
 
   // Khởi tạo products từ orderDetail đã có sẵn ở store (set từ màn root)
@@ -179,33 +173,6 @@ const OrderPickProducts = () => {
     toggleShowAmountInput,
     setKeyword,
   ]);
-
-  // Callback cho việc render item
-  const renderItem = useCallback(
-    ({
-      item,
-      index,
-      statusOrder,
-      pickingBarcode,
-    }: {
-      item: any;
-      index: number;
-      statusOrder?: string;
-      pickingBarcode: string;
-    }) => {
-      const isLast = index === (filteredProducts?.length || 0) - 1;
-
-      return (
-        <ProductItem
-          statusOrder={statusOrder}
-          item={item}
-          isLast={isLast}
-          pickingBarcode={pickingBarcode}
-        />
-      );
-    },
-    [filteredProducts?.length, activeIndexByLastScannedId],
-  );
 
   // Key extractor tối ưu
   const keyExtractor = useCallback((item: any, index: number) => {
@@ -282,10 +249,9 @@ const OrderPickProducts = () => {
     [filteredProducts?.length],
   );
 
-  // Tính toán các giá trị mô tả trạng thái
   const hasOrderDetail = !!orderDetail?.delivery;
   const isEmpty =
-    hasOrderDetail && (!filteredProducts || filteredProducts.length === 0);
+    !hasOrderDetail && (!filteredProducts || filteredProducts.length === 0);
 
   const getPickingBarcode = useMemo(() => {
     return (
@@ -294,6 +260,25 @@ const OrderPickProducts = () => {
       })?.barcode || ''
     );
   }, [orderPickProductsFlat]);
+
+  const filteredProductsLength = filteredProducts?.length ?? 0;
+  const statusOrder = orderDetail?.header?.status as string | undefined;
+
+  const listRenderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<any>) => {
+      const isLast = index === filteredProductsLength - 1;
+
+      return (
+        <ProductItem
+          statusOrder={statusOrder}
+          item={item}
+          isLast={isLast}
+          pickingBarcode={getPickingBarcode}
+        />
+      );
+    },
+    [filteredProductsLength, getPickingBarcode, statusOrder],
+  );
 
   const scrollTargetIndex = useMemo(() => {
     if (lastScannedId) {
@@ -306,7 +291,7 @@ const OrderPickProducts = () => {
     }
 
     return -1;
-  }, [filteredProducts, getPickingBarcode, lastScannedId]);
+  }, [filteredProducts, lastScannedId]);
 
   useEffect(() => {
     const index = scrollTargetIndex;
@@ -314,47 +299,69 @@ const OrderPickProducts = () => {
 
     const dataLength = filteredProducts?.length || 0;
     if (dataLength === 0) {
-      console.warn('No filtered products available for scrolling');
+      if (__DEV__) {
+        console.warn('No filtered products available for scrolling');
+      }
       return;
     }
 
-    setTimeout(() => {
-      if (flatListRef.current && index >= 0 && index < dataLength) {
-        try {
-          flatListRef.current.scrollToIndex({
-            animated: true,
-            index,
-            viewPosition: 0.5,
-          });
-        } catch (error) {
-          console.warn('scrollToIndex failed in useEffect:', error);
-          // Fallback to scrollToOffset
-          const estimatedOffset = Math.max(0, index * 200); // Use item height estimate
+    let cancelled = false;
+
+    InteractionManager.runAfterInteractions(() => {
+      if (cancelled) return;
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        if (flatListRef.current && index >= 0 && index < dataLength) {
           try {
-            flatListRef.current.scrollToOffset({
-              offset: estimatedOffset,
+            flatListRef.current.scrollToIndex({
               animated: true,
+              index,
+              viewPosition: 0.5,
             });
-          } catch (fallbackError) {
-            console.warn('scrollToOffset fallback failed:', fallbackError);
+          } catch (error) {
+            if (__DEV__) {
+              console.warn('scrollToIndex failed in useEffect:', error);
+            }
+            const estimatedOffset = Math.max(0, index * 200);
+            try {
+              flatListRef.current.scrollToOffset({
+                offset: estimatedOffset,
+                animated: true,
+              });
+            } catch (fallbackError) {
+              if (__DEV__) {
+                console.warn('scrollToOffset fallback failed:', fallbackError);
+              }
+            }
           }
         }
-      }
-    }, 100);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [filteredProducts, scrollTargetIndex]);
 
-  // Window dimensions
   const { height } = Dimensions.get('window');
-  const itemHeight = 200; // Ước tính chiều cao trung bình
+  const itemHeight = 200;
   const visibleItems = Math.ceil(height / itemHeight);
+  const initialNumToRender = Math.min(Math.max(visibleItems, 4), 10);
+  const maxToRenderPerBatch = Math.min(6, initialNumToRender);
+
+  const listHeader = useMemo(
+    () => (
+      <View className="flex flex-col gap-2">
+        <UserNote />
+      </View>
+    ),
+    [],
+  );
+
+  const listFooter = useMemo(() => <View style={{ height: 20 }} />, []);
 
   return (
-    <View
-      style={{ flex: 1 }}
-      onLayout={() =>
-        flatListRef.current?.scrollToOffset({ offset: 0, animated: false })
-      }
-    >
+    <View style={{ flex: 1 }}>
       <FlatList
         ref={flatListRef}
         className="flex-1"
@@ -364,35 +371,20 @@ const OrderPickProducts = () => {
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
-        ListFooterComponent={<View style={{ height: 20 }} />}
-        ListHeaderComponent={
-          <View className="flex flex-col gap-2">
-            <UserNote />
-          </View>
-        }
+        ListFooterComponent={listFooter}
+        ListHeaderComponent={listHeader}
         data={filteredProducts || []}
         ListEmptyComponent={
           isEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />
         }
-        renderItem={({ item, index }) =>
-          renderItem({
-            item,
-            index,
-            statusOrder: orderDetail?.header?.status as string,
-            pickingBarcode: getPickingBarcode,
-          })
-        }
+        renderItem={listRenderItem}
         onScrollToIndexFailed={handleScrollToIndexFailed}
-        removeClippedSubviews={false}
-        initialNumToRender={visibleItems}
-        maxToRenderPerBatch={visibleItems}
+        removeClippedSubviews={Platform.OS === 'android'}
+        initialNumToRender={initialNumToRender}
+        maxToRenderPerBatch={maxToRenderPerBatch}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
         windowSize={5}
         updateCellsBatchingPeriod={50}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          autoscrollToTopThreshold: 1,
-        }}
       />
     </View>
   );

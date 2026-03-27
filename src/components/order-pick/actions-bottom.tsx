@@ -9,7 +9,7 @@ import {
   toggleScanQrCodeProduct,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import { getOrderPickProductsFlat } from '~/src/core/utils/order-bag';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Product } from '~/src/types/product';
 import PickedCompleteConfirmation from './picked-complete-confirmation';
@@ -78,9 +78,7 @@ const ActionsBottom = () => {
 
   const { code } = useGlobalSearchParams<{ code: string }>();
 
-  const orderPickProducts = useOrderPick.use.orderPickProducts();
-
-  const orderPickProductsFlat = getOrderPickProductsFlat(orderPickProducts);
+  const orderPickProductsFlat = useOrderPickProductsFlat();
   hasAnyPickedRef.current = orderPickProductsFlat.some(
     (p: Product) => Number(p.pickedQuantity || 0) > 0,
   );
