@@ -51,6 +51,9 @@ function DeliveryType() {
   const { data, refetch } = useGetOrderDeliveryTypeCounters({
     status: fromScanQrCode ? 'ALL' : (selectedOrderCounter as OrderStatus),
   });
+  const safeRefetchCounters = useCallback(() => {
+    void refetch().catch(() => null);
+  }, [refetch]);
 
   const counters = data?.data
     ? { ...cachingDeliveryTypeCounters.current, ...data.data }
@@ -63,19 +66,19 @@ function DeliveryType() {
   useFocusEffect(
     useCallback(() => {
       if (!isFirtTime.current && authStatus === 'signIn') {
-        refetch();
+        safeRefetchCounters();
       }
       return () => {
         isFirtTime.current = false;
       };
-    }, [authStatus]),
+    }, [authStatus, safeRefetchCounters]),
   );
 
   useEffect(() => {
     if (authStatus === 'signIn') {
-      refetch();
+      safeRefetchCounters();
     }
-  }, [fromScanQrCode, selectedOrderCounter, authStatus]);
+  }, [fromScanQrCode, selectedOrderCounter, authStatus, safeRefetchCounters]);
 
   const handleSelect = (value: string) => {
     queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters'] });
