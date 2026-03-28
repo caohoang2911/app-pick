@@ -1,13 +1,11 @@
 import { axiosClient } from '@/api/shared';
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { Config } from '~/src/types/config';
+import { getStoredConfigVersion } from '@/core/store/config';
+import { useQuery } from '@tanstack/react-query';
+import type { ConfigResponse } from './types';
+
+export type { ConfigResponse } from './types';
 
 type Variables = {
-  version?: string;
-};
-
-export type ConfigResponse = {
-  allConfig?: Config | null;
   version?: string;
 };
 
@@ -19,9 +17,17 @@ const getAll = async (params?: Variables): Promise<Response> => {
   return await axiosClient.get('config/getAll', { params });
 };
 
-export const useGetConfig = ({ version }: Variables) =>
+type UseGetConfigOptions = {
+  /** Khi đã có version local: tắt auto-fetch, chỉ gọi API qua refetch() */
+  localVersion: string;
+};
+
+export const useGetConfig = ({ localVersion }: UseGetConfigOptions) =>
   useQuery({
-    queryKey: ['configs', version],
-    queryFn: () => getAll({ version }),
-    enabled: false,
+    queryKey: ['configs'],
+    queryFn: () => {
+      const v = getStoredConfigVersion();
+      return getAll(v ? { version: v } : undefined);
+    },
+    enabled: !localVersion,
   });

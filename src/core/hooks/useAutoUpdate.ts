@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Linking from 'expo-linking';
 import { showAlert, hideAlert } from '@/core/store/alert-dialog';
+import { Env } from '~/env';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppState,
@@ -178,8 +179,12 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
   isChecking: boolean;
   progress: number;
 } {
+  const nativeGithubUpdateAllowed = Env.NATIVE_GITHUB_UPDATE;
+  const effectiveEnabled = enabled && nativeGithubUpdateAllowed;
+
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
+  /** Chỉ true khi thật sự cần chờ check GitHub; false ngay nếu tắt native update (kể cả lúc chờ CodePush). */
+  const [isChecking, setIsChecking] = useState(nativeGithubUpdateAllowed);
   const [progress, setProgress] = useState(0);
   const ranRef = useRef(false);
   /** iOS: còn bản GitHub mới hơn native — hiện lại popup khi quay lại app (ví dụ từ TestFlight). */
@@ -218,7 +223,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
   }, []);
 
   useEffect(() => {
-    if (!enabled || Platform.OS !== 'ios') return;
+    if (!effectiveEnabled || Platform.OS !== 'ios') return;
 
     const onAppState = (next: AppStateStatus) => {
       if (next !== 'active') return;
@@ -237,10 +242,22 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
 
     const sub = AppState.addEventListener('change', onAppState);
     return () => sub.remove();
-  }, [enabled, presentIosMandatoryAlert]);
+  }, [effectiveEnabled, presentIosMandatoryAlert]);
 
   useEffect(() => {
-    // ✅ Chưa enabled (CodePush chưa xong) → giữ isChecking = true, chờ
+    // ✅ Tắt native GitHub: bỏ loading ngay — không phụ thuộc CodePush đã xong hay chưa
+    if (!nativeGithubUpdateAllowed) {
+      if (__DEV__) {
+        console.warn(
+          '[useAutoUpdate] Tắt check GitHub native (Env.NATIVE_GITHUB_UPDATE / EXPO_PUBLIC_NATIVE_GITHUB_UPDATE).',
+        );
+      }
+      iosMandatoryRef.current = null;
+      setIsChecking(false);
+      return;
+    }
+
+    // ✅ Chưa enabled (CodePush chưa xong) → giữ isChecking = true, chờ tới khi mới check GitHub
     if (!enabled) return;
 
     if (ranRef.current) return;
@@ -473,7 +490,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
     };
 
     void run();
-  }, [enabled, presentIosMandatoryAlert]);
+  }, [enabled, nativeGithubUpdateAllowed, presentIosMandatoryAlert]);
 
   return { isDownloading, isChecking, progress };
 }

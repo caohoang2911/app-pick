@@ -1,20 +1,17 @@
 import { DrawerContent } from '@/components/DrawerContent';
+import { PortalProvider } from '@gorhom/portal';
 import { Drawer } from 'expo-router/drawer';
-import { isEmpty } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { ConfigResponse, useGetConfig } from '~/src/api/config/useGetConfig';
 import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import Loading from '~/src/components/Loading';
 import { useAuth } from '~/src/core';
 import { setConfig, useConfig } from '~/src/core/store/config';
 import CrashlyticsService from '~/src/core/utils/crashlytics';
-import { PortalProvider } from '@gorhom/portal';
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
-  const [isDone, setIsDone] = useState(false);
   const status = useAuth.use.status();
   const version = useConfig.use.version();
-  const config = useConfig.use.config();
   const userInfo = useAuth.use.userInfo();
 
   useGetMyProfile();
@@ -35,21 +32,19 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   }, [status, userInfo]);
 
-  const { data, refetch, isFetching } = useGetConfig({
-    version: !isEmpty(config) ? version : '',
+  const {
+    data,
+    refetch,
+    isLoading: isLoadingGetConfig,
+  } = useGetConfig({
+    localVersion: version,
   });
 
   useEffect(() => {
-    if (status === 'signIn') {
+    if (status === 'signIn' && version) {
       refetch();
     }
-  }, [status, config, isDone]);
-
-  useEffect(() => {
-    if (!isEmpty(config)) {
-      setIsDone(true);
-    }
-  }, [config]);
+  }, [status, version, refetch]);
 
   useEffect(() => {
     if (data?.error) return;
@@ -58,7 +53,7 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   }, [data]);
 
-  if (isFetching || !isDone) {
+  if (!version && isLoadingGetConfig) {
     return (
       <PortalProvider>
         <Loading />

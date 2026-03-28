@@ -25,8 +25,8 @@ import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
-import { setDefaultTimeZone } from '@/core/utils/moment';
 import { ErrorBoundary as CustomErrorBoundary } from '@/core/utils/error-boundary';
+import { setDefaultTimeZone } from '@/core/utils/moment';
 import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
 
 import '@/ui/global.css';
@@ -38,11 +38,11 @@ import {
 } from 'react-native-safe-area-context';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
-import { UpdateDownloadModal } from '../components/UpdateDownloadModal';
 import { AppStateEffect } from '../components/AppStateEffect';
-import NetworkStatus from '../components/NetWorkStatus';
-import { useAppState } from '../core/hooks/useAppState';
 import FlashMessageWithMarkdown from '../components/FlashMessageWithMarkdown';
+import NetworkStatus from '../components/NetWorkStatus';
+import { UpdateDownloadModal } from '../components/UpdateDownloadModal';
+import { useAppState } from '../core/hooks/useAppState';
 import {
   cleanupSafeAppManagement,
   initializeSafeAppManagement,
@@ -171,14 +171,6 @@ function Providers({ children }: { children: React.ReactNode }) {
       cleanupSafeAppManagement();
     };
   }, []);
-
-  if (!loaded) {
-    return (
-      <PortalProvider>
-        <Loading />
-      </PortalProvider>
-    );
-  }
 
   if (!loaded && !error) return null;
 

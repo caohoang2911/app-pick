@@ -14,6 +14,21 @@ const getEnvironmentFromConfig = (): 'dev' | 'prod' => {
 
 const environment = getEnvironmentFromConfig();
 
+/**
+ * Mặc định theo `configs[env].NATIVE_GITHUB_UPDATE`.
+ * `EXPO_PUBLIC_NATIVE_GITHUB_UPDATE` (bundle/OTA) ghi đè khi set rõ true/false.
+ */
+function resolveNativeGithubUpdate(configDefault: boolean): boolean {
+  const v = process.env.EXPO_PUBLIC_NATIVE_GITHUB_UPDATE?.trim().toLowerCase();
+  if (v === 'false' || v === '0' || v === 'off') {
+    return false;
+  }
+  if (v === 'true' || v === '1' || v === 'on') {
+    return true;
+  }
+  return configDefault;
+}
+
 // Environment configurations
 const configs = {
   dev: {
@@ -27,6 +42,8 @@ const configs = {
     ENABLE_ANALYTICS: false,
     ENABLE_CRASH_REPORTING: false,
     ENABLE_DEBUG_TOOLS: true,
+    /** Check/tải bản native qua GitHub (có thể tắt từng môi trường hoặc qua EXPO_PUBLIC). */
+    NATIVE_GITHUB_UPDATE: false,
   },
   prod: {
     API_BASE_URL: 'https://oms-api.seedcom.vn/',
@@ -39,10 +56,12 @@ const configs = {
     ENABLE_ANALYTICS: true,
     ENABLE_CRASH_REPORTING: true,
     ENABLE_DEBUG_TOOLS: false,
-  }
+    NATIVE_GITHUB_UPDATE: false,
+  },
 };
 
-const currentConfig = configs[environment as keyof typeof configs] || configs.dev;
+const currentConfig =
+  configs[environment as keyof typeof configs] || configs.dev;
 
 /**
  * Environment configuration object
@@ -62,4 +81,7 @@ export const Env = {
   ENABLE_ANALYTICS: currentConfig.ENABLE_ANALYTICS,
   ENABLE_CRASH_REPORTING: currentConfig.ENABLE_CRASH_REPORTING,
   ENABLE_DEBUG_TOOLS: currentConfig.ENABLE_DEBUG_TOOLS,
+  NATIVE_GITHUB_UPDATE: resolveNativeGithubUpdate(
+    currentConfig.NATIVE_GITHUB_UPDATE,
+  ),
 };
