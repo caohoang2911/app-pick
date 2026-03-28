@@ -1,5 +1,5 @@
 import { axiosClient } from '@/api/shared';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { type QueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useRole } from '~/src/core/hooks/useRole';
 import { OrderStatus, OrderStatusDriver } from '~/src/types/order';
 import { Role } from '~/src/types/employee';
@@ -45,6 +45,34 @@ const searchOrders = async (filter?: Variables): Promise<Response> => {
   return await axiosClient.get(`${contextPath}/searchOrders`, { params });
 };
 
+export function getNextPageParamSearchOrders(lastPage: Response) {
+  const pageIndex = lastPage.data?.pageIndex;
+  return pageIndex <
+    Math.ceil(lastPage.data?.total / lastPage.data?.maxItemDisplay)
+    ? pageIndex + 1
+    : undefined;
+}
+
+/** Prefetch trang 1 (và cấu trúc infinite) khi user bấm tab — cache trùng với useSearchOrders. */
+export function prefetchSearchOrders(
+  queryClient: QueryClient,
+  params: Omit<Variables, 'role'>,
+  role: Role,
+) {
+  return queryClient.prefetchInfiniteQuery({
+    queryKey: ['searchOrders', params],
+    queryFn: ({ pageParam }) =>
+      searchOrders({
+        ...params,
+        pageIndex: pageParam as number,
+        role,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: Response) =>
+      getNextPageParamSearchOrders(lastPage),
+  });
+}
+
 export const useSearchOrders = (
   params?: Omit<Variables, 'role'>,
   options?: any,
@@ -60,13 +88,8 @@ export const useSearchOrders = (
         role: role as Role,
       });
     },
-    getNextPageParam: (lastPage, allPages) => {
-      const pageIndex = lastPage.data?.pageIndex;
-      return pageIndex <
-        Math.ceil(lastPage.data?.total / lastPage.data?.maxItemDisplay)
-        ? pageIndex + 1
-        : undefined;
-    },
+    getNextPageParam: (lastPage: Response) =>
+      getNextPageParamSearchOrders(lastPage),
     select: (data) => {
       return {
         pages: data.pages.flatMap((page) => page.data?.list || []),
@@ -75,6 +98,7 @@ export const useSearchOrders = (
     },
     enabled: !!params,
     initialPageParam: 1,
+    staleTime: 5 * 1000,
     ...options,
   });
 };
