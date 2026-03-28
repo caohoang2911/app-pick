@@ -12,7 +12,6 @@ const ActionsBottom = () => {
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
-      hideAlert();
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
     });
@@ -24,6 +23,7 @@ const ActionsBottom = () => {
       title: 'Xác nhận đã giao hàng',
       loading: isLoadingHandoverOrder,
       onConfirm: () => {
+        hideAlert();
         setLoading(true);
         handoverOrder({ orderCode: code });
       },

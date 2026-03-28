@@ -82,6 +82,7 @@ export const checkNotificationPermission = async (
  */
 export const showNotificationPermissionPopup = () => {
   showAlert({
+    stackId: 'notification-permission-settings',
     title: 'Thông báo quan trọng',
     message:
       'Bạn cần cho phép ứng dụng gửi thông báo để nhận được cập nhật về đơn hàng và các thông tin quan trọng khác.',
@@ -103,35 +104,34 @@ export const showSoundOffWarningPopup = (
 ) => {
   const percent = Math.round(volumeThreshold * 100);
   showAlert({
+    stackId: 'notification-sound-warning',
     title: React.createElement(
       Text,
       { style: { fontSize: 17, fontWeight: '600' } },
       'Âm thanh thông báo',
     ),
     message: React.createElement(
-      React.Fragment,
-      null,
-      React.createElement(
-        Text,
-        { style: { fontSize: 13 } },
-        'Thiết bị đang ở ',
-      ),
+      Text,
+      {
+        style: {
+          textAlign: 'center',
+          fontSize: 13,
+          lineHeight: 20,
+        },
+      },
+      'Thiết bị đang ở ',
       React.createElement(
         Text,
         { style: { fontWeight: '700', fontSize: 13 } },
         'chế độ im lặng',
       ),
-      React.createElement(Text, { style: { fontSize: 13 } }, ' hoặc âm lượng '),
+      ' hoặc âm lượng ',
       React.createElement(
         Text,
         { style: { fontWeight: '700', fontSize: 13 } },
         `rất thấp (dưới ${percent}%)`,
       ),
-      React.createElement(
-        Text,
-        { style: { fontSize: 14 } },
-        '. Hãy bật âm thanh để nghe thông báo về đơn hàng.',
-      ),
+      '. Hãy bật âm thanh để nghe thông báo về đơn hàng.',
     ),
     cancelText: 'Để sau',
     isHideConfirmButton: true,

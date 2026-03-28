@@ -19,6 +19,7 @@ export const useWatchResponse = () => {
           title: 'Thông báo',
           message: 'Tài khoản đã bị thay đổi siêu thị. Vui lòng đăng nhập lại!',
           onConfirm: () => {
+            hideAlert();
             refreshToken();
           },
           isHideCancelButton: true,
