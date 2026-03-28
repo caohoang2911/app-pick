@@ -782,7 +782,7 @@ const InputAmountPopup = () => {
           }
 
           if (!!currentProduct?.productPickingGuidelines) {
-            return 605;
+            return 655;
           }
           return 520;
         }, [isUnitBox, currentProduct?.productPickingGuidelines]);

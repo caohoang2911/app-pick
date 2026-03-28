@@ -6,9 +6,9 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { PortalProvider } from '@gorhom/portal';
+import { Portal, PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { StatusBar, View } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -205,16 +205,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                           {loading && <Loading />}
                           {children}
                         </SafeAreaView>
-                        <FlashMessage
-                          position="bottom"
-                          duration={5000}
-                          style={{
-                            paddingRight: 36,
-                            paddingBottom: Math.max(insets.bottom, 8),
-                          }}
-                          statusBarHeight={StatusBar.currentHeight}
-                          MessageComponent={FlashMessageWithMarkdown}
-                        />
                       </AuthWrapper>
                     </NotificationWrapper>
                   )}
@@ -228,6 +218,28 @@ function Providers({ children }: { children: React.ReactNode }) {
                   visible={isDownloading}
                   progress={progress}
                 />
+
+                {/* Portal + zIndex/elevation: trên BottomSheet modal (@gorhom) */}
+                <Portal>
+                  <View
+                    pointerEvents="box-none"
+                    style={[
+                      StyleSheet.absoluteFillObject,
+                      { zIndex: 999_999, elevation: 999_999 },
+                    ]}
+                  >
+                    <FlashMessage
+                      position="bottom"
+                      duration={5000}
+                      style={{
+                        paddingRight: 36,
+                        paddingBottom: Math.max(insets.bottom, 8),
+                      }}
+                      statusBarHeight={StatusBar.currentHeight}
+                      MessageComponent={FlashMessageWithMarkdown}
+                    />
+                  </View>
+                </Portal>
               </View>
             </APIProvider>
           </PortalProvider>

@@ -14,11 +14,13 @@ import {
   View,
 } from 'react-native';
 import { useGetOrderDeliveryTypeCounters } from '~/src/api/app-pick/use-get-order-delivery-type-counters';
+import { prefetchSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { queryClient } from '~/src/api/shared';
 import { useAuth } from '~/src/core';
 import { useConfig } from '~/src/core/store/config';
 import { setDeliveryType, useOrders } from '~/src/core/store/orders';
 import { getConfigNameById } from '~/src/core/utils/config';
+import { Role } from '~/src/types/employee';
 import { OrderStatus } from '~/src/types/order';
 
 type DeliveryTypeOption = {
@@ -38,6 +40,7 @@ function DeliveryType() {
 
   const deliveryType = useOrders.use.deliveryType();
   const authStatus = useAuth.use.status();
+  const { role } = useAuth.use.userInfo();
 
   const config = useConfig.use.config();
   const orderDeliveryTypes = config?.orderDeliveryTypes || [];
@@ -74,22 +77,32 @@ function DeliveryType() {
     }, [authStatus, safeRefetchCounters]),
   );
 
-  useEffect(() => {
-    if (authStatus === 'signIn') {
-      safeRefetchCounters();
-    }
-  }, [fromScanQrCode, selectedOrderCounter, authStatus, safeRefetchCounters]);
+  // Không refetch khi selectedOrderCounter / fromScanQrCode đổi: queryKey đã đổi,
+  // useQuery tự chạy queryFn — refetch thêm ở đây = gọi API 2 lần (vd. đổi tab).
 
-  const handleSelect = (value: string) => {
-    queryClient.invalidateQueries({ queryKey: ['getOrderStatusCounters'] });
-    if (refCurrentStatus.current === value) {
-      setDeliveryType(null);
-      refCurrentStatus.current = null;
-    } else {
-      setDeliveryType(value);
-      refCurrentStatus.current = value;
-    }
-  };
+  const handleSelect = useCallback(
+    (value: string) => {
+      const nextDeliveryType =
+        refCurrentStatus.current === value ? null : value;
+      void prefetchSearchOrders(
+        queryClient,
+        {
+          status: (fromScanQrCode ? 'ALL' : selectedOrderCounter) as any,
+          deliveryType: nextDeliveryType,
+        },
+        role as Role,
+      );
+
+      if (refCurrentStatus.current === value) {
+        setDeliveryType(null);
+        refCurrentStatus.current = null;
+      } else {
+        setDeliveryType(value);
+        refCurrentStatus.current = value;
+      }
+    },
+    [fromScanQrCode, selectedOrderCounter, role],
+  );
 
   const options: DeliveryTypeOption[] = useMemo(() => {
     return Object.keys(counters)
@@ -127,7 +140,7 @@ function DeliveryType() {
           value: status,
         };
       });
-  }, [counters, orderDeliveryTypes, deliveryType]);
+  }, [counters, orderDeliveryTypes, deliveryType, handleSelect]);
 
   useEffect(() => {
     if (data?.data) {
