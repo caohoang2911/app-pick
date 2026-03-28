@@ -1,6 +1,5 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { hideAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 
 type Variables = {

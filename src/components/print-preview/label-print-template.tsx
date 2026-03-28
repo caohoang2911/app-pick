@@ -3,7 +3,7 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-import { showAlert } from '~/src/core/store/alert-dialog';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
 
@@ -76,7 +76,9 @@ const LabelPrintTemplate = React.memo(
               showAlert({
                 title: 'Oops, snapshot failed captureRef',
                 message: JSON.stringify(error),
-                onConfirm: () => {},
+                onConfirm: () => {
+                  hideAlert();
+                },
               });
             },
           );
@@ -84,7 +86,9 @@ const LabelPrintTemplate = React.memo(
           showAlert({
             title: 'Oops, snapshot failed throw error',
             message: JSON.stringify(error),
-            onConfirm: () => {},
+            onConfirm: () => {
+              hideAlert();
+            },
           });
         }
       }

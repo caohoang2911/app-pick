@@ -69,8 +69,8 @@ const ActionsBottom = () => {
     showAlert({
       message: 'Đã pick xong, bạn có muốn set kích thước & in tem',
       onConfirm: () => {
-        router.push(`orders/order-bags/${code}`);
         hideAlert();
+        router.push(`orders/order-bags/${code}`);
       },
       isHideCancelButton: true,
     });

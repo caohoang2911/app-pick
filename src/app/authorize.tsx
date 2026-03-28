@@ -113,9 +113,6 @@ const Authorize = () => {
                 type: 'success',
               });
             },
-            onCancel: () => {
-              hideAlert();
-            },
           });
         }
         break;

@@ -270,12 +270,12 @@ const StoreSelection = forwardRef<any, Props>(
           title: 'Yêu cầu cấp quyền siêu thị',
           message: `Bạn có muốn yêu cầu cấp quyền siêu thị ${store.name} không?`,
           onConfirm: () => {
+            hideAlert();
             setLoading(true);
             requestAssignMeToStore({
               storeCode: store.id.toString(),
               employeeCode: code || userCode || '',
             });
-            hideAlert();
           },
         });
       },

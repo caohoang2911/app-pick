@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Linking from 'expo-linking';
-import { showAlert, hideAlert } from '@/core/store/alert-dialog';
+import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { Env } from '~/env';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -168,7 +168,9 @@ async function openApkPackageInstaller(contentUri: string) {
           'Không mở được màn hình cài đặt. Kiểm tra quyền cài ứng dụng từ nguồn này.',
         confirmText: 'Đóng',
         isHideCancelButton: true,
-        onConfirm: () => hideAlert(),
+        onConfirm: () => {
+          hideAlert();
+        },
       }),
     );
   }
@@ -215,8 +217,8 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
       isHideCancelButton: true,
       blockDismiss: true,
       onConfirm: () => {
-        void Linking.openURL(APP_STORE_URL);
         hideAlert();
+        void Linking.openURL(APP_STORE_URL);
         setIsChecking(false);
       },
     });
@@ -417,8 +419,8 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
                 isHideCancelButton: true,
                 blockDismiss: true,
                 onConfirm: () => {
-                  void openApkPackageInstaller(contentUri);
                   hideAlert();
+                  void openApkPackageInstaller(contentUri);
                   unlockApp();
                 },
               }),

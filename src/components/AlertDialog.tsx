@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -7,32 +7,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import type { AlertInstance } from '../core/store/alert-dialog';
 import { hideAlert, useAlertStore } from '../core/store/alert-dialog';
 
-const AlertDialog = () => {
+function AlertModalBody({
+  current,
+  onConfirmPress,
+  onCancelPress,
+}: {
+  current: AlertInstance;
+  onConfirmPress: () => void;
+  onCancelPress: () => void;
+}) {
   const {
-    isVisible,
+    title,
+    message,
     cancelText,
     confirmText,
     isHideCancelButton,
     isHideConfirmButton,
     blockDismiss,
-    message,
-    title,
     loading,
-    onConfirm,
-    onCancel,
-  } = useAlertStore();
-
-  if (!isVisible) return null;
+  } = current;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="box-none">
       <Modal
         animationType="fade"
-        transparent={true}
-        visible={isVisible}
-        onRequestClose={blockDismiss ? () => {} : hideAlert}
+        transparent
+        visible
+        onRequestClose={blockDismiss ? () => {} : onCancelPress}
       >
         <View style={styles.modalBackground}>
           <View className=" bg-white rounded-lg" style={{ width: 270 }}>
@@ -45,19 +49,29 @@ const AlertDialog = () => {
                 ) : (
                   <View className="items-center">{title}</View>
                 ))}
-              {message && (
-                <Text
-                  className="text-center text-sm mt-2"
-                  style={{ lineHeight: 20 }}
-                >
-                  {message}
-                </Text>
-              )}
+              {message &&
+                (typeof message === 'string' ? (
+                  <Text
+                    className="text-center text-sm mt-2"
+                    style={{ lineHeight: 20 }}
+                  >
+                    {message}
+                  </Text>
+                ) : (
+                  <View
+                    className="items-center mt-2"
+                    style={{ alignSelf: 'stretch' }}
+                  >
+                    {message}
+                  </View>
+                ))}
             </View>
             <View className="flex flex-row w-full border-t border-gray-200">
               {!isHideCancelButton && (
-                <View className="flex-1 py-3 border-r border-gray-200">
-                  <TouchableOpacity onPress={onCancel || hideAlert}>
+                <View
+                  className={`flex-1 py-3 ${!isHideConfirmButton ? 'border-r border-gray-200' : ''}`}
+                >
+                  <TouchableOpacity onPress={onCancelPress}>
                     <Text className="text-center text-blue-500 text-lg">
                       {cancelText || 'Trở lại'}
                     </Text>
@@ -66,7 +80,7 @@ const AlertDialog = () => {
               )}
               {!isHideConfirmButton && (
                 <View className="flex-1 py-3">
-                  <TouchableOpacity onPress={onConfirm} disabled={loading}>
+                  <TouchableOpacity onPress={onConfirmPress} disabled={loading}>
                     <View className="flex flex-row justify-center items-center gap-2">
                       {loading && (
                         <ActivityIndicator size="small" color="blue" />
@@ -84,6 +98,36 @@ const AlertDialog = () => {
         </View>
       </Modal>
     </View>
+  );
+}
+
+const AlertDialog = () => {
+  const alerts = useAlertStore.use.alerts();
+  const current = alerts[0];
+
+  /** Chỉ gọi callback — đóng queue là việc của callback (hideAlert trong onConfirm). */
+  const onConfirmPress = useCallback(() => {
+    const c = useAlertStore.getState().alerts[0];
+    if (!c) return;
+    c.onConfirm();
+  }, []);
+
+  /** Trở lại / Android back: gọi onCancel rồi tự pop — không ghi đè logic custom ngoài thứ tự này. */
+  const onCancelPress = useCallback(() => {
+    const c = useAlertStore.getState().alerts[0];
+    if (!c) return;
+    c.onCancel?.();
+    hideAlert();
+  }, []);
+
+  if (!current) return null;
+
+  return (
+    <AlertModalBody
+      current={current}
+      onConfirmPress={onConfirmPress}
+      onCancelPress={onCancelPress}
+    />
   );
 };
 

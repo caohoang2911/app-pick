@@ -44,8 +44,8 @@ export const useDriverOrderActions = (orderCode: string) => {
       title: 'Huỷ gán đơn cho tôi',
       message: 'Bạn có muốn huỷ gán đơn, để book AhaMove không?',
       onConfirm: () => {
-        setLoading(true);
         hideAlert();
+        setLoading(true);
         cancelMyOrder({ orderCode });
       },
     });

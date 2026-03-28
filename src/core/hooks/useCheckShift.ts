@@ -27,7 +27,6 @@ export const useCheckShift = (successCallback: () => void) => {
         message: 'Vào ca thành công',
         type: 'success',
       });
-      hideAlert();
       await refreshToken();
       await refetchGetMyProfile();
       successCallback?.();
@@ -51,6 +50,7 @@ export const useCheckShift = (successCallback: () => void) => {
       title: 'Xác nhận vào ca',
       message: 'Bạn chưa vào ca. Vui lòng vào ca để tiếp tục sử dụng ứng dụng.',
       onConfirm: () => {
+        hideAlert();
         setLoading(true);
         startMyKposShift({});
       },

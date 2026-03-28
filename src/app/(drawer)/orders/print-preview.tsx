@@ -93,9 +93,9 @@ function PrintPreview() {
         showAlert({
           message: `Chưa cài đặt máy in`,
           onConfirm: () => {
+            hideAlert();
             router.back();
             router.navigate('/settings');
-            hideAlert();
           },
           confirmText: 'Cài đặt ngay',
           isHideCancelButton: true,
@@ -149,8 +149,8 @@ function PrintPreview() {
         showAlert({
           message: `Không thể kết nối với máy in label tại IP: ${host}.`,
           onConfirm: () => {
-            router.back();
             hideAlert();
+            router.back();
           },
           confirmText: 'Trở lại',
           isHideCancelButton: true,
