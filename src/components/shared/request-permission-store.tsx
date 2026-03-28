@@ -18,7 +18,7 @@ const RequestPermissionStore = ({ code }: Props) => {
   const config = useConfig.use.config();
 
   const { refetch, isFetching } = useGetConfig({
-    version: !isEmpty(config) ? version : '',
+    localVersion: version,
   });
 
   const handleRequestPermission = () => {

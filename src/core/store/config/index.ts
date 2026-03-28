@@ -8,7 +8,7 @@ import {
   setConfigLocalStore,
   setVersionLocalStore,
 } from './utils';
-import { ConfigResponse } from '~/src/api/config/useGetConfig';
+import type { ConfigResponse } from '~/src/api/config/types';
 
 interface ConfigState {
   config: Config | null;
@@ -48,3 +48,5 @@ export const useConfig = createSelectors(_useConfig);
 export const setConfig = (config: ConfigResponse | undefined) =>
   _useConfig.getState().setConfig(config as ConfigResponse);
 export const hydrateConfig = () => _useConfig.getState().hydrateConfig();
+
+export const getStoredConfigVersion = () => _useConfig.getState().version;

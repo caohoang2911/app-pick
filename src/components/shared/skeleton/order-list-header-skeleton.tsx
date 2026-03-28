@@ -76,10 +76,13 @@ const OrderListHeaderSkeleton = () => {
 
       {/* Tab bar */}
       <View style={{ marginBottom: 12 }}>
-        <View style={[styles.row, { gap: 20, marginBottom: 8 }]}>
-          <B w={62} h={14} />
-          <B w={108} h={14} />
-          <B w={96} h={14} />
+        <View style={[styles.row, { gap: 10, marginBottom: 8 }]}>
+          <B w={80} h={28} />
+          <B w={80} h={28} />
+          <B w={80} h={28} />
+          <B w={80} h={28} />
+          <B w={80} h={28} />
+          <B w={80} h={28} />
         </View>
         <View style={styles.tabUnderline} />
       </View>
@@ -96,7 +99,7 @@ const OrderListHeaderSkeleton = () => {
             style={[
               {
                 width: w,
-                height: 32,
+                height: 28,
                 borderRadius: 20,
                 backgroundColor: '#E5E7EB',
               },
