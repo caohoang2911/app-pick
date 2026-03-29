@@ -136,6 +136,14 @@ const CREATE_INVOICE_MSG = {
 export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
   return useMutation({
     mutationFn: async (params: Variables): Promise<Response> => {
+      // Kiểm tra kết nối máy in trước khi tạo hóa đơn
+      const probe = await checkPrinterConnection();
+      try {
+        probe.destroy();
+      } catch {
+        /* ignore */
+      }
+
       const result = await createInvoice(params);
       const isFail = result?.status === 'FAIL';
 
