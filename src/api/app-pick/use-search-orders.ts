@@ -98,7 +98,7 @@ export const useSearchOrders = (
     },
     enabled: !!params,
     initialPageParam: 1,
-    staleTime: 0,
+    staleTime: 5 * 1000,
     ...options,
   });
 };

@@ -82,6 +82,14 @@ function DeliveryType() {
 
   const handleSelect = useCallback(
     (value: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ['getOrderDeliveryTypeCounters'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['getOrderStatusCounters'],
+      });
+
       const nextDeliveryType =
         refCurrentStatus.current === value ? null : value;
       void prefetchSearchOrders(

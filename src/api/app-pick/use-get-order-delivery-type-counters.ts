@@ -54,8 +54,7 @@ export const useGetOrderDeliveryTypeCounters = ({ status }: Variables) => {
       return getOrderDeliveryTypeCounters({ status });
     },
     enabled: canFetch,
-    staleTime: 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 0,
     placeholderData: (previousData) => previousData,
   });
   return query;
