@@ -3,7 +3,6 @@ export * from './store/auth';
 
 // Constants exports
 export * from './constants/routes';
-export * from './constants/flag';
 export * from './constants/order';
 export * from './constants/product';
 
