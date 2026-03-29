@@ -1,15 +1,10 @@
-import { create } from 'zustand';
-import {
-  OrderDelivery,
-  OrderDetail,
-  OrderDetailHeader,
-} from '~/src/types/order-pick';
-import { Product, ProductItemGroup } from '~/src/types/product';
 import { ProductAction } from '@/core/constants/product';
+import { create } from 'zustand';
+import { OrderDetail } from '~/src/types/order-pick';
+import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
-  orderDetail: OrderDetail;
   currentCode: string | null;
   isScanQrCodeProduct: boolean;
   isShowAmountInput: boolean;
@@ -28,7 +23,6 @@ interface OrdersState {
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
   setIsEditManual: (isEditManual: boolean, action?: ProductAction) => void;
   setKeyword: (keyword: string) => void;
-  setOrderDetail: (orderDetail: OrderDetail) => void;
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
@@ -66,7 +60,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   isVisibleReplaceProduct: false,
   resetOrderPick: () => {
     set({
-      orderDetail: {} as OrderDetail,
       isScanQrCodeProduct: false,
       isShowAmountInput: false,
       keyword: '',
@@ -98,9 +91,6 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   },
   setKeyword: (keyword: string) => {
     set({ keyword });
-  },
-  setOrderDetail: (orderDetail: OrderDetail) => {
-    set({ orderDetail });
   },
   toggleScanQrCode: (isScanQrCodeProduct: boolean) => {
     set({ isScanQrCodeProduct });
@@ -197,9 +187,6 @@ export const setKeyword = (keyword: string) =>
 
 export const setOrderPickProduct = (product: Product) =>
   _useOrderPick.getState().setOrderPickProduct(product);
-
-export const setOrderDetail = (orderDetail: OrderDetail) =>
-  _useOrderPick.getState().setOrderDetail(orderDetail);
 
 export const setCurrentId = (id: number | null) =>
   _useOrderPick.getState().setCurrentId(id);

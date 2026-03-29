@@ -11,7 +11,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { BillLine, More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';
 import { prefetchOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-import { useRoleDriver } from '~/src/core/hooks/useRole';
 const actions = [
   {
     key: 'view-invoice',
@@ -27,7 +26,6 @@ interface MoreActionsBtnProps {
 const MoreActionsBtn = ({ code }: MoreActionsBtnProps) => {
   const [visible, setVisible] = useState(false);
   const actionRef = useRef<any>();
-  const isDriver = useRoleDriver();
   const renderItem = useMemo(
     () =>
       ({

@@ -17,7 +17,6 @@ import {
   setIsVisibleReplaceProduct,
   setSuccessForBarcodeScan,
   toggleShowAmountInput,
-  useOrderPick,
 } from '~/src/core/store/order-pick';
 import { More2Fill } from '~/src/core/svgs';
 import SBottomSheet from '../SBottomSheet';

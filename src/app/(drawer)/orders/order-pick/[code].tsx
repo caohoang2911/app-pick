@@ -14,7 +14,6 @@ import ScannerBox from '~/src/components/shared/ScannerBox';
 import OrderPickSkeleton from '~/src/components/shared/skeleton/order-pick-skeleton';
 import {
   setCurrentId,
-  setOrderDetail,
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
@@ -48,12 +47,6 @@ const OrderPick = () => {
       setCurrentCode(code);
     }
   }, [code, currentCode]);
-
-  useEffect(() => {
-    if (code && orderDetail) {
-      setOrderDetail(orderDetail);
-    }
-  }, [code, orderDetail]);
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
 

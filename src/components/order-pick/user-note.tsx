@@ -1,12 +1,9 @@
 import React, { memo } from 'react';
-import { View, Text } from 'react-native';
-import { WebView } from 'react-native-webview';
-import { useOrderPick } from '~/src/core/store/order-pick';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Text, View } from 'react-native';
+import { OrderDetail } from '~/src/types/order-pick';
 
-const UserNote = () => {
-  const pickerNote = useOrderPick((s) => s.orderDetail?.header?.pickerNote);
-
+const UserNote = ({ orderDetail }: { orderDetail: OrderDetail }) => {
+  const pickerNote = orderDetail?.header?.pickerNote;
   if (!pickerNote) return null;
 
   const lines = pickerNote
