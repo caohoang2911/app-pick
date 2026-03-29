@@ -2,10 +2,12 @@ import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { Product } from '~/src/types/product';
 
-type Variables = {
+export type SetOrderItemPickedVariables = {
   pickedItem?: Product;
   orderCode?: string;
 };
+
+type Variables = SetOrderItemPickedVariables;
 
 type Response = { error: string } & {};
 
@@ -14,14 +16,14 @@ const setOrderItemPicked = async (params: Variables): Promise<Response> => {
 };
 
 export const useSetOrderItemPicked = (
-  cb?: () => void,
+  cb?: (variables: Variables) => void,
   cbError?: (error: string) => void,
 ) => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderItemPicked(params),
-    onSuccess: (data: Response) => {
+    onSuccess: (data: Response, variables: Variables) => {
       if (!data.error) {
-        cb?.();
+        cb?.(variables);
       } else {
         cbError?.(data.error);
       }

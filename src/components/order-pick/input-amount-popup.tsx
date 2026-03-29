@@ -1,14 +1,7 @@
 import { Formik } from 'formik';
 import { isEmpty, isNumber, toLower } from 'lodash';
 import moment from 'moment-timezone';
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Dimensions, Platform, Text, View } from 'react-native';
 
 import {
@@ -41,6 +34,10 @@ import {
   roundToDecimalIncrease,
 } from '~/src/core/utils/number';
 import { barcodeCondition } from '~/src/core/utils/order-bag';
+import {
+  mergePickedProductIntoOrderDetailData,
+  type OrderDetailQueryData,
+} from '~/src/core/utils/order-detail-query-cache';
 import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
@@ -513,28 +510,26 @@ const InputAmountPopup = () => {
   const queryClient = useQueryClient();
   const action = useOrderPick.use.action();
 
-  const [currentPickedProduct, setCurrentPickedProduct] = useState<Product>();
-
   const {
     mutate: setOrderTemToPicked,
     isPending: isSetOrderTemToPickedPending,
   } = useSetOrderItemPicked(
-    () => {
+    (variables) => {
       reset();
 
-      queryClient.invalidateQueries({
-        queryKey: ['orderDetail', code],
-      });
+      const picked = variables.pickedItem;
+      if (code && picked) {
+        queryClient.setQueryData<OrderDetailQueryData>(
+          ['orderDetail', code],
+          (old) => mergePickedProductIntoOrderDetailData(old, picked),
+        );
+      }
 
-      if (currentPickedProduct) {
-        setOrderPickProduct(currentPickedProduct);
-        // Dùng để scroll tới item vừa pick (vừa scan/apply)
-        setLastScannedId(currentPickedProduct.id ?? null);
-        setReplacePickedProductId(currentPickedProduct?.id);
-        if (
-          !currentPickedProduct?.pickedQuantity &&
-          currentPickedProduct?.tags?.includes('REPLACEABLE')
-        ) {
+      if (picked) {
+        setOrderPickProduct(picked);
+        setLastScannedId(picked.id ?? null);
+        setReplacePickedProductId(picked.id);
+        if (!picked.pickedQuantity && picked.tags?.includes('REPLACEABLE')) {
           showAlert({
             title: 'Thông báo',
             message: 'Sản phẩm hết hàng, vui lòng chọn sản phẩm thay thế?',
@@ -710,7 +705,6 @@ const InputAmountPopup = () => {
         }),
       } as Product;
 
-      setCurrentPickedProduct(currentPickedProduct);
       setOrderTemToPicked({ pickedItem, orderCode: code });
     },
     [
