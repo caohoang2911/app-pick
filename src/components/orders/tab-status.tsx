@@ -10,6 +10,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Text,
@@ -17,6 +18,7 @@ import {
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
+import { queryClient } from '~/src/api/shared';
 import {
   ORDER_COUNTER_STATUS,
   ORDER_COUNTER_STATUS_DRIVER,
@@ -31,6 +33,8 @@ import { Role } from '~/src/types/employee';
  * Một số máy không gọi onMomentumScrollEnd sau scrollToIndex — vẫn cần fallback.
  */
 const FALLBACK_COMMIT_AFTER_MS = 450;
+/** Ước lượng width tab ngang — dùng cho getItemLayout & fallback khi chưa measure (averageItemLength: 0). */
+const ESTIMATED_TAB_ITEM_WIDTH = 120;
 
 const TabsStatus = () => {
   const ref = useRef<any>();
@@ -48,6 +52,8 @@ const TabsStatus = () => {
     : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
+  const deliveryType = useOrders.use.deliveryType();
+  const fromScanQrCode = useOrders.use.fromScanQrCode();
   /** Highlight ngay khi bấm; store cập nhật sau scroll để list đỡ lag. */
   const [pendingTabId, setPendingTabId] = useState<string | null>(null);
   const displaySelected = pendingTabId ?? selectedOrderCounter;
@@ -143,7 +149,7 @@ const TabsStatus = () => {
         if (__DEV__) {
           console.warn('scrollToIndex failed, using fallback:', error);
         }
-        const estimatedOffset = Math.max(0, index * 120);
+        const estimatedOffset = Math.max(0, index * ESTIMATED_TAB_ITEM_WIDTH);
         try {
           ref.current.scrollToOffset({
             offset: estimatedOffset,
@@ -157,7 +163,9 @@ const TabsStatus = () => {
       }
     };
 
-    requestAnimationFrame(runScroll);
+    InteractionManager.runAfterInteractions(() => {
+      requestAnimationFrame(runScroll);
+    });
   }, []);
 
   // Handle scroll failure with enhanced error handling
@@ -167,22 +175,23 @@ const TabsStatus = () => {
       highestMeasuredFrameIndex: number;
       averageItemLength: number;
     }) => {
-      console.warn('scrollToIndexFailed:', info);
+      if (!ref.current) return;
 
-      if (!ref.current) {
-        console.warn('FlatList ref not available in scrollToIndexFailed');
-        return;
-      }
+      const itemWidth =
+        info.averageItemLength > 0
+          ? info.averageItemLength
+          : ESTIMATED_TAB_ITEM_WIDTH;
+      const offset = Math.max(0, itemWidth * info.index);
 
       try {
-        // Calculate scroll offset based on average item length
-        const offset = Math.max(0, info.averageItemLength * info.index);
         ref.current.scrollToOffset({ offset, animated: true });
       } catch (error) {
-        console.warn(
-          'scrollToOffset failed in handleScrollToIndexFailed:',
-          error,
-        );
+        if (__DEV__) {
+          console.warn(
+            'scrollToOffset failed in handleScrollToIndexFailed:',
+            error,
+          );
+        }
       }
     },
     [],
@@ -218,6 +227,14 @@ const TabsStatus = () => {
     (itemId: string) => {
       if (itemId === selectedOrderCounter) return;
 
+      queryClient.invalidateQueries({
+        queryKey: ['getOrderStatusCounters'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['getOrderDeliveryTypeCounters'],
+      });
+
       if (fallbackCommitTimerRef.current != null) {
         clearTimeout(fallbackCommitTimerRef.current);
         fallbackCommitTimerRef.current = null;
@@ -234,7 +251,14 @@ const TabsStatus = () => {
         }
       }, FALLBACK_COMMIT_AFTER_MS);
     },
-    [commitPendingTabAfterScroll, scrollToTabId, selectedOrderCounter],
+    [
+      commitPendingTabAfterScroll,
+      scrollToTabId,
+      selectedOrderCounter,
+      deliveryType,
+      fromScanQrCode,
+      role,
+    ],
   );
 
   const renderTabItem = useCallback(
@@ -288,6 +312,11 @@ const TabsStatus = () => {
       data={sortedDataStatusCounters}
       renderItem={renderTabItem}
       keyExtractor={(item) => item.id}
+      getItemLayout={(_, index) => ({
+        length: ESTIMATED_TAB_ITEM_WIDTH,
+        offset: ESTIMATED_TAB_ITEM_WIDTH * index,
+        index,
+      })}
       onScrollToIndexFailed={handleScrollToIndexFailed}
       onMomentumScrollEnd={handleMomentumScrollEnd}
       horizontal

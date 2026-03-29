@@ -34,7 +34,6 @@ export const useGetOrderStatusCounters = () => {
       return getCounter(role as Role);
     },
     enabled: true,
-    staleTime: 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 0,
   });
 };
