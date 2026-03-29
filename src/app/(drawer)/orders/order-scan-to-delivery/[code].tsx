@@ -1,3 +1,7 @@
+/**
+ * Scan túi & giao — gom shipping: Zustand tiến độ theo nhóm, popup chỉ khi bấm «Tạo hoá đơn & giao…».
+ * Chỉ màn này; store `order-scan-group-shipping-progress` không dùng nơi khác.
+ */
 import {
   ORDER_DELIVERY_TYPE,
   ORDER_STATUS,
@@ -26,7 +30,6 @@ import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-ord
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
 import CODReceipt from '~/src/components/CODReceipt';
-import Loading from '~/src/components/Loading';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
@@ -42,6 +45,15 @@ import {
 } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import {
+  ensureOrderScanGroupShipping,
+  getFirstIncompleteOrderCode,
+  getGroupShippingProgressKey,
+  isGroupShippingBagsComplete,
+  markOrderScanGroupOrderBagsComplete,
+  resetOrderScanGroupShippingProgress,
+  useOrderScanGroupShippingProgress,
+} from '~/src/core/store/order-scan-group-shipping-progress';
+import {
   getIsScanQrCodeProduct,
   resetOrderBags,
   scanQrCodeSuccess,
@@ -50,6 +62,7 @@ import {
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
+import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
@@ -64,6 +77,8 @@ const ACTION_CONFIRM_TITLE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách?',
   HANDOVER_TO_SHIPPER: 'Xác nhận giao cho tài xế?',
 };
+
+const ORDER_SCAN_TO_DELIVERY_PATH = '/orders/order-scan-to-delivery';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
@@ -80,7 +95,6 @@ const OrderScanToDelivery = () => {
     orderDetail,
   } = useOrderDetailForCode(code);
 
-  // Reset trước paint khi đổi đơn, tránh flash dữ liệu đơn A (nhãn đã in, hoá đơn...) trên màn đơn B
   useLayoutEffect(() => {
     if (code) {
       resetOrderBags();
@@ -96,6 +110,13 @@ const OrderScanToDelivery = () => {
 
   const { deliveryType, status, tags, handoverStatus, codAmount } =
     header || {};
+
+  const groupShippingOrderCodes = header?.groupShippingOrderCodes;
+  const groupKey = useMemo(() => getGroupShippingProgressKey(header), [header]);
+  const isMultiGroup = Boolean(
+    groupShippingOrderCodes && groupShippingOrderCodes.length > 1 && groupKey,
+  );
+  const groupCodes = isMultiGroup ? groupShippingOrderCodes! : null;
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -114,7 +135,26 @@ const OrderScanToDelivery = () => {
 
   const invalidateOrderDetail = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+  }, [code]);
+
+  const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
+
+  useEffect(() => {
+    return () => {
+      resetOrderBags();
+      toggleScanQrCodeProduct(false);
+      setUploadedImages('', true);
+    };
   }, []);
+
+  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
+    useHandoverOrder(() => {
+      setLoading(false);
+      resetOrderScanGroupShippingProgress();
+      setUploadedImages('', true);
+      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+      router.back();
+    });
 
   const {
     mutateAsync: processCreateInvoice,
@@ -150,8 +190,6 @@ const OrderScanToDelivery = () => {
 
   const shouldEnableCapture = Number(codAmount) > 0 && showPrintReceipt;
 
-  const uploadedImages = useOrderScanToDelivery.use.uploadedImages();
-
   const actionType = useMemo(
     () => ACTION_TYPE[handoverStatus as keyof typeof ACTION_TYPE],
     [handoverStatus],
@@ -171,22 +209,6 @@ const OrderScanToDelivery = () => {
     return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
   }, [deliveryType]);
 
-  useEffect(() => {
-    return () => {
-      resetOrderBags();
-      toggleScanQrCodeProduct(false);
-      setUploadedImages('', true);
-    };
-  }, []);
-
-  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
-    useHandoverOrder(() => {
-      setLoading(false);
-      setUploadedImages('', true);
-      queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-      router.back();
-    });
-
   const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
 
   const { checkShift } = useCheckShift(() => {
@@ -202,11 +224,109 @@ const OrderScanToDelivery = () => {
     });
   });
 
-  const handleCheckoutOrderBagsWithInvoice = () => {
-    checkShift();
-  };
+  const disableByStatus = useMemo(() => {
+    if (deliveryType === 'CUSTOMER_PICKUP') {
+      return status === ORDER_STATUS.SHIPPING;
+    }
 
-  const handleStartDeliveryWithoutInvoice = () => {
+    return status !== ORDER_STATUS.STORE_PACKED;
+  }, [deliveryType, status]);
+
+  const serverAllBagsDone = useMemo(() => {
+    const labels = orderDetail?.header?.bagLabels;
+    if (!labels?.length) return false;
+    const bagsType = transformBagsData(labels);
+    const flat = [...bagsType.DRY, ...bagsType.FROZEN, ...bagsType.FRESH];
+    return (
+      flat.length > 0 && flat.every((bag) => bag.isDone || bag.lastScannedTime)
+    );
+  }, [orderDetail?.header?.bagLabels]);
+
+  const isAllDone = useMemo(() => {
+    if (!Array.isArray(orderBags) || orderBags.length === 0) {
+      return serverAllBagsDone;
+    }
+    const localDone = orderBags.every(
+      (bag) => bag.isDone || bag.lastScannedTime,
+    );
+    return localDone || serverAllBagsDone;
+  }, [orderBags, serverAllBagsDone, disableByStatus]);
+
+  const promptNavigateToOrder = useCallback((targetCode: string) => {
+    router.replace(`${ORDER_SCAN_TO_DELIVERY_PATH}/${targetCode}`);
+  }, []);
+
+  /** Gom shipping: chỉ popup này, chỉ khi bấm «Tạo hoá đơn & giao…» (không check nơi khác). */
+  const assertGroupShippingReadyForSubmit = useCallback((): boolean => {
+    if (
+      !isMultiGroup ||
+      !groupCodes?.length ||
+      !groupKey ||
+      !code ||
+      orderDetailError
+    ) {
+      return true;
+    }
+    if (!isAllDone) {
+      return true;
+    }
+
+    markOrderScanGroupOrderBagsComplete(code);
+    const scanned = useOrderScanGroupShippingProgress.getState().scannedByCode;
+    if (isGroupShippingBagsComplete(groupCodes, scanned)) {
+      return true;
+    }
+
+    const nextCode = getFirstIncompleteOrderCode(groupCodes, scanned);
+    if (!nextCode) {
+      return true;
+    }
+
+    showAlertDialog({
+      stackId: 'order-scan-group-shipping-submit',
+      message: (
+        <Text className="text-base text-gray-900">
+          Đơn hàng gom shipping, NV siêu thị cần scan & giao cho tài xế đơn tiếp
+          theo <Text className="font-bold">{nextCode}</Text>
+        </Text>
+      ),
+      isHideCancelButton: true,
+      confirmText: 'Xác nhận',
+      onConfirm: () => {
+        hideAlert();
+        promptNavigateToOrder(nextCode);
+      },
+    });
+    return false;
+  }, [
+    isMultiGroup,
+    groupCodes,
+    groupKey,
+    code,
+    orderDetailError,
+    isAllDone,
+    promptNavigateToOrder,
+  ]);
+
+  useEffect(() => {
+    if (
+      !groupKey ||
+      !groupCodes ||
+      orderDetailError ||
+      isOrderDetailLoading ||
+      !code
+    ) {
+      return;
+    }
+    ensureOrderScanGroupShipping(groupKey, groupCodes);
+  }, [groupKey, groupCodes, orderDetailError, isOrderDetailLoading, code]);
+
+  const handleCheckoutOrderBagsWithInvoice = useCallback(() => {
+    if (!assertGroupShippingReadyForSubmit()) return;
+    checkShift();
+  }, [checkShift, assertGroupShippingReadyForSubmit]);
+
+  const handleStartDeliveryWithoutInvoice = useCallback(() => {
     showAlertDialog({
       title:
         ACTION_CONFIRM_TITLE[
@@ -217,19 +337,7 @@ const OrderScanToDelivery = () => {
         handoverOrder({ orderCode: code, proofImages: uploadedImages });
       },
     });
-  };
-
-  const disableByStatus = useMemo(() => {
-    if (deliveryType === 'CUSTOMER_PICKUP') {
-      return status === ORDER_STATUS.SHIPPING;
-    }
-
-    return status !== ORDER_STATUS.STORE_PACKED;
-  }, [deliveryType, status]);
-
-  const isAllDone = useMemo(() => {
-    return orderBags?.every((bag) => bag.isDone || bag.lastScannedTime);
-  }, [orderBags, disableByStatus]);
+  }, [handoverStatus, code, uploadedImages, handoverOrder]);
 
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
@@ -288,7 +396,7 @@ const OrderScanToDelivery = () => {
 
   const handleRefresh = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-  }, [queryClient]);
+  }, [code]);
 
   const handleReceiptCaptureComplete = useCallback(
     async (base64String: string) => {
@@ -320,12 +428,16 @@ const OrderScanToDelivery = () => {
             />
           }
         >
-          <InvoiceAlert show={showAlert} codAmount={codAmount} />
+          <InvoiceAlert
+            show={showAlert}
+            orderDetail={orderDetail}
+            codAmount={codAmount}
+          />
           <View className="flex flex-col gap-4">
             <ShipperInfo orderDetail={orderDetail || {}} />
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
-              <Bags />
+              <Bags bagLabels={header?.bagLabels} />
             </View>
           </View>
         </ScrollView>

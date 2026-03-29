@@ -7,13 +7,23 @@ import {
   setOrderBags,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
-import { transformOrderBags } from '~/src/core/utils/order-bag';
-import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
+import {
+  OrderBagItem,
+  OrderBagLabel,
+  OrderBagType,
+} from '~/src/types/order-bag';
 import Box from '../Box';
 import BagType from './bag-type';
 
-// Memoize BagType để tránh re-render không cần thiết
 const MemoizedBagType = memo(BagType);
+
+export type OrderScanBagsProps = {
+  /**
+   * Truyền từ màn đã chờ load order detail — tránh race với query trong Bags
+   * (orderDetail rỗng `{}` trước khi cache khớp khiến danh sách túi trống).
+   */
+  bagLabels?: OrderBagItem[] | null;
+};
 
 const Empty = () => {
   return (
@@ -25,14 +35,31 @@ const Empty = () => {
   );
 };
 
-// Component chính
-const Bags = memo(() => {
-  // State và refs
+const normBagType = (t: unknown) => String(t ?? '').toUpperCase();
+
+function partitionBagsByType(orderBags: OrderBagItem[]) {
+  const dry: OrderBagItem[] = [];
+  const frozen: OrderBagItem[] = [];
+  const fresh: OrderBagItem[] = [];
+  const other: OrderBagItem[] = [];
+  for (const bag of orderBags) {
+    const n = normBagType(bag.type);
+    if (n === 'DRY') dry.push(bag);
+    else if (n === 'FROZEN') frozen.push(bag);
+    else if (n === 'FRESH') fresh.push(bag);
+    else other.push(bag);
+  }
+  return { DRY: dry, FROZEN: frozen, FRESH: fresh, OTHER: other };
+}
+
+const Bags = memo(({ bagLabels: bagLabelsProp }: OrderScanBagsProps) => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const { code } = useLocalSearchParams<{ code?: string }>();
   const { orderDetail } = useOrderDetailForCode(code);
-  const bagLabels = orderDetail?.header?.bagLabels;
+  const bagLabelsFromQuery = orderDetail?.header?.bagLabels;
+  const bagLabelsSource = bagLabelsProp ?? bagLabelsFromQuery;
+
   const orderBags = useOrderScanToDelivery.use.orderBags();
 
   useEffect(() => {
@@ -42,29 +69,27 @@ const Bags = memo(() => {
     }
   }, [code]);
 
-  // Khởi tạo orderBags một lần duy nhất khi bagLabels thay đổi
   useEffect(() => {
-    if (bagLabels && bagLabels.length > 0) {
-      // Tránh set lại nếu bagLabels không thay đổi
-      const initializedBags = bagLabels.map((bag: any) => ({
+    if (bagLabelsSource && bagLabelsSource.length > 0) {
+      const initializedBags = bagLabelsSource.map((bag) => ({
         ...bag,
-        isDone: false,
+        isDone: bag.isDone ?? false,
       }));
       setOrderBags(initializedBags);
       setIsInitialized(true);
     } else {
       setOrderBags([]);
+      setIsInitialized(false);
     }
-  }, [bagLabels]);
+  }, [bagLabelsSource]);
 
-  // Memoize transformed bags để tránh tính toán lại
   const orderBagTransform = useMemo(() => {
-    if (!orderBags || orderBags.length === 0)
-      return { DRY: [], FROZEN: [], FRESH: [] };
-    return transformOrderBags(orderBags);
+    if (!orderBags || orderBags.length === 0) {
+      return { DRY: [], FROZEN: [], FRESH: [], OTHER: [] as OrderBagItem[] };
+    }
+    return partitionBagsByType(orderBags);
   }, [orderBags]);
 
-  // Memoize các props để tránh re-render không cần thiết
   const dryBagProps = useMemo(
     () => ({
       title: OrderBagLabel.DRY,
@@ -92,41 +117,55 @@ const Bags = memo(() => {
     [orderBagTransform.FRESH],
   );
 
-  // Early return nếu không có dữ liệu
+  const otherBagProps = useMemo(
+    () => ({
+      title: 'Túi hàng',
+      type: OrderBagType.DRY,
+      bagLabels: orderBagTransform.OTHER,
+    }),
+    [orderBagTransform.OTHER],
+  );
 
-  // Thêm shouldRender để tránh render các BagType không có dữ liệu
   const shouldRenderDry = orderBagTransform.DRY.length > 0;
   const shouldRenderFrozen = orderBagTransform.FROZEN.length > 0;
   const shouldRenderFresh = orderBagTransform.FRESH.length > 0;
+  const shouldRenderOther = orderBagTransform.OTHER.length > 0;
 
-  // Nếu không có bag nào, return null
+  const hasAnySection =
+    shouldRenderDry ||
+    shouldRenderFrozen ||
+    shouldRenderFresh ||
+    shouldRenderOther;
+
+  const totalCount = bagLabelsSource?.length ?? orderBags?.length ?? 0;
 
   if (
     !isInitialized ||
     !orderBags ||
     orderBags.length === 0 ||
-    (!shouldRenderDry && !shouldRenderFrozen && !shouldRenderFresh)
-  )
+    !hasAnySection
+  ) {
     return <Empty />;
+  }
 
   return (
     <Box>
       <View className="flex flex-row gap-2 justify-end">
         <View className="pb-3 rounded-md flex flex-row gap-2">
           <Text className="text-gray-500">Tổng</Text>
-          <Text className="font-medium">{bagLabels?.length} túi</Text>
+          <Text className="font-medium">{totalCount} túi</Text>
         </View>
       </View>
       <View className="flex flex-col gap-4">
         {shouldRenderDry && <MemoizedBagType {...dryBagProps} />}
         {shouldRenderFrozen && <MemoizedBagType {...frozenBagProps} />}
         {shouldRenderFresh && <MemoizedBagType {...freshBagProps} />}
+        {shouldRenderOther && <MemoizedBagType {...otherBagProps} />}
       </View>
     </Box>
   );
 });
 
-// Đặt displayName để dễ debug
 Bags.displayName = 'Bags';
 
-export default memo(Bags);
+export default Bags;

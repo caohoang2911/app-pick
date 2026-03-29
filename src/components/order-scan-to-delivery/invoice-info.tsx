@@ -47,6 +47,7 @@ const InvoiceInfo = () => {
     deliveryTimeRange,
     tags,
     codAmount = 0,
+    groupShippingCode,
   } = header || {};
 
   const config = useConfig.use.config();
@@ -96,6 +97,12 @@ const InvoiceInfo = () => {
         </View>
       </View>
       <View className="flex gap-2 mt-3">
+        {!!groupShippingCode && (
+          <RowInfo
+            label={<Text className="text-orange-500">G-Shipping</Text>}
+            value={<Text className="text-orange-500">{groupShippingCode}</Text>}
+          />
+        )}
         <RowInfo
           label={<Text className="text-orange-500">COD</Text>}
           value={
