@@ -49,6 +49,7 @@ import ProductPickingGuidelines from './product-picking-guidelines';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import SImage from '../SImage';
+import { useQueryClient } from '@tanstack/react-query';
 
 // QuantityControls Component
 const DecrementButton = memo(
@@ -446,6 +447,7 @@ const FormContent = memo(
     quantityInit,
     quantityFromBarcode,
     shoudShowBoxInput,
+    isLoading,
   }: any) => {
     useEffect(() => {
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
@@ -491,7 +493,12 @@ const FormContent = memo(
           currentProduct={currentProduct}
           quantityFromBarcode={quantityFromBarcode}
         />
-        <Button onPress={handleSubmit} label={'Xác nhận'} disabled={isError} />
+        <Button
+          onPress={handleSubmit}
+          label={'Xác nhận'}
+          disabled={isError}
+          loading={isLoading}
+        />
       </View>
     );
   },
@@ -503,13 +510,22 @@ const InputAmountPopup = () => {
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const { code } = useLocalSearchParams<{ code: string }>();
-
+  const queryClient = useQueryClient();
   const action = useOrderPick.use.action();
 
   const [currentPickedProduct, setCurrentPickedProduct] = useState<Product>();
 
-  const { mutate: setOrderTemToPicked } = useSetOrderItemPicked(
+  const {
+    mutate: setOrderTemToPicked,
+    isPending: isSetOrderTemToPickedPending,
+  } = useSetOrderItemPicked(
     () => {
+      reset();
+
+      queryClient.invalidateQueries({
+        queryKey: ['orderDetail', code],
+      });
+
       if (currentPickedProduct) {
         setOrderPickProduct(currentPickedProduct);
         // Dùng để scroll tới item vừa pick (vừa scan/apply)
@@ -694,9 +710,8 @@ const InputAmountPopup = () => {
         }),
       } as Product;
 
-      setCurrentPickedProduct(pickedItem);
+      setCurrentPickedProduct(currentPickedProduct);
       setOrderTemToPicked({ pickedItem, orderCode: code });
-      reset();
     },
     [
       productName,
@@ -782,7 +797,7 @@ const InputAmountPopup = () => {
           }
 
           if (!!currentProduct?.productPickingGuidelines) {
-            return 655;
+            return 620;
           }
           return 520;
         }, [isUnitBox, currentProduct?.productPickingGuidelines]);
@@ -797,6 +812,7 @@ const InputAmountPopup = () => {
             visible={isShowAmountInput}
           >
             <FormContent
+              isLoading={isSetOrderTemToPickedPending}
               values={values}
               handleBlur={handleBlur}
               setFieldValue={setFieldValue}
