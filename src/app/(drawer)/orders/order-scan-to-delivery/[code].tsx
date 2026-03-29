@@ -179,18 +179,6 @@ const OrderScanToDelivery = () => {
     };
   }, []);
 
-  if (isOrderDetailLoading) {
-    return <Loading />;
-  }
-
-  if (orderDetailError) {
-    return (
-      <SectionAlert variant="danger">
-        <Text>{orderDetailError}</Text>
-      </SectionAlert>
-    );
-  }
-
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
       setLoading(false);
@@ -311,6 +299,14 @@ const OrderScanToDelivery = () => {
 
   if (isOrderDetailLoading) {
     return <ScanBagsSkeleton />;
+  }
+
+  if (orderDetailError) {
+    return (
+      <SectionAlert variant="danger">
+        <Text>{orderDetailError}</Text>
+      </SectionAlert>
+    );
   }
 
   return (
