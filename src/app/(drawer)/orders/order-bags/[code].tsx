@@ -14,10 +14,12 @@ import { SectionAlert } from '~/src/components/SectionAlert';
 import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
 import { setLoading } from '~/src/core/store/loading';
 import {
-  setOrderDetail,
+  setHasUpdateOrderBagLabels,
+  setOrderBags,
   undoLastChange,
   useOrderBag,
 } from '~/src/core/store/order-bag';
+import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const OrderBags = () => {
@@ -60,7 +62,8 @@ const OrderBags = () => {
 
   useEffect(() => {
     if (orderDetail) {
-      setOrderDetail(orderDetail);
+      setHasUpdateOrderBagLabels(false);
+      setOrderBags(transformBagsData(orderDetail?.header?.bagLabels));
     }
     if (!isOrderDetailLoading && isInitialLoad) {
       setIsInitialLoad(false);

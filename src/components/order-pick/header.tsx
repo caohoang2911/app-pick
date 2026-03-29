@@ -26,6 +26,7 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import WaveButton from '../shared/WaveButton';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 
 const HeaderTags = ({ tags }: { tags?: string[] }) => {
   const configs = useConfig.use.config();
@@ -110,7 +111,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
     setKeyword(value);
   }, []);
 
-  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
+  const { orderDetail } = useOrderDetailForCode(code);
   const { header } = orderDetail;
   const { status, statusName, lastTimeUpdateStatus, tags, picker } =
     header || {};

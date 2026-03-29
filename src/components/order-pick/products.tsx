@@ -31,6 +31,7 @@ import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
 import ProductGift from './product-gift';
 import UserNote from './user-note';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 
 const EmptyProductList = () => (
   <View className="mt-3">
@@ -91,7 +92,7 @@ const ProductItem = memo(
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const keyword = useOrderPick.use.keyword();
-  const orderDetail = useOrderPick.use.orderDetail();
+  const { orderDetail } = useOrderDetailForCode(code);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   // Keep pull-to-refresh but delegate to root query cache
@@ -343,7 +344,7 @@ const OrderPickProducts = () => {
   const listHeader = useMemo(
     () => (
       <View className="flex flex-col gap-2">
-        <UserNote />
+        <UserNote orderDetail={orderDetail} />
       </View>
     ),
     [],

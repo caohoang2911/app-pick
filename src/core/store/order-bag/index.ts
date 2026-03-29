@@ -20,7 +20,7 @@ interface OrderBagState {
   header?: any;
   isLoadingDeliveryOrderDetail: boolean;
   setOrderBags: (values: OrderBagItem) => void;
-  setOrderDetail: (orderDetail: OrderDetail) => void;
+  setHasUpdateOrderBagLabels: (hasUpdateOrderBagLabels: boolean) => void;
   addOrderBag: (values: OrderBagItem) => void;
   removeOrderBag: (code: string, type: OrderBagType) => void;
   undoLastChange: () => void;
@@ -36,12 +36,8 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
     FRESH: [],
   },
   isLoadingDeliveryOrderDetail: false,
-  setOrderDetail: (orderDetail: OrderDetail) => {
-    set({
-      hasUpdateOrderBagLabels: false,
-      orderDetail,
-      orderBags: transformBagsData(orderDetail?.header?.bagLabels),
-    });
+  setHasUpdateOrderBagLabels: (hasUpdateOrderBagLabels: boolean) => {
+    set({ hasUpdateOrderBagLabels });
   },
   setOrderBags: (values: any) => {
     set({ orderBags: values });
@@ -97,10 +93,6 @@ export const setOrderBags = (values: OrderBagItem) => {
   useOrderBag.getState().setOrderBags(values);
 };
 
-export const setOrderDetail = (orderDetail: OrderDetail) => {
-  useOrderBag.getState().setOrderDetail(orderDetail);
-};
-
 export const addOrderBag = (values: OrderBagItem) => {
   useOrderBag.getState().addOrderBag(values);
 };
@@ -115,4 +107,10 @@ export const undoLastChange = () => {
 
 export const savePreviousState = () => {
   useOrderBag.getState().savePreviousState();
+};
+
+export const setHasUpdateOrderBagLabels = (
+  hasUpdateOrderBagLabels: boolean,
+) => {
+  useOrderBag.getState().setHasUpdateOrderBagLabels(hasUpdateOrderBagLabels);
 };

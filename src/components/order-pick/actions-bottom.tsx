@@ -5,15 +5,12 @@ import { View } from 'react-native';
 import { useSetOrderStatusPacked } from '~/src/api/app-pick/use-set-order-status-packed';
 import { useSetOrderStatusPicking } from '~/src/api/app-pick/use-set-order-status-picking';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import {
-  toggleScanQrCodeProduct,
-  useOrderPick,
-} from '~/src/core/store/order-pick';
+import { toggleScanQrCodeProduct } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
-import { OrderDetail } from '~/src/types/order-pick';
 import { Product } from '~/src/types/product';
 import PickedCompleteConfirmation from './picked-complete-confirmation';
 import { FontAwesome } from '@expo/vector-icons';
+import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 
 const StartPickingButton = ({
   onPress,
@@ -83,7 +80,7 @@ const ActionsBottom = () => {
     (p: Product) => Number(p.pickedQuantity || 0) > 0,
   );
 
-  const orderDetail: OrderDetail = useOrderPick.use.orderDetail();
+  const { orderDetail } = useOrderDetailForCode(code);
 
   const { shipping } = orderDetail?.header || {};
   const { header } = orderDetail || {};
