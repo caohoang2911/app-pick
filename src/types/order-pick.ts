@@ -1,4 +1,5 @@
 import { OrderStatus, OrderStatusValue } from './order';
+import { OrderBagItem } from './order-bag';
 import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
 import { ORDER_DELIVERY_TYPE } from '@/core/constants/order';
@@ -83,6 +84,7 @@ interface TemplateOrderRefund {
 
 export interface OrderDetailHeader {
   id?: number;
+  groupShippingOrderCodes?: string[];
   groupShippingCode?: string;
   proofDeliveryImages?: string[];
   isRequireSelectShippingPackageSize?: boolean;
@@ -173,7 +175,7 @@ export interface OrderDetailHeader {
   warnings?: Array<string>;
   cancel?: any;
   tags?: Array<string>;
-  bagLabels?: Array<string>;
+  bagLabels?: OrderBagItem[];
 }
 
 export interface OrderDetail {
