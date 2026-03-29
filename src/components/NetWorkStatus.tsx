@@ -1,35 +1,67 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import * as Network from 'expo-network';
 import { queryClient } from '../api/shared';
 
+/** Tránh banner nhấp nháy khi API mạng báo dao động lúc mở app / Wi‑Fi không internet. */
+const OFFLINE_DEBOUNCE_MS = 600;
+
 const NetworkStatus = () => {
-  const [isConnected, setIsConnected] = useState(null);
+  /** null = chưa biết (không hiện banner để tránh flash sai). */
+  const [isOnline, setIsOnline] = useState<boolean | null>(null);
+  const prevOnlineRef = useRef<boolean | null>(null);
+  const offlineDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const checkNetworkStatus = async () => {
-      const networkState: any = await Network.getNetworkStateAsync();
-      setIsConnected(networkState.isConnected);
-
-      if (isConnected === false && networkState.isConnected === true) {
-        // ... reset query logic here ...
-        queryClient.refetchQueries();
+    const clearOfflineDebounce = () => {
+      if (offlineDebounceRef.current) {
+        clearTimeout(offlineDebounceRef.current);
+        offlineDebounceRef.current = null;
       }
     };
 
-    // Check the initial network status
-    checkNetworkStatus();
+    const applyNetworkState = (rawConnected: boolean | null | undefined) => {
+      const online = rawConnected === true;
 
-    // Check network status every 5 seconds
-    const intervalId = setInterval(checkNetworkStatus, 5000);
+      if (online) {
+        clearOfflineDebounce();
+        const wasOffline = prevOnlineRef.current === false;
+        if (wasOffline) {
+          queryClient.refetchQueries({ type: 'active' });
+        }
+        prevOnlineRef.current = true;
+        setIsOnline(true);
+        return;
+      }
 
-    // Cleanup function to clear the interval
+      clearOfflineDebounce();
+      offlineDebounceRef.current = setTimeout(() => {
+        offlineDebounceRef.current = null;
+        prevOnlineRef.current = false;
+        setIsOnline(false);
+      }, OFFLINE_DEBOUNCE_MS);
+    };
+
+    const run = async () => {
+      try {
+        const state = await Network.getNetworkStateAsync();
+        applyNetworkState(state.isConnected);
+      } catch {
+        applyNetworkState(false);
+      }
+    };
+
+    void run();
+
+    const intervalId = setInterval(run, 12_000);
+
     return () => {
+      clearOfflineDebounce();
       clearInterval(intervalId);
     };
   }, []);
 
-  if (isConnected) return null;
+  if (isOnline !== false) return null;
 
   return (
     <View style={styles.container}>
