@@ -7,7 +7,6 @@ import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { GROUP_SHIPPING_ENABLED } from '@/core/constants/flag';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
@@ -27,7 +26,6 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import WaveButton from '../shared/WaveButton';
-import { GroupShippingInfo } from './group-shipping-info';
 
 const HeaderTags = ({ tags }: { tags?: string[] }) => {
   const configs = useConfig.use.config();
@@ -152,7 +150,6 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
       </View>
       <HeaderTags tags={tags} />
       <Picker picker={picker as Employee} />
-      {GROUP_SHIPPING_ENABLED && <GroupShippingInfo />}
       <View className="flex flex-row mt-2 justify-between items-center pb-3 gap-3">
         <Input
           className="flex-grow"

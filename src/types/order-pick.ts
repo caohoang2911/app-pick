@@ -86,10 +86,7 @@ export interface OrderDetailHeader {
   groupShippingCode?: string;
   proofDeliveryImages?: string[];
   isRequireSelectShippingPackageSize?: boolean;
-  groupShippingPickedStatues?: { [key: string]: boolean };
   saleChannel?: string;
-  groupShippingTotalCODAmount?: number;
-  groupShippingOrderCodes?: Array<string>;
   deliveryType: ORDER_DELIVERY_TYPE;
   handoverStatus?: 'HANDOVER_TO_CUSTOMER' | 'HANDOVER_TO_SHIPPER' | 'DISABLE';
   printedBill?: string;
