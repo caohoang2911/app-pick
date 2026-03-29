@@ -129,18 +129,9 @@ const OrderPickProducts = () => {
 
     const keywordUpper = keyword.toUpperCase();
 
-    const productBarcode = orderPickProductsFlat?.find((product: Product) => {
-      if (keywordUpper.length >= 6) {
-        const lastSixDigits = keywordUpper.slice(-6);
-        return product?.refBarcodes?.some(
-          (refBarcode) =>
-            refBarcode?.endsWith(lastSixDigits) ||
-            refBarcode?.includes(lastSixDigits),
-        );
-      }
-
-      return barcodeCondition(keywordUpper, product?.refBarcodes);
-    });
+    const productBarcode = orderPickProductsFlat?.find((product: Product) =>
+      barcodeCondition(keywordUpper, product?.refBarcodes),
+    );
     if (productBarcode) {
       Keyboard.dismiss();
       const indexOfCodeScanned = handleScanBarcode({

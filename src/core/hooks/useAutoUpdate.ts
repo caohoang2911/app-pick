@@ -250,9 +250,10 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
     // ✅ Tắt native GitHub: bỏ loading ngay — không phụ thuộc CodePush đã xong hay chưa
     if (!nativeGithubUpdateAllowed) {
       if (__DEV__) {
-        console.warn(
-          '[useAutoUpdate] Tắt check GitHub native (Env.NATIVE_GITHUB_UPDATE / EXPO_PUBLIC_NATIVE_GITHUB_UPDATE).',
-        );
+        // console.warn(
+        //   '[useAutoUpdate] Tắt check GitHub native (Env.NATIVE_GITHUB_UPDATE / EXPO_PUBLIC_NATIVE_GITHUB_UPDATE).',
+        // );
+        return;
       }
       iosMandatoryRef.current = null;
       setIsChecking(false);

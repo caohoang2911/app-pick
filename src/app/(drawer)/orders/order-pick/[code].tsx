@@ -30,7 +30,6 @@ import {
   handleScanBarcode,
 } from '~/src/core/utils/order-bag';
 import { BarcodeScanningResult } from '~/src/types/scanner';
-import Loading from '~/src/components/Loading';
 
 const OrderPick = () => {
   const navigation = useNavigation();

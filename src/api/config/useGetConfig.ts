@@ -27,7 +27,7 @@ export const useGetConfig = ({ localVersion }: UseGetConfigOptions) =>
     queryKey: ['configs'],
     queryFn: () => {
       const v = getStoredConfigVersion();
-      return getAll(v ? { version: v } : undefined);
+      return getAll(v ? { version: v } : { version: '' });
     },
     enabled: !localVersion,
   });
