@@ -547,8 +547,8 @@ const InputAmountPopup = () => {
         }
       }
     },
-    (error: string) => {
-      setQuantityFromBarcode(0);
+    () => {
+      // setQuantityFromBarcode(0);
     },
   );
   const config = useConfig.use.config();
