@@ -1,3 +1,4 @@
+import { OrderBagItem } from './order-bag';
 import { OrderStatus, OrderStatusValue } from './order';
 import { OrderBagItem } from './order-bag';
 import { Product, ProductItemGroup } from './product';
