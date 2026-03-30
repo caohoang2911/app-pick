@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Dimensions,
@@ -114,14 +114,27 @@ const OrderPickProducts = () => {
   const lastScannedId = useOrderPick.use.lastScannedId();
   const flatListRef = useRef<FlatList>(null);
 
-  // Khởi tạo products từ orderDetail đã có sẵn ở store (set từ màn root)
-  useEffect(() => {
+  const syncPickProductsFromOrderDetail = useCallback(() => {
     const itemGroups = orderDetail?.delivery?.itemGroups;
     if (itemGroups) {
       const tempArr = Object.values(itemGroups).map((item: any) => item);
       setInitOrderPickProducts([...tempArr] as never[]);
     }
   }, [orderDetail?.delivery?.itemGroups]);
+
+  // Đổi đơn / cache cập nhật → đồng bộ store
+  useEffect(() => {
+    if (!code) return;
+    syncPickProductsFromOrderDetail();
+  }, [code, syncPickProductsFromOrderDetail]);
+
+  // Quay lại màn pick: store có thể đã reset [] trong khi itemGroups cùng reference → cần hydrate lại
+  useFocusEffect(
+    useCallback(() => {
+      if (!code) return;
+      syncPickProductsFromOrderDetail();
+    }, [code, syncPickProductsFromOrderDetail]),
+  );
 
   const filteredProducts = orderPickProducts;
 
@@ -241,9 +254,8 @@ const OrderPickProducts = () => {
     [filteredProducts?.length],
   );
 
-  const hasOrderDetail = !!orderDetail?.delivery;
-  const isEmpty =
-    !hasOrderDetail && (!filteredProducts || filteredProducts.length === 0);
+  // Có delivery nhưng store chưa hydrate → list rỗng; vẫn hiện Empty thay vì khoảng trắng
+  const listIsEmpty = !filteredProducts?.length;
 
   const getPickingBarcode = useMemo(() => {
     return (
@@ -367,7 +379,7 @@ const OrderPickProducts = () => {
         ListHeaderComponent={listHeader}
         data={filteredProducts || []}
         ListEmptyComponent={
-          isEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />
+          listIsEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />
         }
         renderItem={listRenderItem}
         onScrollToIndexFailed={handleScrollToIndexFailed}

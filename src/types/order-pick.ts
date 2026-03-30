@@ -1,3 +1,4 @@
+import { OrderBagItem } from './order-bag';
 import { OrderStatus, OrderStatusValue } from './order';
 import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';
@@ -173,7 +174,7 @@ export interface OrderDetailHeader {
   warnings?: Array<string>;
   cancel?: any;
   tags?: Array<string>;
-  bagLabels?: Array<string>;
+  bagLabels?: OrderBagItem[];
 }
 
 export interface OrderDetail {
