@@ -17,8 +17,8 @@ export const useCodepush = () => {
             await Updates.reloadAsync();
           } else if (AppState.currentState === 'active') {
             // Android: small delay before reload to reduce startup-race crashes.
-            await new Promise((resolve) => setTimeout(resolve, 1200));
-            await Updates.reloadAsync();
+            // await new Promise((resolve) => setTimeout(resolve, 1200));
+            // await Updates.reloadAsync();
           }
           setIsDoneCodepush(true);
         } catch (error) {

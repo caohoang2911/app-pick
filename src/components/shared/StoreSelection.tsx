@@ -11,7 +11,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
@@ -321,8 +321,8 @@ const StoreSelection = forwardRef<any, Props>(
         visible={visible}
         title="Chọn cửa hàng"
         ref={actionRef}
-        maintainPositionOnKeyboard={false}
-        snapPoints={[isKeyboardVisible ? 600 : 500]}
+        snapPoints={[700, '80%']}
+        keyboardBehavior="fillParent"
         onClose={handleClose}
         scrollEnabled={false}
         disableScrollView={true}
@@ -333,13 +333,18 @@ const StoreSelection = forwardRef<any, Props>(
           data={filteredStores}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          initialNumToRender={15}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          removeClippedSubviews={true}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={15}
+          removeClippedSubviews={false}
           ListEmptyComponent={ListEmptyComponent}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="none"
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom:
+              Platform.OS === 'android' && isKeyboardVisible ? 260 : 16,
+          }}
         />
       </SBottomSheet>
     );
