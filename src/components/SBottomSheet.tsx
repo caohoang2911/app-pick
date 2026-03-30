@@ -7,6 +7,7 @@ import React, {
   useRef,
 } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CloseLine } from '~/src/core/svgs';
 import { SafeBottomSheetScrollView } from '~/src/core/utils/safe-scrollview';
 
@@ -115,6 +116,8 @@ const SBottomSheet = forwardRef<any, Props>(
     ref,
   ) => {
     const bottomSheetModalRef = useRef<any>(null);
+    const bottomSheetScrollViewRef = useRef<any>(null);
+    const insets = useSafeAreaInsets();
 
     const handleSheetChanges = useCallback(
       (index: number) => {
@@ -138,6 +141,17 @@ const SBottomSheet = forwardRef<any, Props>(
           onClose?.();
           requestAnimationFrame(() => {
             bottomSheetModalRef.current?.dismiss();
+          });
+        },
+        scrollToEnd: (params?: { animated?: boolean }) => {
+          bottomSheetScrollViewRef.current?.scrollToEnd?.({
+            animated: params?.animated ?? true,
+          });
+        },
+        scrollTo: (params: { y: number; animated?: boolean }) => {
+          bottomSheetScrollViewRef.current?.scrollTo?.({
+            y: params?.y,
+            animated: params?.animated ?? true,
           });
         },
       }),
@@ -174,6 +188,7 @@ const SBottomSheet = forwardRef<any, Props>(
         enablePanDownToClose={closeOnBackdropPress && !hideCloseButton}
         enableHandlePanningGesture={closeOnBackdropPress && !hideCloseButton}
         keyboardBehavior="interactive"
+        topInset={insets.top}
         onDismiss={onClose}
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustResize"
@@ -197,6 +212,7 @@ const SBottomSheet = forwardRef<any, Props>(
           children
         ) : (
           <SafeBottomSheetScrollView
+            ref={bottomSheetScrollViewRef}
             keyboardDismissMode="on-drag"
             bounces={true}
             keyboardShouldPersistTaps="handled"

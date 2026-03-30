@@ -2,7 +2,14 @@ import { Formik } from 'formik';
 import { isEmpty, isNumber, toLower } from 'lodash';
 import moment from 'moment-timezone';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Dimensions, Platform, Text, View } from 'react-native';
+import {
+  Dimensions,
+  Keyboard,
+  Platform,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
 import {
   PRODUCT_ACTIONS,
@@ -10,9 +17,11 @@ import {
 } from '@/core/constants/product';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { FontAwesome } from '@expo/vector-icons';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
+import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { useConfig } from '~/src/core/store/config';
 import {
   setActionProduct,
@@ -27,7 +36,6 @@ import {
   toggleShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import {
   formatDecimal,
   roundToDecimalDecrease,
@@ -42,11 +50,10 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { Input } from '../Input';
-import ProductPickingGuidelines from './product-picking-guidelines';
 import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import SImage from '../SImage';
-import { useQueryClient } from '@tanstack/react-query';
+import ProductPickingGuidelines from './product-picking-guidelines';
 
 // QuantityControls Component
 const DecrementButton = memo(
@@ -132,6 +139,7 @@ const QuantitySection = memo(
     quantityInit,
     setQuantityFromBarcode,
     toggleScanQrCodeProduct,
+    onInputFocus,
   }: any) => {
     const editable = useMemo(
       () => action !== PRODUCT_ACTIONS.OUT_OF_STOCK,
@@ -223,6 +231,7 @@ const QuantitySection = memo(
               name="pickedQuantity"
               value={values?.pickedQuantity?.toString()}
               onBlur={handleBlur('pickedQuantity')}
+              onFocus={() => onInputFocus?.('pickedQuantity')}
               defaultValue="0"
               prefix={
                 <DecrementButton onPress={handleDecrement} disabled={false} />
@@ -324,109 +333,113 @@ const ReasonDropdown = memo(
 );
 
 // Pack input
-const BoxInput = memo(({ values, setFieldValue, handleBlur }: any) => {
-  const handleChangeText = useCallback(
-    (name: string, value: string) => {
-      setFieldValue(name, parseInt(value || '0'));
-    },
-    [setFieldValue],
-  );
+const BoxInput = memo(
+  ({ values, setFieldValue, handleBlur, onInputFocus }: any) => {
+    const handleChangeText = useCallback(
+      (name: string, value: string) => {
+        setFieldValue(name, parseInt(value || '0'));
+      },
+      [setFieldValue],
+    );
 
-  const handleDecrement = useCallback(
-    (name: string) => {
-      const valueChange = roundToDecimalDecrease(Number(values?.[name] || 0));
-      if (Number(valueChange) < 0) {
-        setFieldValue(name, 0);
-        return;
-      }
+    const handleDecrement = useCallback(
+      (name: string) => {
+        const valueChange = roundToDecimalDecrease(Number(values?.[name] || 0));
+        if (Number(valueChange) < 0) {
+          setFieldValue(name, 0);
+          return;
+        }
 
-      setFieldValue(name, Number(valueChange));
-    },
-    [setFieldValue, values],
-  );
+        setFieldValue(name, Number(valueChange));
+      },
+      [setFieldValue, values],
+    );
 
-  const handleIncrement = useCallback(
-    (name: string) => {
-      const valueChange = roundToDecimalIncrease(Number(values?.[name] || 0));
-      if (Number(valueChange) < 0) {
-        setFieldValue(name, 0);
-        return;
-      }
+    const handleIncrement = useCallback(
+      (name: string) => {
+        const valueChange = roundToDecimalIncrease(Number(values?.[name] || 0));
+        if (Number(valueChange) < 0) {
+          setFieldValue(name, 0);
+          return;
+        }
 
-      setFieldValue(name, Number(valueChange));
-    },
-    [setFieldValue, values],
-  );
+        setFieldValue(name, Number(valueChange));
+      },
+      [setFieldValue, values],
+    );
 
-  return (
-    <View className="flex-1 flex-row gap-2">
-      <View className="flex-1">
-        <Input
-          label={
-            <Text className="font-medium text-gray-500" numberOfLines={1}>
-              Thùng nguyên kiện
-            </Text>
-          }
-          placeholder="Nhập số lượng"
-          value={values?.fullBoxQuantity?.toString()}
-          onChangeText={(value: string) =>
-            handleChangeText('fullBoxQuantity', value)
-          }
-          keyboardType="decimal-pad"
-          inputClasses="text-center"
-          useBottomSheetTextInput
-          name="fullBoxQuantity"
-          onBlur={handleBlur('fullBoxQuantity')}
-          defaultValue="0"
-          prefix={
-            <DecrementButton
-              onPress={() => handleDecrement('fullBoxQuantity')}
-              disabled={false}
-            />
-          }
-          suffix={
-            <IncrementButton
-              onPress={() => handleIncrement('fullBoxQuantity')}
-              disabled={false}
-            />
-          }
-        />
+    return (
+      <View className="flex-1 flex-row gap-2">
+        <View className="flex-1">
+          <Input
+            label={
+              <Text className="font-medium text-gray-500" numberOfLines={1}>
+                Thùng nguyên kiện
+              </Text>
+            }
+            placeholder="Nhập số lượng"
+            value={values?.fullBoxQuantity?.toString()}
+            onChangeText={(value: string) =>
+              handleChangeText('fullBoxQuantity', value)
+            }
+            keyboardType="decimal-pad"
+            inputClasses="text-center"
+            useBottomSheetTextInput
+            name="fullBoxQuantity"
+            onBlur={handleBlur('fullBoxQuantity')}
+            onFocus={() => onInputFocus?.('fullBoxQuantity')}
+            defaultValue="0"
+            prefix={
+              <DecrementButton
+                onPress={() => handleDecrement('fullBoxQuantity')}
+                disabled={false}
+              />
+            }
+            suffix={
+              <IncrementButton
+                onPress={() => handleIncrement('fullBoxQuantity')}
+                disabled={false}
+              />
+            }
+          />
+        </View>
+        <View className="flex-1">
+          <Input
+            label={
+              <Text className="font-medium text-gray-500" numberOfLines={1}>
+                Thùng gom lẻ
+              </Text>
+            }
+            placeholder="Nhập số lượng"
+            value={values?.openedBoxQuantity?.toString()}
+            onChangeText={(value: string) =>
+              handleChangeText('openedBoxQuantity', value)
+            }
+            keyboardType="decimal-pad"
+            inputClasses="text-center"
+            useBottomSheetTextInput
+            name="openedBoxQuantity"
+            onBlur={handleBlur('openedBoxQuantity')}
+            onFocus={() => onInputFocus?.('openedBoxQuantity')}
+            defaultValue="0"
+            suffix={
+              <IncrementButton
+                onPress={() => handleIncrement('openedBoxQuantity')}
+                disabled={false}
+              />
+            }
+            prefix={
+              <DecrementButton
+                onPress={() => handleDecrement('openedBoxQuantity')}
+                disabled={false}
+              />
+            }
+          />
+        </View>
       </View>
-      <View className="flex-1">
-        <Input
-          label={
-            <Text className="font-medium text-gray-500" numberOfLines={1}>
-              Thùng gom lẻ
-            </Text>
-          }
-          placeholder="Nhập số lượng"
-          value={values?.openedBoxQuantity?.toString()}
-          onChangeText={(value: string) =>
-            handleChangeText('openedBoxQuantity', value)
-          }
-          keyboardType="decimal-pad"
-          inputClasses="text-center"
-          useBottomSheetTextInput
-          name="openedBoxQuantity"
-          onBlur={handleBlur('openedBoxQuantity')}
-          defaultValue="0"
-          suffix={
-            <IncrementButton
-              onPress={() => handleIncrement('openedBoxQuantity')}
-              disabled={false}
-            />
-          }
-          prefix={
-            <DecrementButton
-              onPress={() => handleDecrement('openedBoxQuantity')}
-              disabled={false}
-            />
-          }
-        />
-      </View>
-    </View>
-  );
-});
+    );
+  },
+);
 
 // FormContent Component
 const FormContent = memo(
@@ -445,6 +458,7 @@ const FormContent = memo(
     quantityFromBarcode,
     shoudShowBoxInput,
     isLoading,
+    onInputFocus,
   }: any) => {
     useEffect(() => {
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
@@ -461,7 +475,7 @@ const FormContent = memo(
     }, []);
 
     return (
-      <View className="flex-1 px-4 mt-4 pb-4 gap-4">
+      <View className="px-4 mt-4 pb-8 gap-4">
         <QuantitySection
           values={values}
           quantity={quantity}
@@ -472,12 +486,14 @@ const FormContent = memo(
           setFieldValue={setFieldValue}
           setQuantityFromBarcode={setQuantityFromBarcode}
           toggleScanQrCodeProduct={toggleScanQrCodeProduct}
+          onInputFocus={onInputFocus}
         />
         {shoudShowBoxInput && (
           <BoxInput
             values={values}
             setFieldValue={setFieldValue}
             handleBlur={handleBlur}
+            onInputFocus={onInputFocus}
           />
         )}
         <ReasonDropdown
@@ -490,12 +506,14 @@ const FormContent = memo(
           currentProduct={currentProduct}
           quantityFromBarcode={quantityFromBarcode}
         />
-        <Button
-          onPress={handleSubmit}
-          label={'Xác nhận'}
-          disabled={isError}
-          loading={isLoading}
-        />
+        <View>
+          <Button
+            onPress={handleSubmit}
+            label={'Xác nhận'}
+            disabled={isError}
+            loading={isLoading}
+          />
+        </View>
       </View>
     );
   },
@@ -503,6 +521,7 @@ const FormContent = memo(
 
 // Main Component
 const InputAmountPopup = () => {
+  const { height: windowHeight } = useWindowDimensions();
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
@@ -684,6 +703,28 @@ const InputAmountPopup = () => {
     setActionProduct,
   ]);
 
+  const handleInputFocus = useCallback(
+    (field?: 'pickedQuantity' | 'fullBoxQuantity' | 'openedBoxQuantity') => {
+      requestAnimationFrame(() => {
+        if (field === 'pickedQuantity') {
+          inputBottomSheetRef.current?.scrollTo?.({ y: 0, animated: true });
+          return;
+        }
+
+        if (field === 'fullBoxQuantity') {
+          inputBottomSheetRef.current?.scrollTo?.({ y: 90, animated: true });
+          return;
+        }
+
+        if (field === 'openedBoxQuantity') {
+          inputBottomSheetRef.current?.scrollTo?.({ y: 90, animated: true });
+          return;
+        }
+      });
+    },
+    [],
+  );
+
   const onSubmit = useCallback(
     (values: any) => {
       if (!productName) return;
@@ -704,6 +745,8 @@ const InputAmountPopup = () => {
           },
         }),
       } as Product;
+
+      Keyboard.dismiss();
 
       setOrderTemToPicked({ pickedItem, orderCode: code });
     },
@@ -786,15 +829,16 @@ const InputAmountPopup = () => {
         }, [action, setFieldValue, isShowAmountInput]);
 
         const bottomSheetHeight = useMemo(() => {
+          const maxHeight = Math.floor(windowHeight * 0.82);
           if (isUnitBox) {
-            return 600;
+            return Math.min(620, maxHeight);
           }
 
           if (!!currentProduct?.productPickingGuidelines) {
-            return 620;
+            return Math.min(620, maxHeight);
           }
-          return 520;
-        }, [isUnitBox, currentProduct?.productPickingGuidelines]);
+          return Math.min(530, maxHeight);
+        }, [isUnitBox, currentProduct?.productPickingGuidelines, windowHeight]);
 
         return (
           <SBottomSheet
@@ -820,6 +864,7 @@ const InputAmountPopup = () => {
               isError={isError}
               quantityFromBarcode={quantityFromBarcode}
               shoudShowBoxInput={isUnitBox}
+              onInputFocus={handleInputFocus}
             />
           </SBottomSheet>
         );

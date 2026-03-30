@@ -1,26 +1,33 @@
 import { useState, useEffect } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, Platform } from 'react-native';
 
 export const useKeyboardVisible = () => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setKeyboardVisible(true);
-      },
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-      },
-    );
+    const showSubscriptions = [
+      Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true)),
+    ];
+    const hideSubscriptions = [
+      Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false)),
+    ];
+
+    if (Platform.OS === 'ios') {
+      showSubscriptions.push(
+        Keyboard.addListener('keyboardWillShow', () =>
+          setKeyboardVisible(true),
+        ),
+      );
+      hideSubscriptions.push(
+        Keyboard.addListener('keyboardWillHide', () =>
+          setKeyboardVisible(false),
+        ),
+      );
+    }
 
     return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
+      hideSubscriptions.forEach((subscription) => subscription.remove());
+      showSubscriptions.forEach((subscription) => subscription.remove());
     };
   }, []);
 
