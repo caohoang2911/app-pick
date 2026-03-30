@@ -322,9 +322,8 @@ const StoreSelection = forwardRef<any, Props>(
         title="Chọn cửa hàng"
         ref={actionRef}
         maintainPositionOnKeyboard={false}
-        snapPoints={[isKeyboardVisible ? 600 : 500, '80%']}
+        snapPoints={[isKeyboardVisible ? 600 : 500]}
         onClose={handleClose}
-        keyboardBehavior="extend"
         scrollEnabled={false}
         disableScrollView={true}
       >
