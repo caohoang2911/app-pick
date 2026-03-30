@@ -43,7 +43,7 @@ const InvoiceAlert = memo(
             <View className="mt-2">
               <Text className="text-white font-semibold">
                 • Đơn hàng có group shipping. Nhân viên cần giao đủ{' '}
-                {groupShippingOrderCodes?.length}{' '}
+                {groupShippingOrderCodes?.length} đơn{' '}
                 {groupShippingOrderCodes?.join(', ')}
               </Text>
             </View>

@@ -14,7 +14,7 @@ const ProductPickingGuidelines = ({
   return (
     <View className="rounded-md bg-orange-50 px-3 py-2 w-full">
       <Text className="text-orange-500 text-sm font-bold mb-1">
-        LƯU Ý PICK HÀNG
+        LƯU Ý: Ưu tiên pick HSD mới nhất, và theo tiêu chuẩn QA
       </Text>
       {guidelines.map((item) => (
         <View key={item} className="flex-row items-start gap-1">

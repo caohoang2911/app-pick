@@ -68,6 +68,9 @@ const OrderItem = memo(({ item }: { item: OrderType }) => {
                 resizeMode="contain"
               />
             )}
+            {item?.shortCode && item.saleChannel !== 'GRAB_MART' && (
+              <Badge label={item?.shortCode} variant="warning" />
+            )}
           </View>
           <Badge
             label={item.statusName}
