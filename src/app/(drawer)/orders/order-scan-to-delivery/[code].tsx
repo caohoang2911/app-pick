@@ -150,10 +150,19 @@ const OrderScanToDelivery = () => {
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
       setLoading(false);
-      resetOrderScanGroupShippingProgress();
+
       setUploadedImages('', true);
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-      router.back();
+
+      if (isMultiGroup) {
+        if (assertGroupShippingReadyForSubmit()) {
+          resetOrderScanGroupShippingProgress();
+          router.back();
+        }
+      } else {
+        resetOrderScanGroupShippingProgress();
+        router.back();
+      }
     });
 
   const {
@@ -165,6 +174,7 @@ const OrderScanToDelivery = () => {
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
     },
   });
+
   const { mutateAsync: printCodReceipt } = usePrintCodReceiptProcess({
     successMessage: 'In phiếu thu COD thành công',
   });
@@ -290,6 +300,7 @@ const OrderScanToDelivery = () => {
           theo <Text className="font-bold">{nextCode}</Text>
         </Text>
       ),
+      blockDismiss: true,
       isHideCancelButton: true,
       confirmText: 'Xác nhận',
       onConfirm: () => {
@@ -322,7 +333,6 @@ const OrderScanToDelivery = () => {
   }, [groupKey, groupCodes, orderDetailError, isOrderDetailLoading, code]);
 
   const handleCheckoutOrderBagsWithInvoice = useCallback(() => {
-    if (!assertGroupShippingReadyForSubmit()) return;
     checkShift();
   }, [checkShift, assertGroupShippingReadyForSubmit]);
 
@@ -351,8 +361,27 @@ const OrderScanToDelivery = () => {
     return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);
   }, [tags]);
 
+  const disableActionWithoutInvoice = useMemo(() => {
+    const hasDriverInfo =
+      !!header?.shipping?.driverPhone && !!header?.shipping?.driverName;
+    const baseDisable =
+      !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
+
+    return (
+      baseDisable ||
+      (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY && !hasDriverInfo)
+    );
+  }, [
+    orderBags,
+    isOrderDetailLoading,
+    handoverStatus,
+    header?.shipping?.driverPhone,
+    header?.shipping?.driverName,
+    deliveryType,
+  ]);
+
   const renderAction = useMemo(() => {
-    const isDisabled =
+    const isDisabledWithoutInvoice =
       !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
     return isAllDone ? (
       deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? (
@@ -360,7 +389,7 @@ const OrderScanToDelivery = () => {
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleStartDeliveryWithoutInvoice}
           label={actionType}
-          disabled={isDisabled}
+          disabled={isDisabledWithoutInvoice}
           variant="warning"
         />
       ) : (
@@ -368,7 +397,7 @@ const OrderScanToDelivery = () => {
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleCheckoutOrderBagsWithInvoice}
           label={actionTypeWithInvoice}
-          disabled={isDisabled}
+          disabled={disableActionWithoutInvoice}
           variant="warning"
         />
       )
