@@ -6,6 +6,7 @@ import {
   Dimensions,
   Keyboard,
   Platform,
+  Pressable,
   Text,
   View,
   useWindowDimensions,
@@ -114,14 +115,15 @@ const ScanButton = memo(
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      className={`${disabled ? 'opacity-50' : ''}`}
+      className={`rounded-lg ${disabled ? 'opacity-50' : ''}`}
     >
       <View
-        className={`bg-colorPrimary rounded-md size-8 flex flex-row justify-center items-center ${
+        className={`bg-colorPrimary rounded-lg px-3 h-8 flex flex-row gap-1 justify-center items-center ${
           disabled ? 'opacity-50' : ''
         }`}
       >
-        <FontAwesome name="qrcode" size={18} color="white" />
+        <FontAwesome name="qrcode" size={14} color="white" />
+        <Text className="text-white font-semibold text-sm">Pick thêm</Text>
       </View>
     </TouchableOpacity>
   ),
@@ -250,7 +252,6 @@ const QuantitySection = memo(
           >
             <View className="flex flex-row items-center gap-2">
               <ProductUnit unit={currentProduct?.unit || ''} />
-              <ScanButton onPress={handleQRScan} disabled={!editable} />
             </View>
           </View>
         </View>
@@ -619,7 +620,10 @@ const InputAmountPopup = () => {
   // Memoize title component
   const renderTitle = useMemo(
     () => (
-      <View className="flex justify-between gap-1">
+      <Pressable
+        className="flex justify-between gap-1"
+        onPress={Keyboard.dismiss}
+      >
         <View className="flex flex-row items-center gap-1">
           {currentProduct?.tags?.includes('GIFT') && (
             <View className="mb-0.5">
@@ -650,7 +654,7 @@ const InputAmountPopup = () => {
             />
           </View>
         )}
-      </View>
+      </Pressable>
     ),
     [
       productName,
@@ -664,14 +668,40 @@ const InputAmountPopup = () => {
 
   const renderTopHeader = useMemo(
     () => (
-      <View className="flex-row items-center justify-center mb-2">
-        <SImage
-          source={currentProduct?.image}
-          style={{ width: 180, height: 180, borderRadius: 8 }}
-        />
-      </View>
+      <Pressable
+        className="mb-2 relative pt-10"
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
+      >
+        <View className="absolute left-0 top-0 z-10">
+          <ScanButton
+            onPress={() => {
+              toggleScanQrCodeProduct(true);
+              setQuantityFromBarcode(
+                Math.floor(Number(displayPickedQuantity || 0) * 1000) / 1000,
+              );
+              setScanMoreProduct(true);
+            }}
+            disabled={action === PRODUCT_ACTIONS.OUT_OF_STOCK}
+          />
+        </View>
+        <View className="flex-row items-center justify-center">
+          <SImage
+            source={currentProduct?.image}
+            style={{ width: 180, height: 180, borderRadius: 8 }}
+          />
+        </View>
+      </Pressable>
     ),
-    [currentProduct?.image],
+    [
+      currentProduct?.image,
+      displayPickedQuantity,
+      action,
+      toggleScanQrCodeProduct,
+      setQuantityFromBarcode,
+      setScanMoreProduct,
+    ],
   );
 
   // Cleanup on unmount
@@ -831,13 +861,13 @@ const InputAmountPopup = () => {
         const bottomSheetHeight = useMemo(() => {
           const maxHeight = Math.floor(windowHeight * 0.82);
           if (isUnitBox) {
-            return Math.min(620, maxHeight);
+            return Math.min(660, maxHeight);
           }
 
           if (!!currentProduct?.productPickingGuidelines) {
-            return Math.min(620, maxHeight);
+            return Math.min(660, maxHeight);
           }
-          return Math.min(530, maxHeight);
+          return Math.min(570, maxHeight);
         }, [isUnitBox, currentProduct?.productPickingGuidelines, windowHeight]);
 
         return (
