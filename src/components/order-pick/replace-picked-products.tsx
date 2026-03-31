@@ -18,6 +18,7 @@ import { useReplacePickedItem } from '~/src/api/app-pick/use-replace-picked-item
 import { useGlobalSearchParams } from 'expo-router';
 import { getConfigNameById } from '~/src/core/utils/config';
 import { useConfig } from '~/src/core/store/config';
+import { Badge } from '../Badge';
 
 const ReplacePickedProducts = () => {
   const actionRef = useRef<any>(null);
@@ -105,11 +106,18 @@ const ReplacePickedProducts = () => {
             return (
               <>
                 {!isReplacedProduct && (
-                  <View className="flex-1 flex flex-row items-center mt-4 mb-2 mx-4">
+                  <View className="flex-1 flex mt-4 mb-2 mx-4">
                     <Text className="font-semibold text-lg">
                       Chọn sản phẩm thay thế{' '}
                       <Text className="text-red-500 text-">*</Text>{' '}
                     </Text>
+                    <View className="flex-row items-start gap-1">
+                      <Text className="text-orange-500 italic text-sm">👉</Text>
+                      <Text className="text-orange-500 italic text-sm flex-1">
+                        Vui lòng kiểm tra sản phẩm thay thế đảm bảo còn hàng
+                        trước khi nhấn Xác nhận thay thế
+                      </Text>
+                    </View>
                   </View>
                 )}
                 <TouchableOpacity
@@ -131,13 +139,18 @@ const ReplacePickedProducts = () => {
                     className="rounded-md mr-3"
                     resizeMode="cover"
                   />
-                  <View className="flex-1 flex gap-2 justify-center">
+                  <View className="flex-1 flex gap-1 justify-center">
                     <Text
                       className={`font-semibold text-base text-gray-600`}
                       numberOfLines={2}
                     >
                       {item.name}
                     </Text>
+                    {!!item?.vendorName && isReplacedProduct && (
+                      <View className="flex flex-row gap-1">
+                        <Badge variant="pink" label={item?.vendorName} />
+                      </View>
+                    )}
                     {isReplacedProduct && (
                       <Text className="text-red-500 font-semibold">
                         {getConfigNameById(
