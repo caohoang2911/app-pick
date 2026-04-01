@@ -36,6 +36,8 @@ export const usePushNotifications: any = () => {
   const appState = useRef(AppState.currentState);
   const navigationInProgress = useRef(false);
   const pathname = usePathname();
+  const lastNavigationKeyRef = useRef<string | null>(null);
+  const lastNavigationAtRef = useRef(0);
 
   // Create Android notification channel with sound
   const createAndroidChannel = async () => {
@@ -53,6 +55,32 @@ export const usePushNotifications: any = () => {
   const handleGoScreen = useCallback(
     (remoteMessage: any) => {
       const { orderCode, targetScr } = remoteMessage || {};
+      if (!orderCode || !targetScr) return;
+
+      const targetPath =
+        targetScr === TargetScreen.ORDER_PICK
+          ? `/orders/order-pick/${orderCode}`
+          : targetScr === TargetScreen.ORDER_INVOICE
+            ? `/orders/order-invoice/${orderCode}`
+            : null;
+
+      if (!targetPath) return;
+
+      if (pathname === targetPath) {
+        return;
+      }
+
+      const dedupeKey = `${targetScr}:${orderCode}`;
+      const now = Date.now();
+      if (
+        lastNavigationKeyRef.current === dedupeKey &&
+        now - lastNavigationAtRef.current < 1800
+      ) {
+        console.log('Duplicate notification navigation skipped:', dedupeKey);
+        return;
+      }
+      lastNavigationKeyRef.current = dedupeKey;
+      lastNavigationAtRef.current = now;
 
       // Kiểm tra nếu đang trong quá trình chuyển hướng thì bỏ qua
       if (navigationInProgress.current) {
@@ -66,16 +94,7 @@ export const usePushNotifications: any = () => {
       // Sử dụng InteractionManager để đảm bảo các tác vụ UI hoàn tất trước khi chuyển hướng
       InteractionManager.runAfterInteractions(() => {
         try {
-          switch (targetScr) {
-            case TargetScreen.ORDER_PICK:
-              router.push(`/orders/order-pick/${orderCode}`);
-              break;
-            case TargetScreen.ORDER_INVOICE:
-              router.push(`/orders/order-invoice/${orderCode}`);
-              break;
-            default:
-              break;
-          }
+          router.push(targetPath);
 
           setTimeout(() => {
             navigationInProgress.current = false;
@@ -87,7 +106,7 @@ export const usePushNotifications: any = () => {
         }
       });
     },
-    [router],
+    [router, pathname],
   );
 
   useEffect(() => {
@@ -163,14 +182,16 @@ export const usePushNotifications: any = () => {
       );
 
     // Handle user opening the app from a notification (when the app is in the background)
-    messaging().onNotificationOpenedApp((remoteMessage: any) => {
-      console.log(
-        'Notification caused app to open from background state:',
-        remoteMessage.data,
-      );
+    const unsubscribeOpenApp = messaging().onNotificationOpenedApp(
+      (remoteMessage: any) => {
+        console.log(
+          'Notification caused app to open from background state:',
+          remoteMessage.data,
+        );
 
-      handleGoScreen(remoteMessage?.data);
-    });
+        handleGoScreen(remoteMessage?.data);
+      },
+    );
 
     // Check if the app was opened from a notification (when the app was completely quit)
     messaging()
@@ -299,6 +320,7 @@ export const usePushNotifications: any = () => {
     // Clean up the event listeners
     return () => {
       unsubscribe();
+      unsubscribeOpenApp();
       notificationClickSubscription.remove();
       subscription.remove();
     };
