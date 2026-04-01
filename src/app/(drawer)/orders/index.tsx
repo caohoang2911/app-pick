@@ -26,6 +26,8 @@ const Orders = () => {
   const prevStoreCodeRef = useRef<string | undefined>(userInfo?.storeCode);
   const { isDoneCodepush } = useCodepush();
 
+  const refNotificationPermission = useRef<boolean>(false);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -69,8 +71,9 @@ const Orders = () => {
 
   // Only check notification permission after code push is complete
   useEffect(() => {
-    if (isDoneCodepush) {
+    if (isDoneCodepush && !refNotificationPermission.current) {
       checkNotificationPermission(undefined, isDoneCodepush);
+      refNotificationPermission.current = true;
     }
   }, [isDoneCodepush]);
 
