@@ -78,16 +78,6 @@
     "plugins": [
       ["expo-notifications"],
       [
-        "expo-font",
-        {
-          "fonts": [
-            "./node_modules/@expo-google-fonts/inter/Inter_400Regular.ttf",
-            "./node_modules/@expo-google-fonts/inter/Inter_500Medium.ttf",
-            "./node_modules/@expo-google-fonts/inter/Inter_700Bold.ttf"
-          ]
-        }
-      ],
-      [
         "react-native-vision-camera",
         {
           "cameraPermissionText": "Allow $(PRODUCT_NAME) to access your camera"
