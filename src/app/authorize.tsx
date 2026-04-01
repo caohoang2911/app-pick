@@ -13,7 +13,7 @@ import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { NavigationHelpers } from '@/core/utils/navigation';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
@@ -189,11 +189,14 @@ const Authorize = () => {
 
   return (
     <WebView
+      key={currentUrl || urlRedirect || 'authorize'}
       ref={webViewRef}
       originWhitelist={['*']}
       style={styles.container}
       source={{
         uri: currentUrl || '',
+        // Tránh dùng bản cache HTTP (Android + iOS vẫn tôn trọng cacheEnabled/incognito).
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
       }}
       onLoadStart={() => setLoading(true, 'Đang tải trang...')}
       onLoadEnd={() => {
@@ -213,13 +216,15 @@ const Authorize = () => {
       allowFileAccess
       allowUniversalAccessFromFileURLs
       thirdPartyCookiesEnabled
-      sharedCookiesEnabled
       saveFormDataDisabled
       allowFileAccessFromFileURLs
-      useSharedProcessPool
+      cacheEnabled={false}
+      cacheMode="LOAD_NO_CACHE"
+      incognito
+      sharedCookiesEnabled={false}
+      useSharedProcessPool={false}
       startInLoadingState={false}
       allowsBackForwardNavigationGestures={false}
-      incognito={Platform.OS === 'ios'}
     />
   );
 };
