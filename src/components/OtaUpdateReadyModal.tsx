@@ -1,12 +1,9 @@
+import { useOtaUpdateReadyModal } from '@/core/store/ota-update-modal';
+import { colors } from '@/ui/colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  closeOtaUpdateReadyModal,
-  useOtaUpdateReadyModal,
-} from '@/core/store/ota-update-modal';
-import { colors } from '@/ui/colors';
 
 /**
  * Modal OTA sau khi fetch xong: không reload trong app.

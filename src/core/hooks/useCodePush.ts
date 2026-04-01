@@ -13,7 +13,8 @@ export const useCodepush = () => {
 
   const onFetchUpdateAsync = useCallback(async () => {
     if (fetchUpdateInFlight) {
-      return fetchUpdateInFlight;
+      await fetchUpdateInFlight;
+      return;
     }
 
     fetchUpdateInFlight = (async () => {
@@ -23,7 +24,7 @@ export const useCodepush = () => {
           try {
             await Updates.fetchUpdateAsync();
             setIsDoneCodepush(true);
-            requestAnimationFrame(() => openOtaUpdateReadyModal());
+            openOtaUpdateReadyModal();
           } catch {
             setIsDoneCodepush(true);
           }
@@ -32,14 +33,12 @@ export const useCodepush = () => {
         }
       } catch {
         setIsDoneCodepush(true);
+      } finally {
+        fetchUpdateInFlight = null;
       }
     })();
 
-    try {
-      await fetchUpdateInFlight;
-    } finally {
-      fetchUpdateInFlight = null;
-    }
+    await fetchUpdateInFlight;
   }, [setIsDoneCodepush]);
 
   useEffect(() => {
