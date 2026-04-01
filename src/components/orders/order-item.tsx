@@ -2,7 +2,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { useRouter } from 'expo-router';
 import { isEmpty, toLower } from 'lodash';
 import moment from 'moment';
-import React, { Fragment, memo, useCallback, useMemo } from 'react';
+import React, { Fragment, memo, useCallback, useMemo, useRef } from 'react';
 import { Image, Text, View } from 'react-native';
 
 import Feather from '@expo/vector-icons/Feather';
@@ -106,6 +106,7 @@ const OrderItem = ({
   saleChannel,
 }: Order) => {
   const router = useRouter();
+  const isNavigatingRef = useRef(false);
 
   const config = useConfig.use.config();
   const orderTags = config?.orderTags || [];
@@ -119,6 +120,9 @@ const OrderItem = ({
   const isDriver = useRoleDriver();
 
   const handlePress = useCallback(() => {
+    if (isNavigatingRef.current) return;
+    isNavigatingRef.current = true;
+
     prefetchOrderDetailForCode({
       orderCode: code,
       isDriver,
@@ -131,6 +135,10 @@ const OrderItem = ({
         params: { status },
       });
     }
+
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 800);
   }, [code, status, isDriver, router]);
 
   const shouldShowassignee = picker?.username && picker?.name;

@@ -485,13 +485,11 @@ const OrderScanToDelivery = () => {
         onCaptureComplete={handleReceiptCaptureComplete}
         enableCapture={shouldEnableCapture}
       />
-      {isScanQrCodeProduct && (
-        <ScannerBox
-          visible={isScanQrCodeProduct}
-          onSuccessBarcodeScanned={handleScanQrCodeProduct}
-          onDestroy={() => toggleScanQrCodeProduct(false)}
-        />
-      )}
+      <ScannerBox
+        visible={isScanQrCodeProduct}
+        onSuccessBarcodeScanned={handleScanQrCodeProduct}
+        onDestroy={() => toggleScanQrCodeProduct(false)}
+      />
     </>
   );
 };
