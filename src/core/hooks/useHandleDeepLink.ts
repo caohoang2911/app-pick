@@ -166,6 +166,8 @@ const useHandleDeepLink = () => {
   const [data, setData] = useState<any>(null);
   const status = useAuth.use.status();
   const isRedirectingToLogin = useRef(false);
+  const lastHandledUrlRef = useRef<string | null>(null);
+  const lastHandledAtRef = useRef(0);
 
   useEffect(() => {
     if (status === 'signIn') {
@@ -199,6 +201,17 @@ const useHandleDeepLink = () => {
 
       const url = event.url;
       console.log('[DeepLink] Received URL:', url);
+
+      const now = Date.now();
+      if (
+        lastHandledUrlRef.current === url &&
+        now - lastHandledAtRef.current < 1500
+      ) {
+        console.log('[DeepLink] Skip duplicate URL in short window:', url);
+        return;
+      }
+      lastHandledUrlRef.current = url;
+      lastHandledAtRef.current = now;
 
       if (!url.startsWith('apppick://') && !url.includes('oms.seedcom.vn')) {
         console.log('[DeepLink] Skipping non-dev scheme URL:', url);
@@ -272,13 +285,6 @@ const useHandleDeepLink = () => {
     const subscription = Linking.addEventListener('url', (event) => {
       console.log('[DeepLink] Received event from listener:', event);
       handleDeepLink(event);
-    });
-
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        console.log('[DeepLink] Found pending URL on listener setup:', url);
-        handleDeepLink({ url });
-      }
     });
 
     return () => {

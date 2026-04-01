@@ -162,16 +162,14 @@ const OrderPick = () => {
         <OrderPickProducts key={code} />
       </View>
       <ActionsBottom />
-      {isScanQrCodeProduct && (
-        <ScannerBox
-          isQRScanner={false}
-          visible={isScanQrCodeProduct}
-          onSuccessBarcodeScanned={handleSuccessBarCode}
-          onDestroy={() => {
-            toggleScanQrCodeProduct(false);
-          }}
-        />
-      )}
+      <ScannerBox
+        isQRScanner={false}
+        visible={isScanQrCodeProduct}
+        onSuccessBarcodeScanned={handleSuccessBarCode}
+        onDestroy={() => {
+          toggleScanQrCodeProduct(false);
+        }}
+      />
       <OrderPickHeadeActionBottomSheet ref={headerAcrtionRef} />
       {isShowAmountInput ? <InputAmountPopup /> : null}
       {isVisibleReplaceProduct ? <ReplacePickedProducts /> : null}

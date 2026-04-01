@@ -53,7 +53,9 @@ type Props = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ScannerBox – main component (1 Camera, đổi props khi toggle → không destroy)
+// ScannerBox – Camera NEVER unmounts once device is ready.
+// Visibility is controlled via isActive + display:none to prevent
+// JSI/Worklet destructor crashes (EXC_BAD_ACCESS KERN_INVALID_ADDRESS).
 // ─────────────────────────────────────────────────────────────────────────────
 const ScannerBox = ({
   visible,
@@ -68,32 +70,68 @@ const ScannerBox = ({
   const cameraRef = useRef<Camera>(null);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
-  /** scannedShared: guard chống double-fire, đọc được từ worklet thread */
-  const scannedShared = useSharedValue(false);
+  // ── Refs ──────────────────────────────────────────────────────────────────
+  const mountedRef = useRef(true);
+  const closeRequestedRef = useRef(false);
+  // FIX: Track if Camera has ever initialized — onInitialized only fires once
+  // since Camera never unmounts. Subsequent opens skip waiting for it.
+  const cameraHasInitializedRef = useRef(false);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /**
-   * Refs luôn trỏ tới props mới nhất, cập nhật mỗi render.
-   * Dùng để handleBarcodeScanned có empty deps (hoàn toàn stable) mà vẫn gọi
-   * đúng callback hiện tại → tránh stale closure khi onDestroy/onSuccessBarcodeScanned
-   * thay đổi reference do parent không wrap useCallback hoặc deps thay đổi.
-   */
+  // Always point to latest props — avoids stale closures inside worklet callbacks
   const onDestroyRef = useRef(onDestroy);
   onDestroyRef.current = onDestroy;
   const onSuccessRef = useRef(onSuccessBarcodeScanned);
   onSuccessRef.current = onSuccessBarcodeScanned;
+
+  // ── Shared values (readable on worklet thread) ────────────────────────────
+  /** Prevents double-fire from frame processor */
+  const scannedShared = useSharedValue(false);
+  /** Gates the frame processor — set false immediately on close/hide */
+  const isActiveShared = useSharedValue(false);
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+      // FIX: Disable worklet gate BEFORE component unmounts so the frame
+      // processor stops touching JSI objects while they are being destroyed.
+      isActiveShared.value = false;
+      scannedShared.value = false;
+    };
+  }, []);
 
   useEffect(() => {
     setCurrentScannerType(isQRScanner);
   }, [isQRScanner]);
 
   useEffect(() => {
-    /** Reset scannedShared trên MỌI thay đổi của visible (cả mở lẫn đóng).
-     * Đảm bảo scanner không bị stuck nếu có edge case nào đó khi session trước
-     * chưa reset được (exception trong callback, timing issue, v.v.) */
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+
     scannedShared.value = false;
-    if (!visible) {
-      setIsCameraReady(false);
+    closeRequestedRef.current = false;
+
+    if (visible) {
+      isActiveShared.value = true;
       overlayOpacity.setValue(1);
+
+      if (cameraHasInitializedRef.current) {
+        // FIX: Camera already initialized on first open — onInitialized won't
+        // fire again. Dismiss overlay after a short delay directly.
+        overlayTimerRef.current = setTimeout(() => {
+          if (!mountedRef.current) return;
+          setIsCameraReady(true);
+        }, 300);
+      } else {
+        // First open — wait for onInitialized to fire normally
+        setIsCameraReady(false);
+      }
+    } else {
+      // FIX: Disable worklet gate FIRST, then reset UI state.
+      isActiveShared.value = false;
+      setIsCameraReady(false);
     }
   }, [visible]);
 
@@ -104,8 +142,9 @@ const ScannerBox = ({
       duration: isCameraReady ? 180 : 120,
       useNativeDriver: true,
     }).start();
-  }, [isCameraReady, visible, overlayOpacity]);
+  }, [isCameraReady, visible]);
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleRequestPermission = useCallback(() => {
     if (Platform.OS === 'ios' && permission?.granted) {
       requestPermission();
@@ -115,33 +154,59 @@ const ScannerBox = ({
   }, [permission?.granted, requestPermission]);
 
   const handleToggleScanner = useCallback(() => {
-    // Chỉ reset guard khi đổi mode. Không set isCameraReady(false) vì Camera không remount
-    // → onInitialized không gọi lại → overlay đen sẽ không tắt.
     scannedShared.value = false;
     setCurrentScannerType((prev) => !prev);
   }, []);
 
-  /** Stable callback truyền vào QRCamera/BarcodeCamera.
-   * Khi Camera native báo đã khởi tạo xong → ẩn overlay đen. */
+  // FIX: onInitialized only fires on first mount since Camera never unmounts.
+  // Mark the flag so subsequent opens know to dismiss overlay themselves.
   const handleCameraReady = useCallback(() => {
-    setTimeout(() => {
+    overlayTimerRef.current = setTimeout(() => {
+      if (!mountedRef.current) return;
+      cameraHasInitializedRef.current = true;
       setIsCameraReady(true);
     }, 200);
   }, []);
 
-  /** handleBarcodeScanned hoàn toàn stable (empty deps) nhờ dùng refs.
-   * Frame processor của @mgcrea capture callback 1 lần tại mount →
-   * dùng ref.current đảm bảo luôn gọi đúng phiên bản mới nhất của props. */
+  const handleTapFocus = useCallback(async (e: any) => {
+    try {
+      const { locationX: x, locationY: y } = e.nativeEvent;
+      await cameraRef.current?.focus({ x, y });
+    } catch (_) {
+      // Device may not support tap-to-focus — safe to ignore
+    }
+  }, []);
+
+  /**
+   * FIX: useRunOnJS callback is stable (empty deps) via refs.
+   * We also guard with mountedRef and closeRequestedRef to ensure
+   * this never fires after the component has begun unmounting.
+   */
   const handleBarcodeScanned = useRunOnJS((barcode: Barcode) => {
+    if (!mountedRef.current || closeRequestedRef.current) return;
+
+    closeRequestedRef.current = true;
+    // Disable gate immediately so worklet thread stops processing
+    isActiveShared.value = false;
+
     const result: BarcodeScanningResult = {
       type: barcode.type,
       data: barcode.value ?? '',
       cornerPoints: barcode.cornerPoints,
     };
-    onDestroyRef.current?.();
+
     onSuccessRef.current?.(result);
+
+    // Allow native/worklet callbacks to flush before parent closes scanner
+    setTimeout(() => {
+      if (!mountedRef.current) return;
+      onDestroyRef.current?.();
+    }, 0);
   }, []);
 
+  // ── Barcode scanner hooks ─────────────────────────────────────────────────
+  // FIX: Both hooks are always called (no conditional hook calls).
+  // The active one is chosen at render time via spread props.
   const { props: qrCameraProps } = useBarcodeScanner({
     fps: 3,
     barcodeTypes: ['qr'],
@@ -149,7 +214,8 @@ const ScannerBox = ({
     scanMode: 'continuous',
     onBarcodeScanned: (barcodes) => {
       'worklet';
-      if (scannedShared.value || barcodes.length === 0) return;
+      if (!isActiveShared.value || scannedShared.value || barcodes.length === 0)
+        return;
       scannedShared.value = true;
       handleBarcodeScanned(barcodes[0]);
     },
@@ -162,83 +228,97 @@ const ScannerBox = ({
     scanMode: 'continuous',
     onBarcodeScanned: (barcodes) => {
       'worklet';
-      if (scannedShared.value || barcodes.length === 0) return;
+      if (!isActiveShared.value || scannedShared.value || barcodes.length === 0)
+        return;
       scannedShared.value = true;
       handleBarcodeScanned(barcodes[0]);
     },
   });
 
-  const handleTapFocus = useCallback(async (e: any) => {
-    try {
-      const { locationX: x, locationY: y } = e.nativeEvent;
-      await cameraRef.current?.focus({ x, y });
-    } catch (_) {
-      // focus có thể throw nếu device không hỗ trợ, bỏ qua
-    }
-  }, []);
-
+  // ── Derived ───────────────────────────────────────────────────────────────
   const scanRegion = currentScannerType ? QR_SCAN_REGION : BARCODE_SCAN_REGION;
 
-  // ✅ Render nội dung bên trong Portal dựa theo các trạng thái
-  const renderContent = () => {
-    if (!permission) return <View />;
-
-    if (!permission.granted) {
-      return (
+  // ── Render ────────────────────────────────────────────────────────────────
+  /**
+   * FIX: Camera is ALWAYS mounted once device + permission are ready.
+   * We never conditionally unmount it — that's the root cause of the
+   * JSI destructor crash. Instead:
+   *   • display:'none'  hides the view without unmounting
+   *   • isActive=false  pauses the camera session on the native side
+   *   • isActiveShared  stops the worklet frame processor immediately
+   *
+   * Permission-denied UI is rendered separately, outside the Camera tree.
+   */
+  return (
+    <Portal>
+      {/* ── Permission denied UI (shown only when visible & no permission) ── */}
+      {visible && permission && !permission.granted && (
         <View style={styles.container} className="px-4">
           <Text className="text-center">
             Bạn không có quyền truy cập vào camera
           </Text>
           <View className="self-center flex-row justify-center mt-4 gap-3">
-            <Button onPress={onDestroy} variant="secondary" label="Trở lại" />
+            <Button
+              onPress={onDestroyRef.current}
+              variant="secondary"
+              label="Trở lại"
+            />
             <Button
               onPress={handleRequestPermission}
               label="Yêu cầu truy cập"
             />
           </View>
         </View>
-      );
-    }
+      )}
 
-    if (!device) return <View />;
+      {/* ── Camera tree — always mounted, hidden via display:'none' ────────
+           This is the key fix: Camera is never unmounted while worklets
+           may still hold references to JSI objects.                       */}
+      {permission?.granted && device ? (
+        <View
+          style={[
+            styles.fullScreenContainer,
+            // FIX: display:'none' hides without triggering unmount/destructor
+            !visible && styles.hidden,
+          ]}
+        >
+          <View style={styles.cameraContainer}>
+            <Pressable style={styles.camera} onPress={handleTapFocus}>
+              <Camera
+                ref={cameraRef}
+                style={styles.camera}
+                device={device as CameraDevice}
+                // FIX: isActive controls the native session — never rely on
+                // unmounting the Camera component to "stop" the camera.
+                isActive={!!visible}
+                onInitialized={handleCameraReady}
+                videoStabilizationMode="off"
+                photoHdr={false}
+                videoHdr={false}
+                {...(currentScannerType ? qrCameraProps : barcodeCameraProps)}
+              />
+            </Pressable>
 
-    return (
-      <View style={styles.fullScreenContainer}>
-        <View style={styles.cameraContainer}>
-          <Pressable style={styles.camera} onPress={handleTapFocus}>
-            <Camera
-              ref={cameraRef}
-              style={styles.camera}
-              device={device as CameraDevice}
-              isActive={visible || false}
-              onInitialized={handleCameraReady}
-              videoStabilizationMode="off"
-              photoHdr={false}
-              videoHdr={false}
-              {...(currentScannerType ? qrCameraProps : barcodeCameraProps)}
+            <ScannerLayout
+              onClose={onDestroyRef.current!}
+              isQRScanner={currentScannerType}
+              onToggleScanner={handleToggleScanner}
+              scanRegion={scanRegion}
             />
-          </Pressable>
+          </View>
 
-          <ScannerLayout
-            onClose={onDestroy!}
-            isQRScanner={currentScannerType}
-            onToggleScanner={handleToggleScanner}
-            scanRegion={scanRegion}
+          {/* Black overlay while camera initialises */}
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.cameraLoadingOverlay, { opacity: overlayOpacity }]}
           />
         </View>
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.cameraLoadingOverlay, { opacity: overlayOpacity }]}
-        />
-      </View>
-    );
-  };
-
-  // ✅ Portal luôn mounted, chỉ ẩn/hiện nội dung bên trong
-  // Tránh Portal register/unregister gây remount toàn bộ tree
-  return <Portal>{visible ? renderContent() : null}</Portal>;
+      ) : null}
+    </Portal>
+  );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   fullScreenContainer: {
     position: 'absolute',
@@ -249,6 +329,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     zIndex: 9999,
+  },
+  // FIX: Use display:'none' instead of conditional render to hide without
+  // unmounting — prevents JSI/Worklet destructor (EXC_BAD_ACCESS) crashes.
+  hidden: {
+    display: 'none',
   },
   container: {
     flex: 1,

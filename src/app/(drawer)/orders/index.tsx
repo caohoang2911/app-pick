@@ -79,13 +79,11 @@ const Orders = () => {
       <Container>
         <OrderList />
       </Container>
-      {isScanQrCode && (
-        <ScannerBox
-          visible={isScanQrCode}
-          onSuccessBarcodeScanned={handleSuccessBarcodeScanned}
-          onDestroy={handleDestroy}
-        />
-      )}
+      <ScannerBox
+        visible={isScanQrCode}
+        onSuccessBarcodeScanned={handleSuccessBarcodeScanned}
+        onDestroy={handleDestroy}
+      />
     </>
   );
 };
