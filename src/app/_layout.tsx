@@ -32,6 +32,7 @@ import {
 } from 'react-native-safe-area-context';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
+import { OtaUpdateReadyModal } from '../components/OtaUpdateReadyModal';
 import { AppStateEffect } from '../components/AppStateEffect';
 import FlashMessageWithMarkdown from '../components/FlashMessageWithMarkdown';
 import NetworkStatus from '../components/NetWorkStatus';
@@ -197,6 +198,8 @@ function Providers({ children }: { children: React.ReactNode }) {
                 </View>
 
                 <AlertDialog />
+
+                <OtaUpdateReadyModal />
 
                 <AppStateEffect />
 
