@@ -26,8 +26,6 @@ const Orders = () => {
   const prevStoreCodeRef = useRef<string | undefined>(userInfo?.storeCode);
   const { isDoneCodepush } = useCodepush();
 
-  const refNotificationPermission = useRef<boolean>(false);
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -69,12 +67,10 @@ const Orders = () => {
     toggleScanQrCode(false);
   }, []);
 
-  // Only check notification permission after code push is complete
+  // Sau CodePush (một nguồn từ useCodepushStore + mutex trong checkNotificationPermission)
   useEffect(() => {
-    if (isDoneCodepush && !refNotificationPermission.current) {
-      checkNotificationPermission(undefined, isDoneCodepush);
-      refNotificationPermission.current = true;
-    }
+    if (!isDoneCodepush) return;
+    void checkNotificationPermission(undefined, true);
   }, [isDoneCodepush]);
 
   return (
