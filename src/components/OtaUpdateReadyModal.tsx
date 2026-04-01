@@ -42,10 +42,8 @@ export function OtaUpdateReadyModal() {
 
           <Text style={styles.body}>
             Bản cập nhật đã tải xong.{' '}
-            <Text style={styles.bodyEmphasis}>
-              Bạn phải thoát hẳn ứng dụng rồi mở lại
-            </Text>{' '}
-            để áp dụng bản cập nhật mới.
+            <Text style={styles.bodyEmphasis}>Bạn phải mở lại ứng dụng</Text> để
+            áp dụng bản cập nhật mới.
           </Text>
 
           <Text style={styles.footerNote}>Yêu cầu này là bắt buộc</Text>
