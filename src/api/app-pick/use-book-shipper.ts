@@ -15,7 +15,7 @@ export type BookShipperExtraRequest = {
 
 export type BookShipperVariables = {
   orderCode: string;
-  provider: BookShipperProvider;
+  serviceType: BookShipperProvider;
   extraRequest?: BookShipperExtraRequest;
 };
 

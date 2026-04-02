@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import {
   BookShipperProvider,
   useBookShipper,
@@ -19,6 +19,7 @@ import { PackageSize } from '~/src/types/order';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
 import { queryClient } from '~/src/api/shared/api-provider';
+import { useConfig } from '~/src/core/store/config';
 
 type Props = {};
 
@@ -28,6 +29,10 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
   const submitRef = useRef<() => void>(() => {});
 
   const { code } = useLocalSearchParams<{ code: string }>();
+
+  const config = useConfig.use.config();
+  // Try to find shipping providers config, if not available, use provider directly
+  const shippingServiceTypes = (config as any)?.shippingServiceTypes || [];
 
   const { mutate: bookShipper } = useBookShipper(() => {
     hideAlert();
@@ -49,7 +54,7 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
   }, [visible]);
 
   const handleBookShipper = (values: {
-    provider: BookShipperProvider;
+    serviceType: BookShipperProvider;
     packageSize: string;
   }) => {
     setVisible(false);
@@ -60,7 +65,7 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
 
     bookShipper({
       orderCode: code ?? '',
-      provider: values.provider,
+      serviceType: values.serviceType,
       extraRequest,
     });
   };
@@ -87,7 +92,7 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
         <Formik
           initialValues={{
             packageSize: PackageSize.STANDARD,
-            provider: BookShipperProvider.AHAMOVE_DRIVER,
+            serviceType: BookShipperProvider.AHAMOVE_DRIVER,
           }}
           onSubmit={handleBookShipper}
         >
@@ -155,29 +160,38 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
                   </View>
                   <RadioButtonGroup
                     containerStyle={{ marginBottom: 10 }}
-                    selected={values.provider}
+                    selected={values.serviceType}
                     size={18}
                     onSelected={(value: string) => {
                       if (!value) return;
-                      setFieldValue('provider', value);
+                      setFieldValue('serviceType', value);
                     }}
                     radioStyle={{ backgroundColor: 'white' }}
                     radioBackground="blue"
                   >
-                    <RadioButtonItem
-                      value={BookShipperProvider.AHAMOVE_ONWHEEL}
-                      label={<Text className="pl-3">Ahamove Onwheel</Text>}
-                    />
-                    <View className="py-3" />
-                    <RadioButtonItem
-                      value={BookShipperProvider.AHAMOVE_DRIVER}
-                      label={<Text className="pl-3">Ahamove Driver</Text>}
-                    />
-                    <View className="py-3" />
-                    <RadioButtonItem
-                      value={BookShipperProvider.GRAB_EXPRESS_DRIVER}
-                      label={<Text className="pl-3">GrabExpress Driver</Text>}
-                    />
+                    {shippingServiceTypes
+                      ?.filter(
+                        (serviceType: any) =>
+                          serviceType.id !== 'STORE_EMPLOYEE',
+                      )
+                      ?.map((serviceType: any) => (
+                        <RadioButtonItem
+                          key={serviceType.id}
+                          value={serviceType.id}
+                          label={
+                            <Text
+                              className="pl-3 py-2 text-base"
+                              style={
+                                Platform.OS === 'android'
+                                  ? { includeFontPadding: false }
+                                  : undefined
+                              }
+                            >
+                              {serviceType.name}
+                            </Text>
+                          }
+                        />
+                      ))}
                   </RadioButtonGroup>
                 </View>
               </View>
