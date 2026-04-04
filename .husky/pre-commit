@@ -11,7 +11,7 @@ fi
 
 # Check 1: Run lint-staged (Prettier format check on staged files)
 if command -v npx &> /dev/null; then
-  echo "📦 Running lint-staged (format check)..."
+  echo "📦 Running lint-staged (Prettier + type-check when .ts/.tsx staged)..."
   echo ""
 
   # Try yarn first, fallback to npx
@@ -30,12 +30,10 @@ if command -v npx &> /dev/null; then
   echo ""
 
   if [ $LINT_STAGED_EXIT -ne 0 ]; then
-    echo "❌ Format check failed!"
+    echo "❌ lint-staged failed (Prettier and/or yarn type-check)."
     echo ""
-    echo "💡 To fix format issues, run:"
-    echo "   yarn prettier --write .lintstagedrc.js *.md"
-    echo "   or"
-    echo "   npm run lint:fix"
+    echo "💡 Fix formatting: yarn lint:fix"
+    echo "💡 Fix types: yarn type-check"
     echo ""
     exit 1
   fi
@@ -43,31 +41,9 @@ else
   echo "⚠️  npx not found, skipping lint-staged"
 fi
 
-# Check 2: TypeScript type checking (check all files, not just staged)
-echo "📘 Running TypeScript type check..."
-if command -v yarn &> /dev/null; then
-  TSC_OUTPUT=$(yarn tsc --noEmit 2>&1)
-  TSC_EXIT=$?
-  if [ $TSC_EXIT -ne 0 ]; then
-    echo "❌ TypeScript errors found!"
-    echo "$TSC_OUTPUT"
-    exit 1
-  fi
-  echo "✅ TypeScript check passed"
-elif command -v npx &> /dev/null; then
-  TSC_OUTPUT=$(npx tsc --noEmit 2>&1)
-  TSC_EXIT=$?
-  if [ $TSC_EXIT -ne 0 ]; then
-    echo "❌ TypeScript errors found!"
-    echo "$TSC_OUTPUT"
-    exit 1
-  fi
-  echo "✅ TypeScript check passed"
-else
-  echo "⚠️  yarn/npx not found, skipping type check"
-fi
+# TypeScript: yarn type-check runs inside lint-staged when staged files match **/*.{ts,tsx}
 
-# Check 3: Run additional checks script
+# Check 2: Run additional checks script
 if [ -f "scripts/pre-commit-checks.sh" ]; then
   echo "🔍 Running additional checks..."
   bash scripts/pre-commit-checks.sh
