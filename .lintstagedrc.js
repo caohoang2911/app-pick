@@ -8,6 +8,8 @@ module.exports = {
   '**/*.{ts,tsx}': [
     // Auto-format files (Prettier) - formats and stages changes
     'prettier --write',
+    // Full-project check once per commit batch (stale closure / cross-file errors)
+    () => 'yarn type-check',
   ],
 
   // JavaScript files
@@ -23,5 +25,5 @@ module.exports = {
   '**/*.{yml,yaml}': ['prettier --write'],
 };
 
-// Note: TypeScript type checking is done separately in pre-commit hook
-// to check all files at once (more efficient than per-file checking)
+// Note: yarn type-check runs when any staged .ts/.tsx matches (after Prettier).
+// Commits that touch only non-TS files skip type-check; run `yarn type-check` locally or rely on CI.
