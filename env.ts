@@ -43,7 +43,7 @@ const configs = {
     ENABLE_CRASH_REPORTING: false,
     ENABLE_DEBUG_TOOLS: true,
     /** Check/tải bản native qua GitHub (có thể tắt từng môi trường hoặc qua EXPO_PUBLIC). */
-    NATIVE_GITHUB_UPDATE: false,
+    NATIVE_GITHUB_UPDATE: true,
   },
   prod: {
     API_BASE_URL: 'https://oms-api.seedcom.vn/',

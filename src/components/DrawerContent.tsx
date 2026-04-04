@@ -91,7 +91,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
                 className={`flex flex-row gap-2 items-center border-b border-gray-200 py-3 px-3 ${!item.enable ? 'opacity-50' : ''}`}
               >
                 {item.icon}
-                <Text className="text-md font-body">{item.label}</Text>
+                <Text className="text-md">{item.label}</Text>
               </View>
             </Pressable>
           );
@@ -101,7 +101,7 @@ export function DrawerContent(drawerProps: DrawerContentComponentProps) {
       <Pressable onPress={triggerSignOut}>
         <View className="flex flex-row gap-2 items-center border-t border-gray-200 py-3 px-3 ml-3">
           <MaterialIcons name="logout" size={20} color={colors.black} />
-          <Text className="text-md font-body">Logout</Text>
+          <Text className="text-md">Logout</Text>
         </View>
       </Pressable>
     </View>
