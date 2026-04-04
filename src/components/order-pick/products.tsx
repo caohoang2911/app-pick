@@ -113,6 +113,11 @@ const OrderPickProducts = () => {
   const orderPickProductsFlat = useOrderPickProductsFlat();
   const lastScannedId = useOrderPick.use.lastScannedId();
   const flatListRef = useRef<FlatList>(null);
+  const filteredProducts = orderPickProducts;
+  const filteredProductsRef = useRef(filteredProducts);
+  const lastScannedIdRef = useRef(lastScannedId);
+  filteredProductsRef.current = filteredProducts;
+  lastScannedIdRef.current = lastScannedId;
 
   const syncPickProductsFromOrderDetail = useCallback(() => {
     const itemGroups = orderDetail?.delivery?.itemGroups;
@@ -135,8 +140,6 @@ const OrderPickProducts = () => {
       syncPickProductsFromOrderDetail();
     }, [code, syncPickProductsFromOrderDetail]),
   );
-
-  const filteredProducts = orderPickProducts;
 
   useEffect(() => {
     if (!keyword) return;
@@ -215,10 +218,12 @@ const OrderPickProducts = () => {
 
         // Thử lại sau một khoảng thời gian ngắn với error handling
         setTimeout(() => {
+          const len = filteredProductsRef.current?.length ?? 0;
           if (
             flatListRef.current &&
+            len > 0 &&
             info.index >= 0 &&
-            info.index < (filteredProducts?.length || 0)
+            info.index < len
           ) {
             try {
               flatListRef.current.scrollToIndex({
@@ -251,7 +256,7 @@ const OrderPickProducts = () => {
         console.warn('Initial scrollToOffset failed:', error);
       }
     },
-    [filteredProducts?.length],
+    [],
   );
 
   // Có delivery nhưng store chưa hydrate → list rỗng; vẫn hiện Empty thay vì khoảng trắng
@@ -298,16 +303,8 @@ const OrderPickProducts = () => {
   }, [filteredProducts, lastScannedId]);
 
   useEffect(() => {
-    const index = scrollTargetIndex;
-    if (index === -1) return;
-
-    const dataLength = filteredProducts?.length || 0;
-    if (dataLength === 0) {
-      if (__DEV__) {
-        console.warn('No filtered products available for scrolling');
-      }
-      return;
-    }
+    if (scrollTargetIndex === -1) return;
+    if ((filteredProducts?.length ?? 0) === 0) return;
 
     let cancelled = false;
 
@@ -315,27 +312,38 @@ const OrderPickProducts = () => {
       if (cancelled) return;
       requestAnimationFrame(() => {
         if (cancelled) return;
-        if (flatListRef.current && index >= 0 && index < dataLength) {
+        const list = filteredProductsRef.current;
+        const len = list?.length ?? 0;
+        if (len === 0 || !flatListRef.current) return;
+
+        const id = lastScannedIdRef.current;
+        let index = -1;
+        if (id) {
+          index = list.findIndex((product: any) =>
+            product.elements?.some((element: Product) => element.id === id),
+          );
+        }
+        if (index < 0 || index >= len) return;
+
+        try {
+          flatListRef.current.scrollToIndex({
+            animated: true,
+            index,
+            viewPosition: 0.5,
+          });
+        } catch (error) {
+          if (__DEV__) {
+            console.warn('scrollToIndex failed in useEffect:', error);
+          }
+          const estimatedOffset = Math.max(0, index * 200);
           try {
-            flatListRef.current.scrollToIndex({
+            flatListRef.current.scrollToOffset({
+              offset: estimatedOffset,
               animated: true,
-              index,
-              viewPosition: 0.5,
             });
-          } catch (error) {
+          } catch (fallbackError) {
             if (__DEV__) {
-              console.warn('scrollToIndex failed in useEffect:', error);
-            }
-            const estimatedOffset = Math.max(0, index * 200);
-            try {
-              flatListRef.current.scrollToOffset({
-                offset: estimatedOffset,
-                animated: true,
-              });
-            } catch (fallbackError) {
-              if (__DEV__) {
-                console.warn('scrollToOffset fallback failed:', fallbackError);
-              }
+              console.warn('scrollToOffset fallback failed:', fallbackError);
             }
           }
         }
@@ -359,7 +367,7 @@ const OrderPickProducts = () => {
         <UserNote orderDetail={orderDetail} />
       </View>
     ),
-    [],
+    [orderDetail],
   );
 
   const listFooter = useMemo(() => <View style={{ height: 20 }} />, []);

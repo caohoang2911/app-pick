@@ -52,8 +52,6 @@ const TabsStatus = () => {
     : {};
   const { error } = data || {};
   const selectedOrderCounter = useOrders.use.selectedOrderCounter();
-  const deliveryType = useOrders.use.deliveryType();
-  const fromScanQrCode = useOrders.use.fromScanQrCode();
   /** Highlight ngay khi bấm; store cập nhật sau scroll để list đỡ lag. */
   const [pendingTabId, setPendingTabId] = useState<string | null>(null);
   const displaySelected = pendingTabId ?? selectedOrderCounter;
@@ -123,22 +121,23 @@ const TabsStatus = () => {
   /** Ref + callback ổn định: chỉ đọc sorted mới nhất — tránh effect phụ thuộc goTabSelected (đổi mỗi lần refetch → scroll nhầm về tab đầu). */
   const scrollToTabId = useCallback((tabId: string) => {
     const sorted = sortedDataRef.current;
-    const index = sorted.findIndex((s) => s.id === tabId);
-    if (index === -1) return;
-
-    const dataLength = sorted.length;
-    if (dataLength === 0) {
-      if (__DEV__) console.warn('No data available for scrolling');
-      return;
-    }
-
-    if (!ref.current) {
-      if (__DEV__) console.warn('FlatList ref not available');
+    if (sorted.findIndex((s) => s.id === tabId) === -1 || sorted.length === 0) {
       return;
     }
 
     const runScroll = () => {
-      if (!ref.current || index < 0 || index >= dataLength) return;
+      const fresh = sortedDataRef.current;
+      const index = fresh.findIndex((s) => s.id === tabId);
+      const dataLength = fresh.length;
+      if (
+        !ref.current ||
+        index === -1 ||
+        dataLength === 0 ||
+        index < 0 ||
+        index >= dataLength
+      ) {
+        return;
+      }
       try {
         ref.current.scrollToIndex({
           animated: true,
@@ -251,14 +250,7 @@ const TabsStatus = () => {
         }
       }, FALLBACK_COMMIT_AFTER_MS);
     },
-    [
-      commitPendingTabAfterScroll,
-      scrollToTabId,
-      selectedOrderCounter,
-      deliveryType,
-      fromScanQrCode,
-      role,
-    ],
+    [commitPendingTabAfterScroll, scrollToTabId, selectedOrderCounter],
   );
 
   const renderTabItem = useCallback(
