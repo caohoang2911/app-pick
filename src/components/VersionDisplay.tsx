@@ -1,14 +1,19 @@
-import React, { version } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { CODEPUSH_VERSION } from '@/core/version';
-import { useConfig } from '@/core/store/config';
+import * as Application from 'expo-application';
 import Constants from 'expo-constants';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export const VersionDisplay = () => {
   const currentVersion = Constants.expoConfig?.version;
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>{`Codepush ver: ${CODEPUSH_VERSION}`}</Text>
+      <View className="flex gap-1">
+        <Text
+          style={styles.text}
+        >{`Build ${Application.nativeBuildVersion ?? '—'}`}</Text>
+        <Text style={styles.text}>{`Codepush ver: ${CODEPUSH_VERSION}`}</Text>
+      </View>
       <Text style={styles.text}>{`App ver: ${currentVersion}`}</Text>
     </View>
   );
@@ -20,7 +25,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     paddingHorizontal: 10,
   },
   text: {

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		050CDCDDEC4B4F708FFFC9AC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E2E67067235A467B990973C8 /* GoogleService-Info.plist */; };
 		07ECE0C373404657E1D401F6 /* Pods_AppPick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00F21D4B1404D5BEFF496A7E /* Pods_AppPick.framework */; };
-		0C4362A7A5C1449A9F5691A9 /* Inter_900Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1C161195F02D402C93366E29 /* Inter_900Black.ttf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -31,7 +30,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AppPick/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AppPick/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AppPick/main.m; sourceTree = "<group>"; };
-		1C161195F02D402C93366E29 /* Inter_900Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Inter_900Black.ttf; path = "../node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"; sourceTree = "<group>"; };
 		3C4F027E2E4240ED00A3BA03 /* ding.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ding.mp3; sourceTree = "<group>"; };
 		56784C90587602E42EEA96D7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PrivacyInfo.xcprivacy; path = AppPick/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6C2E3173556A471DD304B334 /* Pods-AppPick.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppPick.debug.xcconfig"; path = "Target Support Files/Pods-AppPick/Pods-AppPick.debug.xcconfig"; sourceTree = "<group>"; };
@@ -77,7 +75,6 @@
 		14465D3F0E5242B89DD67AB0 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				1C161195F02D402C93366E29 /* Inter_900Black.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -224,7 +221,6 @@
 				3C4F027F2E4240ED00A3BA03 /* ding.mp3 in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				050CDCDDEC4B4F708FFFC9AC /* GoogleService-Info.plist in Resources */,
-				0C4362A7A5C1449A9F5691A9 /* Inter_900Black.ttf in Resources */,
 				F9225D335296C5EC10103300 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -306,6 +302,7 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/GTMSessionFetcher/GTMSessionFetcher_Core_Privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/GoogleDataTransport/GoogleDataTransport_Privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities/GoogleUtilities_Privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/Mute/Mute.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/PromisesObjC/FBLPromises_Privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/PromisesSwift/Promises_Privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ReachabilitySwift/ReachabilitySwift.bundle",
@@ -328,6 +325,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GTMSessionFetcher_Core_Privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleDataTransport_Privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleUtilities_Privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Mute.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/FBLPromises_Privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Promises_Privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ReachabilitySwift.bundle",
