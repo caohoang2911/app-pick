@@ -1,11 +1,16 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import { useConfig } from '~/src/core/store/config';
 import { Product } from '~/src/types/product';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
 import SImage from '../SImage';
+
+const pickWarningText = {
+  fontSize: 13,
+  lineHeight: 18,
+  fontStyle: 'italic' as const,
+};
 
 const PickedCompleteConfirmation = ({
   visible,
@@ -26,12 +31,55 @@ const PickedCompleteConfirmation = ({
     [config],
   ) as any[];
 
+  const pickWarningExtraTitle = useMemo(
+    () => (
+      <View className="mt-3 gap-2 pb-1 pl-0.5">
+        <Text style={pickWarningText} className="text-orange-500 font-semibold">
+          Nếu SP không được pick với các lý do:
+        </Text>
+        <View className="gap-1">
+          {[
+            '• SP hết hàng, SP giảm chất lượng',
+            '• SP quá hạn bán online, SP cận hạn sử dụng',
+            '• SP chờ NCC xử lý',
+          ].map((line) => (
+            <View key={line} className="flex-row items-start gap-2 ">
+              <View
+                style={{
+                  width: 6,
+                  height: 6,
+                  marginTop: 6,
+                }}
+              />
+              <Text
+                style={[pickWarningText, { flex: 1 }]}
+                className="text-orange-500"
+              >
+                {line}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <Text
+          style={[pickWarningText, { marginTop: 4 }]}
+          className="text-orange-500 font-semibold"
+        >
+          Hệ thống sẽ tắt bán online các sản phẩm này, khách không thể đặt mua.
+          Vui lòng kiểm tra kỹ trước khi xác nhận.
+        </Text>
+      </View>
+    ),
+    [],
+  );
+
   return (
     <SBottomSheet
       visible={visible}
       title="Xác nhận đã pick xong"
+      titleAlign="left"
+      extraTitle={pickWarningExtraTitle}
       ref={actionRef}
-      snapPoints={[500]}
+      snapPoints={[750]}
       onClose={() => {
         setVisible(false);
       }}
@@ -99,7 +147,6 @@ const PickedCompleteConfirmation = ({
                     style={{ backgroundColor: '#FFA500' }}
                   >
                     <View className="flex flex-row items-center">
-                      <View className="size-1.5 bg-white rounded-full mr-2 self-start mt-2" />
                       <Text
                         className="text-white font-semibold text-sm"
                         numberOfLines={1}

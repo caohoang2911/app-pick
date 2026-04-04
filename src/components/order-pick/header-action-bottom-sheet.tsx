@@ -13,7 +13,7 @@ import React, {
   useState,
 } from 'react';
 
-import { ORDER_STATUS } from '@/core/constants/order';
+import { ORDER_DELIVERY_TYPE, ORDER_STATUS } from '@/core/constants/order';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
@@ -167,17 +167,19 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
           </Text>
           {rank && <Badge label={rank} />}
         </View>
-        <View className="flex flex-row gap-2 items-center">
-          <Pressable
-            onPress={() => {
-              Linking.openURL(`tel:${phone}`);
-            }}
-          >
-            <View className="bg-blue-50 rounded-full p-3">
-              <Feather name="phone-call" size={16} color="black" />
-            </View>
-          </Pressable>
-        </View>
+        {deliveryType === ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY && (
+          <View className="flex flex-row gap-2 items-center">
+            <Pressable
+              onPress={() => {
+                Linking.openURL(`tel:${phone}`);
+              }}
+            >
+              <View className="bg-blue-50 rounded-full p-3">
+                <Feather name="phone-call" size={16} color="black" />
+              </View>
+            </Pressable>
+          </View>
+        )}
       </View>
     );
   };
