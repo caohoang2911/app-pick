@@ -33,6 +33,8 @@ import ProductGift from './product-gift';
 import UserNote from './user-note';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 
+const INPUT_BARCODE_LENGTH = 5;
+
 const EmptyProductList = () => (
   <View className="mt-3">
     <Empty />
@@ -146,9 +148,19 @@ const OrderPickProducts = () => {
 
     const keywordUpper = keyword.toUpperCase();
 
-    const productBarcode = orderPickProductsFlat?.find((product: Product) =>
-      barcodeCondition(keywordUpper, product?.refBarcodes),
-    );
+    const productBarcode = orderPickProductsFlat?.find((product: Product) => {
+      if (keywordUpper.length >= INPUT_BARCODE_LENGTH) {
+        const lastSixDigits = keywordUpper.slice(-INPUT_BARCODE_LENGTH);
+        return product?.refBarcodes?.some(
+          (refBarcode) =>
+            refBarcode?.endsWith(lastSixDigits) ||
+            refBarcode?.includes(lastSixDigits),
+        );
+      }
+
+      return barcodeCondition(keywordUpper, product?.refBarcodes);
+    });
+
     if (productBarcode) {
       Keyboard.dismiss();
       const indexOfCodeScanned = handleScanBarcode({
