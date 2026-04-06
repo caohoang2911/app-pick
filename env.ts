@@ -5,6 +5,7 @@
  */
 
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 // Get environment from app.config.ts extra field
 const getEnvironmentFromConfig = (): 'dev' | 'prod' => {
@@ -14,19 +15,47 @@ const getEnvironmentFromConfig = (): 'dev' | 'prod' => {
 
 const environment = getEnvironmentFromConfig();
 
+type NativeGithubDefaults = { ios: boolean; android: boolean };
+
 /**
- * Mặc định theo `configs[env].NATIVE_GITHUB_UPDATE`.
- * `EXPO_PUBLIC_NATIVE_GITHUB_UPDATE` (bundle/OTA) ghi đè khi set rõ true/false.
+ * `EXPO_PUBLIC_NATIVE_GITHUB_UPDATE` ghi đè cả iOS + Android.
+ * `EXPO_PUBLIC_NATIVE_GITHUB_UPDATE_IOS` / `_ANDROID` ghi đè từng nền (khi global không set).
  */
-function resolveNativeGithubUpdate(configDefault: boolean): boolean {
-  const v = process.env.EXPO_PUBLIC_NATIVE_GITHUB_UPDATE?.trim().toLowerCase();
-  if (v === 'false' || v === '0' || v === 'off') {
-    return false;
+function resolveNativeGithubUpdates(defaults: NativeGithubDefaults): {
+  ios: boolean;
+  android: boolean;
+} {
+  const global =
+    process.env.EXPO_PUBLIC_NATIVE_GITHUB_UPDATE?.trim().toLowerCase();
+  if (global === 'false' || global === '0' || global === 'off') {
+    return { ios: false, android: false };
   }
-  if (v === 'true' || v === '1' || v === 'on') {
-    return true;
+  if (global === 'true' || global === '1' || global === 'on') {
+    return { ios: true, android: true };
   }
-  return configDefault;
+
+  let ios = defaults.ios;
+  let android = defaults.android;
+
+  const iosEnv =
+    process.env.EXPO_PUBLIC_NATIVE_GITHUB_UPDATE_IOS?.trim().toLowerCase();
+  if (iosEnv === 'false' || iosEnv === '0' || iosEnv === 'off') {
+    ios = false;
+  }
+  if (iosEnv === 'true' || iosEnv === '1' || iosEnv === 'on') {
+    ios = true;
+  }
+
+  const androidEnv =
+    process.env.EXPO_PUBLIC_NATIVE_GITHUB_UPDATE_ANDROID?.trim().toLowerCase();
+  if (androidEnv === 'false' || androidEnv === '0' || androidEnv === 'off') {
+    android = false;
+  }
+  if (androidEnv === 'true' || androidEnv === '1' || androidEnv === 'on') {
+    android = true;
+  }
+
+  return { ios, android };
 }
 
 // Environment configurations
@@ -42,8 +71,9 @@ const configs = {
     ENABLE_ANALYTICS: false,
     ENABLE_CRASH_REPORTING: false,
     ENABLE_DEBUG_TOOLS: true,
-    /** Check/tải bản native qua GitHub (có thể tắt từng môi trường hoặc qua EXPO_PUBLIC). */
-    NATIVE_GITHUB_UPDATE: true,
+    /** Check/tải bản native qua GitHub — tách theo nền (ghi đè bằng EXPO_PUBLIC_*). */
+    NATIVE_GITHUB_UPDATE_IOS: true,
+    NATIVE_GITHUB_UPDATE_ANDROID: false,
   },
   prod: {
     API_BASE_URL: 'https://oms-api.seedcom.vn/',
@@ -56,12 +86,18 @@ const configs = {
     ENABLE_ANALYTICS: true,
     ENABLE_CRASH_REPORTING: true,
     ENABLE_DEBUG_TOOLS: false,
-    NATIVE_GITHUB_UPDATE: false,
+    NATIVE_GITHUB_UPDATE_IOS: true,
+    NATIVE_GITHUB_UPDATE_ANDROID: false,
   },
 };
 
 const currentConfig =
   configs[environment as keyof typeof configs] || configs.dev;
+
+const nativeGithubResolved = resolveNativeGithubUpdates({
+  ios: currentConfig.NATIVE_GITHUB_UPDATE_IOS,
+  android: currentConfig.NATIVE_GITHUB_UPDATE_ANDROID,
+});
 
 /**
  * Environment configuration object
@@ -81,7 +117,13 @@ export const Env = {
   ENABLE_ANALYTICS: currentConfig.ENABLE_ANALYTICS,
   ENABLE_CRASH_REPORTING: currentConfig.ENABLE_CRASH_REPORTING,
   ENABLE_DEBUG_TOOLS: currentConfig.ENABLE_DEBUG_TOOLS,
-  NATIVE_GITHUB_UPDATE: resolveNativeGithubUpdate(
-    currentConfig.NATIVE_GITHUB_UPDATE,
-  ),
+  NATIVE_GITHUB_UPDATE_IOS: nativeGithubResolved.ios,
+  NATIVE_GITHUB_UPDATE_ANDROID: nativeGithubResolved.android,
+  /** Theo Platform hiện tại; dùng chung cho hook auto-update. */
+  NATIVE_GITHUB_UPDATE:
+    Platform.OS === 'ios'
+      ? nativeGithubResolved.ios
+      : Platform.OS === 'android'
+        ? nativeGithubResolved.android
+        : false,
 };
