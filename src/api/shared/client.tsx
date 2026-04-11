@@ -7,9 +7,10 @@ import { isDevelopment } from '~/src/core/env';
 import CrashlyticsService from '~/src/core/utils/crashlytics';
 
 const BLACK_LIST_SHOW_MESSAGE = ['/app-pick/getStoreEmployeeProfile'];
-
-const DUMMY_TOKEN =
-  '4kkgCYTSGyU4hc50sSNRYiCAZ2KxQPQzUClPl-cMi8EKduxy1jLs1OweKInfH7etwjBZBWE5HV7ZAbi_3J8_BA';
+const PUBLIC_AUTH_ENDPOINTS = [
+  'auth/genHRVLoginURL',
+  'auth/authorizeUserPassword',
+];
 
 // Function để gọi API logout
 const callLogoutAPI = async () => {
@@ -159,11 +160,16 @@ axiosClient.interceptors.response.use(
 
 axiosClient.interceptors.request.use(function (config: any) {
   const token = getToken();
+  const requestUrl = config.url || '';
+  const isPublicAuthEndpoint = PUBLIC_AUTH_ENDPOINTS.some((endpoint) =>
+    requestUrl.includes(endpoint),
+  );
 
   if (token) {
     config.headers.zas = token;
-  } else {
-    config.headers.zas = DUMMY_TOKEN;
+  } else if (!isPublicAuthEndpoint) {
+    // Chặn mọi API không public sau khi đã logout/không còn token
+    return Promise.reject(new Error('BLOCKED_SIGNED_OUT_REQUEST'));
   }
 
   if (config.data instanceof FormData) {

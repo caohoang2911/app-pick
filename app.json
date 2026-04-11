@@ -104,6 +104,7 @@
           }
         }
       ],
+      "expo-font",
       "expo-router",
       "with-react-native-tcp-socket"
     ],

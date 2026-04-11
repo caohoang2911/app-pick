@@ -1,6 +1,5 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { removeItem, setItem } from '~/src/core/storage';
 import { setUser, useAuth } from '~/src/core/store/auth';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { setLoading } from '~/src/core/store/loading';
@@ -18,6 +17,10 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
     mutationKey: ['refreshToken'],
     mutationFn: () => refreshToken(),
     onSuccess: (data: any & { data: { zas: string } }) => {
+      if (data?.error || !data?.data?.zas) {
+        return;
+      }
+
       setLoading(true);
       setToken(data?.data?.zas || '');
 
@@ -32,8 +35,6 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
       });
       setLoading(false);
       cb?.(data);
-
-      setLoading(false);
     },
   });
 };

@@ -1,11 +1,15 @@
 import { useEffect } from 'react';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { axiosClient } from '~/src/api/shared';
+import { useAuth } from '~/src/core';
 import { hideAlert, showAlert } from '../store/alert-dialog';
 import { useSignOut } from './useSignOut';
 
 export const useWatchResponse = () => {
   const triggerSignOut = useSignOut();
+  const authStatus = useAuth.use.status();
+  const token = useAuth.use.token();
+  const userInfo = useAuth.use.userInfo();
 
   const { mutate: refreshToken } = useRefreshToken(() => {
     triggerSignOut();
@@ -18,8 +22,17 @@ export const useWatchResponse = () => {
         showAlert({
           title: 'Thông báo',
           message: 'Tài khoản đã bị thay đổi siêu thị. Vui lòng đăng nhập lại!',
+          stackId: 'employee-store-out-of-date',
           onConfirm: () => {
             hideAlert();
+            const hasValidSession =
+              authStatus === 'signIn' && !!token && !!userInfo?.storeCode;
+
+            if (!hasValidSession) {
+              triggerSignOut();
+              return;
+            }
+
             refreshToken();
           },
           isHideCancelButton: true,
