@@ -1,0 +1,38 @@
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java
+index 82976b5..0e8ecd1 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java
+@@ -636,7 +636,13 @@ public class ReactHorizontalScrollView extends HorizontalScrollView
+       cancelPostTouchScrolling();
+     }
+ 
+-    return super.onTouchEvent(ev);
++    try {
++      return super.onTouchEvent(ev);
++    } catch (IllegalArgumentException e) {
++      // Guard against Android pointer index inconsistencies on multi-touch events.
++      FLog.w(ReactConstants.TAG, "Error handling touch event.", e);
++      return false;
++    }
+   }
+ 
+   @Override
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
+index 49f7326..6bd8ea9 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
+@@ -459,7 +459,13 @@ public class ReactScrollView extends ScrollView
+       cancelPostTouchScrolling();
+     }
+ 
+-    return super.onTouchEvent(ev);
++    try {
++      return super.onTouchEvent(ev);
++    } catch (IllegalArgumentException e) {
++      // Guard against Android pointer index inconsistencies on multi-touch events.
++      FLog.w(ReactConstants.TAG, "Error handling touch event.", e);
++      return false;
++    }
+   }
+ 
+   @Override

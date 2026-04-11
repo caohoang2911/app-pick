@@ -24,7 +24,6 @@ import { setDefaultTimeZone } from '@/core/utils/moment';
 import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
 
 import '@/ui/global.css';
-import * as Updates from 'expo-updates';
 import React, { useCallback, useEffect } from 'react';
 import {
   SafeAreaView,
@@ -43,6 +42,21 @@ import {
   initializeSafeAppManagement,
 } from '../core/utils/safe-app-management';
 
+let Updates: any = null;
+
+try {
+  // OTA mismatch can make expo-updates native module unavailable at runtime.
+  Updates = require('expo-updates');
+} catch (error) {
+  console.warn(
+    '[RootLayout] expo-updates unavailable, disabling OTA UI',
+    error,
+  );
+}
+
+const useUpdatesSafe =
+  Updates?.useUpdates ?? (() => ({ isUpdateAvailable: false }));
+
 // ─── NotificationWrapper ───────────────────────────────────────────────────────
 // Nhận isDoneCodepush từ Providers để không gọi useCodepush 2 lần
 const NotificationWrapper = ({
@@ -54,7 +68,7 @@ const NotificationWrapper = ({
 }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
-  const { isUpdateAvailable } = Updates.useUpdates();
+  const { isUpdateAvailable } = useUpdatesSafe();
   const { onFetchUpdateAsync } = useCodepush();
   const appState = useAppState();
   const { mutate: setFCMRegistrationToken } = useSetFCMRegistrationToken();
@@ -133,7 +147,7 @@ function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
   const loading = useLoading.use.loading();
 
-  const { isUpdateAvailable } = Updates.useUpdates();
+  const { isUpdateAvailable } = useUpdatesSafe();
 
   // ✅ CodePush chạy trước
   const { isDoneCodepush } = useCodepush();

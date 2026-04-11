@@ -1,9 +1,19 @@
-import * as Updates from 'expo-updates';
 import { useCallback, useEffect } from 'react';
 import { openOtaUpdateReadyModal } from '@/core/store/ota-update-modal';
 import { useCodepushStore } from '@/core/store/codepush';
 
 let fetchUpdateInFlight: Promise<void> | null = null;
+let Updates: any = null;
+
+try {
+  // OTA mismatch can make expo-updates native module unavailable at runtime.
+  Updates = require('expo-updates');
+} catch (error) {
+  console.warn(
+    '[useCodepush] expo-updates unavailable, skipping OTA checks',
+    error,
+  );
+}
 
 export const useCodepush = () => {
   const isDoneCodepush = useCodepushStore((s) => s.isDoneCodepush);
@@ -12,6 +22,11 @@ export const useCodepush = () => {
   const allowUpdateByBuildNumber = () => true;
 
   const onFetchUpdateAsync = useCallback(async () => {
+    if (!Updates?.checkForUpdateAsync || !Updates?.fetchUpdateAsync) {
+      setIsDoneCodepush(true);
+      return;
+    }
+
     if (fetchUpdateInFlight) {
       await fetchUpdateInFlight;
       return;
