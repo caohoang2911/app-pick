@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -69,6 +70,12 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
       extraRequest,
     });
   };
+
+  const shippingServiceTypesFiltered = useMemo(() => {
+    return shippingServiceTypes?.filter(
+      (serviceType: any) => serviceType.id !== 'STORE_EMPLOYEE',
+    );
+  }, [shippingServiceTypes]);
 
   return (
     <>
@@ -154,46 +161,46 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
                     />
                   </RadioButtonGroup>
                 </View>
-                <View className="flex gap-2 mb-2">
-                  <View className="pt-2 mb-2">
-                    <Text className="text-base font-semibold">Tài xế</Text>
-                  </View>
-                  <RadioButtonGroup
-                    containerStyle={{ marginBottom: 10 }}
-                    selected={values.serviceType}
-                    size={18}
-                    onSelected={(value: string) => {
-                      if (!value) return;
-                      setFieldValue('serviceType', value);
-                    }}
-                    radioStyle={{ backgroundColor: 'white' }}
-                    radioBackground="blue"
-                  >
-                    {shippingServiceTypes
-                      ?.filter(
-                        (serviceType: any) =>
-                          serviceType.id !== 'STORE_EMPLOYEE',
-                      )
-                      ?.map((serviceType: any) => (
-                        <RadioButtonItem
-                          key={serviceType.id}
-                          value={serviceType.id}
-                          label={
-                            <Text
-                              className="pl-3 py-2 text-base"
-                              style={
-                                Platform.OS === 'android'
-                                  ? { includeFontPadding: false }
-                                  : undefined
+                {shippingServiceTypesFiltered &&
+                  shippingServiceTypesFiltered?.length > 0 && (
+                    <View className="flex gap-2 mb-2">
+                      <View className="pt-2 mb-2">
+                        <Text className="text-base font-semibold">Tài xế</Text>
+                      </View>
+                      <RadioButtonGroup
+                        containerStyle={{ marginBottom: 10 }}
+                        selected={values.serviceType}
+                        size={18}
+                        onSelected={(value: string) => {
+                          if (!value) return;
+                          setFieldValue('serviceType', value);
+                        }}
+                        radioStyle={{ backgroundColor: 'white' }}
+                        radioBackground="blue"
+                      >
+                        {shippingServiceTypesFiltered?.map(
+                          (serviceType: any) => (
+                            <RadioButtonItem
+                              key={serviceType.id}
+                              value={serviceType.id}
+                              label={
+                                <Text
+                                  className="pl-3 py-2 text-base"
+                                  style={
+                                    Platform.OS === 'android'
+                                      ? { includeFontPadding: false }
+                                      : undefined
+                                  }
+                                >
+                                  {serviceType.name}
+                                </Text>
                               }
-                            >
-                              {serviceType.name}
-                            </Text>
-                          }
-                        />
-                      ))}
-                  </RadioButtonGroup>
-                </View>
+                            />
+                          ),
+                        )}
+                      </RadioButtonGroup>
+                    </View>
+                  )}
               </View>
             );
           }}

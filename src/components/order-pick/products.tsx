@@ -21,10 +21,7 @@ import {
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
-import {
-  barcodeCondition,
-  handleScanBarcode,
-} from '~/src/core/utils/order-bag';
+import { handleScanBarcode } from '~/src/core/utils/order-bag';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
@@ -149,16 +146,14 @@ const OrderPickProducts = () => {
     const keywordUpper = keyword.toUpperCase();
 
     const productBarcode = orderPickProductsFlat?.find((product: Product) => {
-      if (keywordUpper.length >= INPUT_BARCODE_LENGTH) {
-        const lastSixDigits = keywordUpper.slice(-INPUT_BARCODE_LENGTH);
-        return product?.refBarcodes?.some(
-          (refBarcode) =>
-            refBarcode?.endsWith(lastSixDigits) ||
-            refBarcode?.includes(lastSixDigits),
+      return product?.refBarcodes?.some((refBarcode = '') => {
+        const barcodeUpper = refBarcode.toUpperCase();
+        return (
+          barcodeUpper === keywordUpper ||
+          (keywordUpper.length >= INPUT_BARCODE_LENGTH &&
+            barcodeUpper.endsWith(keywordUpper))
         );
-      }
-
-      return barcodeCondition(keywordUpper, product?.refBarcodes);
+      });
     });
 
     if (productBarcode) {
