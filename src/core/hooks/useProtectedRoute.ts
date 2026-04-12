@@ -29,6 +29,12 @@ export function useProtectedRoute() {
     };
 
     if (status === 'signOut') {
+      // Đóng stack lồng (drawer, modal) để sau login không back về orders phiên cũ.
+      try {
+        (router as { dismissAll?: () => void }).dismissAll?.();
+      } catch {
+        /* noop */
+      }
       safeRedirect(ROUTES.AUTH.LOGIN);
     } else if (status === 'signIn' && firstTime.current) {
       firstTime.current = false;
