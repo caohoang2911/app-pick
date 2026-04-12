@@ -230,9 +230,8 @@ const TabsStatus = () => {
         queryKey: ['getOrderStatusCounters'],
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ['getOrderDeliveryTypeCounters'],
-      });
+      // Không invalidate getOrderDeliveryTypeCounters: queryKey gắn selectedOrderCounter,
+      // invalidate lúc này refetch tab cũ rồi commit store → fetch tab mới = gọi API 2 lần.
 
       if (fallbackCommitTimerRef.current != null) {
         clearTimeout(fallbackCommitTimerRef.current);

@@ -194,10 +194,7 @@ const OrderList = () => {
 
   // First page reset function - memoized
   const goFirstPage = useCallback(async () => {
-    await queryClient.setQueryData(['searchOrders', params], () => ({
-      pages: [],
-      pageParams: 1,
-    }));
+    await queryClient.resetQueries({ queryKey: ['searchOrders', params] });
     return refetch();
   }, [params, refetch]);
 
