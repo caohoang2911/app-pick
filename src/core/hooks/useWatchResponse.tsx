@@ -1,20 +1,10 @@
 import { useEffect } from 'react';
-import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { axiosClient } from '~/src/api/shared';
-import { useAuth } from '~/src/core';
 import { hideAlert, showAlert } from '../store/alert-dialog';
 import { useSignOut } from './useSignOut';
 
 export const useWatchResponse = () => {
   const triggerSignOut = useSignOut();
-  const authStatus = useAuth.use.status();
-  const token = useAuth.use.token();
-  const userInfo = useAuth.use.userInfo();
-
-  const { mutate: refreshToken } = useRefreshToken(() => {
-    triggerSignOut();
-    hideAlert();
-  });
 
   useEffect(() => {
     const resInterceptor = (response: any) => {
@@ -25,15 +15,7 @@ export const useWatchResponse = () => {
           stackId: 'employee-store-out-of-date',
           onConfirm: () => {
             hideAlert();
-            const hasValidSession =
-              authStatus === 'signIn' && !!token && !!userInfo?.storeCode;
-
-            if (!hasValidSession) {
-              triggerSignOut();
-              return;
-            }
-
-            refreshToken();
+            triggerSignOut();
           },
           isHideCancelButton: true,
         });
