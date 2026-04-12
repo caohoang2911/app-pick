@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Portal } from '@gorhom/portal';
 import { useLoading } from '../core/store/loading';
@@ -8,8 +8,9 @@ const Loading = ({ description }: { description?: string }) => {
 
   const shouldShowDescription =
     Boolean(descriptionStore) || Boolean(description);
-  return (
-    <Portal>
+
+  const portalContent = useMemo(
+    () => (
       <View style={styles.root}>
         <View style={styles.backdrop} />
         <View style={styles.center}>
@@ -23,8 +24,11 @@ const Loading = ({ description }: { description?: string }) => {
           )}
         </View>
       </View>
-    </Portal>
+    ),
+    [descriptionStore, description, shouldShowDescription],
   );
+
+  return <Portal>{portalContent}</Portal>;
 };
 
 export default Loading;

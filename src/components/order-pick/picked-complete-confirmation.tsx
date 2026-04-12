@@ -1,10 +1,13 @@
+import { isNil } from 'lodash';
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
 import { Product } from '~/src/types/product';
+import { Badge } from '../Badge';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';
 import SImage from '../SImage';
+import { formatNumber } from '~/src/core/utils/number';
 
 const pickWarningText = {
   fontSize: 13,
@@ -99,6 +102,16 @@ const PickedCompleteConfirmation = ({
       <View className="flex-1 px-4 pt-1 mb-4 ">
         <View className="flex flex-col flex-1 gap-4 py-3">
           {productFulfillError?.map((item: Product, index: number) => {
+            const stock = !isNil(item.stockOnhand)
+              ? item.stockOnhand
+              : !isNil(item.stockAvailable)
+                ? item.stockAvailable
+                : null;
+            const stockLabel =
+              stock === null
+                ? '--'
+                : `${formatNumber(stock)}${item.unit ? ` ${item.unit}` : ''}`;
+
             return (
               <View
                 key={index}
@@ -125,19 +138,28 @@ const PickedCompleteConfirmation = ({
                         {item.name}
                       </Text>
                     </View>
-                    <View className="flex gap-2 justify-between">
-                      <Text>
-                        <Text numberOfLines={1} className="w-full">
-                          Đặt:{' '}
-                          <Text className="font-bold">
-                            {item.quantity || 0} {item.unit}
-                          </Text>
-                          , Pick:{' '}
-                          <Text className="font-bold">
-                            {item.pickedQuantity || 0} {item.unit}
-                          </Text>
+                    <View className="gap-1.5">
+                      <Text className="w-full text-[15px] leading-5 text-gray-900">
+                        Đặt:{' '}
+                        <Text className="font-bold">
+                          {item.quantity || 0} {item.unit}
+                        </Text>
+                        {} • Pick:{' '}
+                        <Text className="font-bold">
+                          {item.pickedQuantity || 0} {item.unit}
                         </Text>
                       </Text>
+                      <View className="flex-row items-center gap-2 flex-wrap mt-1">
+                        <Text className="text-sm text-gray-500 font-medium">
+                          Tồn kho:
+                        </Text>
+                        <Badge
+                          variant="default"
+                          label={stockLabel}
+                          labelClasses="font-bold text-gray-900 text-xs"
+                          className="py-0.5 px-2 max-w-full"
+                        />
+                      </View>
                     </View>
                   </View>
                 </View>

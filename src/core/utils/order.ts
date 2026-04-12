@@ -73,5 +73,8 @@ export const getScanToDeliveryInfo = ({
     };
   }
 
-  return null;
+  return {
+    title: 'Scan túi',
+    route: '',
+  };
 };

@@ -35,6 +35,8 @@ export type Product = {
   name?: string;
   afterTaxPrice?: number;
   stockAvailable?: number;
+  /** Tồn kho tại cửa hàng (API có thể trả thay cho hoặc cùng với stockAvailable). */
+  stockOnhand?: number;
   discount?: number;
   sellPrice?: number;
   attributes?: any;

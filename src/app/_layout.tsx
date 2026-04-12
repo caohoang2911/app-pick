@@ -24,7 +24,7 @@ import { setDefaultTimeZone } from '@/core/utils/moment';
 import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
 
 import '@/ui/global.css';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -102,6 +102,15 @@ hydrateConfig();
 setDefaultTimeZone();
 SplashScreen.preventAutoHideAsync();
 
+/** Stable wrapper styles for @gorhom/portal — inline arrays/objects change every render and retrigger Portal's children effect → infinite update loop. */
+const flashPortalStyles = StyleSheet.create({
+  wrap: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 999_999,
+    elevation: 999_999,
+  },
+});
+
 // ─── AuthWrapper ──────────────────────────────────────────────────────────────
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
@@ -175,6 +184,29 @@ function Providers({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const flashMessageStyle = useMemo(
+    () => ({
+      paddingRight: 36,
+      paddingBottom: Math.max(insets.bottom, 8),
+    }),
+    [insets.bottom],
+  );
+
+  const flashMessagePortal = useMemo(
+    () => (
+      <View pointerEvents="box-none" style={flashPortalStyles.wrap}>
+        <FlashMessage
+          position="bottom"
+          duration={5000}
+          style={flashMessageStyle}
+          statusBarHeight={StatusBar.currentHeight}
+          MessageComponent={FlashMessageWithMarkdown}
+        />
+      </View>
+    ),
+    [flashMessageStyle],
+  );
+
   return (
     <CustomErrorBoundary
       onError={(error, errorInfo) => {
@@ -223,26 +255,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                 />
 
                 {/* Portal + zIndex/elevation: trên BottomSheet modal (@gorhom) */}
-                <Portal>
-                  <View
-                    pointerEvents="box-none"
-                    style={[
-                      StyleSheet.absoluteFillObject,
-                      { zIndex: 999_999, elevation: 999_999 },
-                    ]}
-                  >
-                    <FlashMessage
-                      position="bottom"
-                      duration={5000}
-                      style={{
-                        paddingRight: 36,
-                        paddingBottom: Math.max(insets.bottom, 8),
-                      }}
-                      statusBarHeight={StatusBar.currentHeight}
-                      MessageComponent={FlashMessageWithMarkdown}
-                    />
-                  </View>
-                </Portal>
+                <Portal>{flashMessagePortal}</Portal>
               </View>
             </APIProvider>
           </PortalProvider>
