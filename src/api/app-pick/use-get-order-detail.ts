@@ -5,6 +5,9 @@ import { useRole } from '~/src/core/hooks/useRole';
 import { Role } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-pick';
 
+/** Stable fallback — never use inline `{}` or every render gets a new reference and breaks effect deps. */
+const EMPTY_ORDER_DETAIL = {} as OrderDetail;
+
 type Variables = {
   orderCode?: string;
 };
@@ -95,6 +98,6 @@ export const useOrderDetailForCode = (orderCode: string | undefined) => {
     isOrderDetailLoading,
     orderDetailError,
     hasOrderDetail,
-    orderDetail: orderDetail ?? ({} as OrderDetail),
+    orderDetail: orderDetail ?? EMPTY_ORDER_DETAIL,
   };
 };

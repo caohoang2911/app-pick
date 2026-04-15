@@ -36,7 +36,7 @@ const OrderPick = () => {
 
   const currentCode = useOrderPick.use.currentCode();
 
-  const { isOrderDetailLoading, orderDetailError, orderDetail } =
+  const { isOrderDetailLoading, orderDetailError } =
     useOrderDetailForCode(code);
 
   useEffect(() => {
@@ -71,7 +71,8 @@ const OrderPick = () => {
         return <Header onClickHeaderAction={openHeaderAction} />;
       },
     });
-  }, [isOrderDetailLoading, orderDetail]);
+    // Chỉ phụ thuộc loading: `orderDetail` từ query đã ổn định khi có data; Header tự subscribe query theo route.
+  }, [isOrderDetailLoading, navigation]);
 
   const openHeaderAction = () => {
     headerAcrtionRef.current?.present();
