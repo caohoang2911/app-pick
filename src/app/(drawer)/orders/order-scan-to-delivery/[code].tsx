@@ -463,7 +463,10 @@ const OrderScanToDelivery = () => {
             codAmount={codAmount}
           />
           <View className="flex flex-col gap-4">
-            <ShipperInfo orderDetail={orderDetail || {}} />
+            {deliveryType !== ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY &&
+            deliveryType !== ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP ? (
+              <ShipperInfo orderDetail={orderDetail} />
+            ) : null}
             <InvoiceInfo />
             <View className="border-t border-gray-200 pb-3">
               <Bags bagLabels={header?.bagLabels} />

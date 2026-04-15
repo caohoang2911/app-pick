@@ -57,31 +57,39 @@ const ShipperInfo = ({ orderDetail }: { orderDetail: OrderDetail }) => {
 
   return (
     <Box className="flex flex-row items-center justify-between">
-      <View className="flex flex-row items-center gap-5">
-        <MaterialCommunityIcons name="bike-fast" size={25} color="#999999" />
-        <View className="flex gap-2">
+      <View className="flex-1 flex-row items-center gap-3 min-w-0">
+        <MaterialCommunityIcons
+          name="bike-fast"
+          size={25}
+          color="#999999"
+          style={{ flexShrink: 0 }}
+        />
+        <View className="flex-1 min-w-0 gap-1 items-start">
           {!!driverNameWithProvider && (
-            <Text className="text-sm font-medium">
+            <Text className="text-sm font-medium" numberOfLines={1}>
               {driverNameWithProvider}
             </Text>
           )}
           {!!shipping?.driverPhone && (
-            <Text className="text-sm text-gray-500">
+            <Text
+              className="text-sm text-gray-500 text-left w-full"
+              numberOfLines={1}
+            >
               {shipping.driverPhone}
             </Text>
           )}
         </View>
+        {logoSource != null && (
+          <View className="shrink-0">
+            <Image
+              source={logoSource}
+              resizeMode="contain"
+              style={{ width: 55, height: 58 }}
+              accessibilityLabel={providerName || shipping?.provider}
+            />
+          </View>
+        )}
       </View>
-      {logoSource != null && (
-        <View className="ml-2">
-          <Image
-            source={logoSource}
-            resizeMode="contain"
-            style={{ width: 72, height: 58 }}
-            accessibilityLabel={providerName || shipping?.provider}
-          />
-        </View>
-      )}
     </Box>
   );
 };
