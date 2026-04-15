@@ -14,6 +14,7 @@ import ScannerBox from '~/src/components/shared/ScannerBox';
 import OrderPickSkeleton from '~/src/components/shared/skeleton/order-pick-skeleton';
 import {
   setCurrentId,
+  setIsPickedByManualBarcodeInput,
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
   toggleScanQrCodeProduct,
@@ -112,6 +113,7 @@ const OrderPick = () => {
         : 1;
 
       if (currentBarcode) {
+        setIsPickedByManualBarcodeInput(false);
         const newAmount = !scannedIds?.[currentProduct?.id]
           ? quantity || currentAmount
           : Number(quantityFromBarcode || 0) +

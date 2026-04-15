@@ -2,8 +2,12 @@ import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { Product } from '~/src/types/product';
 
+export type SetOrderItemPickedProduct = Product & {
+  isPickedByManualBarcodeInput?: boolean;
+};
+
 export type SetOrderItemPickedVariables = {
-  pickedItem?: Product;
+  pickedItem?: SetOrderItemPickedProduct;
   orderCode?: string;
 };
 

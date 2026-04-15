@@ -21,7 +21,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useSetOrderItemPicked } from '~/src/api/app-pick/set-order-item-picked';
+import {
+  useSetOrderItemPicked,
+  type SetOrderItemPickedProduct,
+} from '~/src/api/app-pick/set-order-item-picked';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -511,6 +514,8 @@ const InputAmountPopup = () => {
   const { height: windowHeight } = useWindowDimensions();
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
+  const isPickedByManualBarcodeInput =
+    useOrderPick.use.isPickedByManualBarcodeInput();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const { code } = useLocalSearchParams<{ code: string }>();
   const queryClient = useQueryClient();
@@ -729,6 +734,7 @@ const InputAmountPopup = () => {
       const pickedItem = {
         ...currentProduct,
         barcode: barcodeScanSuccess,
+        isPickedByManualBarcodeInput,
         pickedQuantity: Number(values?.pickedQuantity || 0),
         pickedErrorType:
           quantity <= values?.pickedQuantity ? '' : values?.pickedErrorType,
@@ -741,7 +747,7 @@ const InputAmountPopup = () => {
             openedBoxQuantity: values?.openedBoxQuantity || 0,
           },
         }),
-      } as Product;
+      } as SetOrderItemPickedProduct;
 
       Keyboard.dismiss();
 
@@ -751,6 +757,7 @@ const InputAmountPopup = () => {
       productName,
       currentProduct,
       barcodeScanSuccess,
+      isPickedByManualBarcodeInput,
       quantity,
       code,
       isUnitBox,

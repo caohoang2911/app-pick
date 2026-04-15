@@ -6,6 +6,7 @@ import { createSelectors } from '../../utils/browser';
 
 interface OrdersState {
   currentCode: string | null;
+  isPickedByManualBarcodeInput: boolean;
   isScanQrCodeProduct: boolean;
   isShowAmountInput: boolean;
   barcodeScanSuccess: string;
@@ -38,11 +39,13 @@ interface OrdersState {
   isVisibleReplaceProduct: boolean;
   resetOrderPick: () => void;
   setCurrentCode: (code: string) => void;
+  setIsPickedByManualBarcodeInput: (isManual: boolean) => void;
 }
 
 const _useOrderPick = create<OrdersState>((set, get) => ({
   orderDetail: {} as OrderDetail,
   currentCode: null,
+  isPickedByManualBarcodeInput: false,
   isScanQrCodeProduct: false,
   isShowAmountInput: false,
   keyword: '',
@@ -75,10 +78,14 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       action: null,
       replacePickedProductId: null,
       isVisibleReplaceProduct: false,
+      isPickedByManualBarcodeInput: false,
     });
   },
   setCurrentCode: (code: string) => {
     set({ currentCode: code });
+  },
+  setIsPickedByManualBarcodeInput: (isManual: boolean) => {
+    set({ isPickedByManualBarcodeInput: isManual });
   },
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
@@ -163,6 +170,9 @@ export const resetOrderPick = () => _useOrderPick.getState().resetOrderPick();
 
 export const setCurrentCode = (code: string) =>
   _useOrderPick.getState().setCurrentCode(code);
+
+export const setIsPickedByManualBarcodeInput = (isManual: boolean) =>
+  _useOrderPick.getState().setIsPickedByManualBarcodeInput(isManual);
 
 export const toggleShowAmountInput = (
   isShowAmountInput: boolean,

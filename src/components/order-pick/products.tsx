@@ -14,6 +14,7 @@ import { queryClient } from '~/src/api/shared';
 import {
   setCurrentId,
   setInitOrderPickProducts,
+  setIsPickedByManualBarcodeInput,
   setKeyword,
   setLastScannedId,
   setSuccessForBarcodeScan,
@@ -169,6 +170,7 @@ const OrderPickProducts = () => {
         const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
 
         if (currentProduct) {
+          setIsPickedByManualBarcodeInput(true);
           setSuccessForBarcodeScan(productBarcode?.barcode || '');
           setCurrentId(currentProduct?.id);
           setLastScannedId(currentProduct?.id ?? null);
@@ -184,6 +186,7 @@ const OrderPickProducts = () => {
     handleScanBarcode,
     setSuccessForBarcodeScan,
     setCurrentId,
+    setIsPickedByManualBarcodeInput,
     setLastScannedId,
     toggleShowAmountInput,
     setKeyword,
