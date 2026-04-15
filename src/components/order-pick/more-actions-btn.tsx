@@ -54,8 +54,8 @@ const actions = [
     icon: <AntDesign name="tago" size={20} color="black" />,
   },
   {
-    key: PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT,
-    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT],
+    key: PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER,
+    title: PRODUCT_ACTION_LABELS[PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER],
     icon: <AntDesign name="tago" size={20} color="black" />,
   },
 ];
@@ -157,8 +157,8 @@ const MoreActionsBtn = ({
         case PRODUCT_ACTIONS.INCORRECT_STOCK:
           setActionProduct(PRODUCT_ACTIONS.INCORRECT_STOCK);
           break;
-        case PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT:
-          setActionProduct(PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT);
+        case PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER:
+          setActionProduct(PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER);
           break;
         default:
           break;

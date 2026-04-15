@@ -815,10 +815,10 @@ const InputAmountPopup = () => {
               'pickedErrorType',
               PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK,
             );
-          } else if (action === PRODUCT_ACTIONS.PICK_WEIGHT_EXCEEDS_LIMIT) {
+          } else if (action === PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER) {
             setFieldValue(
               'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.PICK_WEIGHT_EXCEEDS_LIMIT,
+              PRODUCT_PICKED_ERROR_TYPES.IN_CART_OFFLINE_CUSTOMER,
             );
           } else {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());
