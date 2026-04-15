@@ -100,15 +100,6 @@ const IncrementButton = memo(
   ),
 );
 
-// ProductUnit Component
-const ProductUnit = memo(({ unit }: { unit: string }) => (
-  <View className="bg-gray-200 rounded-lg p-2" style={{ width: 70 }}>
-    <Text className="text-gray-300 text-ellipsis text-center text-xs font-medium">
-      {unit}
-    </Text>
-  </View>
-));
-
 // ScanButton Component
 const ScanButton = memo(
   ({ onPress, disabled }: { onPress: () => void; disabled: boolean }) => (
@@ -118,7 +109,7 @@ const ScanButton = memo(
       className={`rounded-lg ${disabled ? 'opacity-50' : ''}`}
     >
       <View
-        className={`bg-colorPrimary rounded-lg px-3 h-8 flex flex-row gap-1 justify-center items-center ${
+        className={`bg-colorPrimary rounded-lg px-4 h-11 flex flex-row gap-1 justify-center items-center ${
           disabled ? 'opacity-50' : ''
         }`}
       >
@@ -218,43 +209,38 @@ const QuantitySection = memo(
 
     return (
       <View className="flex gap-2 flex-1" style={{ position: 'relative' }}>
-        <View className="flex-1">
-          <View className="flex-1" style={{ marginRight: 113 }}>
-            <Input
-              selectTextOnFocus
-              labelClasses="font-medium"
-              label="Số lượng pick"
-              placeholder="Nhập số lượng"
-              inputClasses="text-center"
-              keyboardType="decimal-pad"
-              onChangeText={handleChangeText}
-              editable={editable}
-              useBottomSheetTextInput
-              name="pickedQuantity"
-              value={values?.pickedQuantity?.toString()}
-              onBlur={handleBlur('pickedQuantity')}
-              onFocus={() => onInputFocus?.('pickedQuantity')}
-              defaultValue="0"
-              prefix={
-                <DecrementButton onPress={handleDecrement} disabled={false} />
-              }
-              suffix={
-                <IncrementButton onPress={handleIncrement} disabled={false} />
-              }
-            />
-          </View>
-          <View
-            style={{
-              position: 'absolute',
-              top: Platform.OS === 'ios' ? 32 : 38,
-              right: 0,
-            }}
-          >
-            <View className="flex flex-row items-center gap-2">
-              <ProductUnit unit={currentProduct?.unit || ''} />
-            </View>
-          </View>
+        <Text className="text-base font-medium text-gray-700">
+          Số lượng pick
+          {currentProduct?.unit ? (
+            <Text className="text-gray-400">{` (${currentProduct.unit})`}</Text>
+          ) : null}
+        </Text>
+
+        <View className="flex-row items-center gap-3">
+          <Input
+            className="flex-1"
+            selectTextOnFocus
+            placeholder="Nhập số lượng"
+            inputClasses="text-center"
+            keyboardType="decimal-pad"
+            onChangeText={handleChangeText}
+            editable={editable}
+            useBottomSheetTextInput
+            name="pickedQuantity"
+            value={values?.pickedQuantity?.toString()}
+            onBlur={handleBlur('pickedQuantity')}
+            onFocus={() => onInputFocus?.('pickedQuantity')}
+            defaultValue="0"
+            prefix={
+              <DecrementButton onPress={handleDecrement} disabled={false} />
+            }
+            suffix={
+              <IncrementButton onPress={handleIncrement} disabled={false} />
+            }
+          />
+          <ScanButton onPress={handleQRScan} disabled={!editable} />
         </View>
+
         {errorMessage && <Text className="text-red-500">{errorMessage}</Text>}
       </View>
     );
@@ -674,18 +660,6 @@ const InputAmountPopup = () => {
           Keyboard.dismiss();
         }}
       >
-        <View className="absolute left-0 top-0 z-10">
-          <ScanButton
-            onPress={() => {
-              toggleScanQrCodeProduct(true);
-              setQuantityFromBarcode(
-                Math.floor(Number(displayPickedQuantity || 0) * 1000) / 1000,
-              );
-              setScanMoreProduct(true);
-            }}
-            disabled={action === PRODUCT_ACTIONS.OUT_OF_STOCK}
-          />
-        </View>
         <View className="flex-row items-center justify-center">
           <SImage
             source={currentProduct?.image}
@@ -694,14 +668,7 @@ const InputAmountPopup = () => {
         </View>
       </Pressable>
     ),
-    [
-      currentProduct?.image,
-      displayPickedQuantity,
-      action,
-      toggleScanQrCodeProduct,
-      setQuantityFromBarcode,
-      setScanMoreProduct,
-    ],
+    [currentProduct?.image],
   );
 
   // Cleanup on unmount
