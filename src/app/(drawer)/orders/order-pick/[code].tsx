@@ -11,7 +11,6 @@ import OrderPickProducts from '~/src/components/order-pick/products';
 import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-products';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import ScannerBox from '~/src/components/shared/ScannerBox';
-import OrderPickSkeleton from '~/src/components/shared/skeleton/order-pick-skeleton';
 import {
   setCurrentId,
   setIsPickedByManualBarcodeInput,
@@ -30,6 +29,7 @@ import {
   handleScanBarcode,
 } from '~/src/core/utils/order-bag';
 import { BarcodeScanningResult } from '~/src/types/scanner';
+import Loading from '~/src/components/Loading';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -148,7 +148,7 @@ const OrderPick = () => {
   );
 
   if (isOrderDetailLoading) {
-    return <OrderPickSkeleton code={code} />;
+    return <Loading description="Đang tải đơn hàng..." />;
   }
 
   if (orderDetailError) {
