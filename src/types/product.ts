@@ -20,6 +20,11 @@ export type ProductItemGroup = {
 export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 
 export type Product = {
+  originQuantityConversion?: {
+    unit: string; 
+    weightRange: number[];
+    orderQuantity: number;
+  };
   type?: 'GIFT';
   id: number;
   productPickingGuidelines?: Array<string>;

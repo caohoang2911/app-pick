@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import {
   Platform,
@@ -10,31 +11,29 @@ import {
 import { hideMessage } from 'react-native-flash-message';
 import { MarkdownText } from '@/core/utils/markdown';
 
-/** Màu nền theo type (theme của react-native-flash-message) */
-const FLASH_TYPE_BG: Record<
-  string,
-  { bg: string; text: string; close: string; link?: string }
-> = {
-  success: { bg: '#5cb85c', text: '#fff', close: 'rgba(255,255,255,0.9)' },
-  danger: { bg: '#d9534f', text: '#fff', close: 'rgba(255,255,255,0.9)' },
-  info: { bg: '#5bc0de', text: '#fff', close: 'rgba(255,255,255,0.9)' },
-  warning: {
-    bg: '#f0ad4e',
-    text: '#1a1a1a',
-    close: 'rgba(0,0,0,0.7)',
-    link: '#0d47a1',
-  },
-  default: { bg: '#696969', text: '#fff', close: 'rgba(255,255,255,0.9)' },
-};
+/** Màu nền theo type — layout chuẩn toast (icon | nội dung | kẻ | đóng) */
+const FLASH_TYPE_THEME: Record<string, { bg: string; icon: keyof typeof Ionicons.glyphMap }> =
+  {
+    success: { bg: '#27ae60', icon: 'checkmark-circle' },
+    danger: { bg: '#c0392b', icon: 'close-circle' },
+    error: { bg: '#c0392b', icon: 'close-circle' },
+    info: { bg: '#2980b9', icon: 'information-circle' },
+    warning: { bg: '#f39c12', icon: 'warning-outline' },
+    default: { bg: '#696969', icon: 'information-circle-outline' },
+  };
+
+const TEXT_COLOR = '#fff';
+const LINK_COLOR = 'rgba(255,255,255,0.95)';
 
 const styles = StyleSheet.create({
   wrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 76,
-    paddingVertical: 18,
-    paddingLeft: 16,
-    paddingRight: 40,
+    minHeight: 52,
+    paddingVertical: 12,
+    paddingLeft: 14,
+    paddingRight: 4,
+    overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -45,59 +44,46 @@ const styles = StyleSheet.create({
       android: { elevation: 8 },
     }),
   },
+  iconWrap: {
+    marginRight: 10,
+    justifyContent: 'center',
+  },
   content: {
     flex: 1,
     justifyContent: 'center',
     minHeight: 0,
+    paddingRight: 8,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-    letterSpacing: 0.2,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+    color: TEXT_COLOR,
+    letterSpacing: 0.15,
   },
   body: {
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 20,
+    fontWeight: '700',
+    color: TEXT_COLOR,
+  },
+  divider: {
+    width: 1,
+    alignSelf: 'stretch',
+    backgroundColor: 'rgba(255,255,255,0.45)',
+    marginVertical: 4,
   },
   closeBtn: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 36,
-    height: 36,
-    overflow: 'hidden',
-  },
-  closeBtnQuarter: {
-    position: 'absolute',
-    top: -36,
-    right: -36,
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  closeBtnIcon: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeBtnIconInner: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeText: {
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 14,
+    fontSize: 18,
+    fontWeight: '300',
+    color: TEXT_COLOR,
+    lineHeight: 18,
     ...(Platform.OS === 'android' && { textAlignVertical: 'center' }),
   },
 });
@@ -114,14 +100,14 @@ export interface FlashMessageWithMarkdownProps {
   style?: object;
 }
 
-/** Chỉ render title + message (markdown) + nút đóng, không render message mặc định (tránh dup). Nền + chữ theo type. */
+/** Title + message (markdown), layout: icon trái | nội dung | kẻ dọc | đóng. */
 const FlashMessageWithMarkdown = React.forwardRef<
   unknown,
   FlashMessageWithMarkdownProps
 >(function FlashMessageWithMarkdown({ message, style }, _ref) {
   if (!message) return null;
   const type = message.type ?? 'default';
-  const theme = FLASH_TYPE_BG[type] ?? FLASH_TYPE_BG.default;
+  const theme = FLASH_TYPE_THEME[type] ?? FLASH_TYPE_THEME.default;
   const title = message.title ?? message.description ?? '';
   const body = message.message ?? '';
 
@@ -130,49 +116,35 @@ const FlashMessageWithMarkdown = React.forwardRef<
       style={[styles.wrap, { backgroundColor: theme.bg }, style]}
       onPress={() => hideMessage()}
     >
+      <View style={styles.iconWrap} pointerEvents="none">
+        <Ionicons name={theme.icon} size={24} color={TEXT_COLOR} />
+      </View>
       <View style={styles.content}>
         {title !== '' && (
-          <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
+          <Text style={styles.title} numberOfLines={2}>
             {title}
           </Text>
         )}
         {body !== '' && (
           <MarkdownText
-            textStyle={{
-              ...styles.body,
-              color: theme.text,
-            }}
-            linkStyle={theme.link ? { color: theme.link } : undefined}
+            textStyle={styles.body}
+            linkStyle={{ color: LINK_COLOR, textDecorationLine: 'underline' }}
           >
             {body}
           </MarkdownText>
         )}
       </View>
+      <View style={styles.divider} pointerEvents="none" />
       <TouchableOpacity
         style={styles.closeBtn}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
         onPress={(e) => {
           e?.stopPropagation?.();
           hideMessage();
         }}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <View style={styles.closeBtnIcon}>
-          <View style={styles.closeBtnIconInner}>
-            <Text
-              style={[
-                styles.closeText,
-                {
-                  color: theme.close,
-                  textShadowColor: 'rgba(0,0,0,0.35)',
-                  textShadowOffset: { width: 0, height: 1 },
-                  textShadowRadius: 1,
-                },
-              ]}
-            >
-              ✕
-            </Text>
-          </View>
-        </View>
+        <Text style={styles.closeText}>✕</Text>
       </TouchableOpacity>
     </Pressable>
   );

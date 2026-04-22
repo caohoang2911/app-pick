@@ -107,6 +107,18 @@ const OrderPick = () => {
       const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
       setCurrentId(currentProduct?.id);
 
+      const weightRange = currentProduct?.originQuantityConversion?.weightRange;
+      if (weightRange?.length === 2 && quantity) {
+        const [minWeight, maxWeight] = weightRange;
+        if (quantity < minWeight || quantity > maxWeight) {
+          showMessage({
+            message: `SP ${currentProduct?.name} chỉ được pick nằm trong range trọng lượng ${minWeight} - ${maxWeight} KG`,
+            type: 'warning',
+          });
+          return;
+        }
+      }
+
       const currentBarcode: string | undefined = currentProduct?.barcode;
       const currentAmount = !isScanMoreProduct
         ? Number(currentProduct?.pickedQuantity) + 1 || 1

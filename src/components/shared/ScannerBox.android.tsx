@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import useCarmera from '~/src/core/hooks/useCarmera';
+import { useOtaUpdateReadyModal } from '~/src/core/store/ota-update-modal';
 import type { ScanRegion } from '~/src/types/scanner';
 import { Button } from '../Button';
 import ScannerLayout from './ScannerBoxLayout';
@@ -95,6 +96,7 @@ const ScannerBox = ({
   isQRScanner = true,
 }: Props) => {
   const { permission, facing, requestPermission } = useCarmera();
+  const pendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
   const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef<CameraView>(null);
@@ -161,7 +163,7 @@ const ScannerBox = ({
     onSuccessRef.current?.(result);
   }, []); // empty deps → callback stable hoàn toàn, không bao giờ tạo instance mới
 
-  if (!visible) return null;
+  if (!visible || pendingRestart) return null;
   if (!permission) return <View />;
 
   if (!permission.granted) {

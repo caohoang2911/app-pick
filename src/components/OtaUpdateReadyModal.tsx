@@ -2,8 +2,22 @@ import { useOtaUpdateReadyModal } from '@/core/store/ota-update-modal';
 import { colors } from '@/ui/colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import {
+  Linking,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+let Updates: any = null;
+try {
+  Updates = require('expo-updates');
+} catch (error) {
+  console.warn('[OtaUpdateReadyModal] expo-updates unavailable', error);
+}
 
 /**
  * Modal OTA sau khi fetch xong: không reload trong app.
@@ -11,7 +25,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  */
 export function OtaUpdateReadyModal() {
   const visible = useOtaUpdateReadyModal((s) => s.visible);
+  const setPendingRestart = useOtaUpdateReadyModal(
+    (s) => s.setPendingRestart,
+  );
   const insets = useSafeAreaInsets();
+  const handleRestartApp = async () => {
+    setPendingRestart(true);
+    // Give camera time to deactivate native session before reload
+    await new Promise((r) => setTimeout(r, 500));
+
+    if (Updates?.reloadAsync) {
+      await Updates.reloadAsync();
+      return;
+    }
+    await Linking.openSettings();
+  };
 
   return (
     <Modal
@@ -30,20 +58,18 @@ export function OtaUpdateReadyModal() {
           <View style={styles.iconCircle}>
             <Ionicons
               name="cloud-download"
-              size={32}
+              size={28}
               color={colors.colorPrimary}
             />
           </View>
 
-          <Text style={styles.title}>Có bản cập nhật mới</Text>
+          <Text style={styles.title}>Cập nhật thành công</Text>
 
-          <Text style={styles.body}>
-            Bản cập nhật đã tải xong.{' '}
-            <Text style={styles.bodyEmphasis}>Bạn phải mở lại ứng dụng</Text> để
-            áp dụng bản cập nhật mới.
-          </Text>
+          <Text style={styles.body}>Vui lòng mở lại ứng dụng!</Text>
 
-          <Text style={styles.footerNote}>Yêu cầu này là bắt buộc</Text>
+          <Pressable style={styles.primaryButton} onPress={handleRestartApp}>
+            <Text style={styles.primaryButtonText}>Mở lại app</Text>
+          </Pressable>
         </View>
       </View>
     </Modal>
@@ -77,9 +103,9 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: colors.blue[50],
     alignItems: 'center',
     justifyContent: 'center',
@@ -93,15 +119,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   body: {
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 22,
     color: '#334155',
     textAlign: 'center',
-    marginBottom: 12,
-  },
-  bodyEmphasis: {
-    fontWeight: '700',
-    color: '#0F172A',
+    fontWeight: '500',
+    marginBottom: 10,
   },
   footerNote: {
     fontSize: 14,
@@ -109,16 +132,30 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: 'red',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
+  },
+  primaryButton: {
+    minWidth: 170,
+    borderRadius: 10,
+    backgroundColor: colors.colorPrimary,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
+    marginTop: 12,
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   devClose: {
-    marginTop: 16,
+    marginTop: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
   devCloseText: {
-    fontSize: 12,
-    color: colors.gray[500],
+    fontSize: 13,
+    color: colors.gray[600],
     textDecorationLine: 'underline',
   },
 });

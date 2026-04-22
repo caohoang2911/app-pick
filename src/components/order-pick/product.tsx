@@ -37,49 +37,46 @@ const Row = memo(
     label,
     value,
     unit,
-    originOrderQuantity,
     warning = false,
   }: {
     label: string;
     value: string;
     unit?: string;
-    originOrderQuantity?: number;
     warning?: boolean;
   }) => {
     const unitColorClass = useMemo(() => {
       if (warning) return 'text-red-500';
-      return originOrderQuantity ? 'text-gray-500' : '';
-    }, [originOrderQuantity]);
+      return '';
+    }, [warning]);
     return (
-      <View className="flex-1 flex-row w-100 items-center">
+      <View className="flex-1 flex-row w-full items-center">
         <View className="flex-row" style={styles.labelColumn}>
-          <Text className="text-gray-500">{label}</Text>
+          <Text className="text-gray-500" numberOfLines={1}>
+            {label}
+          </Text>
         </View>
-        <View className="flex-row" style={styles.valueColumn}>
+        <View
+          className="flex-row"
+          style={styles.valueColumn}
+        >
           <Text
-            className={`font-medium ${warning ? 'text-red-500' : ''} ${
-              originOrderQuantity ? 'text-gray-500' : ''
-            }`}
+            className={`font-medium ${warning ? 'text-red-500' : ''}`}
             numberOfLines={1}
           >
             {value}
           </Text>
         </View>
-        <View className={`flex-row`} style={styles.unitColumn}>
-          {unit && (
-            <Text className={`font-medium ${unitColorClass}`}>{unit}</Text>
-          )}
-        </View>
-        {originOrderQuantity && (
-          <View className="absolute right-0 flex items-center justify-center">
-            <Badge
-              variant="pink"
-              labelClasses="text-md"
-              className="px-2 max-w-[65px]"
-              label={`${originOrderQuantity}`}
-            />
+        {unit ? (
+          <View className="flex-row" style={styles.unitColumn}>
+            <Text
+              className={`font-medium ${unitColorClass}`}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {unit}
+            </Text>
           </View>
-        )}
+        ) : null}
       </View>
     );
   },
@@ -208,8 +205,12 @@ const ProductVendor = ({ vendorName }: { vendorName: string }) => {
 const BarcodeDisplay = memo(
   ({ baseBarcode, barcode }: { baseBarcode?: string; barcode?: string }) => {
     if (!barcode && !baseBarcode) return null;
+
+    const isBaseBarcode = barcode && barcode !== baseBarcode;
     return (
-      <View className="flex-row gap-1 items-center flex-1">
+      <View
+        className={`flex-row  items-center ${isBaseBarcode ? 'gap-1' : ''}`}
+      >
         <View className="w-auto">
           <Badge
             label={baseBarcode || '--'}
@@ -218,9 +219,7 @@ const BarcodeDisplay = memo(
           />
         </View>
         <View className="flex-shrink">
-          {barcode && barcode !== baseBarcode && (
-            <Badge label={barcode} variant="pink" />
-          )}
+          {isBaseBarcode && <Badge label={barcode} variant="pink" />}
         </View>
       </View>
     );
@@ -279,12 +278,18 @@ const OrderPickProduct = memo(
     isAllowEditPickQuantity,
     pickedErrorType,
     pickedQuantity,
-    originOrderQuantity,
     isHiddenTag = false,
     vendorName,
     pickedNote,
     statusOrder,
-  }: Partial<Product | any>) => {
+    originQuantityConversion,
+  }: Partial<
+    Product & {
+      isAllowEditPickQuantity: boolean;
+      isHiddenTag: boolean;
+      statusOrder: string;
+    }
+  >) => {
     const { code } = useLocalSearchParams<{ code: string }>();
     const isShowAmountInput = useOrderPick.use.isShowAmountInput();
     const config = useConfig.use.config();
@@ -308,8 +313,22 @@ const OrderPickProduct = memo(
     const allowedExcess = orderQuantityNum * 0.05; // 5% tolerance
 
     const isWarningOverQuantity = useMemo(() => {
-      return Number(pickedQuantity) > orderQuantityNum + allowedExcess;
-    }, [pickedQuantity, orderQuantity]);
+      const isBulkProduct = tags?.includes('Hàng xá');
+      const pickedQuantityNum = Number(pickedQuantity);
+      const [minWeight = Number.NEGATIVE_INFINITY, maxWeight = Number.POSITIVE_INFINITY] =
+        originQuantityConversion?.weightRange ?? [];
+
+      if (
+        isBulkProduct &&
+        Number.isFinite(pickedQuantityNum) &&
+        pickedQuantityNum >= minWeight &&
+        pickedQuantityNum <= maxWeight
+      ) {
+        return false;
+      }
+      
+      return pickedQuantityNum > orderQuantityNum + allowedExcess;
+    }, [pickedQuantity, orderQuantity, tags, originQuantityConversion?.weightRange]);
 
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
@@ -327,6 +346,8 @@ const OrderPickProduct = memo(
         errorName: React.ReactNode;
         iconVariant?: 'default' | 'check';
       }> = [];
+      const isBulkProduct = tags?.includes('Hàng xá');
+
       if (pickedErrorName) {
         items.push({ key: 'pickedErrorName', errorName: pickedErrorName });
       }
@@ -345,24 +366,8 @@ const OrderPickProduct = memo(
           errorName: 'Khách sẽ bị thu thêm tiền phần chênh lệch trọng lượng',
         });
       }
-      if (originOrderQuantity) {
-        items.push({
-          key: 'originOrderQuantity',
-          errorName: (
-            <Text className="text-white font-semibold text-sm">
-              Vui lòng pick theo số lượng{' '}
-              <Text className="font-bold">{originOrderQuantity}</Text>
-            </Text>
-          ),
-        });
-      }
       return items;
-    }, [
-      pickedErrorName,
-      pickedNote,
-      isWarningOverQuantity,
-      originOrderQuantity,
-    ]);
+    }, [pickedErrorName, pickedNote, isWarningOverQuantity]);
 
     // const isGift = useMemo(() => type === "GIFT", [type]);
     const hasSellPrice = useMemo(
@@ -373,7 +378,8 @@ const OrderPickProduct = memo(
 
     // Extract handler to useCallback
     const handleEditPress = useCallback(() => {
-      if (isDisable) return;
+      if (isDisable || !id || !barcode) return;
+      
       toggleShowAmountInput(!isShowAmountInput, id);
       setSuccessForBarcodeScan(barcode);
       setCurrentId(id);
@@ -400,6 +406,7 @@ const OrderPickProduct = memo(
     const showQuickAction = isStatusPicking || isStatusPacked;
 
     const handleReplaceProduct = useCallback(() => {
+      if (!id) return;
       setReplacePickedProductId(id);
     }, [setReplacePickedProductId, id]);
 
@@ -415,18 +422,26 @@ const OrderPickProduct = memo(
               pickedTime={pickedTime}
               isGift={isGift}
               code={code}
-              id={id}
-              barcode={barcode}
-              isAllowEditPickQuantity={isAllowEditPickQuantity}
+              id={id || 0}
+              barcode={barcode || ''}
+              isAllowEditPickQuantity={isAllowEditPickQuantity || false}
               showQuickAction={showQuickAction}
               onEditPress={handleEditPress}
               onReplaceProduct={handleReplaceProduct}
             />
-            <View className="flex flex-row mt-1 gap-2">
-              <ProductVendor vendorName={vendorName} />
-              <View className="flex flex-1 flex-row gap-2 items-center">
+            <View className="flex flex-row mt-1 gap-1 flex-wrap">
+              <ProductVendor vendorName={vendorName || ''} />
+              <View className="flex flex-row items-center">
                 <BarcodeDisplay baseBarcode={baseBarcode} barcode={barcode} />
               </View>
+              {!!originQuantityConversion && (
+                <>
+                  <Badge
+                    label={`${originQuantityConversion?.orderQuantity} ${originQuantityConversion?.unit}`}
+                    variant="warning"
+                  />
+                </>
+              )}
             </View>
             <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
               <View className="flex justify-between items-center">
@@ -456,19 +471,20 @@ const OrderPickProduct = memo(
                 <View className="flex gap-2 flex-1">
                   <Row
                     label="SL đặt"
-                    value={orderQuantity}
+                    value={orderQuantity?.toString() || '--'}
                     unit={unit}
-                    originOrderQuantity={originOrderQuantity}
                   />
                   <Row
                     label="Đã pick"
-                    value={!isNil(pickedQuantity) ? pickedQuantity : '--'}
+                    value={
+                      !isNil(pickedQuantity) ? pickedQuantity?.toString() : '--'
+                    }
                     unit={unit}
                     warning={Number(pickedQuantity) != Number(orderQuantity)}
                   />
                   <Row
                     label="Tồn kho"
-                    value={!isNil(stockOnhand) ? stockOnhand : '--'}
+                    value={!isNil(stockOnhand) ? stockOnhand?.toString() : '--'}
                     unit={unit}
                   />
 
@@ -557,9 +573,9 @@ const styles = StyleSheet.create({
     width: (Dimensions.get('window').width - 32) / 3,
     aspectRatio: 1,
   },
-  labelColumn: { width: '30%' },
-  valueColumn: { width: '25%' },
-  unitColumn: { width: '45%' },
+  labelColumn: { width: 58, marginRight: 8 },
+  valueColumn: { flex: 1, maxWidth: 90, marginRight: 8},
+  unitColumn: { flexShrink: 1, minWidth: 0 },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',

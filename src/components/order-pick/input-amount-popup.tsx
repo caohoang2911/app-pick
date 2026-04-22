@@ -637,6 +637,14 @@ const InputAmountPopup = () => {
               variant="pink"
             />
           )}
+          {!!currentProduct?.originQuantityConversion && (
+            <Badge
+              className="self-start"
+              label={currentProduct.originQuantityConversion.unit}
+              variant="warning"
+            />
+          )}
+              
         </View>
         {!!currentProduct?.productPickingGuidelines && (
           <View className="flex flex-row items-center gap-1 w-full mt-4">

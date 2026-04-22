@@ -84,7 +84,7 @@ export default (): ExpoConfig => {
     name: isDev
       ? variant === 'dev'
         ? nameDev
-        : `${nameProd} ${variant.toUpperCase()}`
+        : `${nameProd} ${variant?.toUpperCase()}`
       : nameProd,
 
     // scheme deep link

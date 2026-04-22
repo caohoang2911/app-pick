@@ -92,8 +92,8 @@ const Bags = memo(() => {
       </View>
       <View className="flex flex-col gap-4">
         {shouldRenderDry && <MemoizedBagType {...dryBagProps} />}
-        {shouldRenderFrozen && <MemoizedBagType {...frozenBagProps} />}
         {shouldRenderFresh && <MemoizedBagType {...freshBagProps} />}
+        {shouldRenderFrozen && <MemoizedBagType {...frozenBagProps} />}
       </View>
     </Box>
   );

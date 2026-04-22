@@ -23,6 +23,7 @@ import {
 import { BarcodeScanningResult, ScanRegion } from '~/src/types/scanner';
 import { Button } from '../Button';
 import useCarmera from '~/src/core/hooks/useCarmera';
+import { useOtaUpdateReadyModal } from '~/src/core/store/ota-update-modal';
 import ScannerLayout from './ScannerBoxLayout';
 import {
   BARCODE_SCAN_REGION,
@@ -64,6 +65,7 @@ const ScannerBox = ({
   isQRScanner = true,
 }: Props) => {
   const { permission, requestPermission } = useCarmera();
+  const pendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
   const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const device = useCameraDevice('back');
@@ -108,6 +110,12 @@ const ScannerBox = ({
   }, [isQRScanner]);
 
   useEffect(() => {
+    if (pendingRestart) {
+      isActiveShared.value = false;
+      scannedShared.value = false;
+      return;
+    }
+
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
 
     scannedShared.value = false;
@@ -118,22 +126,18 @@ const ScannerBox = ({
       overlayOpacity.setValue(1);
 
       if (cameraHasInitializedRef.current) {
-        // FIX: Camera already initialized on first open — onInitialized won't
-        // fire again. Dismiss overlay after a short delay directly.
         overlayTimerRef.current = setTimeout(() => {
           if (!mountedRef.current) return;
           setIsCameraReady(true);
         }, 300);
       } else {
-        // First open — wait for onInitialized to fire normally
         setIsCameraReady(false);
       }
     } else {
-      // FIX: Disable worklet gate FIRST, then reset UI state.
       isActiveShared.value = false;
       setIsCameraReady(false);
     }
-  }, [visible]);
+  }, [visible, pendingRestart]);
 
   useEffect(() => {
     if (!visible) return;
@@ -290,7 +294,7 @@ const ScannerBox = ({
                 device={device as CameraDevice}
                 // FIX: isActive controls the native session — never rely on
                 // unmounting the Camera component to "stop" the camera.
-                isActive={!!visible}
+                isActive={!!visible && !pendingRestart}
                 onInitialized={handleCameraReady}
                 videoStabilizationMode="off"
                 photoHdr={false}

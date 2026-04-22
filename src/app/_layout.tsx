@@ -186,7 +186,6 @@ function Providers({ children }: { children: React.ReactNode }) {
 
   const flashMessageStyle = useMemo(
     () => ({
-      paddingRight: 36,
       paddingBottom: Math.max(insets.bottom, 8),
     }),
     [insets.bottom],
