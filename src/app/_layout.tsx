@@ -62,14 +62,15 @@ const useUpdatesSafe =
 const NotificationWrapper = ({
   children,
   isDoneCodepush,
+  onFetchUpdateAsync,
 }: {
   children: React.ReactNode;
   isDoneCodepush: boolean;
+  onFetchUpdateAsync: () => Promise<void>;
 }) => {
   const { token } = usePushNotifications();
   const status = useAuth.use.status();
   const { isUpdateAvailable } = useUpdatesSafe();
-  const { onFetchUpdateAsync } = useCodepush();
   const appState = useAppState();
   const { mutate: setFCMRegistrationToken } = useSetFCMRegistrationToken();
 
@@ -145,6 +146,7 @@ function RootLayoutNav() {
         <Stack.Screen name="authorize" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="ota-gate" options={{ headerShown: false }} />
       </Stack>
     </Providers>
   );
@@ -159,7 +161,7 @@ function Providers({ children }: { children: React.ReactNode }) {
   const { isUpdateAvailable } = useUpdatesSafe();
 
   // ✅ CodePush chạy trước
-  const { isDoneCodepush } = useCodepush();
+  const { isDoneCodepush, onFetchUpdateAsync } = useCodepush();
 
   // ✅ GitHub auto-update chỉ chạy sau khi CodePush xong
   const { isChecking, progress, isDownloading } = useAutoUpdate({
@@ -230,7 +232,10 @@ function Providers({ children }: { children: React.ReactNode }) {
                   ) : isDownloading ? (
                     <Loading description="Đang tải bản cập nhật..." />
                   ) : (
-                    <NotificationWrapper isDoneCodepush={isDoneCodepush}>
+                    <NotificationWrapper
+                      isDoneCodepush={isDoneCodepush}
+                      onFetchUpdateAsync={onFetchUpdateAsync}
+                    >
                       <AuthWrapper>
                         <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                           <NetworkStatus />

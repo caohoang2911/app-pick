@@ -63,9 +63,7 @@ export function OtaUpdateReadyModal() {
             />
           </View>
 
-          <Text style={styles.title}>Cập nhật thành công</Text>
-
-          <Text style={styles.body}>Vui lòng mở lại ứng dụng!</Text>
+          <Text style={styles.title}>Vui lòng mở lại ứng dụng!</Text>
 
           <Pressable style={styles.primaryButton} onPress={handleRestartApp}>
             <Text style={styles.primaryButtonText}>Mở lại app</Text>
@@ -117,14 +115,6 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     textAlign: 'center',
     marginBottom: 12,
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 22,
-    color: '#334155',
-    textAlign: 'center',
-    fontWeight: '500',
-    marginBottom: 10,
   },
   footerNote: {
     fontSize: 14,

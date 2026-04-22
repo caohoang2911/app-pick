@@ -53,6 +53,7 @@ export const APP_ROUTES = {
 
   // Settings
   SETTINGS: '/settings',
+  OTA_GATE: '/ota-gate',
 } as const;
 
 /**

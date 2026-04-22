@@ -2,11 +2,15 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '../store/auth';
 import { useRouter, useSegments } from 'expo-router';
 import { ROUTES } from '../constants/routes';
+import { useOtaUpdateReadyModal } from '../store/ota-update-modal';
 
 export function useProtectedRoute() {
   const status = useAuth.use.status();
   const segments = useSegments();
   const router = useRouter();
+  const otaVisible = useOtaUpdateReadyModal((s) => s.visible);
+  const otaPendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
+  const hasCodepushUpdate = otaVisible || otaPendingRestart;
 
   const firstTime = useRef(true);
   const lastRedirectRef = useRef<{ target: string; at: number } | null>(null);
@@ -39,7 +43,7 @@ export function useProtectedRoute() {
     } else if (status === 'signIn' && firstTime.current) {
       firstTime.current = false;
       // Redirect away from the sign-in page.
-      safeRedirect(ROUTES.APP.ORDERS);
+      safeRedirect(hasCodepushUpdate ? ROUTES.APP.OTA_GATE : ROUTES.APP.ORDERS);
     }
-  }, [segments, router, status]);
+  }, [hasCodepushUpdate, segments, router, status]);
 }

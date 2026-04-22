@@ -18,6 +18,7 @@ import ScannerBox from '~/src/components/shared/ScannerBox';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
 import { useAuth } from '~/src/core';
 import { useCodepush } from '@/core/hooks/useCodePush';
+import { Text, View } from 'react-native';
 
 const Orders = () => {
   const navigation = useNavigation();
@@ -74,7 +75,7 @@ const Orders = () => {
   }, [isDoneCodepush]);
 
   return (
-    <>
+    <View className="flex-1">
       <Container>
         <OrderList />
       </Container>
@@ -83,7 +84,7 @@ const Orders = () => {
         onSuccessBarcodeScanned={handleSuccessBarcodeScanned}
         onDestroy={handleDestroy}
       />
-    </>
+    </View>
   );
 };
 

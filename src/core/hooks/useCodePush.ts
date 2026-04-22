@@ -38,8 +38,8 @@ export const useCodepush = () => {
         if (update.isAvailable && allowUpdateByBuildNumber()) {
           try {
             await Updates.fetchUpdateAsync();
-            setIsDoneCodepush(true);
             openOtaUpdateReadyModal();
+            setIsDoneCodepush(true);
           } catch {
             setIsDoneCodepush(true);
           }
