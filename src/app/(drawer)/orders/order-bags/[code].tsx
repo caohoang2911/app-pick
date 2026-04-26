@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-import { useUpdateOrderBagLabels } from '~/src/api/app-pick/use-update-order-bag-labels';
+import { useSetOrderBagLabels } from '~/src/api/app-pick/use-set-order-bag-labels';
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
 import Loading from '~/src/components/Loading';
@@ -44,7 +44,7 @@ const OrderBags = () => {
     orderBags.FRESH.length === 0 &&
     orderBags.FROZEN.length === 0;
 
-  const { mutate: updateOrderBagLabels } = useUpdateOrderBagLabels((error) => {
+  const { mutate: setOrderBagLabels } = useSetOrderBagLabels((error) => {
     if (error) {
       setLoading(false);
       // Fallback: Undo the last change when there's an error
@@ -102,7 +102,7 @@ const OrderBags = () => {
       ...orderBags.FROZEN,
     ];
     setLoading(true);
-    updateOrderBagLabels({
+    setOrderBagLabels({
       data: mergedOrderBags,
       orderCode: code,
     });
@@ -113,7 +113,7 @@ const OrderBags = () => {
     orderBags.DRY,
     orderBags.FRESH,
     orderBags.FROZEN,
-    updateOrderBagLabels,
+    setOrderBagLabels,
   ]);
 
   if (isOrderDetailLoading) {

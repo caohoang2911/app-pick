@@ -168,24 +168,14 @@ const StoreSelection = forwardRef<any, Props>(
     const onSuccessCallback = useCallback(() => {
       setVisible(false);
       showMessage({
-        message: '',
+        message:
+          'Yêu cầu cấp quyền thành công, vui lòng đăng nhập lại sau vài phút. Vui lòng tham gia nhóm để cập nhật thông báo: [' +
+          TELEGRAM_LINK +
+          '](' +
+          TELEGRAM_LINK +
+          ').',
         type: 'success',
         duration: 10000,
-        renderCustomContent: (_) => (
-          <Text>
-            <Text className="mr-1 text-white">
-              Yêu cầu cấp quyền thành công, vui lòng đăng nhập lại sau vài phút.
-              Vui lòng tham gia nhóm để cập nhật thông báo
-            </Text>
-            <Text
-              className="underline text-blue-500"
-              onPress={() => Linking.openURL(TELEGRAM_LINK)}
-            >
-              {' '}
-              {TELEGRAM_LINK}
-            </Text>
-          </Text>
-        ),
       });
     }, []);
 

@@ -1,6 +1,5 @@
 import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { showMessage } from 'react-native-flash-message';
 import { setLoading } from '~/src/core/store/loading';
 import { OrderDetailQueryData } from '~/src/core/utils/order-detail-query-cache';
 import { OrderBagItem } from '~/src/types/order-bag';
@@ -14,13 +13,13 @@ type Response = { error: string } & {
   data: 'SUCCESS';
 };
 
-const updateOrderBagLabels = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/updateOrderBagLabels', params);
+const setOrderBagLabels = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/setOrderBagLabels', params);
 };
 
-export const useUpdateOrderBagLabels = (cb?: (error?: string) => void) => {
+export const useSetOrderBagLabels = (cb?: (error?: string) => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => updateOrderBagLabels(params),
+    mutationFn: (params: Variables) => setOrderBagLabels(params),
     onSuccess: (data: Response, variables: Variables) => {
       if (data?.error) {
         cb?.(data.error);
