@@ -1,15 +1,9 @@
 import { useOtaUpdateReadyModal } from '@/core/store/ota-update-modal';
 import { colors } from '@/ui/colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import React from 'react';
-import {
-  Linking,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { Button } from '~/src/components/Button';
+import { Linking, Modal, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 let Updates: any = null;
@@ -25,20 +19,27 @@ try {
  */
 export function OtaUpdateReadyModal() {
   const visible = useOtaUpdateReadyModal((s) => s.visible);
-  const setPendingRestart = useOtaUpdateReadyModal(
-    (s) => s.setPendingRestart,
-  );
+  const setPendingRestart = useOtaUpdateReadyModal((s) => s.setPendingRestart);
   const insets = useSafeAreaInsets();
+  const [isReloading, setIsReloading] = useState(false);
   const handleRestartApp = async () => {
+    if (isReloading) return;
+    setIsReloading(true);
+
     setPendingRestart(true);
     // Give camera time to deactivate native session before reload
     await new Promise((r) => setTimeout(r, 500));
 
-    if (Updates?.reloadAsync) {
-      await Updates.reloadAsync();
-      return;
+    try {
+      if (Updates?.reloadAsync) {
+        await Updates.reloadAsync();
+        return;
+      }
+      await Linking.openSettings();
+      setIsReloading(false);
+    } catch {
+      setIsReloading(false);
     }
-    await Linking.openSettings();
   };
 
   return (
@@ -65,9 +66,14 @@ export function OtaUpdateReadyModal() {
 
           <Text style={styles.title}>Vui lòng mở lại ứng dụng!</Text>
 
-          <Pressable style={styles.primaryButton} onPress={handleRestartApp}>
-            <Text style={styles.primaryButtonText}>Mở lại app</Text>
-          </Pressable>
+          <Button
+            label="Mở lại app"
+            onPress={handleRestartApp}
+            disabled={isReloading}
+            loading={isReloading}
+            className="mt-2"
+            labelClasses="text-white font-bold"
+          />
         </View>
       </View>
     </Modal>
@@ -123,20 +129,6 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginBottom: 14,
-  },
-  primaryButton: {
-    minWidth: 170,
-    borderRadius: 10,
-    backgroundColor: colors.colorPrimary,
-    paddingVertical: 11,
-    paddingHorizontal: 18,
-    marginTop: 12,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '700',
-    textAlign: 'center',
   },
   devClose: {
     marginTop: 12,
