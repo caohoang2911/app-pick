@@ -10,6 +10,7 @@ const BLACK_LIST_SHOW_MESSAGE = ['/app-pick/getStoreEmployeeProfile'];
 const PUBLIC_AUTH_ENDPOINTS = [
   'auth/genHRVLoginURL',
   'auth/authorizeUserPassword',
+  'auth/logout',
 ];
 
 // Function để gọi API logout

@@ -67,8 +67,7 @@ const RowWithLabel = memo(
         )}
         {pickedItemProgress && (
           <View className="flex flex-row ml-auto gap-1 items-center">
-            <Text className="text-sm text-gray-500">Pick</Text>
-            <Badge label={`${pickedItemProgress}`} variant="warning" />
+            <Badge label={`Pick ${pickedItemProgress}`} variant="warning" />
           </View>
         )}
         {Boolean(bagsSize) && (

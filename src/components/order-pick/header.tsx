@@ -6,7 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { useConfig } from '~/src/core/store/config';
@@ -76,10 +76,9 @@ const Picker = ({ picker }: { picker: { username: string; name: string } }) => {
         </View>
       </View>
       <View className="flex flex-row gap-1 items-center">
-        <Text className="text-sm text-gray-500">Pick</Text>
         <Badge
-          label={`${totalPickedDone || 0}/${orderPickProductsFlat?.length || 0}`}
-          variant="warning"
+          label={`Pick ${totalPickedDone || 0}/${orderPickProductsFlat?.length || 0}`}
+          variant="default"
         />
       </View>
     </View>
@@ -120,7 +119,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
 
   return (
     <View className="px-4 bg-white">
-      <View className="flex-row justify-between gap-2">
+      <View className="flex-row justify-between items-center gap-2">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
           <View className="flex flex-row items-center gap-1">
             <ButtonBack
@@ -139,15 +138,16 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             />
           )}
         </View>
-        <WaveButton
+        <Pressable
           onPress={onClickHeaderAction}
-          waveColor="rgba(0, 0, 0, 0.1)"
-          waveSize={80}
+          hitSlop={20}
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         >
-          <View className="w-10 h-10 justify-center  items-center">
-            <More2Fill width={20} height={20} />
-          </View>
-        </WaveButton>
+          <More2Fill width={20} height={20} />
+        </Pressable>
       </View>
       <HeaderTags tags={tags} />
       <Picker picker={picker as Employee} />
