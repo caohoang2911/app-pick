@@ -413,7 +413,7 @@ const OrderPickProduct = memo(
     return (
       <>
         <View
-          className={`bg-white overflow-hidden relative ${isDisable && 'opacity-40'}`}
+          className={`bg-white relative ${isDisable && 'opacity-40'}`}
           style={[styles.box, isActive && styles.activeBox]}
         >
           <View className="p-3">
@@ -538,28 +538,28 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     ...Platform.select({
       ios: {
-        shadowColor: '#222',
-        shadowOffset: { width: 1, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
         borderWidth: 1,
         borderTopColor: '#dfdfdf',
-        borderBottomColor: 'transparent',
+        borderBottomColor: '#dfdfdf',
         borderLeftColor: '#dfdfdf',
         borderRightColor: '#dfdfdf',
       },
       android: {
-        shadowColor: '#222',
+        shadowColor: '#000',
         shadowOffset: {
           width: 0,
-          height: 4,
+          height: 2,
         },
-        shadowOpacity: 0.4,
-        shadowRadius: 5.46,
-        elevation: 9,
+        shadowOpacity: 0.12,
+        shadowRadius: 4,
+        elevation: 3,
         borderWidth: 1,
         borderTopColor: '#dfdfdf',
-        borderBottomColor: 'transparent',
+        borderBottomColor: '#dfdfdf',
         borderLeftColor: '#dfdfdf',
         borderRightColor: '#dfdfdf',
       },

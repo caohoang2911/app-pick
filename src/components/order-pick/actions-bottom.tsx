@@ -156,8 +156,10 @@ const ActionsBottom = () => {
 
   if (!['CONFIRMED', 'STORE_PICKING'].includes(status as string)) return <></>;
   return (
-    <View className="border-t border-gray-200 pb-4">
-      <View className="px-4 py-3 bg-white ">{renderButton()}</View>
+    <View className="border-t border-gray-200">
+      {renderButton() ? (
+        <View className="px-4 py-3 pb-6 bg-white">{renderButton()}</View>
+      ) : null}
       <PickedCompleteConfirmation
         visible={visible}
         setVisible={setVisible}

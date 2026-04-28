@@ -8,6 +8,7 @@ import { useSetOrderBagLabels } from '~/src/api/app-pick/use-set-order-bag-label
 import { queryClient } from '~/src/api/shared';
 import { Button } from '~/src/components/Button';
 import Loading from '~/src/components/Loading';
+import BagQuantities from '~/src/components/order-bags/bag-quantities';
 import Bags from '~/src/components/order-bags/bags';
 import HeaderBag from '~/src/components/order-bags/header-bag';
 import { SectionAlert } from '~/src/components/SectionAlert';
@@ -129,16 +130,20 @@ const OrderBags = () => {
   }
 
   return (
-    <View className="flex-1 mb-4">
-      <ScrollView className="flex-1 pt-3 mb-4">
+    <View className="flex-1">
+      <ScrollView
+        className="flex-1 pt-3"
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
         <View className="flex flex-col gap-4">
           <HeaderBag />
           {isShowPackageSizePicker && <PackageSizePicker />}
           <Bags />
+          <BagQuantities />
         </View>
       </ScrollView>
-      <View className="border-t border-gray-200 pb-4">
-        <View className="px-4 py-3 bg-white ">
+      <View className="border-t border-gray-200 bg-white pb-4">
+        <View className="px-4 py-3 bg-white">
           <Button label="In tất cả" onPress={handlePrintAll} />
         </View>
       </View>

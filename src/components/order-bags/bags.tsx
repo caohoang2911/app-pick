@@ -8,7 +8,7 @@ const Bags = () => {
   const orderBags = useOrderBag.use.orderBags();
 
   return (
-    <View className="mb-6">
+    <View className="mb-2">
       <View className="flex flex-col gap-4">
         <BagType
           title={OrderBagLabel.DRY}

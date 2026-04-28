@@ -1,3 +1,8 @@
+export type OrderBagWeightType = {
+  id: string;
+  name: string;
+};
+
 export type Config = {
   orderStatuses: [];
   paymentMethods: [];
@@ -12,4 +17,5 @@ export type Config = {
   orderItemTags: [];
   fulfillErrorTypes: [];
   employeeRoles: [];
+  orderBagWeightTypes?: OrderBagWeightType[];
 };

@@ -176,6 +176,7 @@ export interface OrderDetailHeader {
   cancel?: any;
   tags?: Array<string>;
   bagLabels?: OrderBagItem[];
+  bagQuantities?: Record<string, number>;
 }
 
 export interface OrderDetail {
