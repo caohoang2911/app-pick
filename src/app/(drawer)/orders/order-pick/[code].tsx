@@ -173,7 +173,7 @@ const OrderPick = () => {
 
   return (
     <>
-      <View className="flex-1 bg-gray-50 pt-2">
+      <View className="flex-1 bg-gray-50 pt-3">
         <OrderPickProducts key={code} />
       </View>
       <ActionsBottom />
