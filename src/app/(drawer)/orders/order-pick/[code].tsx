@@ -83,11 +83,30 @@ const OrderPick = () => {
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
 
-      const { barcode, quantity } = splitBarcode({ barcode: codeScanned });
+      const { barcode: rawBarcode, quantity } = splitBarcode({ barcode: codeScanned });
 
-      const indexWithBarcode = orderPickProductsFlat?.findIndex((item) =>
+      let barcode = rawBarcode;
+      let indexWithBarcode = orderPickProductsFlat?.findIndex((item) =>
         barcodeCondition(barcode, item?.refBarcodes),
-      );
+      ) ?? -1;
+
+      // Fallback: bỏ 1 số 0 đầu nếu không tìm thấy, không phải mã KG, và length > 10
+      if (indexWithBarcode === -1) {
+        const isKgBarcode = codeScanned.startsWith('110');
+
+        if (!isKgBarcode && barcode.length > 10 && barcode.startsWith('0')) {
+          const fallbackBarcode = barcode.slice(1);
+          const fallbackIndex =
+            orderPickProductsFlat?.findIndex((item) =>
+              barcodeCondition(fallbackBarcode, item?.refBarcodes),
+            ) ?? -1;
+
+          if (fallbackIndex !== -1) {
+            barcode = fallbackBarcode;
+            indexWithBarcode = fallbackIndex;
+          }
+        }
+      }
 
       if (indexWithBarcode === -1) {
         showMessage({

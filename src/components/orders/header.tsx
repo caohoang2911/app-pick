@@ -4,6 +4,7 @@ import { DrawerActions } from '@react-navigation/native';
 
 import { useIsFetching, useIsMutating } from '@tanstack/react-query';
 import { useNavigation } from 'expo-router';
+import { useGetOrderStatusCounters } from '~/src/api/app-pick';
 import { toUpper } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
@@ -30,6 +31,7 @@ import Skeleton from '../Skeleton';
 import AssignStoreBottomSheet from './assign-store-bottom-sheet';
 import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
+import MissingInvoiceBottomSheet from './missing-invoice-bottom-sheet';
 import OrderStatusBottomSheet from './order-status-bottom-sheet';
 
 const MAX_DRIVER_ASSIGNED_STORE_CODES = 2;
@@ -65,6 +67,10 @@ const Header = () => {
 
   const orderStatusBottomSheetRef = useRef<any>(null);
   const assignStoreBottomSheetRef = useRef<any>(null);
+  const missingInvoiceBottomSheetRef = useRef<any>(null);
+
+  const { data: counterData } = useGetOrderStatusCounters();
+  const missingInvoiceCount = counterData?.data?.MISSING_INVOICE ?? 0;
 
   const handleOrderStatusBottomSheet = () => {
     orderStatusBottomSheetRef.current?.present();
@@ -162,19 +168,8 @@ const Header = () => {
         {isLoadingRefreshToken || isLoadingGetMyProfile ? (
           <Skeleton width={120} height={20} variant="round-rectangle" />
         ) : (
-          <View className="self-start">
+          <View className="flex flex-row items-center gap-2 self-start flex-wrap">
             <Badge
-              icon={
-                <Ionicons
-                  name={
-                    !isPickerShiftStatusOnShift
-                      ? 'notifications-off-outline'
-                      : 'notifications-outline'
-                  }
-                  size={12}
-                  color={!isPickerShiftStatusOnShift ? 'red' : 'green'}
-                />
-              }
               label={
                 !isPickerShiftStatusOnShift
                   ? 'Chưa vào ca KPOS'
@@ -182,6 +177,16 @@ const Header = () => {
               }
               variant={!isPickerShiftStatusOnShift ? 'danger' : 'success'}
             />
+            {missingInvoiceCount > 0 && (
+              <Pressable
+                onPress={() => missingInvoiceBottomSheetRef.current?.present()}
+              >
+                <Badge
+                  label={`${missingInvoiceCount} đơn chưa tạo HĐ`}
+                  variant="warning"
+                />
+              </Pressable>
+            )}
           </View>
         )}
       </View>
@@ -192,6 +197,7 @@ const Header = () => {
     isLoadingRefreshToken,
     isPickerShiftStatusOnShift,
     handleOpenStoreSelection,
+    missingInvoiceCount,
   ]);
 
   const renderDriverSelection = useMemo(() => {
@@ -312,6 +318,7 @@ const Header = () => {
         ref={assignStoreBottomSheetRef}
         driverAssignedStoreCodes={driverAssignedStoreCodes}
       />
+      <MissingInvoiceBottomSheet ref={missingInvoiceBottomSheetRef} />
     </View>
   );
 };

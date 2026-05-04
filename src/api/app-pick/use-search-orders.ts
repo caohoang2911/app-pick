@@ -10,6 +10,7 @@ type Variables = {
   pageIndex?: number;
   expectedDeliveryTime?: string;
   deliveryType?: string | null;
+  isMissingInvoice?: boolean;
   role?: Role;
 };
 
