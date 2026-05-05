@@ -1,6 +1,5 @@
-import AntDesign from '@expo/vector-icons/AntDesign';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -13,17 +12,12 @@ import { OrderBagWeightType } from '~/src/types/config';
 const BagQuantityRow = ({
   bagType,
   quantity,
-  originalQuantity,
   onQuantityChange,
-  onSave,
 }: {
   bagType: OrderBagWeightType;
   quantity: number;
-  originalQuantity: number;
   onQuantityChange: (id: string, value: number) => void;
-  onSave: () => void;
 }) => {
-  const hasChanged = quantity !== originalQuantity;
   const isDecrementDisabled = quantity <= 0;
 
   const handleDecrement = () => {
@@ -74,28 +68,18 @@ const BagQuantityRow = ({
           </TouchableOpacity>
         }
       />
-      <TouchableOpacity
-        onPress={onSave}
-        disabled={!hasChanged}
-        style={{ opacity: hasChanged ? 1 : 0.4 }}
-        className="flex-row items-center gap-1 w-16 justify-end"
-      >
-        <AntDesign
-          name="checkcircleo"
-          size={16}
-          color={hasChanged ? '#3280F6' : '#9CA3AF'}
-        />
-        <Text
-          className={`text-base font-semibold ${hasChanged ? 'text-colorPrimary' : 'text-gray-400'}`}
-        >
-          Lưu
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };
 
-const BagQuantities = () => {
+const BagQuantities = ({
+  onHasChangedChange,
+}: {
+  onHasChangedChange?: (hasChanged: boolean) => void;
+}) => {
+  const onHasChangedChangeRef = useRef(onHasChangedChange);
+  onHasChangedChangeRef.current = onHasChangedChange;
+
   const { code } = useLocalSearchParams<{ code: string }>();
   const config = useConfig.use.config();
   const { orderDetail } = useOrderDetailForCode(code);
@@ -132,6 +116,18 @@ const BagQuantities = () => {
     setLocalQuantities((prev) => ({ ...prev, [id]: value }));
   }, []);
 
+  const hasChanged = useMemo(
+    () =>
+      bagWeightTypes?.some(
+        (t) => (localQuantities[t.id] ?? 0) !== (serverQuantities[t.id] ?? 0),
+      ) ?? false,
+    [bagWeightTypes, localQuantities, serverQuantities],
+  );
+
+  useEffect(() => {
+    onHasChangedChangeRef.current?.(hasChanged);
+  }, [hasChanged]);
+
   const handleSave = useCallback(() => {
     if (!code) return;
 
@@ -150,7 +146,7 @@ const BagQuantities = () => {
   if (!bagWeightTypes?.length) return null;
 
   return (
-    <View className="bg-white mx-4 pt-3 pb-2 rounded-md">
+    <View className="bg-white mx-4 pt-3 pb-3 rounded-md">
       <Text className="text-base font-semibold mb-2 px-4">Nhập túi hàng</Text>
       <View className="px-0">
         {bagWeightTypes.map((bagType) => (
@@ -158,11 +154,27 @@ const BagQuantities = () => {
             key={bagType.id}
             bagType={bagType}
             quantity={localQuantities[bagType.id] ?? 0}
-            originalQuantity={serverQuantities[bagType.id] ?? 0}
             onQuantityChange={handleQuantityChange}
-            onSave={handleSave}
           />
         ))}
+      </View>
+      <View className="px-4 pt-2 items-end">
+        <TouchableOpacity
+          onPress={handleSave}
+          disabled={!hasChanged}
+          className="rounded-md py-1.5 px-5 border"
+          style={{
+            borderColor: hasChanged ? '#3280F6' : '#D1D5DB',
+            opacity: hasChanged ? 1 : 0.5,
+          }}
+        >
+          <Text
+            className="font-semibold text-base"
+            style={{ color: hasChanged ? '#3280F6' : '#9CA3AF' }}
+          >
+            Lưu túi hàng
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

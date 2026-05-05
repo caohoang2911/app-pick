@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -13,6 +13,7 @@ import Bags from '~/src/components/order-bags/bags';
 import HeaderBag from '~/src/components/order-bags/header-bag';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import { PackageSizePicker } from '~/src/components/shared/package-size-picker';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import {
   setHasUpdateOrderBagLabels,
@@ -23,8 +24,13 @@ import {
 import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 
+const UNSAVED_BAG_TITLE = 'Chưa lưu túi hàng';
+const UNSAVED_BAG_MSG = 'Bạn có thay đổi số túi chưa được lưu. Bạn có muốn tiếp tục không?';
+
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+  const navigation = useNavigation();
+  const hasBagUnsavedRef = useRef(false);
   const { isOrderDetailLoading, orderDetailError, orderDetail } =
     useOrderDetailForCode(code);
   const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
@@ -74,7 +80,29 @@ const OrderBags = () => {
   const { shipping } = orderDetail?.header as OrderDetailHeader;
   const { packageSize } = shipping || {};
 
-  const handlePrintAll = () => {
+  const handleBagQuantitiesHasChanged = useCallback((hasChanged: boolean) => {
+    hasBagUnsavedRef.current = hasChanged;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove' as any, (e: any) => {
+      if (!hasBagUnsavedRef.current) return;
+      e.preventDefault();
+      showAlert({
+        title: UNSAVED_BAG_TITLE,
+        message: UNSAVED_BAG_MSG,
+        cancelText: 'Ở lại',
+        confirmText: 'Thoát',
+        onConfirm: () => {
+          hideAlert();
+          navigation.dispatch(e.data.action);
+        },
+      });
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const doPrintAll = useCallback(() => {
     const messagePackageSize =
       !packageSize &&
       isShowPackageSizePicker &&
@@ -83,16 +111,28 @@ const OrderBags = () => {
       ? 'Vui lòng thêm tem'
       : messagePackageSize;
     if (message) {
-      showMessage({
-        message,
-        type: 'danger',
-      });
-
+      showMessage({ message, type: 'danger' });
       return;
     }
-
     router.push(`/orders/print-preview?code=${code}`);
-  };
+  }, [packageSize, isShowPackageSizePicker, isDisabledPrintAll, code]);
+
+  const handlePrintAll = useCallback(() => {
+    if (hasBagUnsavedRef.current) {
+      showAlert({
+        title: UNSAVED_BAG_TITLE,
+        message: UNSAVED_BAG_MSG,
+        cancelText: 'Quay lại lưu',
+        confirmText: 'Tiếp tục',
+        onConfirm: () => {
+          hideAlert();
+          doPrintAll();
+        },
+      });
+      return;
+    }
+    doPrintAll();
+  }, [doPrintAll]);
 
   useEffect(() => {
     if (!code || !hasUpdateOrderBagLabels || isInitialLoad) return;
@@ -139,7 +179,7 @@ const OrderBags = () => {
           <HeaderBag />
           {isShowPackageSizePicker && <PackageSizePicker />}
           <Bags />
-          <BagQuantities />
+          <BagQuantities onHasChangedChange={handleBagQuantitiesHasChanged} />
         </View>
       </ScrollView>
       <View className="border-t border-gray-200 bg-white pb-4">
