@@ -49,7 +49,6 @@ const _useAuth = create<AuthState>((set, get) => ({
   signOut: () => {
     // Hủy tất cả các queries trước khi xóa token và userInfo
     queryClient.cancelQueries();
-    queryClient.clear();
 
     // Xóa token và userInfo
     removeToken();
