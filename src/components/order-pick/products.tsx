@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { toUpper } from 'lodash';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Dimensions,
@@ -144,11 +145,11 @@ const OrderPickProducts = () => {
   useEffect(() => {
     if (!keyword) return;
 
-    const keywordUpper = keyword.toUpperCase();
+    const keywordUpper = toUpper(keyword);
 
     const productBarcode = orderPickProductsFlat?.find((product: Product) => {
       return product?.refBarcodes?.some((refBarcode = '') => {
-        const barcodeUpper = refBarcode.toUpperCase();
+        const barcodeUpper = toUpper(refBarcode);
         return (
           barcodeUpper === keywordUpper ||
           (keywordUpper.length >= INPUT_BARCODE_LENGTH &&

@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import { toUpper } from 'lodash';
 import { showMessage } from 'react-native-flash-message';
 import { signOut } from '~/src/core';
 import { getToken } from '~/src/core/store/auth/utils';
@@ -96,7 +97,7 @@ axiosClient.interceptors.response.use(
       console.log('📥 API Response:', {
         status: response.status,
         url: response.config?.url,
-        method: response.config?.method?.toUpperCase(),
+        method: toUpper(response.config?.method),
         hasError: !!response?.data?.error,
         error: response?.data?.error,
         dataKeys: response?.data ? Object.keys(response.data) : [],
@@ -135,7 +136,7 @@ axiosClient.interceptors.response.use(
       console.log('❌ API Error:', {
         status: error.response?.status,
         url: error.config?.url,
-        method: error.config?.method?.toUpperCase(),
+        method: toUpper(error.config?.method),
         message: error.message,
         data: error.response?.data,
       });
@@ -144,7 +145,7 @@ axiosClient.interceptors.response.use(
     // Report non-auth API errors to Crashlytics
     if (error.response?.status && error.response.status >= 500) {
       CrashlyticsService.log(
-        `API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+        `API Error: ${toUpper(error.config?.method)} ${error.config?.url}`,
       );
       CrashlyticsService.recordError(
         new Error(`API ${error.response.status}: ${error.config?.url}`),
@@ -181,7 +182,7 @@ axiosClient.interceptors.request.use(function (config: any) {
   // Log API requests in development
   if (isDevelopment()) {
     console.log('📤 API Request:', {
-      method: config.method?.toUpperCase(),
+      method: toUpper(config.method),
       url: config.url,
       baseURL: config.baseURL,
       fullURL: `${config.baseURL}${config.url}`,

@@ -22,7 +22,6 @@ import {
   useOrderBag,
 } from '~/src/core/store/order-bag';
 import { transformBagsData } from '~/src/core/utils/order-bag';
-import { OrderDetailHeader } from '~/src/types/order-pick';
 
 const UNSAVED_BAG_TITLE = 'Chưa lưu túi hàng';
 const UNSAVED_BAG_MSG = 'Bạn có thay đổi số túi chưa được lưu. Bạn có muốn tiếp tục không?';
@@ -77,7 +76,7 @@ const OrderBags = () => {
     }
   }, [orderDetail, isOrderDetailLoading, isInitialLoad]);
 
-  const { shipping } = orderDetail?.header as OrderDetailHeader;
+  const shipping = orderDetail?.header?.shipping;
   const { packageSize } = shipping || {};
 
   const handleBagQuantitiesHasChanged = useCallback((hasChanged: boolean) => {

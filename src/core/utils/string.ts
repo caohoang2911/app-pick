@@ -1,3 +1,5 @@
+import { toLower, toUpper } from 'lodash';
+
 const removeAccents = (str?: string) => {
   if (!str) return '';
   return str
@@ -9,7 +11,7 @@ const removeAccents = (str?: string) => {
 
 const uppercaseFirstCharacter = (str?: string) => {
   if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  return toUpper(str.charAt(0)) + toLower(str.slice(1));
 };
 
 export const stringUtils = {

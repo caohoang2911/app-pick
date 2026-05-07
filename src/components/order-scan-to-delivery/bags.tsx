@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import { toUpper } from 'lodash';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -35,7 +36,7 @@ const Empty = () => {
   );
 };
 
-const normBagType = (t: unknown) => String(t ?? '').toUpperCase();
+const normBagType = (t: unknown) => toUpper(String(t ?? ''));
 
 function partitionBagsByType(orderBags: OrderBagItem[]) {
   const dry: OrderBagItem[] = [];

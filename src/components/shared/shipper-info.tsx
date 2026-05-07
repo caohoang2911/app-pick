@@ -1,4 +1,5 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { toUpper } from 'lodash';
 import React, { useMemo } from 'react';
 import { Image, Text, View } from 'react-native';
 import { Images } from '~/assets';
@@ -9,7 +10,7 @@ import Box from '../Box';
 
 function providerLogoSource(provider?: string) {
   if (!provider) return null;
-  const p = provider.toUpperCase();
+  const p = toUpper(provider);
   if (p === 'AHAMOVE' || p.includes('AHAMOVE')) {
     return Images.ahamove_logo;
   }

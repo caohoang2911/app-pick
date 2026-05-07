@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import { toUpper } from 'lodash';
 import React, { useMemo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -51,7 +52,7 @@ const InvoiceInfo = () => {
           <View className="flex-1">
             {shouldDisplayPicker ? (
               <Text numberOfLines={2} ellipsizeMode="tail">
-                {picker?.username?.toUpperCase()} - {picker?.name}
+                {toUpper(picker?.username)} - {picker?.name}
               </Text>
             ) : (
               <Text className="text-gray-500">--</Text>
