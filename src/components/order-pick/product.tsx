@@ -72,6 +72,7 @@ const Row = memo(
               className={`font-medium ${unitColorClass}`}
               numberOfLines={1}
               ellipsizeMode="tail"
+              style={{ fontSize: 12 }}
             >
               {unit}
             </Text>
@@ -560,7 +561,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
   },
   labelColumn: { width: 58, marginRight: 8 },
-  valueColumn: { flex: 1, maxWidth: 90, marginRight: 8},
+  valueColumn: { flex: 1, maxWidth: 70, marginRight: 4},
   unitColumn: { flexShrink: 1, minWidth: 0 },
   modalOverlay: {
     flex: 1,

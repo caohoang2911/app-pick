@@ -13,6 +13,7 @@ import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import * as Yup from 'yup';
 import { useAuthorizeUserPassword } from '../api/auth/use-authorize-user-password';
+import { useRefreshToken } from '../api/auth/use-refresh-token';
 import { Input } from '../components/Input';
 import { setLoading } from '../core/store/loading';
 
@@ -28,8 +29,10 @@ export default function Login() {
   } = useLogin();
   const loginTimeoutRef = useRef<NodeJS.Timeout>();
 
+  const { mutateAsync: refreshTokenAsync } = useRefreshToken();
+
   const { mutate: loginRegular, isPending: isPendingRegular } =
-    useAuthorizeUserPassword((data) => {
+    useAuthorizeUserPassword(async (data) => {
       if (!data.error) {
         const userInfo = data.data || {};
         const { zas } = userInfo;
@@ -38,6 +41,12 @@ export default function Login() {
           return;
         }
         signIn({ token: zas as string, userInfo });
+
+        try {
+          await refreshTokenAsync();
+        } catch (error) {
+          console.error('[Login] refreshToken failed:', error);
+        }
 
         // Check if there's a pending deep link to navigate to
         const savedDeepLink = consumePendingDeepLink();

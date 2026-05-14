@@ -3,11 +3,14 @@ import { useMutation } from '@tanstack/react-query';
 import { setUser, useAuth } from '~/src/core/store/auth';
 import { setToken, setUserInfo } from '~/src/core/store/auth/utils';
 import { setLoading } from '~/src/core/store/loading';
+import { getApVersion } from '~/src/core/utils/app-version';
 
 type Response = { error: string } & { data: {} };
 
 const refreshToken = async (): Promise<Response> => {
-  return await axiosClient.post('auth/refreshToken');
+  return await axiosClient.post('auth/refreshToken', {
+    apVersion: getApVersion(),
+  });
 };
 
 export const useRefreshToken = (cb?: (data: any) => void) => {

@@ -608,6 +608,16 @@ const InputAmountPopup = () => {
   }, [quantityFromBarcode, pickedQuantity, action]);
   const productName = currentProduct?.name || '';
 
+  const packOrBoxUnitWarning = useMemo(() => {
+    const unitName = currentProduct?.unit?.trim();
+    if (!unitName) return null;
+    const lowerUnit = unitName.toLowerCase();
+    if (lowerUnit.startsWith('pack') || lowerUnit.startsWith('thùng')) {
+      return `SP bán theo ${unitName}, vui lòng pick đúng quy cách`;
+    }
+    return null;
+  }, [currentProduct?.unit]);
+
   // Memoize title component
   const renderTitle = useMemo(
     () => (
@@ -646,6 +656,11 @@ const InputAmountPopup = () => {
           )}
               
         </View>
+        {!!packOrBoxUnitWarning && (
+          <Text className="font-bold text-orange-500 text-sm mt-1">
+            {packOrBoxUnitWarning} {}
+          </Text>
+        )}
         {!!currentProduct?.productPickingGuidelines && (
           <View className="flex flex-row items-center gap-1 w-full mt-4">
             <ProductPickingGuidelines
@@ -662,6 +677,7 @@ const InputAmountPopup = () => {
       currentProduct?.tags,
       currentProduct?.barcode,
       currentProduct?.productPickingGuidelines,
+      packOrBoxUnitWarning,
     ],
   );
 

@@ -20,6 +20,7 @@ import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { setLoading } from '../core/store/loading';
 import RequestPermissionStore from '../components/shared/request-permission-store';
 import { EmployeeRole } from '~/src/types/employee';
+import { useRefreshToken } from '../api/auth/use-refresh-token';
 
 const WHITE_LIST_ROLE = [
   EmployeeRole.STORE,
@@ -39,6 +40,8 @@ const Authorize = () => {
   const flag = useRef(true);
 
   const [currentUrl, setCurrentUrl] = useState<string>();
+
+  const { mutateAsync: refreshTokenAsync } = useRefreshToken();
 
   useEffect(() => {
     setCurrentUrl(urlRedirect);
@@ -80,6 +83,12 @@ const Authorize = () => {
 
         if (WHITE_LIST_ROLE.includes(role)) {
           signIn({ token: zas, userInfo: authInfo });
+
+          try {
+            await refreshTokenAsync();
+          } catch (error) {
+            console.error('[Authorize] refreshToken failed:', error);
+          }
 
           // Check if there's a pending deep link to navigate to
           const savedDeepLink = consumePendingDeepLink();
