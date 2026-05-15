@@ -2,6 +2,27 @@ import { ORDER_DELIVERY_TYPE, ORDER_STATUS } from '@/core/constants/order';
 import { OrderStatus, OrderStatusValue } from '~/src/types/order';
 import { APP_ROUTES } from '..';
 
+export type OrderShippingInfo = {
+  driverName?: string;
+  driverPhone?: string;
+};
+
+export const hasOrderDriverInfo = (
+  shipping?: OrderShippingInfo,
+): boolean => !!shipping?.driverName;
+
+export const isApartmentComplexDriverHandover = ({
+  deliveryType,
+  status,
+  shipping,
+}: {
+  deliveryType: ORDER_DELIVERY_TYPE | undefined;
+  status: OrderStatus | undefined;
+  shipping?: OrderShippingInfo;
+}) =>
+  deliveryType === ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY &&
+  (hasOrderDriverInfo(shipping) || status === ORDER_STATUS.BOOKED_SHIPPER);
+
 export const isEnableScanToDelivery = ({
   status,
 }: {
@@ -27,17 +48,19 @@ export const getScanToDeliveryInfo = ({
   deliveryType,
   status,
   orderCode,
+  shipping,
 }: {
   deliveryType: ORDER_DELIVERY_TYPE | undefined;
   status: OrderStatus | undefined;
   orderCode: string;
+  shipping?: OrderShippingInfo;
 }): {
   title: string;
   route: string;
 } | null => {
   if (!deliveryType) return null;
   if (deliveryType === ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY) {
-    if (status === ORDER_STATUS.BOOKED_SHIPPER) {
+    if (isApartmentComplexDriverHandover({ deliveryType, status, shipping })) {
       return {
         title: 'Scan túi - Giao hàng cho tài xế',
         route: APP_ROUTES.ORDER_SCAN_TO_DELIVERY(orderCode),

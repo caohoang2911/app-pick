@@ -44,7 +44,11 @@ import {
   toggleStoreStartScanQrCodeProduct,
   useStoreStartOrderScanToDelivery,
 } from '~/src/core/store/store-start-order-scan-to-delivery';
-import { getScanToDeliveryInfo } from '~/src/core/utils/order';
+import { APP_ROUTES } from '~/src/core';
+import {
+  getScanToDeliveryInfo,
+  isApartmentComplexDriverHandover,
+} from '~/src/core/utils/order';
 import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
@@ -76,6 +80,7 @@ const OrderScanToDelivery = () => {
     deliveryType,
     status,
     orderCode: code,
+    shipping,
   })?.title;
 
   useEffect(() => {
@@ -91,6 +96,31 @@ const OrderScanToDelivery = () => {
       });
     }
   }, [title, navigation]);
+
+  useEffect(() => {
+    if (isOrderDetailLoading || !header) return;
+
+    const scanInfo = getScanToDeliveryInfo({
+      deliveryType,
+      status,
+      orderCode: code,
+      shipping,
+    });
+
+    if (
+      isApartmentComplexDriverHandover({ deliveryType, status, shipping }) &&
+      scanInfo?.route === APP_ROUTES.ORDER_SCAN_TO_DELIVERY(code)
+    ) {
+      router.replace(scanInfo.route);
+    }
+  }, [
+    isOrderDetailLoading,
+    header,
+    deliveryType,
+    status,
+    code,
+    shipping,
+  ]);
 
   const invalidateOrderDetail = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });

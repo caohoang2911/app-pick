@@ -30,7 +30,7 @@ const HeaderActionBtn = () => {
 
   const { orderDetail } = useOrderDetailForCode(orderCode);
   const { header } = orderDetail || {};
-  const { status, deliveryType } = header || {};
+  const { status, deliveryType, shipping } = header || {};
 
   const isShipping = status === ORDER_STATUS.SHIPPING;
   const isStorePackaged = status === ORDER_STATUS.STORE_PACKED;
@@ -61,8 +61,12 @@ const HeaderActionBtn = () => {
         : [
             {
               key: 'scan-bag',
-              title: getScanToDeliveryInfo({ deliveryType, status, orderCode })
-                ?.title,
+              title: getScanToDeliveryInfo({
+                deliveryType,
+                status,
+                orderCode,
+                shipping,
+              })?.title,
               enabled: isEnableScanToDelivery({ status }),
               hidden: isHiddenScanToDelivery({ deliveryType }),
               icon: <QRScanLine />,
@@ -77,7 +81,7 @@ const HeaderActionBtn = () => {
               ),
             },
           ],
-    [orderCode, isShipping, isStorePackaged, isDriver, deliveryType, status],
+    [orderCode, isShipping, isStorePackaged, isDriver, deliveryType, status, shipping],
   );
 
   const renderItem = ({

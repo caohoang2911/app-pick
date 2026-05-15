@@ -85,12 +85,13 @@ const OrderScanToDelivery = () => {
   const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
   const failureBottomSheetRef = useRef<any>(null);
   const segments = useSegments();
-  const { tags, status, codAmount, deliveryType } =
+  const { tags, status, codAmount, deliveryType, shipping } =
     (header as OrderDetailHeader) || {};
   const title = getScanToDeliveryInfo({
     deliveryType,
     status,
     orderCode: code,
+    shipping,
   })?.title;
 
   useLayoutEffect(() => {

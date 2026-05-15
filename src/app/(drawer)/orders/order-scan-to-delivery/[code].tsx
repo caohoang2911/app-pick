@@ -61,7 +61,11 @@ import {
   toggleScanQrCodeProduct,
   useOrderScanToDelivery,
 } from '~/src/core/store/order-scan-to-delivery';
-import { getScanToDeliveryInfo } from '~/src/core/utils/order';
+import {
+  getScanToDeliveryInfo,
+  hasOrderDriverInfo,
+  isApartmentComplexDriverHandover,
+} from '~/src/core/utils/order';
 import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { BarcodeScanningResult } from '~/src/types/scanner';
@@ -122,6 +126,7 @@ const OrderScanToDelivery = () => {
     deliveryType,
     status,
     orderCode: code,
+    shipping: header?.shipping,
   })?.title;
 
   useLayoutEffect(() => {
@@ -362,22 +367,25 @@ const OrderScanToDelivery = () => {
   }, [tags]);
 
   const disableActionWithoutInvoice = useMemo(() => {
-    const hasDriverInfo =
-      !!header?.shipping?.driverPhone && !!header?.shipping?.driverName;
+    const hasDriverInfo = hasOrderDriverInfo(header?.shipping);
     const baseDisable =
       !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
+    const requiresDriverInfo =
+      deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY ||
+      isApartmentComplexDriverHandover({
+        deliveryType,
+        status,
+        shipping: header?.shipping,
+      });
 
-    return (
-      baseDisable ||
-      (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY && !hasDriverInfo)
-    );
+    return baseDisable || (requiresDriverInfo && !hasDriverInfo);
   }, [
     orderBags,
     isOrderDetailLoading,
     handoverStatus,
-    header?.shipping?.driverPhone,
-    header?.shipping?.driverName,
+    header?.shipping,
     deliveryType,
+    status,
   ]);
 
   const renderAction = useMemo(() => {
@@ -463,8 +471,13 @@ const OrderScanToDelivery = () => {
             codAmount={codAmount}
           />
           <View className="flex flex-col gap-4">
-            {deliveryType !== ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY &&
-            deliveryType !== ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP ? (
+            {deliveryType !== ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP &&
+            (deliveryType !== ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY ||
+              isApartmentComplexDriverHandover({
+                deliveryType,
+                status,
+                shipping: header?.shipping,
+              })) ? (
               <ShipperInfo orderDetail={orderDetail} />
             ) : null}
             <InvoiceInfo />

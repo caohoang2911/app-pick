@@ -52,6 +52,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
   const header = orderDetail?.header;
   const status = header?.status;
   const deliveryType = header?.deliveryType;
+  const shipping = header?.shipping;
   const customer = header?.customer;
   const invoiceCodeFromHeader = header?.invoiceCode;
   const { name, phone, membership } = customer || {};
@@ -120,8 +121,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         break;
       case 'scan-bag':
         router.push(
-          getScanToDeliveryInfo({ deliveryType, status, orderCode: code })
-            ?.route || '',
+          getScanToDeliveryInfo({
+            deliveryType,
+            status,
+            orderCode: code,
+            shipping,
+          })?.route || '',
         );
         break;
       case 'assign-order-to-picker':
@@ -216,8 +221,12 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       },
       {
         key: 'scan-bag',
-        title: getScanToDeliveryInfo({ deliveryType, status, orderCode: code })
-          ?.title,
+        title: getScanToDeliveryInfo({
+          deliveryType,
+          status,
+          orderCode: code,
+          shipping,
+        })?.title,
         enabled: isEnableScanToDelivery({ status }),
         hidden: isHiddenScanToDelivery({ deliveryType }),
         icon: <QRScanLine />,
@@ -230,7 +239,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         icon: <MaterialIcons name="more-horiz" size={24} color="black" />,
       },
     ],
-    [status, deliveryType, code],
+    [status, deliveryType, code, shipping],
   );
 
   return (
