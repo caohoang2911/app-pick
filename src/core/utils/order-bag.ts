@@ -91,6 +91,57 @@ export const barcodeCondition = (
   return refBarcodes.includes(barcode);
 };
 
+const MIN_SUFFIX_BARCODE_LENGTH = 5;
+
+const matchesRefBarcodeKeyword = (
+  refBarcode: string,
+  keywordUpper: string,
+): boolean => {
+  const barcodeUpper = refBarcode.toUpperCase();
+  return (
+    barcodeUpper === keywordUpper ||
+    (keywordUpper.length >= MIN_SUFFIX_BARCODE_LENGTH &&
+      barcodeUpper.endsWith(keywordUpper))
+  );
+};
+
+/** Khớp keyword với refBarcodes trên đơn; trả về mã ref gốc để dùng với handleScanBarcode. */
+export const findMatchingRefBarcode = (
+  keyword: string,
+  orderPickProductsFlat: Product[],
+): string | null => {
+  const keywordUpper = keyword.trim().toUpperCase();
+  if (!keywordUpper) return null;
+
+  for (const product of orderPickProductsFlat) {
+    for (const refBarcode of product.refBarcodes || []) {
+      if (matchesRefBarcodeKeyword(refBarcode, keywordUpper)) {
+        return refBarcode;
+      }
+    }
+  }
+  return null;
+};
+
+/** Resolve mã quét/nhập (kèm fallback bỏ 0 đầu) trước khi pick tuần tự. */
+export const resolvePickScanBarcode = (
+  rawKeyword: string,
+  orderPickProductsFlat: Product[],
+): string | null => {
+  const trimmed = rawKeyword.trim();
+  const matched = findMatchingRefBarcode(trimmed, orderPickProductsFlat);
+  if (matched) return matched;
+
+  if (
+    !trimmed.startsWith('110') &&
+    trimmed.length > 10 &&
+    trimmed.startsWith('0')
+  ) {
+    return findMatchingRefBarcode(trimmed.slice(1), orderPickProductsFlat);
+  }
+  return null;
+};
+
 export const isValidOrderBagCode = (orderBagCode: string) => {
   if (!orderBagCode || typeof orderBagCode !== 'string') {
     return false;

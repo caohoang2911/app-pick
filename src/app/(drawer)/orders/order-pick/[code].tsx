@@ -25,8 +25,8 @@ import {
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { splitBarcode } from '~/src/core/utils/number';
 import {
-  barcodeCondition,
   handleScanBarcode,
+  resolvePickScanBarcode,
 } from '~/src/core/utils/order-bag';
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import Loading from '~/src/components/Loading';
@@ -83,34 +83,18 @@ const OrderPick = () => {
     (result: BarcodeScanningResult) => {
       const codeScanned: string = result.data.toString();
 
-      const { barcode: rawBarcode, quantity } = splitBarcode({ barcode: codeScanned });
+      const { barcode: rawBarcode, quantity } = splitBarcode({
+        barcode: codeScanned,
+      });
 
-      let barcode = rawBarcode;
-      let indexWithBarcode = orderPickProductsFlat?.findIndex((item) =>
-        barcodeCondition(barcode, item?.refBarcodes),
-      ) ?? -1;
+      const barcode = resolvePickScanBarcode(
+        rawBarcode,
+        orderPickProductsFlat,
+      );
 
-      // Fallback: bỏ 1 số 0 đầu nếu không tìm thấy, không phải mã KG, và length > 10
-      if (indexWithBarcode === -1) {
-        const isKgBarcode = codeScanned.startsWith('110');
-
-        if (!isKgBarcode && barcode.length > 10 && barcode.startsWith('0')) {
-          const fallbackBarcode = barcode.slice(1);
-          const fallbackIndex =
-            orderPickProductsFlat?.findIndex((item) =>
-              barcodeCondition(fallbackBarcode, item?.refBarcodes),
-            ) ?? -1;
-
-          if (fallbackIndex !== -1) {
-            barcode = fallbackBarcode;
-            indexWithBarcode = fallbackIndex;
-          }
-        }
-      }
-
-      if (indexWithBarcode === -1) {
+      if (!barcode) {
         showMessage({
-          message: `Mã ${barcode} vừa quét không nằm trong đơn hàng`,
+          message: `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
           type: 'warning',
         });
         return;

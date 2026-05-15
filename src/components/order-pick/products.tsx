@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { toUpper } from 'lodash';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Dimensions,
@@ -23,7 +22,10 @@ import {
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
-import { handleScanBarcode } from '~/src/core/utils/order-bag';
+import {
+  handleScanBarcode,
+  resolvePickScanBarcode,
+} from '~/src/core/utils/order-bag';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import Empty from '../shared/Empty';
 import OrderPickProduct from './product';
@@ -31,8 +33,6 @@ import ProductCombo from './product-combo';
 import ProductGift from './product-gift';
 import UserNote from './user-note';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-
-const INPUT_BARCODE_LENGTH = 5;
 
 const EmptyProductList = () => (
   <View className="mt-3">
@@ -145,41 +145,31 @@ const OrderPickProducts = () => {
   useEffect(() => {
     if (!keyword) return;
 
-    const keywordUpper = toUpper(keyword);
+    const matchedRefBarcode = resolvePickScanBarcode(
+      keyword,
+      orderPickProductsFlat,
+    );
+    if (!matchedRefBarcode) return;
 
-    const productBarcode = orderPickProductsFlat?.find((product: Product) => {
-      return product?.refBarcodes?.some((refBarcode = '') => {
-        const barcodeUpper = toUpper(refBarcode);
-        return (
-          barcodeUpper === keywordUpper ||
-          (keywordUpper.length >= INPUT_BARCODE_LENGTH &&
-            barcodeUpper.endsWith(keywordUpper))
-        );
-      });
+    Keyboard.dismiss();
+    const indexOfCodeScanned = handleScanBarcode({
+      orderPickProductsFlat,
+      currentId: null,
+      isEditManual: false,
+      barcode: matchedRefBarcode,
     });
 
-    if (productBarcode) {
-      Keyboard.dismiss();
-      const indexOfCodeScanned = handleScanBarcode({
-        orderPickProductsFlat,
-        currentId: productBarcode?.id,
-        isEditManual: false,
-        barcode: productBarcode?.barcode || '',
-      });
+    if (indexOfCodeScanned === -1) return;
 
-      if (indexOfCodeScanned != -1) {
-        const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
+    const currentProduct = orderPickProductsFlat[indexOfCodeScanned];
+    if (!currentProduct?.barcode) return;
 
-        if (currentProduct) {
-          setIsPickedByManualBarcodeInput(true);
-          setSuccessForBarcodeScan(productBarcode?.barcode || '');
-          setCurrentId(currentProduct?.id);
-          setLastScannedId(currentProduct?.id ?? null);
-          toggleShowAmountInput(true, currentProduct?.id);
-          setKeyword('');
-        }
-      }
-    }
+    setIsPickedByManualBarcodeInput(true);
+    setSuccessForBarcodeScan(currentProduct.barcode);
+    setCurrentId(currentProduct.id);
+    setLastScannedId(currentProduct.id ?? null);
+    toggleShowAmountInput(true, currentProduct.id);
+    setKeyword('');
   }, [
     keyword,
     orderPickProducts,
