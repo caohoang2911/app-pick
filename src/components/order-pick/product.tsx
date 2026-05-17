@@ -220,7 +220,13 @@ const BarcodeDisplay = memo(
           />
         </View>
         <View className="flex-shrink">
-          {isBaseBarcode && <Badge label={barcode} variant="pink" />}
+          {isBaseBarcode && (
+            <Badge
+              label={barcode}
+              variant="secondary"
+              labelClasses="text-xs text-gray-500"
+            />
+          )}
         </View>
       </View>
     );
