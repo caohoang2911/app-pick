@@ -21,6 +21,7 @@ import { useAuth } from '~/src/core';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useConfig } from '~/src/core/store/config';
 import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
+import { showPrinterConnectionFailMessage } from '~/src/core/utils/printer-connection';
 
 const Settings = () => {
   const { data } = useGetSettingQuery();
@@ -174,20 +175,29 @@ const Settings = () => {
         },
       );
 
-      labelPrinterTimer.current = setTimeout(() => {
-        showMessage({
-          message: 'Không thể kết nối máy in, lưu IP máy in label thất bại',
-          type: 'danger',
-        });
+      client.on('error', () => {
+        if (labelPrinterTimer.current) {
+          clearTimeout(labelPrinterTimer.current);
+        }
         client.destroy();
         setIsLoadingLabelPrinter(false);
+        void showPrinterConnectionFailMessage(
+          'Không thể kết nối máy in, lưu IP máy in label thất bại',
+        );
+      });
+
+      labelPrinterTimer.current = setTimeout(() => {
+        client.destroy();
+        setIsLoadingLabelPrinter(false);
+        void showPrinterConnectionFailMessage(
+          'Không thể kết nối máy in, lưu IP máy in label thất bại',
+        );
       }, 5000);
     } catch (error) {
       setIsLoadingLabelPrinter(false);
-      showMessage({
-        message: 'Lỗi không xác định khi kết nối máy in label',
-        type: 'danger',
-      });
+      void showPrinterConnectionFailMessage(
+        'Lỗi không xác định khi kết nối máy in label',
+      );
     }
   };
 
@@ -216,20 +226,29 @@ const Settings = () => {
         },
       );
 
-      billPrinterTimer.current = setTimeout(() => {
-        showMessage({
-          message: 'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
-          type: 'danger',
-        });
+      client.on('error', () => {
+        if (billPrinterTimer.current) {
+          clearTimeout(billPrinterTimer.current);
+        }
         client.destroy();
         setIsLoadingBillPrinter(false);
+        void showPrinterConnectionFailMessage(
+          'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
+        );
+      });
+
+      billPrinterTimer.current = setTimeout(() => {
+        client.destroy();
+        setIsLoadingBillPrinter(false);
+        void showPrinterConnectionFailMessage(
+          'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
+        );
       }, 5000);
     } catch (error) {
       setIsLoadingBillPrinter(false);
-      showMessage({
-        message: 'Lỗi không xác định khi kết nối máy tạo hoá đơn',
-        type: 'danger',
-      });
+      void showPrinterConnectionFailMessage(
+        'Lỗi không xác định khi kết nối máy tạo hoá đơn',
+      );
     }
   };
 

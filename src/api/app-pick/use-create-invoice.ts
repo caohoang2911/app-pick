@@ -1,11 +1,12 @@
 import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
 import { Env } from '~/env';
-import { getPrinterHost } from '~/src/core/utils/printer';
 import { setLoading } from '~/src/core/store/loading';
+import { getPrinterHost } from '~/src/core/utils/printer';
+import { showPrinterConnectionFailMessage } from '~/src/core/utils/printer-connection';
 import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
@@ -60,27 +61,24 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
 
       timer = setTimeout(() => {
         cleanupConnection(client, timer);
-        showMessage({
-          message: `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
-          type: 'danger',
-        });
+        void showPrinterConnectionFailMessage(
+          `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+        );
         reject(new Error('Printer connection timeout'));
       }, TIMEOUT_CONNECT_PRINTER);
 
       client.on('error', (error: any) => {
         cleanupConnection(client, timer);
-        showMessage({
-          message: `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
-          type: 'danger',
-        });
+        void showPrinterConnectionFailMessage(
+          `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+        );
         reject(error);
       });
     } catch (error) {
       cleanupConnection(client, timer);
-      showMessage({
-        message: 'Lỗi khi kết nối máy in. Vui lòng thử lại.',
-        type: 'danger',
-      });
+      void showPrinterConnectionFailMessage(
+        'Lỗi khi kết nối máy in. Vui lòng thử lại.',
+      );
       reject(error);
     }
   });

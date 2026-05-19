@@ -7,7 +7,7 @@ import React, {
   useState,
   startTransition,
 } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import TcpSocket from 'react-native-tcp-socket';
 import { useGenRongtaPrintData } from '~/src/api/app-pick/use-gen-rongta-print-data';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -20,6 +20,7 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderBag } from '~/src/core/store/order-bag';
+import { getDeviceIpHintText } from '~/src/core/utils/printer-connection';
 import { OrderBagType } from '~/src/types/order-bag';
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
@@ -134,6 +135,7 @@ function PrintPreview() {
     if (!host) return;
 
     let timer: any;
+    let hasShownFailAlert = false;
 
     try {
       refClient.current = TcpSocket.createConnection(options, () => {
@@ -141,13 +143,21 @@ function PrintPreview() {
         startTransition(() => setConnected(true));
       });
 
-      timer = setTimeout(() => {
-        startTransition(() => {
-          setLoading(false);
-          setConnected(false);
-        });
+      const showConnectionFailAlert = async () => {
+        if (hasShownFailAlert) return;
+        hasShownFailAlert = true;
+        const ipHint = await getDeviceIpHintText();
         showAlert({
-          message: `Không thể kết nối với máy in label tại IP: ${host}.`,
+          message: (
+            <View style={{ alignSelf: 'stretch' }}>
+              <Text className="text-center text-sm">
+                {`Không thể kết nối với máy in label tại IP: ${host}.`}
+              </Text>
+              <Text className="text-center text-sm mt-2 font-semibold text-orange-500">
+                {ipHint}
+              </Text>
+            </View>
+          ),
           onConfirm: () => {
             hideAlert();
             router.back();
@@ -155,6 +165,26 @@ function PrintPreview() {
           confirmText: 'Trở lại',
           isHideCancelButton: true,
         });
+      };
+
+      refClient.current.on('error', () => {
+        clearTimeout(timer);
+        startTransition(() => {
+          setLoading(false);
+          setConnected(false);
+        });
+        void showConnectionFailAlert();
+      });
+
+      timer = setTimeout(() => {
+        try {
+          refClient.current?.destroy();
+        } catch {}
+        startTransition(() => {
+          setLoading(false);
+          setConnected(false);
+        });
+        void showConnectionFailAlert();
       }, TIMEOUT_CONNECT_PRINTER);
     } catch (err) {
       setConnected(false);
