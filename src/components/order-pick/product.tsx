@@ -29,6 +29,7 @@ import { Product } from '~/src/types/product';
 import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
+import { UnitText } from './unit-text';
 import { colors } from '~/src/ui/colors';
 const screenWidth = Dimensions.get('window').width;
 // Extract Row component and memoize
@@ -44,38 +45,32 @@ const Row = memo(
     unit?: string;
     warning?: boolean;
   }) => {
-    const unitColorClass = useMemo(() => {
-      if (warning) return 'text-red-500';
-      return '';
-    }, [warning]);
+    const unitColorClass = warning ? 'text-red-500' : '';
     return (
-      <View className="flex-1 flex-row w-full items-center">
-        <View className="flex-row" style={styles.labelColumn}>
+      <View style={styles.row}>
+        <View style={styles.labelColumn}>
           <Text className="text-gray-500" numberOfLines={1}>
             {label}
           </Text>
         </View>
-        <View
-          className="flex-row"
-          style={styles.valueColumn}
-        >
+        <View style={styles.valueColumn}>
           <Text
             className={`font-medium ${warning ? 'text-red-500' : ''}`}
             numberOfLines={1}
+            style={styles.valueText}
           >
             {value}
           </Text>
         </View>
         {unit ? (
-          <View className="flex-row" style={styles.unitColumn}>
-            <Text
+          <View style={styles.unitColumn}>
+            <UnitText
+              unit={unit}
               className={`font-medium ${unitColorClass}`}
               numberOfLines={1}
               ellipsizeMode="tail"
-              style={{ fontSize: 12 }}
-            >
-              {unit}
-            </Text>
+              style={styles.unitText}
+            />
           </View>
         ) : null}
       </View>
@@ -566,9 +561,12 @@ const styles = StyleSheet.create({
     width: (Dimensions.get('window').width - 32) / 3,
     aspectRatio: 1,
   },
-  labelColumn: { width: 58, marginRight: 8 },
-  valueColumn: { flex: 1, maxWidth: 70, marginRight: 4},
-  unitColumn: { flexShrink: 1, minWidth: 0 },
+  row: { flexDirection: 'row', width: '100%', alignItems: 'center' },
+  labelColumn: { width: 58, flexShrink: 0, marginRight: 8 },
+  valueColumn: { width: 44, flexShrink: 0, marginRight: 6 },
+  valueText: { textAlign: 'center', width: '100%' },
+  unitColumn: { flex: 1, flexShrink: 1, minWidth: 0, overflow: 'hidden' },
+  unitText: { fontSize: 12, width: '100%' },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',

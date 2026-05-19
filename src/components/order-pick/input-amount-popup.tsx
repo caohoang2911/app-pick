@@ -58,6 +58,7 @@ import SBottomSheet from '../SBottomSheet';
 import SDropdown from '../SDropdown';
 import SImage from '../SImage';
 import ProductPickingGuidelines from './product-picking-guidelines';
+import { UnitText } from './unit-text';
 
 // QuantityControls Component
 const DecrementButton = memo(
@@ -215,7 +216,11 @@ const QuantitySection = memo(
         <Text className="text-base font-medium text-gray-700">
           Số lượng pick
           {currentProduct?.unit ? (
-            <Text className="text-gray-400">{` (${currentProduct.unit})`}</Text>
+            <Text className="text-gray-400">
+              {' ('}
+              <UnitText unit={currentProduct.unit} className="text-gray-400" />
+              {')'}
+            </Text>
           ) : null}
         </Text>
 
@@ -613,7 +618,12 @@ const InputAmountPopup = () => {
     if (!unitName) return null;
     const lowerUnit = unitName.toLowerCase();
     if (lowerUnit.startsWith('pack') || lowerUnit.startsWith('thùng')) {
-      return `SP bán theo ${unitName}, vui lòng pick đúng quy cách`;
+      return (
+        <Text className="font-bold text-orange-500 text-sm mt-1">
+          SP bán theo <UnitText unit={unitName} className="font-bold" />, vui
+          lòng pick đúng quy cách
+        </Text>
+      );
     }
     return null;
   }, [currentProduct?.unit]);
@@ -636,9 +646,12 @@ const InputAmountPopup = () => {
         <View className="flex flex-row items-center gap-1">
           <Badge
             className="self-start"
-            label={`SL đặt: ${currentProduct?.quantity} ${
-              currentProduct?.unit || ''
-            }`}
+            label={
+              <>
+                {`SL đặt: ${currentProduct?.quantity} `}
+                <UnitText unit={currentProduct?.unit || ''} />
+              </>
+            }
           />
           {currentProduct?.barcode && (
             <Badge
@@ -656,11 +669,7 @@ const InputAmountPopup = () => {
           )}
               
         </View>
-        {!!packOrBoxUnitWarning && (
-          <Text className="font-bold text-orange-500 text-sm mt-1">
-            {packOrBoxUnitWarning} {}
-          </Text>
-        )}
+        {packOrBoxUnitWarning}
         {!!currentProduct?.productPickingGuidelines && (
           <View className="flex flex-row items-center gap-1 w-full mt-4">
             <ProductPickingGuidelines
