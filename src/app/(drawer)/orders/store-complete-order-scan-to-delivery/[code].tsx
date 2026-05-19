@@ -12,7 +12,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Text, View } from 'react-native';
+import { Dimensions, Text, View } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
@@ -37,12 +37,12 @@ import ShipperInfo from '~/src/components/shared/shipper-info';
 import Header from '~/src/components/shared/Header';
 import ButtonBack from '~/src/components/ButtonBack';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
-import Loading from '~/src/components/Loading';
 import { queryClient } from '~/src/api/shared/api-provider';
 import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
 
 const OrderScanToDelivery = () => {
   const navigation = useNavigation();
+  const segments = useSegments();
   const { code } = useLocalSearchParams<{ code: string }>();
   const {
     isOrderDetailLoading,
@@ -51,12 +51,30 @@ const OrderScanToDelivery = () => {
     orderDetail,
   } = useOrderDetailForCode(code);
 
-  // Reset trước paint khi đổi đơn, tránh hiển thị ảnh chứng từ đơn A trên màn đơn B
-  useLayoutEffect(() => {
-    if (code) setCompleteUploadedImages('', true);
-  }, [code]);
-
   const header = orderDetail?.header;
+  const { tags, status, codAmount, deliveryType, shipping } =
+    (header as OrderDetailHeader) || {};
+
+  const proofImages = useCompleteOrderScanToDelivery.use.uploadedImages();
+  const [failureReason, setFailureReason] = useState('');
+  const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
+  const failureBottomSheetRef = useRef<any>(null);
+
+  const failureBottomSheetHeight = useMemo(() => {
+    const maxHeight = Math.floor(Dimensions.get('window').height * 0.55);
+    return Math.min(420, maxHeight);
+  }, []);
+
+  const title = getScanToDeliveryInfo({
+    deliveryType,
+    status,
+    orderCode: code,
+    shipping,
+  })?.title;
+
+  const closeFailureBottomSheet = useCallback(() => {
+    setShowFailureBottomSheet(false);
+  }, []);
 
   const { mutate: handoverOrder, isPending: isLoadingHandoverOrder } =
     useHandoverOrder(() => {
@@ -80,19 +98,9 @@ const OrderScanToDelivery = () => {
     }
   });
 
-  const proofImages = useCompleteOrderScanToDelivery.use.uploadedImages();
-  const [failureReason, setFailureReason] = useState('');
-  const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
-  const failureBottomSheetRef = useRef<any>(null);
-  const segments = useSegments();
-  const { tags, status, codAmount, deliveryType, shipping } =
-    (header as OrderDetailHeader) || {};
-  const title = getScanToDeliveryInfo({
-    deliveryType,
-    status,
-    orderCode: code,
-    shipping,
-  })?.title;
+  useLayoutEffect(() => {
+    if (code) setCompleteUploadedImages('', true);
+  }, [code]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -112,45 +120,12 @@ const OrderScanToDelivery = () => {
     };
   }, []);
 
-  if (orderDetailError) {
-    return (
-      <SectionAlert variant="danger">
-        <Text>{orderDetailError}</Text>
-      </SectionAlert>
-    );
-  }
-
-  const handleHandoverOrder = () => {
-    showAlert({
-      title: 'Hoàn tất giao hàng?',
-      message: `Bạn có chắc chắn hoàn tất giao hàng?`,
-      onConfirm: () => {
-        hideAlert();
-        handoverOrder({ orderCode: code, proofImages });
-      },
-    });
-  };
-
-  const handleHandoverFailOrder = () => {
-    failureBottomSheetRef.current?.present();
-    setShowFailureBottomSheet(true);
-  };
-
-  const handleSubmitFailure = () => {
-    if (!failureReason.trim()) {
-      showAlert({
-        title: 'Lỗi',
-        message: 'Vui lòng nhập lý do giao hàng thất bại',
-        onConfirm: () => {
-          hideAlert();
-        },
-      });
-      return;
+  useEffect(() => {
+    if (showFailureBottomSheet) {
+      failureBottomSheetRef.current?.present();
     }
+  }, [showFailureBottomSheet]);
 
-    setShowFailureBottomSheet(false);
-    validateDeliveryOrderFail({ orderCode: code, reason: failureReason });
-  };
   const handleUploadedImages = useCallback((image: string) => {
     setCompleteUploadedImages(image);
   }, []);
@@ -164,6 +139,46 @@ const OrderScanToDelivery = () => {
   }, []);
 
   const featureAvailable = status === ORDER_STATUS.SHIPPING;
+
+  const handleHandoverOrder = useCallback(() => {
+    showAlert({
+      title: 'Hoàn tất giao hàng?',
+      message: `Bạn có chắc chắn hoàn tất giao hàng?`,
+      onConfirm: () => {
+        hideAlert();
+        handoverOrder({ orderCode: code, proofImages });
+      },
+    });
+  }, [code, handoverOrder, proofImages]);
+
+  const handleHandoverFailOrder = useCallback(() => {
+    setFailureReason('');
+    setShowFailureBottomSheet(true);
+  }, []);
+
+  const handleSubmitFailure = useCallback(() => {
+    if (!failureReason.trim()) {
+      showAlert({
+        title: 'Lỗi',
+        message: 'Vui lòng nhập lý do giao hàng thất bại',
+        onConfirm: () => {
+          hideAlert();
+        },
+      });
+      return;
+    }
+
+    failureBottomSheetRef.current?.dismiss();
+    validateDeliveryOrderFail({ orderCode: code, reason: failureReason });
+  }, [code, failureReason, validateDeliveryOrderFail]);
+
+  if (orderDetailError) {
+    return (
+      <SectionAlert variant="danger">
+        <Text>{orderDetailError}</Text>
+      </SectionAlert>
+    );
+  }
 
   if (isOrderDetailLoading) {
     return <ScanBagsSkeleton />;
@@ -216,22 +231,27 @@ const OrderScanToDelivery = () => {
         visible={showFailureBottomSheet}
         ref={failureBottomSheetRef}
         title="Lý do giao hàng thất bại"
-        onClose={() => setShowFailureBottomSheet(false)}
-        snapPoints={[260]}
+        onClose={closeFailureBottomSheet}
+        snapPoints={[failureBottomSheetHeight]}
       >
-        <View className="px-4 py-4">
+        <View
+          key={showFailureBottomSheet ? 'open' : 'closed'}
+          className="px-4 py-4"
+        >
           <Input
             placeholder="Nhập lý do giao hàng thất bại..."
-            onChangeText={(value: string) => setFailureReason(value)}
+            value={failureReason}
+            onChangeText={setFailureReason}
             multiline
             numberOfLines={4}
             useBottomSheetTextInput
-            style={{ minHeight: 100 }}
+            textAlignVertical="top"
+            style={{ minHeight: 100, textAlignVertical: 'top' }}
           />
           <View className="flex-row gap-3 mt-6">
             <Button
               label="Hủy"
-              onPress={() => setShowFailureBottomSheet(false)}
+              onPress={() => failureBottomSheetRef.current?.dismiss()}
               variant="secondary"
               className="flex-1"
             />

@@ -1,12 +1,14 @@
 import { Formik } from 'formik';
 import React, {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from 'react';
-import { View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import * as Yup from 'yup';
 import { useCancelAhamoveShipper } from '~/src/api/app-pick/use-cancel-ahamove-shipper';
 import { hideAlert } from '~/src/core/store/alert-dialog';
@@ -20,12 +22,24 @@ type Props = {
   orderCode: string;
 };
 
+const validationSchema = Yup.object().shape({
+  cancelReason: Yup.string().required('Vui lòng nhập lý do huỷ'),
+});
+
 const CancelBookShipperBottomsheet = forwardRef<any, Props>(
   ({ orderCode }, ref) => {
     const [visible, setVisible] = useState(false);
-    const actionRef = useRef<any>();
+    const actionRef = useRef<any>(null);
 
-    // Huỷ book shipper
+    const bottomSheetHeight = useMemo(() => {
+      const maxHeight = Math.floor(Dimensions.get('window').height * 0.55);
+      return Math.min(420, maxHeight);
+    }, []);
+
+    const closeBottomSheet = useCallback(() => {
+      setVisible(false);
+    }, []);
+
     const {
       isPending: isLoadingCancelAhamoveShipper,
       mutate: cancelAhamoveShipper,
@@ -36,13 +50,11 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(
       actionRef.current?.dismiss();
     });
 
-    useImperativeHandle(ref, () => {
-      return {
-        present: () => {
-          setVisible(!visible);
-        },
-      };
-    }, []);
+    useImperativeHandle(ref, () => ({
+      present: () => {
+        setVisible(true);
+      },
+    }));
 
     useEffect(() => {
       if (visible) {
@@ -50,8 +62,8 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(
       }
     }, [visible]);
 
-    const handleCancelShipper = (values: any) => {
-      setVisible(false);
+    const handleCancelShipper = (values: { cancelReason: string }) => {
+      actionRef.current?.dismiss();
       setLoading(true);
       cancelAhamoveShipper({
         ...values,
@@ -59,68 +71,56 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(
       });
     };
 
-    // Thêm validation schema
-    const validationSchema = Yup.object().shape({
-      cancelReason: Yup.string().required('Vui lòng nhập lý do huỷ'),
-    });
-
     return (
-      <>
-        <SBottomSheet
-          visible={visible}
-          title="Lý do huỷ"
-          titleAlign="center"
-          snapPoints={[260]}
-          ref={actionRef}
-          onClose={() => setVisible(false)}
+      <SBottomSheet
+        visible={visible}
+        title="Lý do huỷ"
+        titleAlign="center"
+        snapPoints={[bottomSheetHeight]}
+        ref={actionRef}
+        onClose={closeBottomSheet}
+      >
+        <Formik
+          key={visible ? 'open' : 'closed'}
+          initialValues={{ cancelReason: '' }}
+          validationSchema={validationSchema}
+          onSubmit={handleCancelShipper}
         >
-          <Formik
-            initialValues={{
-              cancelReason: '',
-            }}
-            validationSchema={validationSchema}
-            onSubmit={handleCancelShipper}
-          >
-            {({
-              setFieldValue,
-              handleSubmit,
-              values,
-              errors,
-              handleBlur,
-              touched,
-            }) => (
-              <View className="px-4 py-4">
-                <Input
-                  labelClasses="font-medium w-full"
-                  onChangeText={(value: string) => {
-                    setFieldValue('cancelReason', value);
-                  }}
-                  placeholder="Lý do huỷ"
-                  error={touched.cancelReason && errors.cancelReason}
-                  name="cancelReason"
-                  value={values.cancelReason}
-                  onBlur={handleBlur('cancelReason')}
-                  defaultValue=""
-                  useBottomSheetTextInput
-                  multiline={true}
-                  numberOfLines={4}
-                  style={{
-                    height: 60,
-                    textAlignVertical: 'top',
-                  }}
-                  textAlignVertical="top"
-                />
-                <Button
-                  loading={isLoadingCancelAhamoveShipper}
-                  className="mt-4"
-                  label="Huỷ book shipper"
-                  onPress={handleSubmit as any}
-                />
-              </View>
-            )}
-          </Formik>
-        </SBottomSheet>
-      </>
+          {({
+            setFieldValue,
+            handleSubmit,
+            values,
+            errors,
+            handleBlur,
+            touched,
+          }) => (
+            <View className="px-4 py-4">
+              <Input
+                labelClasses="font-medium w-full"
+                onChangeText={(value: string) => {
+                  setFieldValue('cancelReason', value);
+                }}
+                placeholder="Lý do huỷ"
+                error={touched.cancelReason && errors.cancelReason}
+                name="cancelReason"
+                value={values.cancelReason}
+                onBlur={handleBlur('cancelReason')}
+                useBottomSheetTextInput
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                style={{ minHeight: 100, textAlignVertical: 'top' }}
+              />
+              <Button
+                loading={isLoadingCancelAhamoveShipper}
+                className="mt-4"
+                label="Huỷ book shipper"
+                onPress={handleSubmit as () => void}
+              />
+            </View>
+          )}
+        </Formik>
+      </SBottomSheet>
     );
   },
 );

@@ -42,11 +42,13 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
     },
     ref,
   ) => {
-    const { textAlignVertical, style, ...restProps } = props;
+    const { textAlignVertical, style, multiline, ...restProps } = props;
 
     const WrapperInput: any = useBottomSheetTextInput
       ? BottomSheetTextInput
       : TextInput;
+
+    const isMultiline = multiline === true;
 
     const showClear = props.value && allowClear;
     const hasSuffixOrClear = suffix || showClear;
@@ -64,6 +66,7 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
 
           <WrapperInput
             ref={ref}
+            multiline={multiline}
             className={cn(
               'border border-slate-300 rounded-lg bg-white text-base text-gray-900',
               clsx({
@@ -79,9 +82,18 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
             placeholderTextColor="#9CA3AF"
             textAlignVertical={
               textAlignVertical ??
-              (Platform.OS === 'android' ? 'center' : undefined)
+              (isMultiline
+                ? 'top'
+                : Platform.OS === 'android'
+                  ? 'center'
+                  : undefined)
             }
-            style={[styles.input, !editable && styles.inputDisabled, style]}
+            style={[
+              !isMultiline && styles.input,
+              isMultiline && styles.inputMultiline,
+              !editable && styles.inputDisabled,
+              style,
+            ]}
             {...restProps}
           />
 
@@ -112,6 +124,16 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
 );
 
 const styles = StyleSheet.create({
+  inputMultiline: {
+    minHeight: INPUT_HEIGHT,
+    includeFontPadding: false,
+    paddingVertical: Platform.OS === 'android' ? 8 : 10,
+    ...(Platform.OS === 'android' && {
+      paddingTop: 8,
+      paddingBottom: 8,
+    }),
+    lineHeight: 20,
+  },
   input: {
     height: INPUT_HEIGHT,
     // Loại bỏ extra font padding của Android

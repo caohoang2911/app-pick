@@ -119,16 +119,6 @@ const SBottomSheet = forwardRef<any, Props>(
     const bottomSheetScrollViewRef = useRef<any>(null);
     const insets = useSafeAreaInsets();
 
-    const handleSheetChanges = useCallback(
-      (index: number) => {
-        // Prevent closing when hideCloseButton is true
-        if (index === -1 && !hideCloseButton) {
-          onClose?.();
-        }
-      },
-      [onClose, hideCloseButton],
-    );
-
     useImperativeHandle(
       ref,
       () => ({
@@ -181,7 +171,6 @@ const SBottomSheet = forwardRef<any, Props>(
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={snapPoints}
-        onChange={handleSheetChanges}
         handleIndicatorStyle={{ display: 'none', padding: 0 }}
         // key={'order-pick-action'}
         backdropComponent={renderBackdrop}
