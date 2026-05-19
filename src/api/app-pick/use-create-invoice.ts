@@ -203,13 +203,14 @@ const sendToPrinter = async (
 
 export type UseCreateInvoiceProcessOptions = {
   onSuccess?: () => void;
+  onError?: () => void;
   successMessage?: string;
 };
 
 export const useCreateInvoiceProcess = (
   options?: UseCreateInvoiceProcessOptions,
 ) => {
-  const { onSuccess, successMessage } = options ?? {};
+  const { onSuccess, successMessage, onError } = options ?? {};
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
@@ -288,6 +289,7 @@ export const useCreateInvoiceProcess = (
       }
     },
     onError: () => {
+      onError?.();
       setLoading(false);
     },
   });

@@ -151,7 +151,7 @@ const OrderScanToDelivery = () => {
       setUploadedImages('', true);
     };
   }, []);
-
+  
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
       setLoading(false);
@@ -174,6 +174,19 @@ const OrderScanToDelivery = () => {
     mutateAsync: processCreateInvoice,
     isPending: isLoadingCreateInvoice,
   } = useCreateInvoiceProcess({
+    onError: () => {
+      showAlertDialog({
+        title: 'Hoàn tất đơn',
+        message:
+          'Có lỗi không xác định khi in hóa đơn. Bạn có muốn hoàn tất đơn không?',
+        confirmText: 'Hoàn tất đơn',
+        onConfirm: () => {
+          hideAlert();
+          handoverOrder({ orderCode: code, proofImages: uploadedImages });
+          queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+        },
+      });
+    },
     onSuccess: () => {
       handoverOrder({ orderCode: code, proofImages: uploadedImages });
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
