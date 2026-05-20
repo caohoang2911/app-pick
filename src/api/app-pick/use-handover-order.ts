@@ -22,10 +22,6 @@ export const useHandoverOrder = (cb?: () => void) => {
         queryClient.invalidateQueries({
           queryKey: ['orderDetail', variables.orderCode],
         });
-        showMessage({
-          message: 'Đã hoàn tất',
-          type: 'success',
-        });
         cb?.();
       }
     },

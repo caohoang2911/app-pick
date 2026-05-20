@@ -35,7 +35,8 @@ import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/inv
 import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { setLoading } from '~/src/core/store/loading';
+import { setLoading } from '~/src/core/store/loading';  
+import { showMessage } from 'react-native-flash-message';
 import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 import {
   getIsScanQrCodeProduct,
@@ -167,6 +168,10 @@ const OrderScanToDelivery = () => {
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
+      showMessage({
+        message: 'Đã hoàn tất',
+        type: 'success',
+      });
       setLoading(false);
       setUploadedImages('', true);
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });

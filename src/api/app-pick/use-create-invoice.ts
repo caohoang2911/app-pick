@@ -22,6 +22,25 @@ const PRINTER_PORT = 9100;
 const BASE64_REGEX = /^(data:image\/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$/;
 const INVOICE_API_URL = Env.INVOICE_API_URL;
 
+/** Error không enumerable → JSON.stringify(error) ra "{}". */
+const getMutationErrorMessage = (
+  error: unknown,
+  fallback: string,
+): string => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string') return error;
+  const axiosErr = error as {
+    response?: { data?: { error?: string; message?: string } };
+    message?: string;
+  };
+  return (
+    axiosErr?.response?.data?.error ||
+    axiosErr?.response?.data?.message ||
+    axiosErr?.message ||
+    fallback
+  );
+};
+
 const cleanupConnection = (client: any, timer: NodeJS.Timeout | null) => {
   if (timer) {
     clearTimeout(timer);
@@ -203,14 +222,13 @@ const sendToPrinter = async (
 
 export type UseCreateInvoiceProcessOptions = {
   onSuccess?: () => void;
-  onError?: () => void;
   successMessage?: string;
 };
 
 export const useCreateInvoiceProcess = (
   options?: UseCreateInvoiceProcessOptions,
 ) => {
-  const { onSuccess, successMessage, onError } = options ?? {};
+  const { onSuccess, successMessage } = options ?? {};
   const { mutateAsync: genXPrinterPrintDataAsync } = useGenXPrinterPrintData();
   const { mutateAsync: fetchBase64ImageByInvoiceURLAsync } =
     useFetchBase64ImageByInvoiceURL();
@@ -237,11 +255,7 @@ export const useCreateInvoiceProcess = (
 
         if (hasError && error) {
           setLoading(false);
-          showMessage({
-            message: error,
-            type: 'danger',
-          });
-          throw new Error('Generate printer buffer error');
+          throw new Error(error || 'Generate printer buffer error');
         }
 
         if (!error && printerBuffers?.length > 0 && client) {
@@ -265,11 +279,7 @@ export const useCreateInvoiceProcess = (
             client.destroy();
             client = null;
           }
-          showMessage({
-            message: error?.toString() || 'Không thể in hóa đơn',
-            type: 'danger',
-          });
-          throw new Error('Printer buffer is empty');
+          throw new Error(error?.toString() || 'Không thể in hóa đơn');
         }
 
         return { error: null, data: null };
@@ -288,8 +298,15 @@ export const useCreateInvoiceProcess = (
         onSuccess?.();
       }
     },
-    onError: () => {
-      onError?.();
+    onError: (error: unknown) => {
+      const message = getMutationErrorMessage(
+        error,
+        'Không thể in hóa đơn',
+      );
+      showMessage({
+        message,
+        type: 'danger',
+      });
       setLoading(false);
     },
   });

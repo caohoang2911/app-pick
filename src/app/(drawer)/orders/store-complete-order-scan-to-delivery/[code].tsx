@@ -16,6 +16,7 @@ import { Dimensions, Text, View } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
+import { showMessage } from 'react-native-flash-message';
 import { useValidateDeliveryOrderFail } from '~/src/api/app-pick/use-validate-delivery-order-fail';
 import Box from '~/src/components/Box';
 import { Button } from '~/src/components/Button';
@@ -78,6 +79,10 @@ const OrderScanToDelivery = () => {
 
   const { mutate: handoverOrder, isPending: isLoadingHandoverOrder } =
     useHandoverOrder(() => {
+      showMessage({
+        message: 'Đã hoàn tất',
+        type: 'success',
+      });
       setLoading(false);
       setCompleteUploadedImages('', true);
       router.push(`/orders`);

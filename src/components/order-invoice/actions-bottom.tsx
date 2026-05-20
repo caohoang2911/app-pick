@@ -2,6 +2,7 @@ import { Button } from '@/components/Button';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { queryClient } from '~/src/api/shared';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
@@ -12,6 +13,10 @@ const ActionsBottom = () => {
 
   const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
     useHandoverOrder(() => {
+      showMessage({
+        message: 'Đã hoàn tất',
+        type: 'success',
+      });
       setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
     });

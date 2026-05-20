@@ -70,6 +70,7 @@ import { transformBagsData } from '~/src/core/utils/order-bag';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
+import { showMessage } from 'react-native-flash-message';
 
 const ACTION_TYPE = {
   HANDOVER_TO_CUSTOMER: 'Xác nhận giao cho khách',
@@ -115,6 +116,12 @@ const OrderScanToDelivery = () => {
   const { deliveryType, status, tags, handoverStatus, codAmount } =
     header || {};
 
+  const isOfflineHomeDelivery = deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY;
+
+  const handoverSuccessMessage = isOfflineHomeDelivery
+  ? 'Đã hoàn tất'
+  : 'Đã hoàn tất! Vui lòng đợi in hóa đơn'
+
   const groupShippingOrderCodes = header?.groupShippingOrderCodes;
   const groupKey = useMemo(() => getGroupShippingProgressKey(header), [header]);
   const isMultiGroup = Boolean(
@@ -151,9 +158,13 @@ const OrderScanToDelivery = () => {
       setUploadedImages('', true);
     };
   }, []);
-  
-  const { isPending: isLoadingHandoverOrder, mutate: handoverOrder } =
+
+  const { isPending: isLoadingHandoverOrder, mutateAsync: handoverOrder } =
     useHandoverOrder(() => {
+      showMessage({
+        message: handoverSuccessMessage,
+        type: 'success',
+      });
       setLoading(false);
 
       setUploadedImages('', true);
@@ -162,11 +173,9 @@ const OrderScanToDelivery = () => {
       if (isMultiGroup) {
         if (assertGroupShippingReadyForSubmit()) {
           resetOrderScanGroupShippingProgress();
-          router.back();
         }
       } else {
         resetOrderScanGroupShippingProgress();
-        router.back();
       }
     });
 
@@ -174,22 +183,17 @@ const OrderScanToDelivery = () => {
     mutateAsync: processCreateInvoice,
     isPending: isLoadingCreateInvoice,
   } = useCreateInvoiceProcess({
-    onError: () => {
-      showAlertDialog({
-        title: 'Hoàn tất đơn',
-        message:
-          'Có lỗi không xác định khi in hóa đơn. Bạn có muốn hoàn tất đơn không?',
-        confirmText: 'Hoàn tất đơn',
-        onConfirm: () => {
-          hideAlert();
-          handoverOrder({ orderCode: code, proofImages: uploadedImages });
-          queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-        },
-      });
-    },
-    onSuccess: () => {
-      handoverOrder({ orderCode: code, proofImages: uploadedImages });
+    onSuccess: () => {   
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+
+      if (isMultiGroup) {
+        if (assertGroupShippingReadyForSubmit()) {
+          router.back();
+        }
+      } else {
+        router.back();
+      }
+
     },
   });
 
@@ -202,6 +206,16 @@ const OrderScanToDelivery = () => {
     useCreateInvoiceFlow({
       onSuccess: async (orderCode) => {
         await invalidateOrderDetail();
+        const result = await handoverOrder({ orderCode: code, proofImages: uploadedImages });
+        if (result.error) {
+          setLoading(false);
+          showMessage({
+            message: result.error,
+            type: 'danger',
+          });
+          return;
+        }
+        
         await processCreateInvoice({ orderCode });
         if (!!Number(codAmount)) {
           setShowPrintReceipt(true);
@@ -352,7 +366,7 @@ const OrderScanToDelivery = () => {
 
   const handleCheckoutOrderBagsWithInvoice = useCallback(() => {
     checkShift();
-  }, [checkShift, assertGroupShippingReadyForSubmit]);
+  }, [checkShift]);
 
   const handleStartDeliveryWithoutInvoice = useCallback(() => {
     showAlertDialog({
@@ -405,7 +419,7 @@ const OrderScanToDelivery = () => {
     const isDisabledWithoutInvoice =
       !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
     return isAllDone ? (
-      deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY ? (
+      isOfflineHomeDelivery ? (
         <Button
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleStartDeliveryWithoutInvoice}
@@ -438,7 +452,8 @@ const OrderScanToDelivery = () => {
     handleCheckoutOrderBagsWithInvoice,
     actionType,
     actionTypeWithInvoice,
-    deliveryType,
+    isOfflineHomeDelivery,
+    disableActionWithoutInvoice,
     isOrderDetailLoading,
     handoverStatus,
     toggleScanQrCodeProduct,
