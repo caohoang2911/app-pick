@@ -14,7 +14,7 @@ import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
 import { Order } from '~/src/types/order';
 
-const PARAMS = { isMissingInvoice: true  };
+const PARAMS = { isMyMissingInvoiceOrders: true };
 
 const MissingInvoiceOrderItem = ({
   item,
