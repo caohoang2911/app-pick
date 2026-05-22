@@ -5,6 +5,7 @@ import {
   OrderBagType,
 } from '~/src/types/order-bag';
 import { Product, ProductItemGroup } from '~/src/types/product';
+import { toUpper } from 'lodash';
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -97,7 +98,7 @@ const matchesRefBarcodeKeyword = (
   refBarcode: string,
   keywordUpper: string,
 ): boolean => {
-  const barcodeUpper = refBarcode.toUpperCase();
+  const barcodeUpper = toUpper(refBarcode);
   return (
     barcodeUpper === keywordUpper ||
     (keywordUpper.length >= MIN_SUFFIX_BARCODE_LENGTH &&
@@ -110,7 +111,7 @@ export const findMatchingRefBarcode = (
   keyword: string,
   orderPickProductsFlat: Product[],
 ): string | null => {
-  const keywordUpper = keyword.trim().toUpperCase();
+  const keywordUpper = toUpper(keyword.trim());
   if (!keywordUpper) return null;
 
   for (const product of orderPickProductsFlat) {
