@@ -95,6 +95,10 @@ const MoreActionsBtn = ({
   const shouldDisplayEdit =
     useCanEditOrderPick(code as string) && isAllowEditPickQuantity;
 
+  const closeBottomSheet = useCallback(() => {
+    actionRef.current?.dismiss();
+  }, []);
+
   const renderItem = useMemo(
     () =>
       ({
@@ -128,7 +132,10 @@ const MoreActionsBtn = ({
 
   const handleClickAction = useCallback(
     (key: string) => {
+      closeBottomSheet();
+
       if (key === 'edit-pick-quantity') {
+        onEditPress();
         return;
       }
 
@@ -163,9 +170,8 @@ const MoreActionsBtn = ({
         default:
           break;
       }
-      setVisible(false);
     },
-    [code, id, barcode],
+    [closeBottomSheet, onEditPress, onReplaceProduct, id, barcode],
   );
 
   useEffect(() => {
@@ -191,7 +197,7 @@ const MoreActionsBtn = ({
             key: 'edit-pick-quantity',
             title: 'Sửa số lượng',
             icon: <AntDesign name="edit" size={20} color="black" />,
-            onClickAction: onEditPress,
+            onClickAction: handleClickAction,
             enable: shouldDisplayEdit,
           })}
           {renderItem({

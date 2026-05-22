@@ -153,10 +153,10 @@ const QuantitySection = memo(
         return;
       }
       setFieldValue('pickedQuantity', Number(valueChange));
-      if (Number(values?.pickedQuantity) >= Number(quantity) && !action) {
+      if (Number(values?.pickedQuantity) >= Number(quantityInit) && !action) {
         setFieldValue('pickedErrorType', null);
       }
-    }, [values?.pickedQuantity, quantity, setFieldValue, editable, action]);
+    }, [values?.pickedQuantity, quantityInit, setFieldValue, editable, action]);
 
     const handleIncrement = useCallback(() => {
       if (!editable) return;
@@ -169,10 +169,10 @@ const QuantitySection = memo(
         return;
       }
       setFieldValue('pickedQuantity', Number(valueChange));
-      if (Number(values?.pickedQuantity) >= Number(quantity) && !action) {
+      if (Number(values?.pickedQuantity) >= Number(quantityInit) && !action) {
         setFieldValue('pickedErrorType', null);
       }
-    }, [values?.pickedQuantity, quantity, setFieldValue, editable, action]);
+    }, [values?.pickedQuantity, quantityInit, setFieldValue, editable, action]);
 
     const handleQRScan = useCallback(() => {
       toggleScanQrCodeProduct(true);
@@ -197,11 +197,11 @@ const QuantitySection = memo(
       (value: string) => {
         setQuantityFromBarcode(0);
         setFieldValue('pickedQuantity', formatDecimal(value));
-        if (Number(value) >= Number(quantity)) {
+        if (Number(value) >= Number(quantityInit)) {
           setFieldValue('pickedErrorType', null);
         }
       },
-      [quantity, setFieldValue],
+      [quantityInit, setFieldValue],
     );
 
     const errorMessage = useMemo(() => {
@@ -266,11 +266,17 @@ const ReasonDropdown = memo(
     action,
     currentProduct,
   }: any) => {
-    const isError = values?.pickedQuantity >= quantityInit;
+    const isQuantityEnough =
+      Number(values?.pickedQuantity) >= Number(quantityInit);
+    const hasQuickAction = Object.values(PRODUCT_ACTIONS).includes(action);
+    const isDisabled = isQuantityEnough || hasQuickAction;
     const { unit } = currentProduct || {};
 
-    const isDisabled =
-      isError || Object.values(PRODUCT_ACTIONS).includes(action);
+    useEffect(() => {
+      if (isQuantityEnough && !hasQuickAction && values?.pickedErrorType) {
+        setFieldValue('pickedErrorType', '');
+      }
+    }, [isQuantityEnough, hasQuickAction, values?.pickedErrorType, setFieldValue]);
 
     const handleSelect = useCallback(
       (value: string) => {
@@ -648,7 +654,7 @@ const InputAmountPopup = () => {
             className="self-start"
             label={
               <>
-                {`SL đặt: ${currentProduct?.quantity} `}
+                {`SL đặt: ${currentProduct?.orderQuantity} `}
                 <UnitText unit={currentProduct?.unit || ''} />
               </>
             }
@@ -681,7 +687,7 @@ const InputAmountPopup = () => {
     ),
     [
       productName,
-      currentProduct?.quantity,
+      currentProduct?.orderQuantity,
       currentProduct?.unit,
       currentProduct?.tags,
       currentProduct?.barcode,
@@ -764,13 +770,15 @@ const InputAmountPopup = () => {
     (values: any) => {
       if (!productName) return;
 
+      const pickedQty = Number(values?.pickedQuantity || 0);
+      const orderQty = Number(orderQuantity || 0);
       const pickedItem = {
         ...currentProduct,
         barcode: barcodeScanSuccess,
         isPickedByManualBarcodeInput,
-        pickedQuantity: Number(values?.pickedQuantity || 0),
+        pickedQuantity: pickedQty,
         pickedErrorType:
-          quantity <= values?.pickedQuantity ? '' : values?.pickedErrorType,
+          pickedQty >= orderQty ? '' : values?.pickedErrorType,
         pickedNote: values?.pickedNote,
         pickedTime: moment().valueOf(),
         isAllowEditPickQuantity: true,
@@ -791,7 +799,7 @@ const InputAmountPopup = () => {
       currentProduct,
       barcodeScanSuccess,
       isPickedByManualBarcodeInput,
-      quantity,
+      orderQuantity,
       code,
       isUnitBox,
       setOrderTemToPicked,
@@ -826,7 +834,8 @@ const InputAmountPopup = () => {
     >
       {({ values, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
         const isError =
-          values?.pickedQuantity < orderQuantity && !values?.pickedErrorType;
+          Number(values?.pickedQuantity) < Number(orderQuantity) &&
+          !values?.pickedErrorType;
 
         useEffect(() => {
           if (action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
