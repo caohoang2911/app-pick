@@ -273,6 +273,19 @@ const OrderPickProducts = () => {
 
   const filteredProductsLength = filteredProducts?.length ?? 0;
   const statusOrder = orderDetail?.header?.status as string | undefined;
+  const prevStatusOrderRef = useRef<string | undefined>();
+
+  // Sau bắt đầu pick: invalidate refetch xong → status CONFIRMED → STORE_PICKING → scroll lên ghi chú CS
+  useEffect(() => {
+    const prevStatus = prevStatusOrderRef.current;
+    prevStatusOrderRef.current = statusOrder;
+
+    if (prevStatus === 'CONFIRMED' && statusOrder === 'STORE_PICKING') {
+      InteractionManager.runAfterInteractions(() => {
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+      });
+    }
+  }, [statusOrder]);
 
   const listRenderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<any>) => {

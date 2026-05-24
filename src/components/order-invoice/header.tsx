@@ -3,40 +3,12 @@ import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-import { useConfig } from '~/src/core/store/config';
-import { getConfigNameById } from '~/src/core/utils/config';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
+import LabelTags from '../shared/LabelTags';
 import HeaderActionBtn from './header-action-btn';
-
-const HeaderTags = ({ tags }: { tags?: string[] }) => {
-  const configs = useConfig.use.config();
-  const orderTags = configs?.orderTags || [];
-
-  return (
-    <View className="flex flex-row gap-1 flex-wrap">
-      {tags?.map((tag) => {
-        const tagName = getConfigNameById(orderTags, tag);
-        return (
-          <Badge
-            className="self-start rounded-md"
-            key={tag}
-            label={tagName as string}
-            style={{ marginHorizontal: 0 }}
-            variant={
-              ORDER_STATUS_BADGE_VARIANT[
-                tag as keyof typeof ORDER_STATUS_BADGE_VARIANT
-              ] as any
-            }
-          />
-        );
-      })}
-    </View>
-  );
-};
 
 const OrderPickHeader = () => {
   const { code } = useGlobalSearchParams<{ code: string }>();
@@ -69,7 +41,7 @@ const OrderPickHeader = () => {
         </View>
         <HeaderActionBtn />
       </View>
-      <HeaderTags tags={tags} />
+      <LabelTags tags={tags} />
     </View>
   );
 };

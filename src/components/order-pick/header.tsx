@@ -7,9 +7,7 @@ import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { ORDER_STATUS_BADGE_VARIANT } from '@/core/constants/order';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
-import { useConfig } from '~/src/core/store/config';
 import {
   setIsEditManual,
   setKeyword,
@@ -17,7 +15,6 @@ import {
   toggleScanQrCodeProduct,
   useOrderPick,
 } from '~/src/core/store/order-pick';
-import { getConfigNameById } from '~/src/core/utils/config';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { Employee } from '~/src/types/employee';
@@ -25,34 +22,9 @@ import { OrderDetail } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
+import LabelTags from '../shared/LabelTags';
 import WaveButton from '../shared/WaveButton';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-
-const HeaderTags = ({ tags }: { tags?: string[] }) => {
-  const configs = useConfig.use.config();
-  const orderTags = configs?.orderTags || [];
-
-  return (
-    <View className="flex flex-row gap-1 flex-wrap">
-      {tags?.map((tag) => {
-        const tagName = getConfigNameById(orderTags, tag);
-        return (
-          <Badge
-            className="self-start rounded-md"
-            key={tag}
-            label={tagName as string}
-            style={{ marginHorizontal: 0 }}
-            variant={
-              ORDER_STATUS_BADGE_VARIANT[
-                tag as keyof typeof ORDER_STATUS_BADGE_VARIANT
-              ] as any
-            }
-          />
-        );
-      })}
-    </View>
-  );
-};
 
 const Picker = ({ picker }: { picker: { username: string; name: string } }) => {
   if (!picker) return null;
@@ -149,7 +121,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <More2Fill width={20} height={20} />
         </Pressable>
       </View>
-      <HeaderTags tags={tags} />
+      <LabelTags tags={tags} />
       <Picker picker={picker as Employee} />
       <View className="flex flex-row mt-2 justify-between items-center pb-3 gap-3">
         <Input

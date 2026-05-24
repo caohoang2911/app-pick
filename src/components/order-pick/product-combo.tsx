@@ -3,6 +3,8 @@ import { Text, View } from 'react-native';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
 
+const COMBO_COLOR = '#7F7F7F';
+
 const ProductCombo = ({
   combo,
   statusOrder,
@@ -34,8 +36,14 @@ const ProductCombo = ({
 
   return (
     <>
-      <View className="bg-orange-200 border border-orange-200 rounded-md">
-        <View className="bg-orange-200 rounded-t-md p-2 py-3">
+      <View
+        className="rounded-md border"
+        style={{ backgroundColor: COMBO_COLOR, borderColor: COMBO_COLOR }}
+      >
+        <View
+          className="rounded-t-md p-2 py-3"
+          style={{ backgroundColor: COMBO_COLOR }}
+        >
           <Text className="text-base text-white font-bold" numberOfLines={2}>
             {combo.name}
           </Text>
