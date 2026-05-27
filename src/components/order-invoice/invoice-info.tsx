@@ -12,7 +12,14 @@ const InvoiceInfo = () => {
   const { code } = useLocalSearchParams<{ code?: string }>();
   const { orderDetail } = useOrderDetailForCode(code);
   const header = orderDetail?.header;
-  const { picker, deliveryAddress, codAmount, customer, deliveryTimeRange } =
+  const {
+    picker,
+    deliveryAddress,
+    codAmount,
+    customer,
+    deliveryTimeRange,
+    invoiceCode,
+  } =
     header || {};
 
   const shouldDisplayPicker = useMemo(() => {
@@ -22,6 +29,16 @@ const InvoiceInfo = () => {
   return (
     <View className="bg-white mx-4 px-4 py-3" style={styles.box}>
       <View className="flex gap-2">
+        <View className="flex flex-row items-center">
+          <View style={{ width: COL_LEFT_WIDTH }}>
+            <Text className="text-gray-500">HĐ</Text>
+          </View>
+          <View className="flex-1 flex-row items-center justify-between gap-2">
+            <Text className="flex-1" numberOfLines={1} ellipsizeMode="tail">
+              {invoiceCode || '--'}
+            </Text>
+          </View>
+        </View>
         <View className="flex flex-row items-center">
           <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className="text-gray-500">COD</Text>
