@@ -669,7 +669,14 @@ const InputAmountPopup = () => {
           {!!currentProduct?.originQuantityConversion && (
             <Badge
               className="self-start"
-              label={currentProduct.originQuantityConversion.unit}
+              label={
+                <>
+                  {`${currentProduct.originQuantityConversion.orderQuantity} `}
+                  <UnitText
+                    unit={currentProduct.originQuantityConversion.unit}
+                  />
+                </>
+              }
               variant="warning"
             />
           )}
@@ -691,6 +698,7 @@ const InputAmountPopup = () => {
       currentProduct?.unit,
       currentProduct?.tags,
       currentProduct?.barcode,
+      currentProduct?.originQuantityConversion,
       currentProduct?.productPickingGuidelines,
       packOrBoxUnitWarning,
     ],

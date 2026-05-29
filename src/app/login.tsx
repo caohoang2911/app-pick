@@ -8,8 +8,15 @@ import {
 import { NavigationHelpers } from '@/core/utils/navigation';
 import { Image } from 'expo-image';
 import { Formik } from 'formik';
-import React, { useEffect, useRef } from 'react';
-import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import * as Yup from 'yup';
 import { useAuthorizeUserPassword } from '../api/auth/use-authorize-user-password';
@@ -21,6 +28,8 @@ const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 export default function Login() {
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const {
     mutate: login,
     data,
@@ -33,37 +42,44 @@ export default function Login() {
 
   const { mutate: loginRegular, isPending: isPendingRegular } =
     useAuthorizeUserPassword(async (data) => {
-      if (!data.error) {
-        const userInfo = data.data || {};
-        const { zas } = userInfo;
+      if (data.error) {
+        Keyboard.dismiss();
+        setLoginError(data.error);
+        showMessage({
+          message: data.error,
+          type: 'danger',
+        });
+        return;
+      }
 
-        if (!zas || !userInfo) {
-          return;
-        }
-        signIn({ token: zas as string, userInfo });
+      setLoginError(null);
+      const userInfo = data.data || {};
+      const { zas } = userInfo;
 
-        try {
-          await refreshTokenAsync();
-        } catch (error) {
-          console.error('[Login] refreshToken failed:', error);
-        }
+      if (!zas || !userInfo) {
+        return;
+      }
+      signIn({ token: zas as string, userInfo });
 
-        // Check if there's a pending deep link to navigate to
-        const savedDeepLink = consumePendingDeepLink();
-        if (savedDeepLink && typeof savedDeepLink === 'string') {
-          console.log('[Login] Processing saved deep link:', savedDeepLink);
-          // Give time for auth to complete
-          setTimeout(() => {
-            try {
-              processDeepLink(savedDeepLink);
-            } catch (error) {
-              console.error('[Login] Error processing deep link:', error);
-              NavigationHelpers.replaceWithOrders();
-            }
-          }, 500);
-        } else {
-          NavigationHelpers.replaceWithOrders();
-        }
+      try {
+        await refreshTokenAsync();
+      } catch (error) {
+        console.error('[Login] refreshToken failed:', error);
+      }
+
+      const savedDeepLink = consumePendingDeepLink();
+      if (savedDeepLink && typeof savedDeepLink === 'string') {
+        console.log('[Login] Processing saved deep link:', savedDeepLink);
+        setTimeout(() => {
+          try {
+            processDeepLink(savedDeepLink);
+          } catch (error) {
+            console.error('[Login] Error processing deep link:', error);
+            NavigationHelpers.replaceWithOrders();
+          }
+        }, 500);
+      } else {
+        NavigationHelpers.replaceWithOrders();
       }
     });
 
@@ -114,9 +130,17 @@ export default function Login() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
-      <View className="flex flex-col gap-4 px-8 h-full justify-center bg-white">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+        className="bg-white"
+      >
+      <View className="flex flex-col gap-4 px-8 py-8">
         <View className="flex flex-col gap-4">
           <View className="w-full flex justify-center items-center mb-4">
             <Image
@@ -153,6 +177,7 @@ export default function Login() {
                       selectTextOnFocus
                       labelClasses="font-medium w-full"
                       onChangeText={(value: string) => {
+                        setLoginError(null);
                         setFieldValue('username', value);
                       }}
                       placeholder="Tên đăng nhập"
@@ -170,6 +195,7 @@ export default function Login() {
                       error={errors.password}
                       handleBlur={handleBlur('password')}
                       onChangeText={(value: string) => {
+                        setLoginError(null);
                         setFieldValue('password', value);
                       }}
                     />
@@ -209,6 +235,7 @@ export default function Login() {
           />
         </View>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

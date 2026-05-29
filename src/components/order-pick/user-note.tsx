@@ -12,13 +12,15 @@ const UserNote = ({ orderDetail }: { orderDetail: OrderDetail }) => {
     .filter((line) => line.trim());
 
   return (
-    <View className="mx-4 px-3 mb-3 py-2 rounded flex bg-orange-400">
-      {lines.map((line) => (
-        <View key={line} className="flex flex-row">
-          <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5" />
-          <Text className="text-base font-semibold text-white">
-            {line.trim()}
-          </Text>
+    <View className="mx-4 px-3 mb-3 py-2 rounded-md bg-orange-400">
+      {lines.map((line, index) => (
+        <View key={`${index}-${line}`} className="flex-row items-start">
+          <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5 shrink-0" />
+          <View style={{ flex: 1, flexShrink: 1, minWidth: 0 }}>
+            <Text className="text-base font-semibold text-white">
+              {line.trim()}
+            </Text>
+          </View>
         </View>
       ))}
     </View>

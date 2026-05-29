@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -31,7 +32,15 @@ import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
 import { UnitText } from './unit-text';
 import { colors } from '~/src/ui/colors';
-const screenWidth = Dimensions.get('window').width;
+// Base design width — iPhone 14 Pro
+const BASE_WIDTH = 390;
+
+/** Responsive scale clamped for small/large screens */
+function useCardScale() {
+  const { width } = useWindowDimensions();
+  return Math.max(0.82, Math.min(1.05, width / BASE_WIDTH));
+}
+
 // Extract Row component and memoize
 const Row = memo(
   ({
@@ -45,34 +54,60 @@ const Row = memo(
     unit?: string;
     warning?: boolean;
   }) => {
+    const scale = useCardScale();
+    const labelW = Math.round(50 * scale);
+    const valueW = Math.round(38 * scale);
+    const fontSize = Math.max(11, Math.round(13 * scale));
+    const unitFontSize = Math.max(10, fontSize - 2);
     const unitColorClass = warning ? 'text-red-500' : '';
+
     return (
       <View style={styles.row}>
-        <View style={styles.labelColumn}>
-          <Text className="text-gray-500" numberOfLines={1}>
+        <View style={[styles.labelColumn, { width: labelW }]}>
+          <Text
+            className="text-gray-500"
+            numberOfLines={1}
+            style={{ fontSize }}
+          >
             {label}
           </Text>
         </View>
-        <View style={styles.valueColumn}>
-          <Text
-            className={`font-medium ${warning ? 'text-red-500' : ''}`}
-            numberOfLines={1}
-            style={styles.valueText}
+        <View
+          style={[
+            styles.rowTrailing,
+            !unit && styles.rowTrailingSingle,
+          ]}
+        >
+          <View
+            style={[
+              styles.valueColumn,
+              !!unit && { width: valueW },
+              !unit && styles.valueColumnExpand,
+            ]}
           >
-            {value}
-          </Text>
-        </View>
-        {unit ? (
-          <View style={styles.unitColumn}>
-            <UnitText
-              unit={unit}
-              className={`font-medium ${unitColorClass}`}
+            <Text
+              className={`font-medium ${warning ? 'text-red-500' : ''}`}
               numberOfLines={1}
-              ellipsizeMode="tail"
-              style={styles.unitText}
-            />
+              style={[
+                unit ? styles.valueText : styles.valueTextExpand,
+                { fontSize },
+              ]}
+            >
+              {value}
+            </Text>
           </View>
-        ) : null}
+          {unit ? (
+            <View style={styles.unitColumn}>
+              <UnitText
+                unit={unit}
+                className={`font-medium ${unitColorClass}`}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[styles.unitText, { fontSize: unitFontSize }]}
+              />
+            </View>
+          ) : null}
+        </View>
       </View>
     );
   },
@@ -123,18 +158,20 @@ const WarningMessage = memo(
       className={`px-3 py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}
       style={{ backgroundColor: colors.orange[200] }}
     >
-      <View className="flex flex-row gap-2">
+      <View className="flex flex-row items-start gap-2">
         {iconVariant == 'check' ? (
-          <Text className="text-white font-semibold text-sm">✓</Text>
+          <Text className="text-white font-semibold text-sm shrink-0">✓</Text>
         ) : (
-          <View className="size-1.5 bg-white rounded-full self-start mt-2"></View>
+          <View className="size-1.5 bg-white rounded-full self-start mt-2 shrink-0" />
         )}
 
-        {typeof errorName === 'string' ? (
-          <Text className="text-white font-semibold text-sm">{errorName}</Text>
-        ) : (
-          errorName
-        )}
+        <View style={{ flex: 1, flexShrink: 1, minWidth: 0 }}>
+          {typeof errorName === 'string' ? (
+            <Text className="text-white font-semibold text-sm">{errorName}</Text>
+          ) : (
+            errorName
+          )}
+        </View>
       </View>
     </View>
   ),
@@ -188,10 +225,11 @@ const ProductHeader = memo(
 );
 
 const ProductVendor = ({ vendorName }: { vendorName: string }) => {
+  const { width } = useWindowDimensions();
   if (!vendorName) return null;
 
   return (
-    <View style={{ maxWidth: screenWidth / 2 }}>
+    <View style={{ maxWidth: width / 2 }}>
       <Badge label={vendorName} variant="default" />
     </View>
   );
@@ -296,6 +334,10 @@ const OrderPickProduct = memo(
     const isShowAmountInput = useOrderPick.use.isShowAmountInput();
     const config = useConfig.use.config();
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+    const { width: screenWidth } = useWindowDimensions();
+    const cardScale = Math.max(0.82, Math.min(1.05, screenWidth / BASE_WIDTH));
+    // Image: 90% of 1/3 screen width, scaled
+    const imageSize = Math.round((screenWidth - 32) / 3 * 0.9 * cardScale);
 
     const lastScannedId = useOrderPick.use.lastScannedId();
 
@@ -415,109 +457,121 @@ const OrderPickProduct = memo(
     return (
       <>
         <View
-          className={`bg-white relative ${isDisable && 'opacity-40'}`}
-          style={[styles.box, isActive && styles.activeBox]}
+          className={`bg-white ${isDisable && 'opacity-40'}`}
+          style={styles.box}
         >
-          <View className="p-3">
-            <ProductHeader
-              name={name || ''}
-              pickedTime={pickedTime}
-              isGift={isGift}
-              code={code}
-              id={id || 0}
-              barcode={barcode || ''}
-              isAllowEditPickQuantity={isAllowEditPickQuantity || false}
-              showQuickAction={showQuickAction}
-              onEditPress={handleEditPress}
-              onReplaceProduct={handleReplaceProduct}
-            />
-            <View className="flex flex-row mt-1 gap-1 flex-wrap">
-              <ProductVendor vendorName={vendorName || ''} />
-              <View className="flex flex-row items-center">
-                <BarcodeDisplay baseBarcode={baseBarcode} barcode={barcode} />
+          <View style={styles.boxBody}>
+            {isActive && <View style={styles.activeIndicatorColumn} />}
+            <View style={styles.boxContent}>
+              <View className="p-3">
+                <ProductHeader
+                  name={name || ''}
+                  pickedTime={pickedTime}
+                  isGift={isGift}
+                  code={code}
+                  id={id || 0}
+                  barcode={barcode || ''}
+                  isAllowEditPickQuantity={isAllowEditPickQuantity || false}
+                  showQuickAction={showQuickAction}
+                  onEditPress={handleEditPress}
+                  onReplaceProduct={handleReplaceProduct}
+                />
+                <View className="flex flex-row mt-1 gap-1 flex-wrap">
+                  <ProductVendor vendorName={vendorName || ''} />
+                  <View className="flex flex-row items-center">
+                    <BarcodeDisplay
+                      baseBarcode={baseBarcode}
+                      barcode={barcode}
+                    />
+                  </View>
+                  {!!originQuantityConversion && (
+                    <>
+                      <Badge
+                        label={`${originQuantityConversion?.orderQuantity} ${originQuantityConversion?.unit}`}
+                        variant="warning"
+                      />
+                    </>
+                  )}
+                </View>
+                <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
+                  <View className="flex justify-between items-center">
+                    <View className="relative">
+                      <SImage
+                        style={[styles.productImage, { width: imageSize }]}
+                        source={imageSource}
+                        contentFit="cover"
+                        allowDownscaling
+                        transition={200}
+                        cachePolicy="none"
+                        preview={true}
+                        key={imageSource}
+                      />
+                      {pickedTime ? (
+                        <View
+                          className="rounded-full bg-white border-solid shadow-md absolute left-0 top-0"
+                          style={{ borderColor: 'green', borderWidth: 1 }}
+                        >
+                          <CheckCircleFill color={'green'} />
+                        </View>
+                      ) : null}
+                    </View>
+                  </View>
+
+                  <View className="flex-row justify-between flex-grow h-full">
+                    <View className="flex gap-2 flex-1">
+                      <Row
+                        label="SL đặt"
+                        value={orderQuantity?.toString() || '--'}
+                        unit={unit}
+                      />
+                      <Row
+                        label="Đã pick"
+                        value={
+                          !isNil(pickedQuantity)
+                            ? pickedQuantity?.toString()
+                            : '--'
+                        }
+                        unit={unit}
+                        warning={
+                          Number(pickedQuantity) != Number(orderQuantity)
+                        }
+                      />
+                      <Row
+                        label="Tồn kho"
+                        value={
+                          !isNil(stockOnhand) ? stockOnhand?.toString() : '--'
+                        }
+                        unit={unit}
+                      />
+
+                      {hasSellPrice && (
+                        <Row
+                          label="Giá bán"
+                          value={
+                            formatCurrency(sellPrice, { unit: true }) || '--'
+                          }
+                        />
+                      )}
+
+                      {!isHiddenTag && hasTags && <TagsBadges tags={tags} />}
+                    </View>
+                  </View>
+                </View>
               </View>
-              {!!originQuantityConversion && (
-                <>
-                  <Badge
-                    label={`${originQuantityConversion?.orderQuantity} ${originQuantityConversion?.unit}`}
-                    variant="warning"
-                  />
-                </>
+              {warningItems.length > 0 && (
+                <View className="mt-3">
+                  {warningItems.map((item, index) => (
+                    <WarningMessage
+                      key={item.key}
+                      errorName={item.errorName}
+                      iconVariant={item.iconVariant}
+                      isLast={index === warningItems.length - 1}
+                    />
+                  ))}
+                </View>
               )}
             </View>
-            <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
-              <View className="flex justify-between items-center">
-                <View className="relative">
-                  <SImage
-                    style={styles.productImage}
-                    source={imageSource}
-                    contentFit="cover"
-                    allowDownscaling
-                    transition={200}
-                    cachePolicy="none"
-                    preview={true}
-                    key={imageSource}
-                  />
-                  {pickedTime ? (
-                    <View
-                      className="rounded-full bg-white border-solid shadow-md absolute left-0 top-0"
-                      style={{ borderColor: 'green', borderWidth: 1 }}
-                    >
-                      <CheckCircleFill color={'green'} />
-                    </View>
-                  ) : null}
-                </View>
-              </View>
-
-              <View className="flex-row justify-between flex-grow h-full">
-                <View className="flex gap-2 flex-1">
-                  <Row
-                    label="SL đặt"
-                    value={orderQuantity?.toString() || '--'}
-                    unit={unit}
-                  />
-                  <Row
-                    label="Đã pick"
-                    value={
-                      !isNil(pickedQuantity) ? pickedQuantity?.toString() : '--'
-                    }
-                    unit={unit}
-                    warning={Number(pickedQuantity) != Number(orderQuantity)}
-                  />
-                  <Row
-                    label="Tồn kho"
-                    value={!isNil(stockOnhand) ? stockOnhand?.toString() : '--'}
-                    unit={unit}
-                  />
-
-                  {hasSellPrice && (
-                    <View className="flex flex-row w-100">
-                      <View style={styles.labelColumn}>
-                        <Text className="text-gray-500">Giá bán</Text>
-                      </View>
-                      <Text className="font-medium text-left" numberOfLines={1}>
-                        {formatCurrency(sellPrice, { unit: true }) || '--'}
-                      </Text>
-                    </View>
-                  )}
-
-                  {!isHiddenTag && hasTags && <TagsBadges tags={tags} />}
-                </View>
-              </View>
-            </View>
           </View>
-          {warningItems.length > 0 && (
-            <View className="flex w-full flex-grow mt-3">
-              {warningItems.map((item, index) => (
-                <WarningMessage
-                  key={item.key}
-                  errorName={item.errorName}
-                  iconVariant={item.iconVariant}
-                  isLast={index === warningItems.length - 1}
-                />
-              ))}
-            </View>
-          )}
         </View>
         <ImagePreviewModal
           visible={isPreviewVisible}
@@ -541,6 +595,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -553,20 +608,59 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  activeBox: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#22c55e',
+  boxBody: {
+    flexDirection: 'row',
+  },
+  activeIndicatorColumn: {
+    width: 4,
+    backgroundColor: '#22c55e',
+    alignSelf: 'stretch',
+  },
+  boxContent: {
+    flex: 1,
+    minWidth: 0,
   },
   productImage: {
-    width: (Dimensions.get('window').width - 32) / 3,
+    // sized dynamically via useCardScale in component
     aspectRatio: 1,
   },
   row: { flexDirection: 'row', width: '100%', alignItems: 'center' },
-  labelColumn: { width: 58, flexShrink: 0, marginRight: 8 },
-  valueColumn: { width: 44, flexShrink: 0, marginRight: 6 },
+  labelColumn: { flexShrink: 0, marginRight: 6 },
+  rowTrailing: {
+    flex: 1,
+    flexShrink: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 0,
+    justifyContent: 'flex-end',
+  },
+  rowTrailingSingle: {
+    justifyContent: 'flex-start',
+  },
+  valueColumn: {
+    flexShrink: 0,
+    marginRight: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  valueColumnExpand: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    marginRight: 0,
+  },
   valueText: { textAlign: 'center', width: '100%' },
-  unitColumn: { flex: 1, flexShrink: 1, minWidth: 0, overflow: 'hidden' },
-  unitText: { fontSize: 12, width: '100%' },
+  valueTextExpand: { textAlign: 'left', width: '100%' },
+  unitColumn: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+  },
+  unitText: {
+    width: '100%',
+    textAlign: 'left',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
