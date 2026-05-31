@@ -56,7 +56,7 @@ const Row = memo(
   }) => {
     const scale = useCardScale();
     const labelW = Math.round(50 * scale);
-    const valueW = Math.round(38 * scale);
+    const valueW = Math.round(55 * scale);
     const fontSize = Math.max(11, Math.round(13 * scale));
     const unitFontSize = Math.max(10, fontSize - 2);
     const unitColorClass = warning ? 'text-red-500' : '';
@@ -322,7 +322,7 @@ const OrderPickProduct = memo(
     vendorName,
     pickedNote,
     statusOrder,
-    originQuantityConversion,
+    orderQuantityConversion,
   }: Partial<
     Product & {
       isAllowEditPickQuantity: boolean;
@@ -360,7 +360,7 @@ const OrderPickProduct = memo(
       const isBulkProduct = tags?.includes('Hàng xá');
       const pickedQuantityNum = Number(pickedQuantity);
       const [minWeight = Number.NEGATIVE_INFINITY, maxWeight = Number.POSITIVE_INFINITY] =
-        originQuantityConversion?.weightRange ?? [];
+        orderQuantityConversion?.weightRange ?? [];
 
       if (
         isBulkProduct &&
@@ -372,7 +372,7 @@ const OrderPickProduct = memo(
       }
       
       return pickedQuantityNum > orderQuantityNum + allowedExcess;
-    }, [pickedQuantity, orderQuantity, tags, originQuantityConversion?.weightRange]);
+    }, [pickedQuantity, orderQuantity, tags, orderQuantityConversion?.weightRange]);
 
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
@@ -484,16 +484,16 @@ const OrderPickProduct = memo(
                       barcode={barcode}
                     />
                   </View>
-                  {!!originQuantityConversion && (
+                  {!!orderQuantityConversion && (
                     <>
                       <Badge
-                        label={`${originQuantityConversion?.orderQuantity} ${originQuantityConversion?.unit}`}
-                        variant="warning"
+                        label={`${orderQuantityConversion?.quantity} x ${orderQuantityConversion?.unit}`}
+                        variant="purple"
                       />
                     </>
                   )}
                 </View>
-                <View className="flex flex-row justify-between gap-2 flex-grow mt-3">
+                <View className="flex flex-row justify-between gap-0 flex-grow mt-3">
                   <View className="flex justify-between items-center">
                     <View className="relative">
                       <SImage
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     marginRight: 0,
   },
-  valueText: { textAlign: 'center', width: '100%' },
+  valueText: { textAlign: 'left', width: '100%' },
   valueTextExpand: { textAlign: 'left', width: '100%' },
   unitColumn: {
     flex: 1,

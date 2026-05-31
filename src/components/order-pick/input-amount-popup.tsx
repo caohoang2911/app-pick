@@ -11,6 +11,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   PRODUCT_ACTIONS,
@@ -36,6 +37,7 @@ import {
   setQuantityFromBarcode,
   setReplacePickedProductId,
   setScanMoreProduct,
+  setWeightRangeQuantityFromScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   useOrderPick,
@@ -59,6 +61,74 @@ import SDropdown from '../SDropdown';
 import SImage from '../SImage';
 import ProductPickingGuidelines from './product-picking-guidelines';
 import { UnitText } from './unit-text';
+
+const BOTTOM_SHEET_TOP_HEADER_HEIGHT = 228;
+const BOTTOM_SHEET_HEADER_BORDER = 16;
+const BOTTOM_SHEET_PRODUCT_NAME = 24;
+const BOTTOM_SHEET_BADGE_ROW = 28;
+const BOTTOM_SHEET_PACK_WARNING = 20;
+const BOTTOM_SHEET_GUIDELINES_MARGIN = 16;
+const BOTTOM_SHEET_GUIDELINES_HEADER_HEIGHT = 28;
+const BOTTOM_SHEET_GUIDELINES_LINE_HEIGHT = 24;
+const BOTTOM_SHEET_FORM_PADDING_TOP = 16;
+const BOTTOM_SHEET_FORM_PADDING_BOTTOM = 32;
+const BOTTOM_SHEET_QUANTITY_SECTION = 76;
+const BOTTOM_SHEET_WEIGHT_RANGE_SECTION = 28;
+const BOTTOM_SHEET_BOX_SECTION = 96;
+const BOTTOM_SHEET_SECTION_GAP = 16;
+const BOTTOM_SHEET_REASON_SECTION = 72;
+const BOTTOM_SHEET_CONFIRM_BUTTON = 48;
+
+function computeInputAmountBottomSheetHeight({
+  windowHeight,
+  safeAreaTop,
+  guidelinesCount = 0,
+  isUnitBox = false,
+  isWeightRange = false,
+  hasConversionBadge = false,
+  hasPackWarning = false,
+}: {
+  windowHeight: number;
+  safeAreaTop: number;
+  guidelinesCount?: number;
+  isUnitBox?: boolean;
+  isWeightRange?: boolean;
+  hasConversionBadge?: boolean;
+  hasPackWarning?: boolean;
+}) {
+  const headerHeight =
+    BOTTOM_SHEET_TOP_HEADER_HEIGHT +
+    BOTTOM_SHEET_PRODUCT_NAME +
+    BOTTOM_SHEET_BADGE_ROW +
+    (hasConversionBadge ? BOTTOM_SHEET_BADGE_ROW : 0) +
+    (hasPackWarning ? BOTTOM_SHEET_PACK_WARNING : 0) +
+    BOTTOM_SHEET_HEADER_BORDER;
+
+  const guidelinesHeight = guidelinesCount
+    ? BOTTOM_SHEET_GUIDELINES_MARGIN +
+      BOTTOM_SHEET_GUIDELINES_HEADER_HEIGHT +
+      guidelinesCount * BOTTOM_SHEET_GUIDELINES_LINE_HEIGHT +
+      8
+    : 0;
+
+  const formHeight =
+    BOTTOM_SHEET_FORM_PADDING_TOP +
+    BOTTOM_SHEET_QUANTITY_SECTION +
+    (isWeightRange
+      ? BOTTOM_SHEET_SECTION_GAP + BOTTOM_SHEET_WEIGHT_RANGE_SECTION
+      : 0) +
+    (isUnitBox ? BOTTOM_SHEET_SECTION_GAP + BOTTOM_SHEET_BOX_SECTION : 0) +
+    BOTTOM_SHEET_SECTION_GAP +
+    BOTTOM_SHEET_REASON_SECTION +
+    BOTTOM_SHEET_SECTION_GAP +
+    BOTTOM_SHEET_CONFIRM_BUTTON +
+    BOTTOM_SHEET_FORM_PADDING_BOTTOM;
+
+  const estimatedHeight = headerHeight + guidelinesHeight + formHeight;
+  const maxHeight = windowHeight - safeAreaTop - 8;
+
+  return Math.min(estimatedHeight, maxHeight);
+}
 
 // QuantityControls Component
 const DecrementButton = memo(
@@ -128,7 +198,6 @@ const ScanButton = memo(
 const QuantitySection = memo(
   ({
     values,
-    quantity,
     currentProduct,
     handleBlur,
     action,
@@ -137,6 +206,7 @@ const QuantitySection = memo(
     setQuantityFromBarcode,
     toggleScanQrCodeProduct,
     onInputFocus,
+    label = 'Số lượng pick',
   }: any) => {
     const editable = useMemo(
       () => action !== PRODUCT_ACTIONS.OUT_OF_STOCK,
@@ -214,12 +284,13 @@ const QuantitySection = memo(
     return (
       <View className="flex gap-2 flex-1" style={{ position: 'relative' }}>
         <Text className="text-base font-medium text-gray-700">
-          Số lượng pick
+          {label}
+
           {currentProduct?.unit ? (
-            <Text className="text-gray-400">
-              {' ('}
-              <UnitText unit={currentProduct.unit} className="text-gray-400" />
-              {')'}
+            <Text className="text-orange-500 font-semibold">
+              {' '}
+              <UnitText unit={currentProduct.unit}  />
+              
             </Text>
           ) : null}
         </Text>
@@ -442,6 +513,73 @@ const BoxInput = memo(
   },
 );
 
+// WeightRangeQuantitySection Component
+const WeightRangeQuantitySection = memo(
+  ({
+    values,
+    setFieldValue,
+    handleBlur,
+    onInputFocus,
+    orderQuantityConversion,
+    action,
+  }: any) => {
+    const editable = useMemo(
+      () => action !== PRODUCT_ACTIONS.OUT_OF_STOCK,
+      [action],
+    );
+
+    const unitLabel = orderQuantityConversion?.unit ?? '';
+
+    const handleDecrement = useCallback(() => {
+      const current = Number(values?.weightRangeQuantity || 0);
+      if (current <= 0) return;
+      setFieldValue('weightRangeQuantity', current - 1);
+    }, [values?.weightRangeQuantity, setFieldValue]);
+
+    const handleIncrement = useCallback(() => {
+      if (!editable) return;
+      const current = Number(values?.weightRangeQuantity || 0);
+      setFieldValue('weightRangeQuantity', current + 1);
+    }, [values?.weightRangeQuantity, setFieldValue, editable]);
+
+    return (
+      <View className="flex gap-2 flex-1">
+        <Text className="text-base font-medium text-gray-700">
+          {'Số lượng pick '}
+          <Text className="text-orange-500 font-semibold">
+            <UnitText unit={unitLabel} />
+          </Text>
+        </Text>
+        <View className="flex-row items-center gap-3">
+          <Input
+            className="flex-1"
+            selectTextOnFocus
+            placeholder="Nhập số lượng"
+            inputClasses="text-center"
+            keyboardType="number-pad"
+            onChangeText={(value: string) =>
+              setFieldValue('weightRangeQuantity', parseInt(value || '0'))
+            }
+            editable={editable}
+            useBottomSheetTextInput
+            name="weightRangeQuantity"
+            value={values?.weightRangeQuantity?.toString()}
+            onBlur={handleBlur('weightRangeQuantity')}
+            onFocus={() => onInputFocus?.('weightRangeQuantity')}
+            defaultValue="0"
+            prefix={
+              <DecrementButton onPress={handleDecrement} disabled={false} />
+            }
+            suffix={
+              <IncrementButton onPress={handleIncrement} disabled={false} />
+            }
+          />
+        </View>
+      </View>
+    );
+  },
+);
+
 // FormContent Component
 const FormContent = memo(
   ({
@@ -457,10 +595,18 @@ const FormContent = memo(
     action,
     quantityInit,
     quantityFromBarcode,
+    weightRangeQuantityFromScan,
     shoudShowBoxInput,
+    shouldShowWeightRangeInput,
     isLoading,
     onInputFocus,
   }: any) => {
+    const safeWeightRangeScanCount =
+      Number(weightRangeQuantityFromScan) || 0;
+    const prevWeightRangeScanCountRef = useRef(safeWeightRangeScanCount);
+    const weightRangeQuantityRef = useRef(values?.weightRangeQuantity);
+    weightRangeQuantityRef.current = values?.weightRangeQuantity;
+
     useEffect(() => {
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
       setFieldValue(
@@ -473,7 +619,30 @@ const FormContent = memo(
         (currentProduct as Product)?.pickedExtraQuantities?.openedBoxQuantity ||
           0,
       );
-    }, []);
+    }, [currentProduct?.id, quantityFromBarcode, quantity, setFieldValue]);
+
+    useEffect(() => {
+      setFieldValue(
+        'weightRangeQuantity',
+        (currentProduct as Product)?.pickedExtraQuantities
+          ?.weightRangeQuantity || 0,
+      );
+      prevWeightRangeScanCountRef.current = 0;
+    }, [currentProduct?.id, setFieldValue]);
+
+    useEffect(() => {
+      if (!shouldShowWeightRangeInput) return;
+
+      const prevScanCount = prevWeightRangeScanCountRef.current;
+      if (safeWeightRangeScanCount <= prevScanCount) return;
+
+      const delta = safeWeightRangeScanCount - prevScanCount;
+      setFieldValue(
+        'weightRangeQuantity',
+        Number(weightRangeQuantityRef.current || 0) + delta,
+      );
+      prevWeightRangeScanCountRef.current = safeWeightRangeScanCount;
+    }, [safeWeightRangeScanCount, shouldShowWeightRangeInput, setFieldValue]);
 
     return (
       <View className="px-4 mt-4 pb-8 gap-4">
@@ -489,6 +658,18 @@ const FormContent = memo(
           toggleScanQrCodeProduct={toggleScanQrCodeProduct}
           onInputFocus={onInputFocus}
         />
+        {shouldShowWeightRangeInput && (
+          <WeightRangeQuantitySection
+            values={values}
+            setFieldValue={setFieldValue}
+            handleBlur={handleBlur}
+            onInputFocus={onInputFocus}
+            orderQuantityConversion={
+              (currentProduct as Product)?.orderQuantityConversion
+            }
+            action={action}
+          />
+        )}
         {shoudShowBoxInput && (
           <BoxInput
             values={values}
@@ -523,6 +704,7 @@ const FormContent = memo(
 // Main Component
 const InputAmountPopup = () => {
   const { height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isPickedByManualBarcodeInput =
@@ -666,18 +848,18 @@ const InputAmountPopup = () => {
               variant="pink"
             />
           )}
-          {!!currentProduct?.originQuantityConversion && (
+          {!!currentProduct?.orderQuantityConversion && (
             <Badge
               className="self-start"
               label={
                 <>
-                  {`${currentProduct.originQuantityConversion.orderQuantity} `}
+                  {`${currentProduct.orderQuantityConversion.quantity} x `}
                   <UnitText
-                    unit={currentProduct.originQuantityConversion.unit}
+                    unit={currentProduct.orderQuantityConversion.unit}
                   />
                 </>
               }
-              variant="warning"
+              variant="purple"
             />
           )}
               
@@ -698,7 +880,7 @@ const InputAmountPopup = () => {
       currentProduct?.unit,
       currentProduct?.tags,
       currentProduct?.barcode,
-      currentProduct?.originQuantityConversion,
+      currentProduct?.orderQuantityConversion,
       currentProduct?.productPickingGuidelines,
       packOrBoxUnitWarning,
     ],
@@ -738,17 +920,49 @@ const InputAmountPopup = () => {
   }, [isShowAmountInput]);
 
   const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
+  const isWeightRange = currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false;
+  const weightRangeQuantityFromScan =
+    Number(useOrderPick.use.weightRangeQuantityFromScan()) || 0;
+  const hasPackWarning = useMemo(() => {
+    const unitName = currentProduct?.unit?.trim()?.toLowerCase();
+    return !!unitName && (unitName.startsWith('pack') || unitName.startsWith('thùng'));
+  }, [currentProduct?.unit]);
+  const hasConversionBadge = !!currentProduct?.orderQuantityConversion;
+
+  const bottomSheetHeight = useMemo(
+    () =>
+      computeInputAmountBottomSheetHeight({
+        windowHeight,
+        safeAreaTop: insets.top,
+        guidelinesCount: currentProduct?.productPickingGuidelines?.length ?? 0,
+        isUnitBox,
+        isWeightRange,
+        hasConversionBadge,
+        hasPackWarning,
+      }),
+    [
+      windowHeight,
+      insets.top,
+      currentProduct?.productPickingGuidelines,
+      isUnitBox,
+      isWeightRange,
+      hasConversionBadge,
+      hasPackWarning,
+    ],
+  );
 
   // Memoized callbacks
   const reset = useCallback(() => {
     toggleShowAmountInput(false);
     setCurrentId(null);
     setQuantityFromBarcode(0);
+    setWeightRangeQuantityFromScan(0);
     setActionProduct(null);
   }, [
     toggleShowAmountInput,
     setCurrentId,
     setQuantityFromBarcode,
+    setWeightRangeQuantityFromScan,
     setActionProduct,
   ]);
 
@@ -790,10 +1004,15 @@ const InputAmountPopup = () => {
         pickedNote: values?.pickedNote,
         pickedTime: moment().valueOf(),
         isAllowEditPickQuantity: true,
-        ...(isUnitBox && {
+        ...((isUnitBox || isWeightRange) && {
           pickedExtraQuantities: {
-            fullBoxQuantity: values?.fullBoxQuantity || 0,
-            openedBoxQuantity: values?.openedBoxQuantity || 0,
+            ...(isUnitBox && {
+              fullBoxQuantity: values?.fullBoxQuantity || 0,
+              openedBoxQuantity: values?.openedBoxQuantity || 0,
+            }),
+            ...(isWeightRange && {
+              weightRangeQuantity: values?.weightRangeQuantity || 0,
+            }),
           },
         }),
       } as SetOrderItemPickedProduct;
@@ -810,6 +1029,7 @@ const InputAmountPopup = () => {
       orderQuantity,
       code,
       isUnitBox,
+      isWeightRange,
       setOrderTemToPicked,
       reset,
     ],
@@ -829,8 +1049,13 @@ const InputAmountPopup = () => {
           (currentProduct as Product)?.pickedExtraQuantities
             ?.openedBoxQuantity || 0,
       }),
+      ...(isWeightRange && {
+        weightRangeQuantity:
+          (currentProduct as Product)?.pickedExtraQuantities
+            ?.weightRangeQuantity || 0,
+      }),
     }),
-    [displayPickedQuantity, currentProduct, isUnitBox],
+    [currentProduct?.id, isUnitBox, isWeightRange],
   );
 
   return (
@@ -880,19 +1105,7 @@ const InputAmountPopup = () => {
           } else {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());
           }
-        }, [action, setFieldValue, isShowAmountInput]);
-
-        const bottomSheetHeight = useMemo(() => {
-          const maxHeight = Math.floor(windowHeight * 0.82);
-          if (isUnitBox) {
-            return Math.min(660, maxHeight);
-          }
-
-          if (!!currentProduct?.productPickingGuidelines) {
-            return Math.min(660, maxHeight);
-          }
-          return Math.min(570, maxHeight);
-        }, [isUnitBox, currentProduct?.productPickingGuidelines, windowHeight]);
+        }, [action, setFieldValue, isShowAmountInput, displayPickedQuantity]);
 
         return (
           <SBottomSheet
@@ -917,7 +1130,9 @@ const InputAmountPopup = () => {
               productPickedErrorTypes={productPickedErrorTypes}
               isError={isError}
               quantityFromBarcode={quantityFromBarcode}
+              weightRangeQuantityFromScan={weightRangeQuantityFromScan}
               shoudShowBoxInput={isUnitBox}
+              shouldShowWeightRangeInput={isWeightRange}
               onInputFocus={handleInputFocus}
             />
           </SBottomSheet>

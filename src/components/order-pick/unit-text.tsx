@@ -6,13 +6,11 @@ const BASE_UNIT_REGEX = /(\([^)]*\))/;
 type UnitTextProps = TextProps & {
   unit: string;
   className?: string;
-  highlightClassName?: string;
 };
 
 export const UnitText = memo(function UnitText({
   unit,
   className = '',
-  highlightClassName = 'text-red-500',
   style,
   ...textProps
 }: UnitTextProps) {
@@ -39,7 +37,7 @@ export const UnitText = memo(function UnitText({
   return (
     <Text className={className} style={style} {...textProps}>
       {parts.before}
-      <Text className={highlightClassName}>{parts.highlighted}</Text>
+      <Text >{parts.highlighted}</Text>
       {parts.after}
     </Text>
   );

@@ -19,9 +19,11 @@ interface OrdersState {
   currentId: number | null;
   isEditManual: boolean;
   isScanMoreProduct: boolean;
+  weightRangeQuantityFromScan: number;
   action: ProductAction | null;
   setAction: (action: ProductAction | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
+  setWeightRangeQuantityFromScan: (qty: number) => void;
   setIsEditManual: (isEditManual: boolean, action?: ProductAction) => void;
   setKeyword: (keyword: string) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -58,6 +60,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   currentId: null,
   isEditManual: false,
   isScanMoreProduct: false,
+  weightRangeQuantityFromScan: 0,
   action: null,
   replacePickedProductId: null,
   isVisibleReplaceProduct: false,
@@ -75,6 +78,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       currentId: null,
       isEditManual: false,
       isScanMoreProduct: false,
+      weightRangeQuantityFromScan: 0,
       action: null,
       replacePickedProductId: null,
       isVisibleReplaceProduct: false,
@@ -89,6 +93,9 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   },
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
+  },
+  setWeightRangeQuantityFromScan: (qty: number) => {
+    set({ weightRangeQuantityFromScan: Number(qty) || 0 });
   },
   setAction: (action: ProductAction | null) => {
     set({ action });
@@ -220,3 +227,6 @@ export const setIsVisibleReplaceProduct = (isVisibleReplaceProduct: boolean) =>
 
 export const setReplacePickedProductId = (id: number) =>
   _useOrderPick.getState().setReplacePickedProductId(id);
+
+export const setWeightRangeQuantityFromScan = (qty: number) =>
+  _useOrderPick.getState().setWeightRangeQuantityFromScan(qty);

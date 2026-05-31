@@ -16,6 +16,7 @@ import {
   setIsPickedByManualBarcodeInput,
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
+  setWeightRangeQuantityFromScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   resetOrderPick,
@@ -54,6 +55,8 @@ const OrderPick = () => {
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
+  const weightRangeQuantityFromScan =
+    Number(useOrderPick.use.weightRangeQuantityFromScan()) || 0;
 
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isVisibleReplaceProduct = useOrderPick.use.isVisibleReplaceProduct();
@@ -110,7 +113,9 @@ const OrderPick = () => {
       const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
       setCurrentId(currentProduct?.id);
 
-      const weightRange = currentProduct?.originQuantityConversion?.weightRange;
+      const isWeightRangeProduct =
+        currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false;
+      const weightRange = currentProduct?.orderQuantityConversion?.weightRange;
       if (weightRange?.length === 2 && quantity) {
         const [minWeight, maxWeight] = weightRange;
         if (quantity < minWeight || quantity > maxWeight) {
@@ -120,6 +125,10 @@ const OrderPick = () => {
           });
           return;
         }
+      }
+
+      if (isWeightRangeProduct) {
+        setWeightRangeQuantityFromScan(weightRangeQuantityFromScan + 1);
       }
 
       const currentBarcode: string | undefined = currentProduct?.barcode;
@@ -152,6 +161,7 @@ const OrderPick = () => {
     [
       orderPickProductsFlat,
       quantityFromBarcode,
+      weightRangeQuantityFromScan,
       toggleShowAmountInput,
       setSuccessForBarcodeScan,
       isScanMoreProduct,
