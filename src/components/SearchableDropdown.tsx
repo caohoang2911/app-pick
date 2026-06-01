@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {
   FlatList,
+  Keyboard,
   Pressable,
   StyleSheet,
   Text,
@@ -246,6 +247,8 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(
             ) : filteredItems.length > 0 ? (
               <FlatList
                 data={filteredItems}
+                keyboardDismissMode="on-drag"
+                onScrollBeginDrag={Keyboard.dismiss}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => {
                   if (renderItem) {

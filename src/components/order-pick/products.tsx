@@ -386,11 +386,17 @@ const OrderPickProducts = () => {
 
   const listFooter = useMemo(() => <View style={{ height: 20 }} />, []);
 
+  const dismissKeyboardOnScroll = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <FlatList
         ref={flatListRef}
         className="flex-1"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={dismissKeyboardOnScroll}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         keyExtractor={keyExtractor}

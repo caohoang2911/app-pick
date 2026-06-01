@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Text, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
@@ -278,6 +278,10 @@ const OrderList = () => {
     [],
   );
 
+  const dismissKeyboardOnScroll = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+
   // Conditional rendering based on state
   if (isLoading) {
     return <OrderListSkeleton />;
@@ -291,6 +295,8 @@ const OrderList = () => {
     <View className="flex-grow mb-4">
       <FlatList
         className="flex-1"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={dismissKeyboardOnScroll}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         ref={flatListRef}
