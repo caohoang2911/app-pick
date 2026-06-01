@@ -11,6 +11,8 @@ export default function OrdersLayout() {
         name="index"
         options={{
           headerShown: false,
+          gestureEnabled: false,
+          fullScreenGestureEnabled: false,
         }}
       />
       <Stack.Screen

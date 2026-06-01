@@ -78,6 +78,7 @@ export default function DrawerLayout() {
           headerShown: false,
           drawerStyle: { width: '75%' },
           swipeEdgeWidth: 0,
+          swipeEnabled: false,
         }}
         drawerContent={(props) => <DrawerContent {...props} />}
       />

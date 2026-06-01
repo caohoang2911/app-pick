@@ -10,7 +10,7 @@ import {
 } from '@/core/store/orders';
 
 import { BarcodeScanningResult } from '~/src/types/scanner';
-import { useNavigation } from 'expo-router';
+import { useFocusEffect, useNavigation } from 'expo-router';
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import Header from '~/src/components/orders/header';
 import OrderList from '~/src/components/orders/order-list';
@@ -31,8 +31,21 @@ const Orders = () => {
     navigation.setOptions({
       headerShown: true,
       header: () => <Header />,
+      gestureEnabled: false,
+      fullScreenGestureEnabled: false,
     });
-  }, []);
+  }, [navigation]);
+
+  // Chặn swipe back từ navigator cha (Drawer / Root) khi đang ở danh sách đơn
+  useFocusEffect(
+    useCallback(() => {
+      let parent = navigation.getParent();
+      while (parent) {
+        parent.setOptions({ gestureEnabled: false });
+        parent = parent.getParent();
+      }
+    }, [navigation]),
+  );
 
   useRefreshOnFocus(async () => {});
 
