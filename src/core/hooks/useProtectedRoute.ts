@@ -4,6 +4,8 @@ import { useRouter, useSegments } from 'expo-router';
 import { ROUTES } from '../constants/routes';
 import { useOtaUpdateReadyModal } from '../store/ota-update-modal';
 
+const AUTH_SEGMENTS = new Set(['login', 'authorize']);
+
 export function useProtectedRoute() {
   const status = useAuth.use.status();
   const segments = useSegments();
@@ -12,13 +14,13 @@ export function useProtectedRoute() {
   const otaPendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
   const hasCodepushUpdate = otaVisible || otaPendingRestart;
 
-  const firstTime = useRef(true);
   const lastRedirectRef = useRef<{ target: string; at: number } | null>(null);
 
   useEffect(() => {
-    const inAuthGroup = segments[0] === 'authorize';
+    if (status === 'idle') return;
 
-    if (inAuthGroup) return;
+    const segment = segments[0];
+    if (segment === 'index') return;
 
     const safeRedirect = (target: string) => {
       const now = Date.now();
@@ -33,10 +35,12 @@ export function useProtectedRoute() {
     };
 
     if (status === 'signOut') {
+      if (AUTH_SEGMENTS.has(segment)) return;
       safeRedirect(ROUTES.AUTH.LOGIN);
-    } else if (status === 'signIn' && firstTime.current) {
-      firstTime.current = false;
-      // Redirect away from the sign-in page.
+      return;
+    }
+
+    if (status === 'signIn' && AUTH_SEGMENTS.has(segment)) {
       safeRedirect(hasCodepushUpdate ? ROUTES.APP.OTA_GATE : ROUTES.APP.ORDERS);
     }
   }, [hasCodepushUpdate, segments, router, status]);

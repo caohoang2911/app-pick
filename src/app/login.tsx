@@ -75,11 +75,11 @@ export default function Login() {
             processDeepLink(savedDeepLink);
           } catch (error) {
             console.error('[Login] Error processing deep link:', error);
-            NavigationHelpers.replaceWithOrders();
+            // NavigationHelpers.replaceWithOrders();
           }
         }, 500);
       } else {
-        NavigationHelpers.replaceWithOrders();
+        // NavigationHelpers.replaceWithOrders();
       }
     });
 
@@ -140,101 +140,103 @@ export default function Login() {
         bounces={false}
         className="bg-white"
       >
-      <View className="flex flex-col gap-4 px-8 py-8">
-        <View className="flex flex-col gap-4">
-          <View className="w-full flex justify-center items-center mb-4">
-            <Image
-              placeholder={{ blurhash }}
-              contentFit="contain"
-              source={'logo'}
-              style={{ width: 200, height: 40 }}
-            />
+        <View className="flex flex-col gap-4 px-8 py-8">
+          <View className="flex flex-col gap-4">
+            <View className="w-full flex justify-center items-center mb-4">
+              <Image
+                placeholder={{ blurhash }}
+                contentFit="contain"
+                source={'logo'}
+                style={{ width: 200, height: 40 }}
+              />
+            </View>
+            <View className="w-full">
+              <Formik
+                initialValues={{
+                  username: '',
+                  password: '',
+                }}
+                validateOnChange
+                onSubmit={handleLoginRegular}
+                className="w-full bg-red-500"
+                validationSchema={Yup.object({
+                  username: Yup.string().required(
+                    'Vui lòng nhập tên đăng nhập',
+                  ),
+                  password: Yup.string().required('Vui lòng nhập mật khẩu'),
+                })}
+              >
+                {({
+                  values,
+                  errors,
+                  handleBlur,
+                  setFieldValue,
+                  handleSubmit,
+                }) => {
+                  return (
+                    <View className="flex flex-col gap-3">
+                      <Input
+                        selectTextOnFocus
+                        labelClasses="font-medium w-full"
+                        onChangeText={(value: string) => {
+                          setLoginError(null);
+                          setFieldValue('username', value);
+                        }}
+                        placeholder="Tên đăng nhập"
+                        error={errors.username}
+                        name="username"
+                        value={values?.username.toString()}
+                        onBlur={handleBlur('username')}
+                        defaultValue="0"
+                      />
+                      <Input
+                        secureTextEntry={true}
+                        placeholder="Mật khẩu"
+                        value={values.password}
+                        keyboardType="default"
+                        error={errors.password}
+                        handleBlur={handleBlur('password')}
+                        onChangeText={(value: string) => {
+                          setLoginError(null);
+                          setFieldValue('password', value);
+                        }}
+                      />
+                      <View className="mt-3">
+                        <Button
+                          loading={isPendingRegular}
+                          variant={'warning'}
+                          onPress={handleSubmit as any}
+                          size="md"
+                          label="Đăng nhập"
+                        />
+                      </View>
+                    </View>
+                  );
+                }}
+              </Formik>
+            </View>
+          </View>
+          <View className="flex flex-col gap-2 mt-6">
+            <View className="px-3 w-auto " style={{ marginTop: -11 }}>
+              <View className="flex flex-row gap-2 border-b border-gray-200" />
+              <Text
+                className="text-center w-auto text-xs bg-white self-center px-3 text-gray-500"
+                style={{ marginTop: -11 }}
+              >
+                Hoặc đăng nhập bằng
+              </Text>
+            </View>
           </View>
           <View className="w-full">
-            <Formik
-              initialValues={{
-                username: '',
-                password: '',
-              }}
-              validateOnChange
-              onSubmit={handleLoginRegular}
-              className="w-full bg-red-500"
-              validationSchema={Yup.object({
-                username: Yup.string().required('Vui lòng nhập tên đăng nhập'),
-                password: Yup.string().required('Vui lòng nhập mật khẩu'),
-              })}
-            >
-              {({
-                values,
-                errors,
-                handleBlur,
-                setFieldValue,
-                handleSubmit,
-              }) => {
-                return (
-                  <View className="flex flex-col gap-3">
-                    <Input
-                      selectTextOnFocus
-                      labelClasses="font-medium w-full"
-                      onChangeText={(value: string) => {
-                        setLoginError(null);
-                        setFieldValue('username', value);
-                      }}
-                      placeholder="Tên đăng nhập"
-                      error={errors.username}
-                      name="username"
-                      value={values?.username.toString()}
-                      onBlur={handleBlur('username')}
-                      defaultValue="0"
-                    />
-                    <Input
-                      secureTextEntry={true}
-                      placeholder="Mật khẩu"
-                      value={values.password}
-                      keyboardType="default"
-                      error={errors.password}
-                      handleBlur={handleBlur('password')}
-                      onChangeText={(value: string) => {
-                        setLoginError(null);
-                        setFieldValue('password', value);
-                      }}
-                    />
-                    <View className="mt-3">
-                      <Button
-                        loading={isPendingRegular}
-                        variant={'warning'}
-                        onPress={handleSubmit as any}
-                        size="md"
-                        label="Đăng nhập"
-                      />
-                    </View>
-                  </View>
-                );
-              }}
-            </Formik>
+            <Button
+              loading={isPending}
+              onPress={handleLogin}
+              size="md"
+              className="w-full"
+              label={'Đăng nhập bằng Harawork '}
+            />
           </View>
         </View>
-        <View className="flex flex-col gap-2 mt-6">
-          <View className="px-3 w-auto " style={{ marginTop: -11 }}>
-            <View className="flex flex-row gap-2 border-b border-gray-200" />
-            <Text
-              className="text-center w-auto text-xs bg-white self-center px-3 text-gray-500"
-              style={{ marginTop: -11 }}
-            >
-              Hoặc đăng nhập bằng
-            </Text>
-          </View>
-        </View>
-        <View className="w-full">
-          <Button
-            loading={isPending}
-            onPress={handleLogin}
-            size="md"
-            className="w-full"
-            label={'Đăng nhập bằng Harawork '}
-          />
-        </View>
-      </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

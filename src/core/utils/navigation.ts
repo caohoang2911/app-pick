@@ -48,7 +48,7 @@ const safeNavigate = (
  */
 export const navigateToLogin = () => {
   safeNavigate(
-    () => router.navigate(ROUTES.AUTH.LOGIN as any),
+    () => router.replace(ROUTES.AUTH.LOGIN as any),
     undefined,
     'Không thể chuyển đến trang đăng nhập',
   );
@@ -79,13 +79,13 @@ export const navigateToOrders = () => {
 /**
  * Replace current route with orders list
  */
-export const replaceWithOrders = () => {
-  safeNavigate(
-    () => router.replace(ROUTES.APP.ORDERS as any),
-    undefined,
-    'Không thể chuyển đến danh sách đơn hàng',
-  );
-};
+// export const replaceWithOrders = () => {
+//   safeNavigate(
+//     () => router.replace(ROUTES.APP.ORDERS as any),
+//     undefined,
+//     'Không thể chuyển đến danh sách đơn hàng',
+//   );
+// };
 
 /**
  * Navigate to order pick screen
@@ -275,7 +275,7 @@ export const NavigationHelpers = {
 
   // Orders
   toOrders: navigateToOrders,
-  replaceWithOrders,
+  // replaceWithOrders,
 
   // Order details
   toOrderPick: navigateToOrderPick,

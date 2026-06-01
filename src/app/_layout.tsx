@@ -95,7 +95,7 @@ const NotificationWrapper = ({
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 export const unstable_settings = {
-  initialRouteName: '(drawer)',
+  initialRouteName: 'index',
 };
 
 hydrateAuth();
@@ -131,25 +131,29 @@ function RootLayoutNav() {
   return (
     <Providers>
       <Stack
-        initialRouteName="(drawer)"
+        initialRouteName="index"
         screenOptions={{
+          headerShown: false,
           headerStyle: { backgroundColor: '#fff' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
         }}
       >
+        <Stack.Screen name="index" options={{ animation: 'none' }} />
+        <Stack.Screen name="(drawer)" options={{ gestureEnabled: false }} />
         <Stack.Screen
-          name="index"
-          options={{ headerShown: false, animation: 'none' }}
+          name="authorize"
+          options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
         />
         <Stack.Screen
-          name="(drawer)"
-          options={{ headerShown: false, gestureEnabled: false }}
+          name="login"
+          options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
         />
-        <Stack.Screen name="authorize" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ headerShown: false }} />
-        <Stack.Screen name="ota-gate" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" />
+        <Stack.Screen
+          name="ota-gate"
+          options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
+        />
       </Stack>
     </Providers>
   );

@@ -99,11 +99,11 @@ const Authorize = () => {
                 processDeepLink(savedDeepLink);
               } catch (error) {
                 // Error processing deep link
-                NavigationHelpers.replaceWithOrders();
+                // NavigationHelpers.replaceWithOrders();
               }
             }, 500);
           } else {
-            NavigationHelpers.replaceWithOrders();
+            // NavigationHelpers.replaceWithOrders();
           }
         } else {
           router.back();
