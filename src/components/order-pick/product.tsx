@@ -72,12 +72,7 @@ const Row = memo(
             {label}
           </Text>
         </View>
-        <View
-          style={[
-            styles.rowTrailing,
-            !unit && styles.rowTrailingSingle,
-          ]}
-        >
+        <View style={[styles.rowTrailing, !unit && styles.rowTrailingSingle]}>
           <View
             style={[
               styles.valueColumn,
@@ -167,7 +162,9 @@ const WarningMessage = memo(
 
         <View style={{ flex: 1, flexShrink: 1, minWidth: 0 }}>
           {typeof errorName === 'string' ? (
-            <Text className="text-white font-semibold text-sm">{errorName}</Text>
+            <Text className="text-white font-semibold text-sm">
+              {errorName}
+            </Text>
           ) : (
             errorName
           )}
@@ -337,7 +334,7 @@ const OrderPickProduct = memo(
     const { width: screenWidth } = useWindowDimensions();
     const cardScale = Math.max(0.82, Math.min(1.05, screenWidth / BASE_WIDTH));
     // Image: 90% of 1/3 screen width, scaled
-    const imageSize = Math.round((screenWidth - 32) / 3 * 0.9 * cardScale);
+    const imageSize = Math.round(((screenWidth - 32) / 3) * 0.9 * cardScale);
 
     const lastScannedId = useOrderPick.use.lastScannedId();
 
@@ -359,8 +356,10 @@ const OrderPickProduct = memo(
     const isWarningOverQuantity = useMemo(() => {
       const isBulkProduct = tags?.includes('Hàng xá');
       const pickedQuantityNum = Number(pickedQuantity);
-      const [minWeight = Number.NEGATIVE_INFINITY, maxWeight = Number.POSITIVE_INFINITY] =
-        orderQuantityConversion?.weightRange ?? [];
+      const [
+        minWeight = Number.NEGATIVE_INFINITY,
+        maxWeight = Number.POSITIVE_INFINITY,
+      ] = orderQuantityConversion?.weightRange ?? [];
 
       if (
         isBulkProduct &&
@@ -370,9 +369,14 @@ const OrderPickProduct = memo(
       ) {
         return false;
       }
-      
+
       return pickedQuantityNum > orderQuantityNum + allowedExcess;
-    }, [pickedQuantity, orderQuantity, tags, orderQuantityConversion?.weightRange]);
+    }, [
+      pickedQuantity,
+      orderQuantity,
+      tags,
+      orderQuantityConversion?.weightRange,
+    ]);
 
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
@@ -423,7 +427,7 @@ const OrderPickProduct = memo(
     // Extract handler to useCallback
     const handleEditPress = useCallback(() => {
       if (isDisable || !id || !barcode) return;
-      
+
       toggleShowAmountInput(!isShowAmountInput, id);
       setSuccessForBarcodeScan(barcode);
       setCurrentId(id);
@@ -493,7 +497,7 @@ const OrderPickProduct = memo(
                     </>
                   )}
                 </View>
-                <View className="flex flex-row justify-between gap-0 flex-grow mt-3">
+                <View className="flex flex-row gap-1.5 justify-between flex-grow mt-3">
                   <View className="flex justify-between items-center">
                     <View className="relative">
                       <SImage
