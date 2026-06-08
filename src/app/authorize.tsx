@@ -10,17 +10,16 @@ import {
   processDeepLink,
 } from '@/core/hooks/useHandleDeepLink';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
-import { NavigationHelpers } from '@/core/utils/navigation';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
-import { setLoading } from '../core/store/loading';
-import RequestPermissionStore from '../components/shared/request-permission-store';
 import { EmployeeRole } from '~/src/types/employee';
-import { useRefreshToken } from '../api/auth/use-refresh-token';
+import { authorizeAppPickClient } from '../api/auth/use-authorize-app-pick-client';
+import RequestPermissionStore from '../components/shared/request-permission-store';
+import { setLoading } from '../core/store/loading';
 
 const WHITE_LIST_ROLE = [
   EmployeeRole.STORE,
@@ -40,8 +39,6 @@ const Authorize = () => {
   const flag = useRef(true);
 
   const [currentUrl, setCurrentUrl] = useState<string>();
-
-  const { mutateAsync: refreshTokenAsync } = useRefreshToken();
 
   useEffect(() => {
     setCurrentUrl(urlRedirect);
@@ -82,13 +79,27 @@ const Authorize = () => {
         const { zas, role } = authInfo || {};
 
         if (WHITE_LIST_ROLE.includes(role)) {
-          signIn({ token: zas, userInfo: authInfo });
-
+          let authorizedZas: string;
           try {
-            await refreshTokenAsync();
+            const response = await authorizeAppPickClient({ zas });
+            const newZas = response?.data?.zas;
+
+            if (!newZas) {
+              console.error(
+                '[Authorize] authorizeAppPickClient: missing zas in response',
+              );
+              return;
+            }
+            authorizedZas = newZas;
           } catch (error) {
-            console.error('[Authorize] refreshToken failed:', error);
+            console.error('[Authorize] authorizeAppPickClient failed:', error);
+            return;
           }
+
+          signIn({
+            token: authorizedZas,
+            userInfo: { ...authInfo, zas: authorizedZas },
+          });
 
           // Check if there's a pending deep link to navigate to
           const savedDeepLink = consumePendingDeepLink();

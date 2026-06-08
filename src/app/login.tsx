@@ -8,7 +8,7 @@ import {
 import { NavigationHelpers } from '@/core/utils/navigation';
 import { Image } from 'expo-image';
 import { Formik } from 'formik';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -19,8 +19,8 @@ import {
 } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import * as Yup from 'yup';
+import { authorizeAppPickClient } from '../api/auth/use-authorize-app-pick-client';
 import { useAuthorizeUserPassword } from '../api/auth/use-authorize-user-password';
-import { useRefreshToken } from '../api/auth/use-refresh-token';
 import { Input } from '../components/Input';
 import { setLoading } from '../core/store/loading';
 
@@ -28,8 +28,6 @@ const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 export default function Login() {
-  const [loginError, setLoginError] = useState<string | null>(null);
-
   const {
     mutate: login,
     data,
@@ -38,13 +36,10 @@ export default function Login() {
   } = useLogin();
   const loginTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const { mutateAsync: refreshTokenAsync } = useRefreshToken();
-
   const { mutate: loginRegular, isPending: isPendingRegular } =
     useAuthorizeUserPassword(async (data) => {
       if (data.error) {
         Keyboard.dismiss();
-        setLoginError(data.error);
         showMessage({
           message: data.error,
           type: 'danger',
@@ -52,20 +47,35 @@ export default function Login() {
         return;
       }
 
-      setLoginError(null);
       const userInfo = data.data || {};
       const { zas } = userInfo;
 
       if (!zas || !userInfo) {
         return;
       }
-      signIn({ token: zas as string, userInfo });
 
+      let authorizedZas: string;
       try {
-        await refreshTokenAsync();
+        const response = await authorizeAppPickClient({ zas });
+
+        const newZas = response?.data?.zas;
+
+        if (!newZas) {
+          console.error(
+            '[Login] authorizeAppPickClient: missing zas in response',
+          );
+          return;
+        }
+        authorizedZas = newZas;
       } catch (error) {
-        console.error('[Login] refreshToken failed:', error);
+        console.error('[Login] authorizeAppPickClient failed:', error);
+        return;
       }
+
+      signIn({
+        token: authorizedZas,
+        userInfo: { ...userInfo, zas: authorizedZas },
+      });
 
       const savedDeepLink = consumePendingDeepLink();
       if (savedDeepLink && typeof savedDeepLink === 'string') {
@@ -179,7 +189,6 @@ export default function Login() {
                         selectTextOnFocus
                         labelClasses="font-medium w-full"
                         onChangeText={(value: string) => {
-                          setLoginError(null);
                           setFieldValue('username', value);
                         }}
                         placeholder="Tên đăng nhập"
@@ -197,7 +206,6 @@ export default function Login() {
                         error={errors.password}
                         handleBlur={handleBlur('password')}
                         onChangeText={(value: string) => {
-                          setLoginError(null);
                           setFieldValue('password', value);
                         }}
                       />

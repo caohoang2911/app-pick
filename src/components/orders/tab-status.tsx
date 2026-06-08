@@ -269,8 +269,10 @@ const TabsStatus = () => {
           >
             <Text
               className={clsx({
-                'color-colorPrimary font-semibold': isStatusSeleted,
-                'color-gray-500': !isStatusSeleted,
+                'color-colorPrimary font-semibold':
+                  isStatusSeleted && item.id !== 'CANCELLED',
+                'color-gray-500': !isStatusSeleted && item.id !== 'CANCELLED',
+                'color-red-500 font-bold': item.id === 'CANCELLED',
               })}
             >
               <Text>{item.label}</Text>{' '}

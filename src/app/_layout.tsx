@@ -31,17 +31,16 @@ import {
 } from 'react-native-safe-area-context';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
-import { OtaUpdateReadyModal } from '../components/OtaUpdateReadyModal';
 import { AppStateEffect } from '../components/AppStateEffect';
 import FlashMessageWithMarkdown from '../components/FlashMessageWithMarkdown';
 import NetworkStatus from '../components/NetWorkStatus';
+import { OtaUpdateReadyModal } from '../components/OtaUpdateReadyModal';
 import { UpdateDownloadModal } from '../components/UpdateDownloadModal';
 import { useAppState } from '../core/hooks/useAppState';
 import {
   cleanupSafeAppManagement,
   initializeSafeAppManagement,
 } from '../core/utils/safe-app-management';
-
 let Updates: any = null;
 
 try {
@@ -140,14 +139,21 @@ function RootLayoutNav() {
         }}
       >
         <Stack.Screen name="index" options={{ animation: 'none' }} />
-        <Stack.Screen name="(drawer)" options={{ gestureEnabled: false }} />
+        <Stack.Screen
+          name="(drawer)"
+          options={{ gestureEnabled: false, animation: 'none' }}
+        />
         <Stack.Screen
           name="authorize"
           options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
         />
         <Stack.Screen
           name="login"
-          options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}
+          options={{
+            gestureEnabled: false,
+            animation: 'none',
+            fullScreenGestureEnabled: false,
+          }}
         />
         <Stack.Screen name="settings" />
         <Stack.Screen

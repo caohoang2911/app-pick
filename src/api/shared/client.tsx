@@ -112,7 +112,11 @@ axiosClient.interceptors.response.use(
         'ERROR_AUTH_TOKEN_INVALID',
       ].includes(response?.data?.error)
     ) {
-      handleAuthError('Vui lòng đăng nhập để tiếp tục');
+      const authErrorMessage =
+        response?.data?.error === 'ERROR_AUTH_TOKEN_EXPIRED'
+          ? 'Phiên làm việc của bạn đã hết hạn, vui lòng đăng nhập lại'
+          : 'Vui lòng đăng nhập để tiếp tục';
+      handleAuthError(authErrorMessage);
     } else if (
       response?.data?.error &&
       response?.data?.error !== 'ERROR_EMPLOYEE_STORE_OUT_OF_DATE' &&
@@ -167,12 +171,19 @@ axiosClient.interceptors.request.use(function (config: any) {
     requestUrl.includes(endpoint),
   );
 
-  if (token) {
+  if (config.url === 'auth/authorizeAppPickClient') {
+    return config;
+  }
+
+  const hasExplicitZas = !!config.headers?.zas;
+
+  if (!hasExplicitZas && token) {
     config.headers.zas = token;
-  } else if (!isPublicAuthEndpoint) {
+  } else if (!hasExplicitZas && !isPublicAuthEndpoint) {
     // Chặn mọi API không public sau khi đã logout/không còn token
     // return Promise.reject(new Error('BLOCKED_SIGNED_OUT_REQUEST'));
-    config.headers.zas = '4kkgCYTSGyU4hc50sSNRYiCAZ2KxQPQzUClPl-cMi8EKduxy1jLs1OweKInfH7etwjBZBWE5HV7ZAbi_3J8_BA';
+    config.headers.zas =
+      '4kkgCYTSGyU4hc50sSNRYiCAZ2KxQPQzUClPl-cMi8EKduxy1jLs1OweKInfH7etwjBZBWE5HV7ZAbi_3J8_BA';
   }
 
   if (config.data instanceof FormData) {
@@ -189,7 +200,7 @@ axiosClient.interceptors.request.use(function (config: any) {
       hasToken: !!token,
       headers: {
         'Content-Type': config.headers['Content-Type'],
-        zas: config.headers.zas ? '***' : 'none',
+        zas: config.headers.zas ? config.headers.zas : 'none',
       },
     });
   }

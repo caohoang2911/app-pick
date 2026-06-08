@@ -354,19 +354,10 @@ const OrderPickProduct = memo(
     const allowedExcess = orderQuantityNum * 0.05; // 5% tolerance
 
     const isWarningOverQuantity = useMemo(() => {
-      const isBulkProduct = tags?.includes('Hàng xá');
+      const isWeightRangeProduct = tags?.includes('WEIGHT_RANGE');
       const pickedQuantityNum = Number(pickedQuantity);
-      const [
-        minWeight = Number.NEGATIVE_INFINITY,
-        maxWeight = Number.POSITIVE_INFINITY,
-      ] = orderQuantityConversion?.weightRange ?? [];
 
-      if (
-        isBulkProduct &&
-        Number.isFinite(pickedQuantityNum) &&
-        pickedQuantityNum >= minWeight &&
-        pickedQuantityNum <= maxWeight
-      ) {
+      if (isWeightRangeProduct) {
         return false;
       }
 
