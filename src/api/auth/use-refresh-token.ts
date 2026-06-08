@@ -22,6 +22,19 @@ export const useRefreshToken = (cb?: (data: any) => void) => {
       }
 
       setLoading(true);
+      setToken(data?.data?.zas || '');
+
+      setUserInfo({
+        ...userInfo,
+        ...data?.data,
+      });
+
+      setUser({
+        ...userInfo,
+        ...data?.data,
+      });
+      setLoading(false);
+
       cb?.(data);
     },
   });
