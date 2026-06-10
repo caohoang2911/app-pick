@@ -33,8 +33,8 @@ const InvoiceInfo = () => {
           <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className="text-gray-500">HĐ</Text>
           </View>
-          <View className="flex-1 flex-row items-center gap-1">
-            <Text className="flex-1" numberOfLines={1} ellipsizeMode="tail">
+          <View className="flex-1 flex-row items-center gap-2">
+            <Text numberOfLines={1} ellipsizeMode="tail">
               {invoiceCode || '--'}
             </Text>
             {invoiceCode ? <CopyButton value={invoiceCode} /> : null}
