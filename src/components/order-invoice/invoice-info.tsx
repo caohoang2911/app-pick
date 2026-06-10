@@ -5,6 +5,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
 import { formatCurrency } from '~/src/core/utils/number';
+import CopyButton from '../shared/copy-button';
 
 const COL_LEFT_WIDTH = 105;
 
@@ -19,8 +20,7 @@ const InvoiceInfo = () => {
     customer,
     deliveryTimeRange,
     invoiceCode,
-  } =
-    header || {};
+  } = header || {};
 
   const shouldDisplayPicker = useMemo(() => {
     return picker?.username && picker?.name;
@@ -33,10 +33,11 @@ const InvoiceInfo = () => {
           <View style={{ width: COL_LEFT_WIDTH }}>
             <Text className="text-gray-500">HĐ</Text>
           </View>
-          <View className="flex-1 flex-row items-center justify-between gap-2">
+          <View className="flex-1 flex-row items-center gap-1">
             <Text className="flex-1" numberOfLines={1} ellipsizeMode="tail">
               {invoiceCode || '--'}
             </Text>
+            {invoiceCode ? <CopyButton value={invoiceCode} /> : null}
           </View>
         </View>
         <View className="flex flex-row items-center">

@@ -22,6 +22,7 @@ import { OrderDetail } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
+import CopyButton from '../shared/copy-button';
 import LabelTags from '../shared/LabelTags';
 import WaveButton from '../shared/WaveButton';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -97,6 +98,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             <ButtonBack
               title={<Text className="font-semibold text-base">{code}</Text>}
             />
+            <CopyButton value={code as string} />
           </View>
           {status && (
             <Badge
@@ -127,6 +129,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
         <Input
           className="flex-grow"
           placeholder="Nhập barcode để pick"
+          keyboardType="number-pad"
           prefix={
             <MaterialCommunityIcons name="barcode" size={24} color="gray" />
           }

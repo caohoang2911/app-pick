@@ -20,6 +20,7 @@ import { Order } from '~/src/types/order';
 import { prefetchOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { Badge } from '../Badge';
 import CountdownTimer from '../shared/count-down-timer';
+import CopyButton from '../shared/copy-button';
 import MoreActionsBtn from './more-actions-btn';
 
 // Grab Logo Component - không cần memo vì không có props và quá đơn giản
@@ -185,6 +186,7 @@ const OrderItem = ({
             <Text className="font-semibold text-base text-colorPrimary">
               {code}
             </Text>
+            <CopyButton value={code} />
             {saleChannel === 'GRAB_MART' && <GrabLogo />}
             {groupShippingCode && (
               <Badge label={groupShippingCode} variant="warning" />

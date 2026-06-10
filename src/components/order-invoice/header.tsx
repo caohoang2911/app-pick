@@ -7,6 +7,7 @@ import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
+import CopyButton from '../shared/copy-button';
 import LabelTags from '../shared/LabelTags';
 import HeaderActionBtn from './header-action-btn';
 
@@ -22,10 +23,11 @@ const OrderPickHeader = () => {
     <View className="px-4 bg-white pb-3">
       <View className="flex-row justify-between items-center">
         <View className="flex flex-row gap-2 justify-between flex-1 items-center">
-          <View className="flex flex-row items-center gap-2">
+          <View className="flex flex-row items-center gap-1">
             <ButtonBack
               title={<Text className="font-semibold text-base">{code}</Text>}
             />
+            <CopyButton value={code as string} />
           </View>
           {status && (
             <Badge
