@@ -16,7 +16,8 @@ import {
   setIsPickedByManualBarcodeInput,
   setQuantityFromBarcode,
   setSuccessForBarcodeScan,
-  setWeightRangeQuantityFromScan,
+  appendWeightRangeScanKg,
+  setScanMoreProduct,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   resetOrderPick,
@@ -55,9 +56,6 @@ const OrderPick = () => {
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
-  const weightRangeQuantityFromScan =
-    Number(useOrderPick.use.weightRangeQuantityFromScan()) || 0;
-
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isVisibleReplaceProduct = useOrderPick.use.isVisibleReplaceProduct();
 
@@ -90,10 +88,7 @@ const OrderPick = () => {
         barcode: codeScanned,
       });
 
-      const barcode = resolvePickScanBarcode(
-        rawBarcode,
-        orderPickProductsFlat,
-      );
+      const barcode = resolvePickScanBarcode(rawBarcode, orderPickProductsFlat);
 
       if (!barcode) {
         showMessage({
@@ -107,6 +102,7 @@ const OrderPick = () => {
         orderPickProductsFlat,
         currentId,
         isEditManual,
+        isScanMoreProduct,
         barcode,
       });
 
@@ -126,11 +122,6 @@ const OrderPick = () => {
           return;
         }
       }
-
-      if (isWeightRangeProduct) {
-        setWeightRangeQuantityFromScan(weightRangeQuantityFromScan + 1);
-      }
-
       const currentBarcode: string | undefined = currentProduct?.barcode;
       const currentAmount = !isScanMoreProduct
         ? Number(currentProduct?.pickedQuantity) + 1 || 1
@@ -142,11 +133,18 @@ const OrderPick = () => {
           ? quantity || currentAmount
           : Number(quantityFromBarcode || 0) +
             Number(quantity || currentAmount);
+        const amountForBarcode = isWeightRangeProduct ? quantity : newAmount;
 
         setSuccessForBarcodeScan(currentBarcode);
         setQuantityFromBarcode(
-          Math.floor(Number(newAmount || 0) * 1000) / 1000,
+          Math.floor(Number(amountForBarcode || 0) * 1000) / 1000,
         );
+        if (isWeightRangeProduct && amountForBarcode != null) {
+          appendWeightRangeScanKg(amountForBarcode);
+        }
+        if (isScanMoreProduct) {
+          setScanMoreProduct(false);
+        }
         toggleShowAmountInput(
           true,
           orderPickProductsFlat?.[indexOfCodeScanned]?.id,
@@ -161,7 +159,6 @@ const OrderPick = () => {
     [
       orderPickProductsFlat,
       quantityFromBarcode,
-      weightRangeQuantityFromScan,
       toggleShowAmountInput,
       setSuccessForBarcodeScan,
       isScanMoreProduct,
@@ -199,7 +196,7 @@ const OrderPick = () => {
         }}
       />
       <OrderPickHeadeActionBottomSheet ref={headerAcrtionRef} />
-      {isShowAmountInput ? <InputAmountPopup /> : null}
+      <InputAmountPopup />
       {isVisibleReplaceProduct ? <ReplacePickedProducts /> : null}
     </>
   );

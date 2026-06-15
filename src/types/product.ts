@@ -21,7 +21,7 @@ export type GiftPack = Pick<ProductItemGroup, 'type' | 'name' | 'elements'>;
 
 export type Product = {
   orderQuantityConversion?: {
-    unit: string; 
+    unit: string;
     weightRange: number[];
     quantity: number;
   };
@@ -58,6 +58,7 @@ export type Product = {
   pickedExtraQuantities?: {
     fullBoxQuantity?: number;
     openedBoxQuantity?: number;
-    weightRangeQuantity?: number;
+    /** Danh sách KG từng lần quét, ví dụ [2.5, 2.6, 3.7]. */
+    weightRangeItemKGs?: number[];
   };
 };

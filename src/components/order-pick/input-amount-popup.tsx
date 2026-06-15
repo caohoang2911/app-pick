@@ -1,24 +1,30 @@
 import { Formik } from 'formik';
 import { isEmpty, isNumber, toLower } from 'lodash';
 import moment from 'moment-timezone';
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   Dimensions,
   Keyboard,
-  Platform,
   Pressable,
   Text,
-  View,
   useWindowDimensions,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   PRODUCT_ACTIONS,
   PRODUCT_PICKED_ERROR_TYPES,
+  type ProductAction,
 } from '@/core/constants/product';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
-import { FontAwesome } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -36,8 +42,9 @@ import {
   setOrderPickProduct,
   setQuantityFromBarcode,
   setReplacePickedProductId,
+  clearWeightRangePendingScanKGs,
+  drainWeightRangePendingScanKGs,
   setScanMoreProduct,
-  setWeightRangeQuantityFromScan,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   useOrderPick,
@@ -61,6 +68,14 @@ import SDropdown from '../SDropdown';
 import SImage from '../SImage';
 import ProductPickingGuidelines from './product-picking-guidelines';
 import { UnitText } from './unit-text';
+import PickMoreScanButton from './pick-more-scan-button';
+import WeightRangeLineItems, {
+  getWeightRangeOrderQuantity,
+  normalizeWeightRangeItemKGs,
+  parseWeightRangeItemKGs,
+  sumWeightRangeItemKGs,
+  WEIGHT_RANGE_LIST_MAX_HEIGHT,
+} from './weight-range-line-items';
 
 const BOTTOM_SHEET_TOP_HEADER_HEIGHT = 228;
 const BOTTOM_SHEET_HEADER_BORDER = 16;
@@ -73,11 +88,27 @@ const BOTTOM_SHEET_GUIDELINES_LINE_HEIGHT = 24;
 const BOTTOM_SHEET_FORM_PADDING_TOP = 16;
 const BOTTOM_SHEET_FORM_PADDING_BOTTOM = 32;
 const BOTTOM_SHEET_QUANTITY_SECTION = 76;
-const BOTTOM_SHEET_WEIGHT_RANGE_SECTION = 28;
+const BOTTOM_SHEET_WEIGHT_RANGE_SECTION = WEIGHT_RANGE_LIST_MAX_HEIGHT; // 4 item + pick thêm
 const BOTTOM_SHEET_BOX_SECTION = 96;
 const BOTTOM_SHEET_SECTION_GAP = 16;
 const BOTTOM_SHEET_REASON_SECTION = 72;
 const BOTTOM_SHEET_CONFIRM_BUTTON = 48;
+
+const QUICK_ACTION_TO_ERROR_TYPE: Partial<
+  Record<
+    ProductAction,
+    (typeof PRODUCT_PICKED_ERROR_TYPES)[keyof typeof PRODUCT_PICKED_ERROR_TYPES]
+  >
+> = {
+  [PRODUCT_ACTIONS.LOW_QUALITY]: PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE,
+  [PRODUCT_ACTIONS.NEAR_EXPIRY]:
+    PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED,
+  [PRODUCT_ACTIONS.EXPIRED_ONLINE]:
+    PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE,
+  [PRODUCT_ACTIONS.INCORRECT_STOCK]: PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK,
+  [PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER]:
+    PRODUCT_PICKED_ERROR_TYPES.IN_CART_OFFLINE_CUSTOMER,
+};
 
 function computeInputAmountBottomSheetHeight({
   windowHeight,
@@ -113,10 +144,9 @@ function computeInputAmountBottomSheetHeight({
 
   const formHeight =
     BOTTOM_SHEET_FORM_PADDING_TOP +
-    BOTTOM_SHEET_QUANTITY_SECTION +
-    (isWeightRange
-      ? BOTTOM_SHEET_SECTION_GAP + BOTTOM_SHEET_WEIGHT_RANGE_SECTION
-      : 0) +
+    // WeightRange dùng list thay cho QuantitySection thông thường
+    (isWeightRange ? 0 : BOTTOM_SHEET_QUANTITY_SECTION) +
+    (isWeightRange ? BOTTOM_SHEET_WEIGHT_RANGE_SECTION : 0) +
     (isUnitBox ? BOTTOM_SHEET_SECTION_GAP + BOTTOM_SHEET_BOX_SECTION : 0) +
     BOTTOM_SHEET_SECTION_GAP +
     BOTTOM_SHEET_REASON_SECTION +
@@ -169,26 +199,6 @@ const IncrementButton = memo(
             +
           </Text>
         </View>
-      </View>
-    </TouchableOpacity>
-  ),
-);
-
-// ScanButton Component
-const ScanButton = memo(
-  ({ onPress, disabled }: { onPress: () => void; disabled: boolean }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      className={`rounded-lg ${disabled ? 'opacity-50' : ''}`}
-    >
-      <View
-        className={`bg-colorPrimary rounded-lg px-4 h-11 flex flex-row gap-1 justify-center items-center ${
-          disabled ? 'opacity-50' : ''
-        }`}
-      >
-        <FontAwesome name="qrcode" size={14} color="white" />
-        <Text className="text-white font-semibold text-sm">Pick thêm</Text>
       </View>
     </TouchableOpacity>
   ),
@@ -289,8 +299,7 @@ const QuantitySection = memo(
           {currentProduct?.unit ? (
             <Text className="text-orange-500 font-semibold">
               {' '}
-              <UnitText unit={currentProduct.unit}  />
-              
+              <UnitText unit={currentProduct.unit} />
             </Text>
           ) : null}
         </Text>
@@ -317,7 +326,7 @@ const QuantitySection = memo(
               <IncrementButton onPress={handleIncrement} disabled={false} />
             }
           />
-          <ScanButton onPress={handleQRScan} disabled={!editable} />
+          <PickMoreScanButton onPress={handleQRScan} disabled={!editable} />
         </View>
 
         {errorMessage && <Text className="text-red-500">{errorMessage}</Text>}
@@ -336,18 +345,42 @@ const ReasonDropdown = memo(
     setErrors,
     action,
     currentProduct,
+    isWeightRange = false,
   }: any) => {
     const isQuantityEnough =
       Number(values?.pickedQuantity) >= Number(quantityInit);
     const hasQuickAction = Object.values(PRODUCT_ACTIONS).includes(action);
-    const isDisabled = isQuantityEnough || hasQuickAction;
+    // WeightRange: "đủ" tính theo SỐ ITEM đã quét (length) so với SL đặt quy đổi,
+    // KHÔNG theo tổng KG (pickedQuantity).
+    const isWeightRangeEnough =
+      isWeightRange &&
+      (values?.weightRangeItemKGs?.length ?? 0) >=
+        getWeightRangeOrderQuantity(currentProduct);
+    // Chưa đủ → enable cho chọn lý do; đủ → disable (và auto-clear bên dưới).
+    // Vẫn enable khi đang OUT_OF_STOCK để user đổi lý do được.
+    const isDisabled = isWeightRange
+      ? isWeightRangeEnough
+      : isQuantityEnough || hasQuickAction;
     const { unit } = currentProduct || {};
 
     useEffect(() => {
-      if (isQuantityEnough && !hasQuickAction && values?.pickedErrorType) {
+      if (isWeightRange) {
+        if (!isWeightRangeEnough || !values?.pickedErrorType) return;
         setFieldValue('pickedErrorType', '');
+        return;
       }
-    }, [isQuantityEnough, hasQuickAction, values?.pickedErrorType, setFieldValue]);
+      if (!isQuantityEnough || hasQuickAction || !values?.pickedErrorType) {
+        return;
+      }
+      setFieldValue('pickedErrorType', '');
+    }, [
+      isWeightRange,
+      isWeightRangeEnough,
+      isQuantityEnough,
+      hasQuickAction,
+      values?.pickedErrorType,
+      setFieldValue,
+    ]);
 
     const handleSelect = useCallback(
       (value: string) => {
@@ -513,73 +546,6 @@ const BoxInput = memo(
   },
 );
 
-// WeightRangeQuantitySection Component
-const WeightRangeQuantitySection = memo(
-  ({
-    values,
-    setFieldValue,
-    handleBlur,
-    onInputFocus,
-    orderQuantityConversion,
-    action,
-  }: any) => {
-    const editable = useMemo(
-      () => action !== PRODUCT_ACTIONS.OUT_OF_STOCK,
-      [action],
-    );
-
-    const unitLabel = orderQuantityConversion?.unit ?? '';
-
-    const handleDecrement = useCallback(() => {
-      const current = Number(values?.weightRangeQuantity || 0);
-      if (current <= 0) return;
-      setFieldValue('weightRangeQuantity', current - 1);
-    }, [values?.weightRangeQuantity, setFieldValue]);
-
-    const handleIncrement = useCallback(() => {
-      if (!editable) return;
-      const current = Number(values?.weightRangeQuantity || 0);
-      setFieldValue('weightRangeQuantity', current + 1);
-    }, [values?.weightRangeQuantity, setFieldValue, editable]);
-
-    return (
-      <View className="flex gap-2 flex-1">
-        <Text className="text-base font-medium text-gray-700">
-          {'Số lượng pick '}
-          <Text className="text-orange-500 font-semibold">
-            <UnitText unit={unitLabel} />
-          </Text>
-        </Text>
-        <View className="flex-row items-center gap-3">
-          <Input
-            className="flex-1"
-            selectTextOnFocus
-            placeholder="Nhập số lượng"
-            inputClasses="text-center"
-            keyboardType="number-pad"
-            onChangeText={(value: string) =>
-              setFieldValue('weightRangeQuantity', parseInt(value || '0'))
-            }
-            editable={editable}
-            useBottomSheetTextInput
-            name="weightRangeQuantity"
-            value={values?.weightRangeQuantity?.toString()}
-            onBlur={handleBlur('weightRangeQuantity')}
-            onFocus={() => onInputFocus?.('weightRangeQuantity')}
-            defaultValue="0"
-            prefix={
-              <DecrementButton onPress={handleDecrement} disabled={false} />
-            }
-            suffix={
-              <IncrementButton onPress={handleIncrement} disabled={false} />
-            }
-          />
-        </View>
-      </View>
-    );
-  },
-);
-
 // FormContent Component
 const FormContent = memo(
   ({
@@ -595,19 +561,14 @@ const FormContent = memo(
     action,
     quantityInit,
     quantityFromBarcode,
-    weightRangeQuantityFromScan,
     shoudShowBoxInput,
     shouldShowWeightRangeInput,
     isLoading,
     onInputFocus,
   }: any) => {
-    const safeWeightRangeScanCount =
-      Number(weightRangeQuantityFromScan) || 0;
-    const prevWeightRangeScanCountRef = useRef(safeWeightRangeScanCount);
-    const weightRangeQuantityRef = useRef(values?.weightRangeQuantity);
-    weightRangeQuantityRef.current = values?.weightRangeQuantity;
-
+    // Init số lượng + hộp thùng khi đổi sản phẩm
     useEffect(() => {
+      if (shouldShowWeightRangeInput) return;
       setFieldValue('pickedQuantity', quantityFromBarcode || quantity);
       setFieldValue(
         'fullBoxQuantity',
@@ -619,55 +580,37 @@ const FormContent = memo(
         (currentProduct as Product)?.pickedExtraQuantities?.openedBoxQuantity ||
           0,
       );
-    }, [currentProduct?.id, quantityFromBarcode, quantity, setFieldValue]);
-
-    useEffect(() => {
-      setFieldValue(
-        'weightRangeQuantity',
-        (currentProduct as Product)?.pickedExtraQuantities
-          ?.weightRangeQuantity || 0,
-      );
-      prevWeightRangeScanCountRef.current = 0;
-    }, [currentProduct?.id, setFieldValue]);
-
-    useEffect(() => {
-      if (!shouldShowWeightRangeInput) return;
-
-      const prevScanCount = prevWeightRangeScanCountRef.current;
-      if (safeWeightRangeScanCount <= prevScanCount) return;
-
-      const delta = safeWeightRangeScanCount - prevScanCount;
-      setFieldValue(
-        'weightRangeQuantity',
-        Number(weightRangeQuantityRef.current || 0) + delta,
-      );
-      prevWeightRangeScanCountRef.current = safeWeightRangeScanCount;
-    }, [safeWeightRangeScanCount, shouldShowWeightRangeInput, setFieldValue]);
+    }, [
+      currentProduct?.id,
+      quantityFromBarcode,
+      quantity,
+      setFieldValue,
+      shouldShowWeightRangeInput,
+    ]);
 
     return (
       <View className="px-4 mt-4 pb-8 gap-4">
-        <QuantitySection
-          values={values}
-          quantity={quantity}
-          quantityInit={quantityInit}
-          currentProduct={currentProduct}
-          action={action}
-          handleBlur={handleBlur}
-          setFieldValue={setFieldValue}
-          setQuantityFromBarcode={setQuantityFromBarcode}
-          toggleScanQrCodeProduct={toggleScanQrCodeProduct}
-          onInputFocus={onInputFocus}
-        />
+        {!shouldShowWeightRangeInput && (
+          <QuantitySection
+            values={values}
+            quantity={quantity}
+            quantityInit={quantityInit}
+            currentProduct={currentProduct}
+            action={action}
+            handleBlur={handleBlur}
+            setFieldValue={setFieldValue}
+            setQuantityFromBarcode={setQuantityFromBarcode}
+            toggleScanQrCodeProduct={toggleScanQrCodeProduct}
+            onInputFocus={onInputFocus}
+          />
+        )}
         {shouldShowWeightRangeInput && (
-          <WeightRangeQuantitySection
+          <WeightRangeLineItems
             values={values}
             setFieldValue={setFieldValue}
-            handleBlur={handleBlur}
-            onInputFocus={onInputFocus}
             orderQuantityConversion={
               (currentProduct as Product)?.orderQuantityConversion
             }
-            action={action}
           />
         )}
         {shoudShowBoxInput && (
@@ -686,7 +629,7 @@ const FormContent = memo(
           setFieldValue={setFieldValue}
           setErrors={setErrors}
           currentProduct={currentProduct}
-          quantityFromBarcode={quantityFromBarcode}
+          isWeightRange={shouldShowWeightRangeInput}
         />
         <View>
           <Button
@@ -856,13 +799,13 @@ const InputAmountPopup = () => {
                   {`${currentProduct.orderQuantityConversion.quantity} x `}
                   <UnitText
                     unit={currentProduct.orderQuantityConversion.unit}
+                    orderQuantityConversion
                   />
                 </>
               }
               variant="purple"
             />
           )}
-              
         </View>
         {packOrBoxUnitWarning}
         {!!currentProduct?.productPickingGuidelines && (
@@ -921,11 +864,15 @@ const InputAmountPopup = () => {
 
   const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
   const isWeightRange = currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false;
-  const weightRangeQuantityFromScan =
-    Number(useOrderPick.use.weightRangeQuantityFromScan()) || 0;
+  const weightRangePendingScanKGs =
+    useOrderPick.use.weightRangePendingScanKGs();
+  const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
   const hasPackWarning = useMemo(() => {
     const unitName = currentProduct?.unit?.trim()?.toLowerCase();
-    return !!unitName && (unitName.startsWith('pack') || unitName.startsWith('thùng'));
+    return (
+      !!unitName &&
+      (unitName.startsWith('pack') || unitName.startsWith('thùng'))
+    );
   }, [currentProduct?.unit]);
   const hasConversionBadge = !!currentProduct?.orderQuantityConversion;
 
@@ -956,15 +903,19 @@ const InputAmountPopup = () => {
     toggleShowAmountInput(false);
     setCurrentId(null);
     setQuantityFromBarcode(0);
-    setWeightRangeQuantityFromScan(0);
+    clearWeightRangePendingScanKGs();
     setActionProduct(null);
   }, [
     toggleShowAmountInput,
     setCurrentId,
     setQuantityFromBarcode,
-    setWeightRangeQuantityFromScan,
     setActionProduct,
   ]);
+
+  const handleSheetClose = useCallback(() => {
+    if (isScanQrCodeProduct) return;
+    reset();
+  }, [isScanQrCodeProduct, reset]);
 
   const handleInputFocus = useCallback(
     (field?: 'pickedQuantity' | 'fullBoxQuantity' | 'openedBoxQuantity') => {
@@ -994,13 +945,21 @@ const InputAmountPopup = () => {
 
       const pickedQty = Number(values?.pickedQuantity || 0);
       const orderQty = Number(orderQuantity || 0);
+      const weightRangeOrderQty = getWeightRangeOrderQuantity(currentProduct);
+      const pickedWeightRangeCount = values?.weightRangeItemKGs?.length ?? 0;
+
       const pickedItem = {
         ...currentProduct,
         barcode: barcodeScanSuccess,
         isPickedByManualBarcodeInput,
         pickedQuantity: pickedQty,
-        pickedErrorType:
-          pickedQty >= orderQty ? '' : values?.pickedErrorType,
+        pickedErrorType: isWeightRange
+          ? pickedWeightRangeCount >= weightRangeOrderQty
+            ? ''
+            : values?.pickedErrorType
+          : pickedQty >= orderQty
+            ? ''
+            : values?.pickedErrorType,
         pickedNote: values?.pickedNote,
         pickedTime: moment().valueOf(),
         isAllowEditPickQuantity: true,
@@ -1011,7 +970,9 @@ const InputAmountPopup = () => {
               openedBoxQuantity: values?.openedBoxQuantity || 0,
             }),
             ...(isWeightRange && {
-              weightRangeQuantity: values?.weightRangeQuantity || 0,
+              weightRangeItemKGs: normalizeWeightRangeItemKGs(
+                values?.weightRangeItemKGs ?? [],
+              ),
             }),
           },
         }),
@@ -1031,14 +992,22 @@ const InputAmountPopup = () => {
       isUnitBox,
       isWeightRange,
       setOrderTemToPicked,
-      reset,
     ],
   );
 
   // Memoize initial values
-  const initialValues = useMemo(
-    () => ({
-      pickedQuantity: displayPickedQuantity,
+  const initialValues = useMemo(() => {
+    const weightRangeItemKGs = isWeightRange
+      ? parseWeightRangeItemKGs(
+          (currentProduct as Product)?.pickedExtraQuantities
+            ?.weightRangeItemKGs,
+        )
+      : [];
+
+    return {
+      pickedQuantity: isWeightRange
+        ? sumWeightRangeItemKGs(weightRangeItemKGs)
+        : displayPickedQuantity,
       pickedErrorType: (currentProduct as Product)?.pickedErrorType || '',
       pickedNote: (currentProduct as Product)?.pickedNote || '',
       ...(isUnitBox && {
@@ -1049,63 +1018,86 @@ const InputAmountPopup = () => {
           (currentProduct as Product)?.pickedExtraQuantities
             ?.openedBoxQuantity || 0,
       }),
-      ...(isWeightRange && {
-        weightRangeQuantity:
-          (currentProduct as Product)?.pickedExtraQuantities
-            ?.weightRangeQuantity || 0,
-      }),
-    }),
-    [currentProduct?.id, isUnitBox, isWeightRange],
-  );
+      ...(isWeightRange && { weightRangeItemKGs }),
+    };
+  }, [
+    currentProduct?.id,
+    isUnitBox,
+    isWeightRange,
+    // WeightRange không reinit theo displayPickedQuantity (drain queue lo việc đó).
+    // Giữ kích thước deps cố định để tránh lỗi "deps array changed size".
+    isWeightRange ? 0 : displayPickedQuantity,
+  ]);
+
+  const formikKey = isWeightRange
+    ? `wr-${currentProduct?.id ?? 'none'}`
+    : `pick-${currentProduct?.id ?? 'none'}`;
 
   return (
     <Formik
+      key={formikKey}
       initialValues={initialValues}
       validateOnChange
       onSubmit={onSubmit}
-      enableReinitialize={true}
+      enableReinitialize={!isWeightRange}
     >
       {({ values, handleBlur, setFieldValue, handleSubmit, setErrors }) => {
-        const isError =
-          Number(values?.pickedQuantity) < Number(orderQuantity) &&
-          !values?.pickedErrorType;
+        const isError = isWeightRange
+          ? (values?.weightRangeItemKGs?.length ?? 0) === 0 &&
+            !values?.pickedErrorType
+          : Number(values?.pickedQuantity) < Number(orderQuantity) &&
+            !values?.pickedErrorType;
+
+        const weightRangeItemsRef = useRef<number[]>([]);
+        weightRangeItemsRef.current = values?.weightRangeItemKGs ?? [];
+
+        // Drain pending KG từ scan → form (chạy ở Formik, không phụ thuộc WeightRangeLineItems mount)
+        useLayoutEffect(() => {
+          if (!isShowAmountInput || !isWeightRange) return;
+          if (weightRangePendingScanKGs.length === 0) return;
+
+          const pending = drainWeightRangePendingScanKGs();
+          if (pending.length === 0) return;
+
+          setFieldValue('weightRangeItemKGs', [
+            ...weightRangeItemsRef.current,
+            ...pending,
+          ]);
+        }, [
+          isShowAmountInput,
+          isWeightRange,
+          weightRangePendingScanKGs,
+          setFieldValue,
+        ]);
 
         useEffect(() => {
           if (action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
-            setFieldValue('pickedQuantity', 0);
+            if (!isWeightRange) {
+              setFieldValue('pickedQuantity', 0);
+            }
+            // WeightRange: chỉ set mặc định lần đầu; user đổi lý do thì giữ nguyên
+            if (!isWeightRange || !values?.pickedErrorType) {
+              setFieldValue(
+                'pickedErrorType',
+                PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK,
+              );
+            }
+          } else if (action && QUICK_ACTION_TO_ERROR_TYPE[action]) {
             setFieldValue(
               'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK,
+              QUICK_ACTION_TO_ERROR_TYPE[action],
             );
-          } else if (action === PRODUCT_ACTIONS.LOW_QUALITY) {
-            setFieldValue(
-              'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE,
-            );
-          } else if (action === PRODUCT_ACTIONS.NEAR_EXPIRY) {
-            setFieldValue(
-              'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED,
-            );
-          } else if (action === PRODUCT_ACTIONS.EXPIRED_ONLINE) {
-            setFieldValue(
-              'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE,
-            );
-          } else if (action === PRODUCT_ACTIONS.INCORRECT_STOCK) {
-            setFieldValue(
-              'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.INCORRECT_STOCK,
-            );
-          } else if (action === PRODUCT_ACTIONS.IN_CART_OFFLINE_CUSTOMER) {
-            setFieldValue(
-              'pickedErrorType',
-              PRODUCT_PICKED_ERROR_TYPES.IN_CART_OFFLINE_CUSTOMER,
-            );
-          } else {
+          } else if (!isWeightRange) {
             setFieldValue('pickedQuantity', displayPickedQuantity.toString());
           }
-        }, [action, setFieldValue, isShowAmountInput, displayPickedQuantity]);
+        }, [
+          action,
+          setFieldValue,
+          isShowAmountInput,
+          displayPickedQuantity,
+          isWeightRange,
+          values?.pickedErrorType,
+        ]);
 
         return (
           <SBottomSheet
@@ -1113,7 +1105,7 @@ const InputAmountPopup = () => {
             renderTitle={renderTitle}
             ref={inputBottomSheetRef}
             snapPoints={[bottomSheetHeight]}
-            onClose={reset}
+            onClose={handleSheetClose}
             visible={isShowAmountInput}
           >
             <FormContent
@@ -1130,7 +1122,6 @@ const InputAmountPopup = () => {
               productPickedErrorTypes={productPickedErrorTypes}
               isError={isError}
               quantityFromBarcode={quantityFromBarcode}
-              weightRangeQuantityFromScan={weightRangeQuantityFromScan}
               shoudShowBoxInput={isUnitBox}
               shouldShowWeightRangeInput={isWeightRange}
               onInputFocus={handleInputFocus}

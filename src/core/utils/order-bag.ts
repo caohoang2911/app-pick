@@ -170,15 +170,20 @@ export const handleScanBarcode = ({
   orderPickProductsFlat,
   currentId,
   isEditManual,
+  isScanMoreProduct = false,
   barcode,
 }: {
   orderPickProductsFlat: Array<Product>;
   currentId: number | null;
   isEditManual: boolean;
+  isScanMoreProduct?: boolean;
   barcode: string;
 }): number => {
-  if (isEditManual && currentId !== null) {
-    return orderPickProductsFlat.findIndex((item) => item?.id === currentId);
+  if ((isEditManual || isScanMoreProduct) && currentId !== null) {
+    const index = orderPickProductsFlat.findIndex(
+      (item) => item?.id === currentId,
+    );
+    if (index !== -1) return index;
   }
 
   const indexWithoutPickedTime = orderPickProductsFlat.findIndex(

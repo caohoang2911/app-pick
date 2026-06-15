@@ -482,7 +482,16 @@ const OrderPickProduct = memo(
                   {!!orderQuantityConversion && (
                     <>
                       <Badge
-                        label={`${orderQuantityConversion?.quantity} x ${orderQuantityConversion?.unit}`}
+                        className="self-start"
+                        label={
+                          <>
+                            {`${orderQuantityConversion.quantity} x `}
+                            <UnitText
+                              unit={orderQuantityConversion.unit}
+                              orderQuantityConversion
+                            />
+                          </>
+                        }
                         variant="purple"
                       />
                     </>

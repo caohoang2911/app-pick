@@ -19,11 +19,14 @@ interface OrdersState {
   currentId: number | null;
   isEditManual: boolean;
   isScanMoreProduct: boolean;
-  weightRangeQuantityFromScan: number;
+  /** Các KG đã quét, chờ form append vào weightRangeItemKGs. */
+  weightRangePendingScanKGs: number[];
   action: ProductAction | null;
   setAction: (action: ProductAction | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
-  setWeightRangeQuantityFromScan: (qty: number) => void;
+  appendWeightRangeScanKg: (kg: number) => void;
+  drainWeightRangePendingScanKGs: () => number[];
+  clearWeightRangePendingScanKGs: () => void;
   setIsEditManual: (isEditManual: boolean, action?: ProductAction) => void;
   setKeyword: (keyword: string) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -44,6 +47,9 @@ interface OrdersState {
   setIsPickedByManualBarcodeInput: (isManual: boolean) => void;
 }
 
+const roundWeightKg = (value: number) =>
+  Math.round(Number(value) * 1000) / 1000;
+
 const _useOrderPick = create<OrdersState>((set, get) => ({
   orderDetail: {} as OrderDetail,
   currentCode: null,
@@ -60,7 +66,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   currentId: null,
   isEditManual: false,
   isScanMoreProduct: false,
-  weightRangeQuantityFromScan: 0,
+  weightRangePendingScanKGs: [],
   action: null,
   replacePickedProductId: null,
   isVisibleReplaceProduct: false,
@@ -78,7 +84,7 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
       currentId: null,
       isEditManual: false,
       isScanMoreProduct: false,
-      weightRangeQuantityFromScan: 0,
+      weightRangePendingScanKGs: [],
       action: null,
       replacePickedProductId: null,
       isVisibleReplaceProduct: false,
@@ -94,8 +100,21 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
   setScanMoreProduct: (isScanMoreProduct: boolean) => {
     set({ isScanMoreProduct });
   },
-  setWeightRangeQuantityFromScan: (qty: number) => {
-    set({ weightRangeQuantityFromScan: Number(qty) || 0 });
+  appendWeightRangeScanKg: (kg: number) => {
+    const rounded = roundWeightKg(kg);
+    set((state) => ({
+      weightRangePendingScanKGs: [...state.weightRangePendingScanKGs, rounded],
+    }));
+  },
+  drainWeightRangePendingScanKGs: () => {
+    const pending = get().weightRangePendingScanKGs;
+    if (pending.length > 0) {
+      set({ weightRangePendingScanKGs: [] });
+    }
+    return pending;
+  },
+  clearWeightRangePendingScanKGs: () => {
+    set({ weightRangePendingScanKGs: [] });
   },
   setAction: (action: ProductAction | null) => {
     set({ action });
@@ -228,5 +247,11 @@ export const setIsVisibleReplaceProduct = (isVisibleReplaceProduct: boolean) =>
 export const setReplacePickedProductId = (id: number) =>
   _useOrderPick.getState().setReplacePickedProductId(id);
 
-export const setWeightRangeQuantityFromScan = (qty: number) =>
-  _useOrderPick.getState().setWeightRangeQuantityFromScan(qty);
+export const appendWeightRangeScanKg = (kg: number) =>
+  _useOrderPick.getState().appendWeightRangeScanKg(kg);
+
+export const drainWeightRangePendingScanKGs = () =>
+  _useOrderPick.getState().drainWeightRangePendingScanKGs();
+
+export const clearWeightRangePendingScanKGs = () =>
+  _useOrderPick.getState().clearWeightRangePendingScanKGs();
