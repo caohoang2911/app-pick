@@ -25,6 +25,7 @@ import {
   usePrintCodReceiptProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { queryClient } from '~/src/api/shared/api-provider';
@@ -100,6 +101,8 @@ const OrderScanToDelivery = () => {
     orderDetail,
   } = useOrderDetailForCode(code);
 
+  useOrderStatusAutoRefresh(code);
+
   useLayoutEffect(() => {
     if (code) {
       resetOrderBags();
@@ -116,11 +119,12 @@ const OrderScanToDelivery = () => {
   const { deliveryType, status, tags, handoverStatus, codAmount } =
     header || {};
 
-  const isOfflineHomeDelivery = deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY;
+  const isOfflineHomeDelivery =
+    deliveryType === ORDER_DELIVERY_TYPE.OFFLINE_HOME_DELIVERY;
 
   const handoverSuccessMessage = isOfflineHomeDelivery
-  ? 'Đã hoàn tất'
-  : 'Đã hoàn tất! Vui lòng đợi in hóa đơn'
+    ? 'Đã hoàn tất'
+    : 'Đã hoàn tất! Vui lòng đợi in hóa đơn';
 
   const groupShippingOrderCodes = header?.groupShippingOrderCodes;
   const groupKey = useMemo(() => getGroupShippingProgressKey(header), [header]);
@@ -183,7 +187,7 @@ const OrderScanToDelivery = () => {
     mutateAsync: processCreateInvoice,
     isPending: isLoadingCreateInvoice,
   } = useCreateInvoiceProcess({
-    onSuccess: () => {   
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
 
       if (isMultiGroup) {
@@ -193,7 +197,6 @@ const OrderScanToDelivery = () => {
       } else {
         router.back();
       }
-
     },
   });
 
@@ -206,7 +209,10 @@ const OrderScanToDelivery = () => {
     useCreateInvoiceFlow({
       onSuccess: async (orderCode) => {
         await invalidateOrderDetail();
-        const result = await handoverOrder({ orderCode: code, proofImages: uploadedImages });
+        const result = await handoverOrder({
+          orderCode: code,
+          proofImages: uploadedImages,
+        });
         if (result.error) {
           setLoading(false);
           showMessage({
@@ -215,7 +221,7 @@ const OrderScanToDelivery = () => {
           });
           return;
         }
-        
+
         await processCreateInvoice({ orderCode });
         if (!!Number(codAmount)) {
           setShowPrintReceipt(true);

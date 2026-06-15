@@ -17,6 +17,7 @@ import {
   usePrintCodReceiptProcess,
 } from '~/src/api/app-pick/use-create-invoice';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
 import { useStartSelfShipping } from '~/src/api/app-pick/use-start-self-shipping';
@@ -35,7 +36,7 @@ import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/inv
 import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
-import { setLoading } from '~/src/core/store/loading';  
+import { setLoading } from '~/src/core/store/loading';
 import { showMessage } from 'react-native-flash-message';
 import { setUploadedImages } from '~/src/core/store/order-scan-to-delivery';
 import {
@@ -64,6 +65,9 @@ const OrderScanToDelivery = () => {
     orderDetailError,
     orderDetail,
   } = useOrderDetailForCode(code);
+
+  useOrderStatusAutoRefresh(code);
+
   const [showPrintReceipt, setShowPrintReceipt] = useState(false);
 
   const header = orderDetail?.header as OrderDetailHeader | undefined;
@@ -114,14 +118,7 @@ const OrderScanToDelivery = () => {
     ) {
       router.replace(scanInfo.route);
     }
-  }, [
-    isOrderDetailLoading,
-    header,
-    deliveryType,
-    status,
-    code,
-    shipping,
-  ]);
+  }, [isOrderDetailLoading, header, deliveryType, status, code, shipping]);
 
   const invalidateOrderDetail = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });

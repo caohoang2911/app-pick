@@ -22,9 +22,11 @@ import {
   useOrderBag,
 } from '~/src/core/store/order-bag';
 import { transformBagsData } from '~/src/core/utils/order-bag';
+import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 
 const UNSAVED_BAG_TITLE = 'Chưa lưu túi hàng';
-const UNSAVED_BAG_MSG = 'Bạn có thay đổi số túi chưa được lưu. Bạn có muốn tiếp tục không?';
+const UNSAVED_BAG_MSG =
+  'Bạn có thay đổi số túi chưa được lưu. Bạn có muốn tiếp tục không?';
 
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -32,6 +34,9 @@ const OrderBags = () => {
   const hasBagUnsavedRef = useRef(false);
   const { isOrderDetailLoading, orderDetailError, orderDetail } =
     useOrderDetailForCode(code);
+
+  useOrderStatusAutoRefresh(code);
+
   const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
 
   const orderBags = useOrderBag.use.orderBags();
@@ -84,20 +89,23 @@ const OrderBags = () => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove' as any, (e: any) => {
-      if (!hasBagUnsavedRef.current) return;
-      e.preventDefault();
-      showAlert({
-        title: UNSAVED_BAG_TITLE,
-        message: UNSAVED_BAG_MSG,
-        cancelText: 'Ở lại',
-        confirmText: 'Thoát',
-        onConfirm: () => {
-          hideAlert();
-          navigation.dispatch(e.data.action);
-        },
-      });
-    });
+    const unsubscribe = navigation.addListener(
+      'beforeRemove' as any,
+      (e: any) => {
+        if (!hasBagUnsavedRef.current) return;
+        e.preventDefault();
+        showAlert({
+          title: UNSAVED_BAG_TITLE,
+          message: UNSAVED_BAG_MSG,
+          cancelText: 'Ở lại',
+          confirmText: 'Thoát',
+          onConfirm: () => {
+            hideAlert();
+            navigation.dispatch(e.data.action);
+          },
+        });
+      },
+    );
     return unsubscribe;
   }, [navigation]);
 

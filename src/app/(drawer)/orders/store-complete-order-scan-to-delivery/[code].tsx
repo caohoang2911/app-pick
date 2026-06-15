@@ -15,6 +15,7 @@ import React, {
 import { Dimensions, Text, View } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { showMessage } from 'react-native-flash-message';
 import { useValidateDeliveryOrderFail } from '~/src/api/app-pick/use-validate-delivery-order-fail';
@@ -51,6 +52,8 @@ const OrderScanToDelivery = () => {
     orderDetailError,
     orderDetail,
   } = useOrderDetailForCode(code);
+
+  useOrderStatusAutoRefresh(code);
 
   const header = orderDetail?.header;
   const { tags, status, codAmount, deliveryType, shipping } =

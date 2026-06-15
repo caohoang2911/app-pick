@@ -3,6 +3,7 @@ import React, { useLayoutEffect } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
+import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import InvoiceInfo from '~/src/components/order-invoice/invoice-info';
 import InvoiceProducts from '~/src/components/order-invoice/invoice-products';
 import ShippingInfo from '~/src/components/order-invoice/shipping-info';
@@ -14,6 +15,8 @@ const OrderInvoice = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const { isOrderDetailLoading, orderDetailError } =
     useOrderDetailForCode(code);
+
+  useOrderStatusAutoRefresh(code);
 
   useLayoutEffect(() => {
     navigation.setOptions({

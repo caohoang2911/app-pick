@@ -25,6 +25,7 @@ import {
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
+import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { splitBarcode } from '~/src/core/utils/number';
 import {
   handleScanBarcode,
@@ -41,6 +42,8 @@ const OrderPick = () => {
 
   const { isOrderDetailLoading, orderDetailError } =
     useOrderDetailForCode(code);
+
+  useOrderStatusAutoRefresh(code);
 
   useEffect(() => {
     if (!code) return;

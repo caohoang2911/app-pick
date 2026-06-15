@@ -6,8 +6,14 @@ import { getToken } from '~/src/core/store/auth/utils';
 import { Env } from '~/env';
 import { isDevelopment } from '~/src/core/env';
 import CrashlyticsService from '~/src/core/utils/crashlytics';
+import { markPostEnd, markPostStart } from './http-busy';
 
-const BLACK_LIST_SHOW_MESSAGE = ['/app-pick/getStoreEmployeeProfile'];
+const BLACK_LIST_SHOW_MESSAGE = [
+  '/app-pick/getStoreEmployeeProfile',
+  // getOrderStatus là poll nền 3s/lần của auto-refresh — không show flash khi lỗi.
+  '/app-pick/getOrderStatus',
+  '/app-pick-driver/getOrderStatus',
+];
 const PUBLIC_AUTH_ENDPOINTS = [
   'auth/genHRVLoginURL',
   'auth/authorizeUserPassword',
@@ -92,6 +98,13 @@ axiosClient.interceptors.response.use(
   function (
     response: AxiosResponse & { error?: string },
   ): AxiosResponse & { error?: string } {
+    // Resume timer auto-refresh: POST đã có response (thành công).
+    const successCfg = response.config as any;
+    if (successCfg?.__postTracked) {
+      successCfg.__postTracked = false;
+      markPostEnd();
+    }
+
     // Log API responses in development
     if (isDevelopment()) {
       console.log('📥 API Response:', {
@@ -135,6 +148,13 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    // Resume timer auto-refresh: POST đã có response (kể cả khi lỗi).
+    const errorCfg = error.config as any;
+    if (errorCfg?.__postTracked) {
+      errorCfg.__postTracked = false;
+      markPostEnd();
+    }
+
     // Log API errors in development
     if (isDevelopment()) {
       console.log('❌ API Error:', {
@@ -203,6 +223,13 @@ axiosClient.interceptors.request.use(function (config: any) {
         zas: config.headers.zas ? config.headers.zas : 'none',
       },
     });
+  }
+
+  // Pause timer auto-refresh khi bắt đầu một POST. Đặt ngay trước `return config`
+  // để mọi nhánh return sớm phía trên không bị tính (và do đó không cần giảm lại).
+  if (String(config.method || '').toLowerCase() === 'post') {
+    config.__postTracked = true;
+    markPostStart();
   }
 
   return config;
