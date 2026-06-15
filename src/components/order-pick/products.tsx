@@ -45,12 +45,10 @@ const ProductItem = memo(
   ({
     item,
     isLast,
-    pickingBarcode,
     statusOrder,
   }: {
     item: Product | ProductItemGroup | any;
     isLast: boolean;
-    pickingBarcode: string;
     statusOrder?: string;
   }) => {
     const renderProduct = () => {
@@ -58,7 +56,6 @@ const ProductItem = memo(
         return (
           <ProductCombo
             statusOrder={statusOrder || ''}
-            pickingBarcode={pickingBarcode}
             combo={item as ProductItemGroup}
           />
         );
@@ -67,7 +64,6 @@ const ProductItem = memo(
         return (
           <ProductGift
             statusOrder={statusOrder || ''}
-            pickingBarcode={pickingBarcode}
             giftPack={item as ProductItemGroup}
           />
         );
@@ -75,7 +71,6 @@ const ProductItem = memo(
       return (
         <OrderPickProduct
           statusOrder={statusOrder || ''}
-          pickingBarcode={pickingBarcode}
           {...(item.elements?.[0] as Product)}
         />
       );
@@ -263,14 +258,6 @@ const OrderPickProducts = () => {
   // Có delivery nhưng store chưa hydrate → list rỗng; vẫn hiện Empty thay vì khoảng trắng
   const listIsEmpty = !filteredProducts?.length;
 
-  const getPickingBarcode = useMemo(() => {
-    return (
-      orderPickProductsFlat.find((product: Product) => {
-        return !product.pickedTime;
-      })?.barcode || ''
-    );
-  }, [orderPickProductsFlat]);
-
   const filteredProductsLength = filteredProducts?.length ?? 0;
   const statusOrder = orderDetail?.header?.status as string | undefined;
   const prevStatusOrderRef = useRef<string | undefined>();
@@ -292,15 +279,10 @@ const OrderPickProducts = () => {
       const isLast = index === filteredProductsLength - 1;
 
       return (
-        <ProductItem
-          statusOrder={statusOrder}
-          item={item}
-          isLast={isLast}
-          pickingBarcode={getPickingBarcode}
-        />
+        <ProductItem statusOrder={statusOrder} item={item} isLast={isLast} />
       );
     },
-    [filteredProductsLength, getPickingBarcode, statusOrder],
+    [filteredProductsLength, statusOrder],
   );
 
   const scrollTargetIndex = useMemo(() => {

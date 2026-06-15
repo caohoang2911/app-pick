@@ -6,6 +6,7 @@ import {
 } from '~/src/types/order-bag';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { toUpper } from 'lodash';
+import { Env } from '~/env';
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -99,6 +100,13 @@ const matchesRefBarcodeKeyword = (
   keywordUpper: string,
 ): boolean => {
   const barcodeUpper = toUpper(refBarcode);
+
+  // Prod: chỉ so sánh bằng (exact match) để tránh khớp nhầm theo đuôi mã.
+  if (Env.IS_PRODUCTION) {
+    return barcodeUpper === keywordUpper;
+  }
+
+  // Dev: giữ logic hiện tại (khớp bằng hoặc khớp đuôi >= MIN_SUFFIX_BARCODE_LENGTH ký tự).
   return (
     barcodeUpper === keywordUpper ||
     (keywordUpper.length >= MIN_SUFFIX_BARCODE_LENGTH &&

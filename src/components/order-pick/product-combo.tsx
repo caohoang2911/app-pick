@@ -8,11 +8,9 @@ const COMBO_COLOR = '#7F7F7F';
 const ProductCombo = ({
   combo,
   statusOrder,
-  pickingBarcode,
 }: {
   combo: ProductItemGroup;
   statusOrder: string;
-  pickingBarcode: string;
 }) => {
   const { elementRatio } = combo || {};
 
@@ -71,7 +69,6 @@ const ProductCombo = ({
                 {...product}
                 isHiddenTag
                 statusOrder={statusOrder}
-                pickingBarcode={pickingBarcode}
               />
             </Fragment>
           ))}

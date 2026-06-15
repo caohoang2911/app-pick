@@ -8,6 +8,7 @@ import { toLower } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
+import { isDevelopment } from '~/src/core/env';
 import {
   setIsEditManual,
   setKeyword,
@@ -89,6 +90,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
     header || {};
 
   const shouldDisplayQrScan = useCanEditOrderPick(code as string);
+  const barcodeKeyboardType = isDevelopment() ? 'default' : 'number-pad';
 
   return (
     <View className="px-4 bg-white">
@@ -129,7 +131,7 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
         <Input
           className="flex-grow"
           placeholder="Nhập barcode để pick"
-          keyboardType="number-pad"
+          keyboardType={barcodeKeyboardType}
           prefix={
             <MaterialCommunityIcons name="barcode" size={24} color="gray" />
           }

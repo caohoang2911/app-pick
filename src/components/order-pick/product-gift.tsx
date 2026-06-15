@@ -7,11 +7,9 @@ import { colors } from '~/src/ui/colors';
 const ProductCombo = ({
   giftPack,
   statusOrder,
-  pickingBarcode,
 }: {
   giftPack: GiftPack;
   statusOrder: string;
-  pickingBarcode: string;
 }) => {
   const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
     return product.pickedQuantity === 0 || product.pickedQuantity === null;
@@ -35,7 +33,6 @@ const ProductCombo = ({
               index={index}
               disable={isHasPickedQuantity}
               statusOrder={statusOrder}
-              pickingBarcode={pickingBarcode}
             />
           ))}
         </View>
