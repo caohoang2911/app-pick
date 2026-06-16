@@ -94,6 +94,7 @@ const SDropdown = ({
   const [isFocus, setIsFocus] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [listContentHeight, setListContentHeight] = useState(0);
   const ref = useRef<any>(null);
   const scrollRef = useRef<any>(null);
   const contentHeightRef = useRef(0);
@@ -114,6 +115,19 @@ const SDropdown = ({
     return Math.max(120, resolvedModalHeight - 64);
   }, [resolvedModalHeight]);
 
+  const MODAL_HEADER_HEIGHT = 49;
+
+  const fittedModalHeight = useMemo(() => {
+    if (listContentHeight <= 0) return resolvedModalHeight;
+    const naturalHeight = MODAL_HEADER_HEIGHT + listContentHeight;
+    return Math.min(resolvedModalHeight, Math.max(220, naturalHeight));
+  }, [listContentHeight, resolvedModalHeight]);
+
+  const fittedScrollHeight = useMemo(() => {
+    if (listContentHeight <= 0) return resolvedScrollHeight;
+    return Math.min(resolvedScrollHeight, listContentHeight);
+  }, [listContentHeight, resolvedScrollHeight]);
+
   const selectedItem = data.find((item: any) => item[valueField] === value);
   const selectedIndex = data.findIndex(
     (item: any) => item[valueField] === value,
@@ -129,6 +143,7 @@ const SDropdown = ({
   useEffect(() => {
     if (mode === 'modal' && !modalVisible) {
       hasScrolledToSelectedRef.current = false;
+      setListContentHeight(0);
     }
   }, [mode, modalVisible]);
   const displayText = selectedItem
@@ -226,7 +241,7 @@ const SDropdown = ({
             }}
           >
             <Pressable
-              style={[styles.modalContent, { maxHeight: resolvedModalHeight }]}
+              style={[styles.modalContent, { maxHeight: fittedModalHeight }]}
               onPress={(e) => e.stopPropagation()}
             >
               <View style={styles.modalHeader}>
@@ -247,19 +262,20 @@ const SDropdown = ({
               <View
                 style={[
                   styles.modalScrollWrap,
-                  { maxHeight: resolvedScrollHeight },
+                  { maxHeight: fittedScrollHeight },
                 ]}
               >
                 <ScrollView
                   ref={scrollRef}
                   style={[
                     styles.modalScroll,
-                    { maxHeight: resolvedScrollHeight },
+                    { maxHeight: fittedScrollHeight },
                   ]}
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator
                   onContentSizeChange={(_w, h) => {
                     contentHeightRef.current = h;
+                    setListContentHeight(h);
                     const layoutH = scrollLayoutHeightRef.current;
                     setShowScrollDown(layoutH > 0 && h > layoutH);
                     if (
@@ -437,7 +453,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     maxHeight: 400,
-    paddingBottom: 10,
   },
   modalHeader: {
     flexDirection: 'row',

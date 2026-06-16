@@ -1,7 +1,11 @@
 import { PRODUCT_PICKED_ERROR_TYPES } from '@/core/constants/product';
 import { Feather } from '@expo/vector-icons';
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import {
+  NativeViewGestureHandler,
+  ScrollView,
+} from 'react-native-gesture-handler';
 import {
   setScanMoreProduct,
   toggleScanQrCodeProduct,
@@ -105,47 +109,56 @@ const WeightRangeLineItems = memo(function WeightRangeLineItems({
     );
   }, [orderQuantityConversion?.unit]);
 
-  const renderItem = (weight: number, index: number) => (
-    <View
-      key={index}
-      className="flex-row items-center bg-purple-50 rounded-lg px-3 h-11"
-    >
-      <Text
-        className="flex-1 shrink text-sm font-medium text-gray-700"
-        numberOfLines={1}
+  const renderItem = useCallback(
+    (weight: number, index: number) => (
+      <View
+        key={index}
+        className="flex-row items-center justify-between bg-purple-50 rounded-lg px-3 h-11"
       >
-        {`1 x ${unitName}  `}
-        <Text className="font-bold text-colorPrimary">{weight}KG</Text>
-      </Text>
-      {editable && (
-        <Pressable
-          onPress={() => handleDelete(index)}
-          hitSlop={8}
-          className="ml-2 p-1"
-        >
-          <Feather name="trash-2" size={18} color="#7c3aed" />
-        </Pressable>
-      )}
-    </View>
+        <View className="flex-row items-center flex-1 shrink mr-2">
+          {editable && (
+            <Pressable
+              onPress={() => handleDelete(index)}
+              hitSlop={8}
+              className="p-1 mr-2"
+            >
+              <Feather name="trash-2" size={18} color="#7c3aed" />
+            </Pressable>
+          )}
+          <Text
+            className="shrink text-sm font-medium text-gray-700"
+            numberOfLines={1}
+          >
+            {`1 x ${unitName}`}
+          </Text>
+        </View>
+        <Text className="text-sm font-bold text-colorPrimary">{weight}KG</Text>
+      </View>
+    ),
+    [unitName, editable, handleDelete],
   );
 
   return (
-    <View className="flex-row items-start gap-3">
+    <View className="flex-row items-start gap-5">
       <View className="flex-1">
         {items.length === 0 ? (
           <Text className="text-sm text-gray-400 mt-3">
             Bấm Pick thêm để quét từng item.
           </Text>
         ) : (
-          <ScrollView
-            nestedScrollEnabled
-            showsVerticalScrollIndicator
-            keyboardShouldPersistTaps="handled"
-            style={{ maxHeight: WEIGHT_RANGE_LIST_MAX_HEIGHT }}
-            contentContainerStyle={{ gap: WEIGHT_RANGE_ITEM_GAP }}
-          >
-            {[...items].map(renderItem)}
-          </ScrollView>
+          <NativeViewGestureHandler disallowInterruption>
+            <ScrollView
+              nestedScrollEnabled
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator
+              bounces={false}
+              overScrollMode="never"
+              style={{ maxHeight: WEIGHT_RANGE_LIST_MAX_HEIGHT }}
+              contentContainerStyle={{ gap: WEIGHT_RANGE_ITEM_GAP }}
+            >
+              {items.map(renderItem)}
+            </ScrollView>
+          </NativeViewGestureHandler>
         )}
       </View>
 

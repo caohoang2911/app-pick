@@ -364,6 +364,14 @@ const ReasonDropdown = memo(
     const { unit } = currentProduct || {};
 
     useEffect(() => {
+      if (
+        isWeightRange &&
+        values?.pickedErrorType ===
+          PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT
+      ) {
+        setFieldValue('pickedErrorType', '');
+        return;
+      }
       if (isWeightRange) {
         if (!isWeightRangeEnough || !values?.pickedErrorType) return;
         setFieldValue('pickedErrorType', '');
@@ -396,22 +404,24 @@ const ReasonDropdown = memo(
     }, [setFieldValue, isDisabled]);
 
     const productPickedErrorsWithUnit = useMemo(() => {
-      // return productPickedErrorTypes.map((item: any) => item.id !== 'INCORRECT_ORDERED_WEIGHT');
       return productPickedErrorTypes
         .map((item: any) =>
-          item.id === 'INCORRECT_ORDERED_WEIGHT'
-            ? { ...item, disabled: toLower(unit) !== 'kg' }
+          item.id === PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT
+            ? {
+                ...item,
+                disabled: isWeightRange || toLower(unit) !== 'kg',
+              }
             : item,
         )
         ?.reverse();
-    }, [productPickedErrorTypes, unit]);
+    }, [productPickedErrorTypes, unit, isWeightRange]);
 
     const dropdownModalHeight = useMemo(() => {
       const screenHeight = Dimensions.get('window').height;
       const maxHeight = Math.floor(screenHeight * 0.75);
       const itemCount = productPickedErrorsWithUnit?.length || 0;
-      const estimatedItemHeight = 52;
-      const baseHeight = 170; // title, search/input, paddings
+      const estimatedItemHeight = 48;
+      const baseHeight = 49; // modal header
       const calculatedHeight = baseHeight + itemCount * estimatedItemHeight;
       return Math.min(maxHeight, calculatedHeight);
     }, [productPickedErrorsWithUnit]);
@@ -552,18 +562,15 @@ const FormContent = memo(
     values,
     handleBlur,
     setFieldValue,
-    handleSubmit,
     setErrors,
     currentProduct,
     quantity,
     productPickedErrorTypes,
-    isError,
     action,
     quantityInit,
     quantityFromBarcode,
     shoudShowBoxInput,
     shouldShowWeightRangeInput,
-    isLoading,
     onInputFocus,
   }: any) => {
     // Init số lượng + hộp thùng khi đổi sản phẩm
@@ -589,7 +596,7 @@ const FormContent = memo(
     ]);
 
     return (
-      <View className="px-4 mt-4 pb-8 gap-4">
+      <View className="px-4 mt-4 pb-4 gap-4">
         {!shouldShowWeightRangeInput && (
           <QuantitySection
             values={values}
@@ -631,14 +638,6 @@ const FormContent = memo(
           currentProduct={currentProduct}
           isWeightRange={shouldShowWeightRangeInput}
         />
-        <View>
-          <Button
-            onPress={handleSubmit}
-            label={'Xác nhận'}
-            disabled={isError}
-            loading={isLoading}
-          />
-        </View>
       </View>
     );
   },
@@ -1030,7 +1029,7 @@ const InputAmountPopup = () => {
   ]);
 
   const formikKey = isWeightRange
-    ? `wr-${currentProduct?.id ?? 'none'}`
+    ? `wr-${currentProduct?.id ?? 'none'}-${isShowAmountInput}`
     : `pick-${currentProduct?.id ?? 'none'}`;
 
   return (
@@ -1107,20 +1106,33 @@ const InputAmountPopup = () => {
             snapPoints={[bottomSheetHeight]}
             onClose={handleSheetClose}
             visible={isShowAmountInput}
+            enablePanDownToClose={!isWeightRange}
+            enableHandlePanningGesture={!isWeightRange}
+            enableContentPanningGesture={!isWeightRange}
+            extraButton={
+              <View
+                className="px-4 pt-3 border-t border-gray-200 bg-white"
+                style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+              >
+                <Button
+                  onPress={() => handleSubmit()}
+                  label="Xác nhận"
+                  disabled={isError}
+                  loading={isSetOrderTemToPickedPending}
+                />
+              </View>
+            }
           >
             <FormContent
-              isLoading={isSetOrderTemToPickedPending}
               values={values}
               handleBlur={handleBlur}
               setFieldValue={setFieldValue}
-              handleSubmit={handleSubmit}
               setErrors={setErrors}
               currentProduct={currentProduct}
               quantityInit={currentProduct?.orderQuantity}
               quantity={displayPickedQuantity}
               action={action}
               productPickedErrorTypes={productPickedErrorTypes}
-              isError={isError}
               quantityFromBarcode={quantityFromBarcode}
               shoudShowBoxInput={isUnitBox}
               shouldShowWeightRangeInput={isWeightRange}
