@@ -20,7 +20,7 @@ import {
   CameraDevice,
   useCameraDevice,
 } from 'react-native-vision-camera';
-import { BarcodeScanningResult, ScanRegion } from '~/src/types/scanner';
+import { BarcodeScanningResult } from '~/src/types/scanner';
 import { Button } from '../Button';
 import useCarmera from '~/src/core/hooks/useCarmera';
 import { useOtaUpdateReadyModal } from '~/src/core/store/ota-update-modal';
@@ -45,6 +45,11 @@ const codeAvailableBarcode: BarcodeType[] = [
   'code-128',
   'upc-a',
 ];
+
+// Frame-processor throttle for barcode DECODING only — the camera preview
+// always renders at full rate regardless. 3 fps felt sluggish to lock onto a
+// code; 5 is noticeably snappier at a negligible extra CPU cost.
+const SCAN_FPS = 5;
 
 type Props = {
   visible?: boolean;
@@ -75,9 +80,7 @@ const ScannerBox = ({
   // ── Refs ──────────────────────────────────────────────────────────────────
   const mountedRef = useRef(true);
   const closeRequestedRef = useRef(false);
-  // FIX: Track if Camera has ever initialized — onInitialized only fires once
-  // since Camera never unmounts. Subsequent opens skip waiting for it.
-  const cameraHasInitializedRef = useRef(false);
+  // Fallback timer that reveals the preview if onPreviewStarted never fires.
   const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Always point to latest props — avoids stale closures inside worklet callbacks
@@ -110,43 +113,45 @@ const ScannerBox = ({
   }, [isQRScanner]);
 
   useEffect(() => {
-    if (pendingRestart) {
-      isActiveShared.value = false;
-      scannedShared.value = false;
-      return;
-    }
-
     if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
 
     scannedShared.value = false;
     closeRequestedRef.current = false;
 
-    if (visible) {
+    if (visible && !pendingRestart) {
+      // Start fully black. The overlay is faded out only once the preview
+      // delivers its first real frame (onPreviewStarted) — no blind delay and
+      // no flash of the previous, frozen frame.
       isActiveShared.value = true;
+      setIsCameraReady(false);
       overlayOpacity.setValue(1);
 
-      if (cameraHasInitializedRef.current) {
-        overlayTimerRef.current = setTimeout(() => {
-          if (!mountedRef.current) return;
-          setIsCameraReady(true);
-        }, 300);
-      } else {
-        setIsCameraReady(false);
-      }
+      // Safety net: reveal anyway if onPreviewStarted never arrives (e.g. an
+      // edge device that doesn't emit it). Cleared the moment it does fire.
+      overlayTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) setIsCameraReady(true);
+      }, 800);
     } else {
+      // Pre-black the overlay NOW so the next open's very first painted frame
+      // is already opaque — this is what kills the reopen flash.
       isActiveShared.value = false;
       setIsCameraReady(false);
+      overlayOpacity.setValue(1);
     }
   }, [visible, pendingRestart]);
 
   useEffect(() => {
-    if (!visible) return;
-    Animated.timing(overlayOpacity, {
-      toValue: isCameraReady ? 0 : 1,
-      duration: isCameraReady ? 180 : 120,
+    // The overlay is forced opaque synchronously above; here we only animate
+    // the fade-OUT, and only once the live preview is actually up.
+    if (!isCameraReady) return;
+    const anim = Animated.timing(overlayOpacity, {
+      toValue: 0,
+      duration: 200,
       useNativeDriver: true,
-    }).start();
-  }, [isCameraReady, visible]);
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [isCameraReady]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleRequestPermission = useCallback(() => {
@@ -162,14 +167,18 @@ const ScannerBox = ({
     setCurrentScannerType((prev) => !prev);
   }, []);
 
-  // FIX: onInitialized only fires on first mount since Camera never unmounts.
-  // Mark the flag so subsequent opens know to dismiss overlay themselves.
-  const handleCameraReady = useCallback(() => {
-    overlayTimerRef.current = setTimeout(() => {
-      if (!mountedRef.current) return;
-      cameraHasInitializedRef.current = true;
-      setIsCameraReady(true);
-    }, 200);
+  // Fires when the preview renders its FIRST frame after each session start —
+  // the exact moment it's safe to fade the black overlay out. Works on every
+  // open because the session stops/starts with isActive.
+  const handlePreviewStarted = useCallback(() => {
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    if (mountedRef.current) setIsCameraReady(true);
+  }, []);
+
+  // Never leave the user staring at a black overlay if the session errors out.
+  const handleCameraError = useCallback(() => {
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    if (mountedRef.current) setIsCameraReady(true);
   }, []);
 
   const handleTapFocus = useCallback(async (e: any) => {
@@ -212,7 +221,7 @@ const ScannerBox = ({
   // FIX: Both hooks are always called (no conditional hook calls).
   // The active one is chosen at render time via spread props.
   const { props: qrCameraProps } = useBarcodeScanner({
-    fps: 3,
+    fps: SCAN_FPS,
     barcodeTypes: ['qr'],
     regionOfInterest: QR_VISION_REGION,
     scanMode: 'continuous',
@@ -226,7 +235,7 @@ const ScannerBox = ({
   });
 
   const { props: barcodeCameraProps } = useBarcodeScanner({
-    fps: 3,
+    fps: SCAN_FPS,
     barcodeTypes: codeAvailableBarcode,
     regionOfInterest: BARCODE_VISION_REGION,
     scanMode: 'continuous',
@@ -292,14 +301,18 @@ const ScannerBox = ({
                 ref={cameraRef}
                 style={styles.camera}
                 device={device as CameraDevice}
-                // FIX: isActive controls the native session — never rely on
-                // unmounting the Camera component to "stop" the camera.
-                isActive={!!visible && !pendingRestart}
-                onInitialized={handleCameraReady}
                 videoStabilizationMode="off"
                 photoHdr={false}
                 videoHdr={false}
                 {...(currentScannerType ? qrCameraProps : barcodeCameraProps)}
+                // FIX: isActive controls the native session — never rely on
+                // unmounting the Camera to "stop" it. Declared AFTER the
+                // scanner prop spread so these can never be overridden by it.
+                isActive={!!visible && !pendingRestart}
+                // Fade the black overlay out exactly when the preview shows its
+                // first real frame — no blind timer, no flash of a stale frame.
+                onPreviewStarted={handlePreviewStarted}
+                onError={handleCameraError}
               />
             </Pressable>
 
