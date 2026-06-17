@@ -31,6 +31,10 @@ import { Badge } from '../Badge';
 import SImage from '../SImage';
 import MoreActionsBtn from './more-actions-btn';
 import { UnitText } from './unit-text';
+import {
+  getWeightRangeOrderQuantity,
+  parseWeightRangeItemKGs,
+} from './weight-range-line-items';
 import { colors } from '~/src/ui/colors';
 // Base design width — iPhone 14 Pro
 const BASE_WIDTH = 390;
@@ -48,61 +52,66 @@ const Row = memo(
     value,
     unit,
     warning = false,
+    unitIsConversion = false,
+    compact = false,
   }: {
     label: string;
     value: string;
     unit?: string;
     warning?: boolean;
+    unitIsConversion?: boolean;
+    compact?: boolean;
   }) => {
     const scale = useCardScale();
-    const labelW = Math.round(50 * scale);
-    const valueW = Math.round(55 * scale);
-    const fontSize = Math.max(11, Math.round(13 * scale));
-    const unitFontSize = Math.max(10, fontSize - 2);
-    const unitColorClass = warning ? 'text-red-500' : '';
+    const labelW = Math.round(56 * scale);
+    const baseFont = Math.max(11, Math.round(13 * scale));
+
+    // Weight-range conversion units (e.g. "Bắp (0.25 - 0.4KG / Bắp)") are long.
+    // In compact mode the amount column is narrower to give the unit more room.
+    const valueFontSize = baseFont;
+    const valueMinW = Math.round((compact ? 18 : 28) * scale);
+    // Max unit size — adjustsFontSizeToFit shrinks it per row so the unit fills
+    // its column on one line (large when short, smaller when long): "vừa đủ".
+    const unitFontSize = baseFont;
+
+    const unitColorClass = unitIsConversion
+      ? 'text-purple-600'
+      : warning
+        ? 'text-red-500'
+        : '';
 
     return (
       <View style={styles.row}>
-        <View style={[styles.labelColumn, { width: labelW }]}>
-          <Text
-            className="text-gray-500"
+        <Text
+          className="text-gray-500"
+          numberOfLines={1}
+          style={[styles.label, { width: labelW, fontSize: baseFont }]}
+        >
+          {label}
+        </Text>
+        <Text
+          className={`font-semibold ${warning ? 'text-red-500' : 'text-gray-900'}`}
+          numberOfLines={1}
+          style={[
+            styles.value,
+            { fontSize: valueFontSize },
+            unit ? { minWidth: valueMinW } : styles.valueExpand,
+          ]}
+        >
+          {value}
+        </Text>
+        {unit ? (
+          <UnitText
+            unit={unit}
+            className={`font-medium ${unitColorClass}`}
             numberOfLines={1}
-            style={{ fontSize }}
-          >
-            {label}
-          </Text>
-        </View>
-        <View style={[styles.rowTrailing, !unit && styles.rowTrailingSingle]}>
-          <View
-            style={[
-              styles.valueColumn,
-              !!unit && { width: valueW },
-              !unit && styles.valueColumnExpand,
-            ]}
-          >
-            <Text
-              className={`font-medium ${warning ? 'text-red-500' : ''}`}
-              numberOfLines={1}
-              style={[
-                unit ? styles.valueText : styles.valueTextExpand,
-                { fontSize },
-              ]}
-            >
-              {value}
-            </Text>
-          </View>
-          {unit ? (
-            <View style={styles.unitColumn}>
-              <UnitText
-                unit={unit}
-                className={`font-medium ${unitColorClass}`}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={[styles.unitText, { fontSize: unitFontSize }]}
-              />
-            </View>
-          ) : null}
-        </View>
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+            ellipsizeMode="tail"
+            orderQuantityConversion={unitIsConversion}
+            style={[styles.unit, { fontSize: unitFontSize }]}
+          />
+        ) : null}
       </View>
     );
   },
@@ -320,6 +329,7 @@ const OrderPickProduct = memo(
     pickedNote,
     statusOrder,
     orderQuantityConversion,
+    pickedExtraQuantities,
   }: Partial<
     Product & {
       isAllowEditPickQuantity: boolean;
@@ -350,11 +360,46 @@ const OrderPickProduct = memo(
 
     const isDisable = false;
 
+    const isWeightRangeProduct = useMemo(
+      () =>
+        tags?.includes('WEIGHT_RANGE') ||
+        !!orderQuantityConversion?.weightRange?.length,
+      [tags, orderQuantityConversion?.weightRange],
+    );
+
+    const displayOrderQuantity = useMemo(() => {
+      if (isWeightRangeProduct) {
+        return getWeightRangeOrderQuantity({
+          orderQuantity: orderQuantity ?? 0,
+          orderQuantityConversion,
+        });
+      }
+      return orderQuantity;
+    }, [isWeightRangeProduct, orderQuantity, orderQuantityConversion]);
+
+    const displayPickedQuantity = useMemo(() => {
+      if (!isWeightRangeProduct) return pickedQuantity;
+
+      const pickedCount = parseWeightRangeItemKGs(
+        pickedExtraQuantities?.weightRangeItemKGs,
+      ).length;
+      return pickedCount > 0 ? pickedCount : undefined;
+    }, [
+      isWeightRangeProduct,
+      pickedExtraQuantities?.weightRangeItemKGs,
+      pickedQuantity,
+    ]);
+
+    const displayUnit = isWeightRangeProduct
+      ? (orderQuantityConversion?.unit ?? unit)
+      : unit;
+    const isDisplayUnitConversion =
+      isWeightRangeProduct && !!orderQuantityConversion?.unit;
+
     const orderQuantityNum = Number(orderQuantity);
     const allowedExcess = orderQuantityNum * 0.05; // 5% tolerance
 
     const isWarningOverQuantity = useMemo(() => {
-      const isWeightRangeProduct = tags?.includes('WEIGHT_RANGE');
       const pickedQuantityNum = Number(pickedQuantity);
 
       if (isWeightRangeProduct) {
@@ -362,12 +407,7 @@ const OrderPickProduct = memo(
       }
 
       return pickedQuantityNum > orderQuantityNum + allowedExcess;
-    }, [
-      pickedQuantity,
-      orderQuantity,
-      tags,
-      orderQuantityConversion?.weightRange,
-    ]);
+    }, [pickedQuantity, orderQuantityNum, allowedExcess, isWeightRangeProduct]);
 
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
@@ -385,7 +425,6 @@ const OrderPickProduct = memo(
         errorName: React.ReactNode;
         iconVariant?: 'default' | 'check';
       }> = [];
-      const isBulkProduct = tags?.includes('Hàng xá');
 
       if (pickedErrorName) {
         items.push({ key: 'pickedErrorName', errorName: pickedErrorName });
@@ -479,23 +518,6 @@ const OrderPickProduct = memo(
                       barcode={barcode}
                     />
                   </View>
-                  {!!orderQuantityConversion && (
-                    <>
-                      <Badge
-                        className="self-start"
-                        label={
-                          <>
-                            {`${orderQuantityConversion.quantity} x `}
-                            <UnitText
-                              unit={orderQuantityConversion.unit}
-                              orderQuantityConversion
-                            />
-                          </>
-                        }
-                        variant="purple"
-                      />
-                    </>
-                  )}
                 </View>
                 <View className="flex flex-row gap-1.5 justify-between flex-grow mt-3">
                   <View className="flex justify-between items-center">
@@ -525,20 +547,29 @@ const OrderPickProduct = memo(
                     <View className="flex gap-2 flex-1">
                       <Row
                         label="SL đặt"
-                        value={orderQuantity?.toString() || '--'}
-                        unit={unit}
+                        value={
+                          !isNil(displayOrderQuantity)
+                            ? displayOrderQuantity.toString()
+                            : '--'
+                        }
+                        unit={displayUnit}
+                        unitIsConversion={isDisplayUnitConversion}
+                        compact={isDisplayUnitConversion}
                       />
                       <Row
                         label="Đã pick"
                         value={
-                          !isNil(pickedQuantity)
-                            ? pickedQuantity?.toString()
+                          !isNil(displayPickedQuantity)
+                            ? displayPickedQuantity.toString()
                             : '--'
                         }
-                        unit={unit}
+                        unit={displayUnit}
+                        unitIsConversion={isDisplayUnitConversion}
                         warning={
-                          Number(pickedQuantity) != Number(orderQuantity)
+                          Number(displayPickedQuantity) !==
+                          Number(displayOrderQuantity)
                         }
+                        compact={isDisplayUnitConversion}
                       />
                       <Row
                         label="Tồn kho"
@@ -546,6 +577,7 @@ const OrderPickProduct = memo(
                           !isNil(stockOnhand) ? stockOnhand?.toString() : '--'
                         }
                         unit={unit}
+                        compact={isDisplayUnitConversion}
                       />
 
                       {hasSellPrice && (
@@ -554,6 +586,7 @@ const OrderPickProduct = memo(
                           value={
                             formatCurrency(sellPrice, { unit: true }) || '--'
                           }
+                          compact={isDisplayUnitConversion}
                         />
                       )}
 
@@ -628,43 +661,16 @@ const styles = StyleSheet.create({
     // sized dynamically via useCardScale in component
     aspectRatio: 1,
   },
-  row: { flexDirection: 'row', width: '100%', alignItems: 'center' },
-  labelColumn: { flexShrink: 0, marginRight: 6 },
-  rowTrailing: {
-    flex: 1,
-    flexShrink: 1,
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: 0,
-    justifyContent: 'flex-end',
-  },
-  rowTrailingSingle: {
-    justifyContent: 'flex-start',
-  },
-  valueColumn: {
-    flexShrink: 0,
-    marginRight: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  valueColumnExpand: {
-    flex: 1,
-    flexShrink: 1,
-    minWidth: 0,
-    marginRight: 0,
-  },
-  valueText: { textAlign: 'left', width: '100%' },
-  valueTextExpand: { textAlign: 'left', width: '100%' },
-  unitColumn: {
-    flex: 1,
-    flexShrink: 1,
-    minWidth: 0,
-    overflow: 'hidden',
-  },
-  unitText: {
     width: '100%',
-    textAlign: 'left',
+    alignItems: 'center',
+    columnGap: 6,
   },
+  label: { flexShrink: 0 },
+  value: { flexShrink: 0, textAlign: 'left' },
+  valueExpand: { flex: 1, minWidth: 0 },
+  unit: { flex: 1, minWidth: 0, textAlign: 'left' },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.9)',

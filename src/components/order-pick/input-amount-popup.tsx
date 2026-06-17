@@ -8,10 +8,12 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import {
   Dimensions,
   Keyboard,
+  Platform,
   Pressable,
   Text,
   useWindowDimensions,
@@ -647,6 +649,7 @@ const FormContent = memo(
 const InputAmountPopup = () => {
   const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isPickedByManualBarcodeInput =
@@ -861,6 +864,29 @@ const InputAmountPopup = () => {
     }
   }, [isShowAmountInput]);
 
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent =
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setIsKeyboardVisible(false);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isShowAmountInput) {
+      setIsKeyboardVisible(false);
+    }
+  }, [isShowAmountInput]);
+
   const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
   const isWeightRange = currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false;
   const weightRangePendingScanKGs =
@@ -918,6 +944,7 @@ const InputAmountPopup = () => {
 
   const handleInputFocus = useCallback(
     (field?: 'pickedQuantity' | 'fullBoxQuantity' | 'openedBoxQuantity') => {
+      setIsKeyboardVisible(true);
       requestAnimationFrame(() => {
         if (field === 'pickedQuantity') {
           inputBottomSheetRef.current?.scrollTo?.({ y: 0, animated: true });
@@ -1070,32 +1097,44 @@ const InputAmountPopup = () => {
         ]);
 
         useEffect(() => {
+          if (!isShowAmountInput) return;
+
           if (action === PRODUCT_ACTIONS.OUT_OF_STOCK) {
             if (!isWeightRange) {
               setFieldValue('pickedQuantity', 0);
-            }
-            // WeightRange: chỉ set mặc định lần đầu; user đổi lý do thì giữ nguyên
-            if (!isWeightRange || !values?.pickedErrorType) {
+              setFieldValue(
+                'pickedErrorType',
+                PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK,
+              );
+            } else if (!values?.pickedErrorType) {
+              // WeightRange: chỉ set mặc định lần đầu mở popup
               setFieldValue(
                 'pickedErrorType',
                 PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK,
               );
             }
-          } else if (action && QUICK_ACTION_TO_ERROR_TYPE[action]) {
+            return;
+          }
+
+          if (action && QUICK_ACTION_TO_ERROR_TYPE[action]) {
             setFieldValue(
               'pickedErrorType',
               QUICK_ACTION_TO_ERROR_TYPE[action],
             );
-          } else if (!isWeightRange) {
-            setFieldValue('pickedQuantity', displayPickedQuantity.toString());
           }
+        }, [action, isShowAmountInput, isWeightRange, setFieldValue]);
+
+        useEffect(() => {
+          if (!isShowAmountInput || isWeightRange) return;
+          if (action === PRODUCT_ACTIONS.OUT_OF_STOCK) return;
+
+          setFieldValue('pickedQuantity', displayPickedQuantity.toString());
         }, [
-          action,
-          setFieldValue,
           isShowAmountInput,
           displayPickedQuantity,
           isWeightRange,
-          values?.pickedErrorType,
+          action,
+          setFieldValue,
         ]);
 
         return (
@@ -1110,17 +1149,19 @@ const InputAmountPopup = () => {
             enableHandlePanningGesture={!isWeightRange}
             enableContentPanningGesture={!isWeightRange}
             extraButton={
-              <View
-                className="px-4 pt-3 border-t border-gray-200 bg-white"
-                style={{ paddingBottom: Math.max(insets.bottom, 16) }}
-              >
-                <Button
-                  onPress={() => handleSubmit()}
-                  label="Xác nhận"
-                  disabled={isError}
-                  loading={isSetOrderTemToPickedPending}
-                />
-              </View>
+              isKeyboardVisible ? undefined : (
+                <View
+                  className="px-4 pt-3 border-t border-gray-200 bg-white"
+                  style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+                >
+                  <Button
+                    onPress={() => handleSubmit()}
+                    label="Xác nhận"
+                    disabled={isError}
+                    loading={isSetOrderTemToPickedPending}
+                  />
+                </View>
+              )
             }
           >
             <FormContent

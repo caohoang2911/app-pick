@@ -101,7 +101,7 @@ export const UnitText = memo(function UnitText({
   return (
     <Text className={className} style={style} {...textProps}>
       {parts.before}
-      <Text>{parts.highlighted}</Text>
+      {parts.highlighted}
       {parts.after}
     </Text>
   );
