@@ -761,6 +761,10 @@ const InputAmountPopup = () => {
     return null;
   }, [currentProduct?.unit]);
 
+  const isWeightRange =
+    (currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false) ||
+    !!currentProduct?.orderQuantityConversion?.weightRange?.length;
+
   // Memoize title component
   const renderTitle = useMemo(
     () => (
@@ -779,10 +783,24 @@ const InputAmountPopup = () => {
         <View className="flex flex-row items-center gap-1">
           <Badge
             className="self-start"
+            variant={isWeightRange ? 'purple' : 'default'}
             label={
               <>
-                {`SL đặt: ${currentProduct?.orderQuantity} `}
-                <UnitText unit={currentProduct?.unit || ''} />
+                {'SL đặt: '}
+                {isWeightRange && currentProduct?.orderQuantityConversion ? (
+                  <>
+                    {`${getWeightRangeOrderQuantity(currentProduct)} x `}
+                    <UnitText
+                      unit={currentProduct.orderQuantityConversion.unit}
+                      orderQuantityConversion
+                    />
+                  </>
+                ) : (
+                  <>
+                    {`${currentProduct?.orderQuantity} `}
+                    <UnitText unit={currentProduct?.unit || ''} />
+                  </>
+                )}
               </>
             }
           />
@@ -791,21 +809,6 @@ const InputAmountPopup = () => {
               className="self-start"
               label={currentProduct.barcode}
               variant="pink"
-            />
-          )}
-          {!!currentProduct?.orderQuantityConversion && (
-            <Badge
-              className="self-start"
-              label={
-                <>
-                  {`${currentProduct.orderQuantityConversion.quantity} x `}
-                  <UnitText
-                    unit={currentProduct.orderQuantityConversion.unit}
-                    orderQuantityConversion
-                  />
-                </>
-              }
-              variant="purple"
             />
           )}
         </View>
@@ -828,6 +831,7 @@ const InputAmountPopup = () => {
       currentProduct?.orderQuantityConversion,
       currentProduct?.productPickingGuidelines,
       packOrBoxUnitWarning,
+      isWeightRange,
     ],
   );
 
@@ -888,7 +892,6 @@ const InputAmountPopup = () => {
   }, [isShowAmountInput]);
 
   const isUnitBox = currentProduct?.unit?.toLowerCase()?.startsWith('thùng');
-  const isWeightRange = currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false;
   const weightRangePendingScanKGs =
     useOrderPick.use.weightRangePendingScanKGs();
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
@@ -899,7 +902,7 @@ const InputAmountPopup = () => {
       (unitName.startsWith('pack') || unitName.startsWith('thùng'))
     );
   }, [currentProduct?.unit]);
-  const hasConversionBadge = !!currentProduct?.orderQuantityConversion;
+  const hasConversionBadge = false;
 
   const bottomSheetHeight = useMemo(
     () =>

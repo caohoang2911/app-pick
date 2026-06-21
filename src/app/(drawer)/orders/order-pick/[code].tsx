@@ -119,7 +119,7 @@ const OrderPick = () => {
         const [minWeight, maxWeight] = weightRange;
         if (quantity < minWeight || quantity > maxWeight) {
           showMessage({
-            message: `SP ${currentProduct?.name} chỉ được pick nằm trong range trọng lượng ${minWeight} - ${maxWeight} KG`,
+            message: `SP ${currentProduct?.name} chỉ được pick nằm trong khoảng trọng lượng ${minWeight} - ${maxWeight} KG`,
             type: 'warning',
           });
           return;

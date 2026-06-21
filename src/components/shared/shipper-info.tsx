@@ -1,10 +1,11 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { toUpper } from 'lodash';
 import React, { useMemo } from 'react';
-import { Image, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Text, View } from 'react-native';
 import { Images } from '~/assets';
 import { useConfig } from '~/src/core/store/config';
 import { getConfigNameById } from '~/src/core/utils/config';
+import { hasOrderDriverInfo } from '~/src/core/utils/order';
 import { OrderDetail } from '~/src/types/order-pick';
 import Box from '../Box';
 
@@ -51,10 +52,43 @@ const ShipperInfo = ({ orderDetail }: { orderDetail: OrderDetail }) => {
     [shipping?.provider],
   );
 
-  // // Only show if shipper info exists
-  // if (!shipping?.driverName && !shipping?.driverPhone) {
-  //   return null;
-  // }
+  const isFindingDriver = !hasOrderDriverInfo(shipping);
+
+  if (isFindingDriver) {
+    return (
+      <Box className="">
+        <View className="flex-1 flex-row items-center gap-3 min-w-0">
+          <View className="size-10 rounded-full bg-orange-100 items-center justify-center shrink-0">
+            <MaterialCommunityIcons
+              name="bike-fast"
+              size={22}
+              color="#C05621"
+            />
+          </View>
+          <View className="flex-1 min-w-0 gap-1">
+            <View className="flex-row items-center gap-2">
+              <Text className="text-sm font-bold text-orange-700 shrink">
+                Đang tìm tài xế
+              </Text>
+            </View>
+            <Text className="text-xs font-medium text-orange-600">
+              Chưa tạo được hoá đơn
+            </Text>
+          </View>
+          {logoSource != null && (
+            <View className="shrink-0 rounded-lg bg-white px-2 py-1">
+              <Image
+                source={logoSource}
+                resizeMode="contain"
+                style={{ width: 48, height: 40 }}
+                accessibilityLabel={providerName || shipping?.provider}
+              />
+            </View>
+          )}
+        </View>
+      </Box>
+    );
+  }
 
   return (
     <Box className="flex flex-row items-center justify-between">
