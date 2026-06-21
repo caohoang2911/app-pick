@@ -23,7 +23,7 @@ import SearchLine from '~/src/core/svgs/SearchLine';
 import { Option } from '~/src/types/commons';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
-import Empty from './Empty';
+import Empty from './empty';
 
 type EmployeeType = Option & { username: string };
 

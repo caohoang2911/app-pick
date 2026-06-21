@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, memo, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import OrderPickProduct from './product';
@@ -78,4 +78,4 @@ const ProductCombo = ({
   );
 };
 
-export default ProductCombo;
+export default memo(ProductCombo);

@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { Image, Keyboard, Text, TouchableOpacity, View } from 'react-native';
-import { useSearchOrdersByKeywork } from '~/src/api/app-pick/use-search-orders-by-keywork';
+import { useSearchOrdersByKeyword } from '~/src/api/app-pick/use-search-orders-by-keyword';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { setKeyWord, useOrders } from '~/src/core/store/orders';
 import { getRelativeTime } from '~/src/core/utils/moment';
@@ -147,7 +147,7 @@ const InputSearch = ({
     isRefetching,
     isLoading,
     isFetching,
-  } = useSearchOrdersByKeywork(value, {
+  } = useSearchOrdersByKeyword(value, {
     enabled: !!value && value.length > 3,
   });
 

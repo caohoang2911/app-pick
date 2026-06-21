@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useMemo } from 'react';
 import { Text, View, FlatList } from 'react-native';
-import { OrderBagItem, OrderBagType } from '~/src/types/order-bag';
+import { OrderBagItem, OrderBagType } from '~/src/types/order-bags';
 import BagItem from './bag-item';
 
 // Tách header thành component riêng và memoize

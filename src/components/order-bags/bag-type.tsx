@@ -2,9 +2,9 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
-import { addOrderBag, useOrderBag } from '~/src/core/store/order-bag';
-import { generateBagCode, generateBagName } from '~/src/core/utils/order-bag';
-import { OrderBagItem, OrderBagType } from '~/src/types/order-bag';
+import { addOrderBag, useOrderBags } from '~/src/core/store/order-bags';
+import { generateBagCode, generateBagName } from '~/src/core/utils/order-bags';
+import { OrderBagItem, OrderBagType } from '~/src/types/order-bags';
 import { Button } from '../Button';
 import BagItem from './bag-item';
 
@@ -52,4 +52,4 @@ const BagType = ({
   );
 };
 
-export default BagType;
+export default React.memo(BagType);

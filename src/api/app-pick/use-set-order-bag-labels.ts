@@ -2,7 +2,7 @@ import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { setLoading } from '~/src/core/store/loading';
 import { OrderDetailQueryData } from '~/src/core/utils/order-detail-query-cache';
-import { OrderBagItem } from '~/src/types/order-bag';
+import { OrderBagItem } from '~/src/types/order-bags';
 
 type Variables = {
   data: OrderBagItem[];

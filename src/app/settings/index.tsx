@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import TcpSocket from 'react-native-tcp-socket';
-import { useTestSendNoti } from '~/src/api/app-pick/test-send-noti';
+import { useTestSendNoti } from '~/src/api/app-pick/use-test-send-noti';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { Button } from '~/src/components/Button';
 import { Input } from '~/src/components/Input';
@@ -20,7 +20,7 @@ import { Switch } from '~/src/components/Switch';
 import { useAuth } from '~/src/core';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useConfig } from '~/src/core/store/config';
-import { checkNotificationPermission } from '~/src/core/utils/notificationPermission';
+import { checkNotificationPermission } from '~/src/core/utils/notification-permission';
 import { showPrinterConnectionFailMessage } from '~/src/core/utils/printer-connection';
 
 const Settings = () => {

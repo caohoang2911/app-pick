@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import CheckCircleFill from '~/src/core/svgs/CheckCircleFill';
-import { OrderBagItem } from '~/src/types/order-bag';
+import { OrderBagItem } from '~/src/types/order-bags';
 
 const BagItem = ({
   code,

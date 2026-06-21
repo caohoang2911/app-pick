@@ -26,7 +26,7 @@ import { Role } from '~/src/types/employee';
 import { colors } from '~/src/ui/colors';
 import { Badge } from '../Badge';
 import OrderListHeaderSkeleton from '../shared/skeleton/order-list-header-skeleton';
-import StoreSelection from '../shared/StoreSelection';
+import StoreSelection from '../shared/store-selection';
 import Skeleton from '../Skeleton';
 import AssignStoreBottomSheet from './assign-store-bottom-sheet';
 import DeliveryType from './delivery-type';

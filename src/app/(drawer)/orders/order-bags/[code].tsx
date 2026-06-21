@@ -19,9 +19,9 @@ import {
   setHasUpdateOrderBagLabels,
   setOrderBags,
   undoLastChange,
-  useOrderBag,
-} from '~/src/core/store/order-bag';
-import { transformBagsData } from '~/src/core/utils/order-bag';
+  useOrderBags,
+} from '~/src/core/store/order-bags';
+import { transformBagsData } from '~/src/core/utils/order-bags';
 import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 
 const UNSAVED_BAG_TITLE = 'Chưa lưu túi hàng';
@@ -37,9 +37,9 @@ const OrderBags = () => {
 
   useOrderStatusAutoRefresh(code);
 
-  const hasUpdateOrderBagLabels = useOrderBag.use.hasUpdateOrderBagLabels();
+  const hasUpdateOrderBagLabels = useOrderBags.use.hasUpdateOrderBagLabels();
 
-  const orderBags = useOrderBag.use.orderBags();
+  const orderBags = useOrderBags.use.orderBags();
 
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
 

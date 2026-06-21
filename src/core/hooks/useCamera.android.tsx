@@ -2,7 +2,7 @@ import { CameraType, useCameraPermissions } from 'expo-camera';
 import { useCallback, useEffect, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
-export default function useCarmera() {
+export default function useCamera() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [isPermissionChecked, setIsPermissionChecked] = useState(false);

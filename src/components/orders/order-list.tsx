@@ -23,7 +23,7 @@ import {
   useOrders,
 } from '~/src/core/store/orders';
 import { SectionAlert } from '../SectionAlert';
-import Empty from '../shared/Empty';
+import Empty from '../shared/empty';
 import OrderListSkeleton from '../shared/skeleton/order-list-skeleton';
 import OrderItem from './order-item';
 

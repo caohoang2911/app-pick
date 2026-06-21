@@ -8,16 +8,16 @@ import React, {
   useState,
 } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
-import useCarmera from '~/src/core/hooks/useCarmera';
+import useCamera from '~/src/core/hooks/useCamera';
 import { useOtaUpdateReadyModal } from '~/src/core/store/ota-update-modal';
 import type { ScanRegion } from '~/src/types/scanner';
 import { Button } from '../Button';
-import ScannerLayout from './ScannerBoxLayout';
+import ScannerLayout from './scanner-box-layout';
 import {
   BARCODE_SCAN_REGION,
   QR_SCAN_REGION,
   SCAN_REGION_DIMENSIONS,
-} from './scannerRegion';
+} from './scanner-region';
 
 export type { BarcodeScanningResult } from 'expo-camera';
 export type { ScanRegion } from '~/src/types/scanner';
@@ -95,7 +95,7 @@ const ScannerBox = ({
   onSuccessBarcodeScanned,
   isQRScanner = true,
 }: Props) => {
-  const { permission, facing, requestPermission } = useCarmera();
+  const { permission, facing, requestPermission } = useCamera();
   const pendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
   const [currentScannerType, setCurrentScannerType] = useState(isQRScanner);
   const [isCameraReady, setIsCameraReady] = useState(false);

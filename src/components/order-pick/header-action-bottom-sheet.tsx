@@ -27,7 +27,7 @@ import {
 } from '~/src/core/utils/order';
 import { Badge } from '../Badge';
 import SBottomSheet from '../SBottomSheet';
-import EmployeeSelection from '../shared/EmployeeSelection';
+import EmployeeSelection from '../shared/employee-selection';
 import OrderActionsSubmenuBottomSheet from '../shared/order-actions-submenu-bottom-sheet';
 
 type Action = {

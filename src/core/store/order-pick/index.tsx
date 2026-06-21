@@ -4,7 +4,7 @@ import { OrderDetail } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { createSelectors } from '../../utils/browser';
 
-interface OrdersState {
+interface OrderPickState {
   currentCode: string | null;
   isPickedByManualBarcodeInput: boolean;
   isScanQrCodeProduct: boolean;
@@ -50,7 +50,7 @@ interface OrdersState {
 const roundWeightKg = (value: number) =>
   Math.round(Number(value) * 1000) / 1000;
 
-const _useOrderPick = create<OrdersState>((set, get) => ({
+const _useOrderPick = create<OrderPickState>((set, get) => ({
   orderDetail: {} as OrderDetail,
   currentCode: null,
   isPickedByManualBarcodeInput: false,
@@ -129,12 +129,10 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     set({ isScanQrCodeProduct });
   },
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => {
-    set({
+    set((state) => ({
       isShowAmountInput,
-      scannedIds: id
-        ? { ...get().scannedIds, [id]: true }
-        : { ...get().scannedIds },
-    });
+      scannedIds: id ? { ...state.scannedIds, [id]: true } : state.scannedIds,
+    }));
   },
   setSuccessForBarcodeScan: (barcode: string) => {
     set({ barcodeScanSuccess: barcode });
@@ -158,25 +156,29 @@ const _useOrderPick = create<OrdersState>((set, get) => ({
     const orderPickProducts = get().orderPickProducts;
     // TODO: update product picked
 
+    // Chỉ tạo reference mới cho element trùng product.id và group chứa nó;
+    // element/group không đổi giữ nguyên reference để memo ở list không bị vô hiệu.
     const newOrderPickProducts = orderPickProducts.map(
       (productMap: Product | ProductItemGroup | any) => {
-        return {
-          ...productMap,
-          elements: productMap.elements?.map((productRel: Product) => {
-            const productAsTypeProduct = { ...(productRel as Product) };
-            if (product.id === productAsTypeProduct.id) {
-              return { ...productAsTypeProduct, ...product };
-            } else {
-              return productAsTypeProduct;
-            }
-          }),
-        };
+        const elements = productMap.elements as Product[] | undefined;
+        if (!elements) return productMap;
+
+        let changed = false;
+        const newElements = elements.map((productRel: Product) => {
+          if (product.id === productRel.id) {
+            changed = true;
+            return { ...productRel, ...product };
+          }
+          return productRel;
+        });
+
+        return changed ? { ...productMap, elements: newElements } : productMap;
       },
     );
 
     set({
       barcodeScrollTo: product.barcode,
-      orderPickProducts: [...newOrderPickProducts],
+      orderPickProducts: newOrderPickProducts,
     });
   },
   setReplacePickedProductId: (id: number) => {
@@ -204,6 +206,9 @@ export const toggleShowAmountInput = (
   isShowAmountInput: boolean,
   id?: number,
 ) => _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput, id);
+
+export const getIsShowAmountInput = () =>
+  _useOrderPick.getState().isShowAmountInput;
 
 export const setSuccessForBarcodeScan = (barcode: string) =>
   _useOrderPick.getState().setSuccessForBarcodeScan(barcode);

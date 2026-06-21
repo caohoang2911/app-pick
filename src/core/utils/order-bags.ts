@@ -3,7 +3,7 @@ import {
   OrderBagItem,
   OrderBagLabel,
   OrderBagType,
-} from '~/src/types/order-bag';
+} from '~/src/types/order-bags';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { toUpper } from 'lodash';
 import { Env } from '~/env';

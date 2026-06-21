@@ -27,7 +27,7 @@ import {
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
-import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
+import { useSetOrderScannedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scanned-bag-label-scanned';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
 import CODReceipt from '~/src/components/CODReceipt';
@@ -35,8 +35,8 @@ import Bags from '~/src/components/order-scan-to-delivery/bags';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
-import Header from '~/src/components/shared/Header';
-import ScannerBox from '~/src/components/shared/ScannerBox';
+import Header from '~/src/components/shared/header';
+import ScannerBox from '~/src/components/shared/scanner-box';
 import ShipperInfo from '~/src/components/shared/shipper-info';
 import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
@@ -67,7 +67,7 @@ import {
   hasOrderDriverInfo,
   isApartmentComplexDriverHandover,
 } from '~/src/core/utils/order';
-import { transformBagsData } from '~/src/core/utils/order-bag';
+import { transformBagsData } from '~/src/core/utils/order-bags';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
@@ -257,7 +257,8 @@ const OrderScanToDelivery = () => {
     return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
   }, [deliveryType]);
 
-  const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
+  const { mutate: setOrderScannedBagLabel } =
+    useSetOrderScannedBagLabelScanned();
 
   const { checkShift } = useCheckShift(() => {
     showAlertDialog({
@@ -390,7 +391,7 @@ const OrderScanToDelivery = () => {
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
       if (result?.data) {
-        setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
+        setOrderScannedBagLabel({ orderCode: code, bagCode: result?.data });
       }
     });
   };

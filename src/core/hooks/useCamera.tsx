@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useCameraPermission } from 'react-native-vision-camera';
 
-export default function useCarmera() {
+export default function useCamera() {
   const { hasPermission, requestPermission: vcRequestPermission } =
     useCameraPermission();
 

@@ -7,7 +7,7 @@ import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import {
   isDeviceSilentOrZeroVolume,
   DEFAULT_VOLUME_THRESHOLD,
-} from '~/src/core/utils/deviceSoundState';
+} from '~/src/core/utils/device-sound-state';
 
 export interface CheckNotificationPermissionOptions {
   /** Ngưỡng volume (0–1) để coi là "tắt tiếng", mặc định 0.2 (20%). */

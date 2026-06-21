@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import { useAuth } from '../store/auth';
-import { DeepLinkPath } from '../utils/deepLink';
+import { DeepLinkPath } from '../utils/deep-link';
 import { ROUTES } from '../constants/routes';
 import { NavigationHelpers } from '../utils/navigation';
 

@@ -4,7 +4,7 @@ import { OrderStatus, OrderStatusDriver } from '~/src/types/order';
 
 const TAB_STATUS_DEFAULT = 'CONFIRMED';
 
-interface OrdersState {
+interface OrdersListState {
   isScanQrCode: boolean;
   selectedOrderCounter: OrderStatus | OrderStatusDriver;
   keyword: string;
@@ -20,7 +20,7 @@ interface OrdersState {
   reset: () => void;
 }
 
-const _useOrders = create<OrdersState>((set, get) => ({
+const _useOrders = create<OrdersListState>((set, get) => ({
   isScanQrCode: false,
   selectedOrderCounter: TAB_STATUS_DEFAULT,
   keyword: '',

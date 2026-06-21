@@ -19,7 +19,7 @@ import {
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
-import { useSetOrderScanedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scaned-bag-label-scanned';
+import { useSetOrderScannedBagLabelScanned } from '~/src/api/app-pick/use-set-order-scanned-bag-label-scanned';
 import { useStartSelfShipping } from '~/src/api/app-pick/use-start-self-shipping';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
@@ -28,8 +28,8 @@ import CODReceipt from '~/src/components/CODReceipt';
 import Loading from '~/src/components/Loading';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import { SectionAlert } from '~/src/components/SectionAlert';
-import Header from '~/src/components/shared/Header';
-import ScannerBox from '~/src/components/shared/ScannerBox';
+import Header from '~/src/components/shared/header';
+import ScannerBox from '~/src/components/shared/scanner-box';
 import ShipperInfo from '~/src/components/shared/shipper-info';
 import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
@@ -51,7 +51,7 @@ import {
   getScanToDeliveryInfo,
   isApartmentComplexDriverHandover,
 } from '~/src/core/utils/order';
-import { transformBagsData } from '~/src/core/utils/order-bag';
+import { transformBagsData } from '~/src/core/utils/order-bags';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import ScanBagsSkeleton from '~/src/components/shared/skeleton/scan-bags-skeleton';
 
@@ -212,7 +212,8 @@ const OrderScanToDelivery = () => {
     );
   }
 
-  const { mutate: setOrderScanedBagLabel } = useSetOrderScanedBagLabelScanned();
+  const { mutate: setOrderScannedBagLabel } =
+    useSetOrderScannedBagLabelScanned();
 
   const isAllDone = useMemo(() => {
     if (!Array.isArray(orderBags) || orderBags.length === 0) return false;
@@ -222,7 +223,7 @@ const OrderScanToDelivery = () => {
   const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
     scanQrCodeSuccess(result, () => {
       if (result?.data) {
-        setOrderScanedBagLabel({ orderCode: code, bagCode: result?.data });
+        setOrderScannedBagLabel({ orderCode: code, bagCode: result?.data });
       }
     });
   };

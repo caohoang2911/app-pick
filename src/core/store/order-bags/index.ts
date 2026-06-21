@@ -1,8 +1,11 @@
 import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
-import { OrderBagItem, OrderBagType } from '~/src/types/order-bag';
+import { OrderBagItem, OrderBagType } from '~/src/types/order-bags';
 import { OrderDetail } from '~/src/types/order-pick';
-import { generateBagName, transformBagsData } from '~/src/core/utils/order-bag';
+import {
+  generateBagName,
+  transformBagsData,
+} from '~/src/core/utils/order-bags';
 
 interface OrderBagState {
   orderDetail: OrderDetail;
@@ -27,7 +30,7 @@ interface OrderBagState {
   savePreviousState: () => void;
 }
 
-const _useOrderBag = create<OrderBagState>((set, get) => ({
+const _useOrderBags = create<OrderBagState>((set, get) => ({
   orderDetail: {},
   hasUpdateOrderBagLabels: false,
   orderBags: {
@@ -87,30 +90,30 @@ const _useOrderBag = create<OrderBagState>((set, get) => ({
   },
 }));
 
-export const useOrderBag = createSelectors(_useOrderBag);
+export const useOrderBags = createSelectors(_useOrderBags);
 
 export const setOrderBags = (values: OrderBagItem) => {
-  useOrderBag.getState().setOrderBags(values);
+  useOrderBags.getState().setOrderBags(values);
 };
 
 export const addOrderBag = (values: OrderBagItem) => {
-  useOrderBag.getState().addOrderBag(values);
+  useOrderBags.getState().addOrderBag(values);
 };
 
 export const removeOrderBag = (code: string, type: OrderBagType) => {
-  useOrderBag.getState().removeOrderBag(code, type);
+  useOrderBags.getState().removeOrderBag(code, type);
 };
 
 export const undoLastChange = () => {
-  useOrderBag.getState().undoLastChange();
+  useOrderBags.getState().undoLastChange();
 };
 
 export const savePreviousState = () => {
-  useOrderBag.getState().savePreviousState();
+  useOrderBags.getState().savePreviousState();
 };
 
 export const setHasUpdateOrderBagLabels = (
   hasUpdateOrderBagLabels: boolean,
 ) => {
-  useOrderBag.getState().setHasUpdateOrderBagLabels(hasUpdateOrderBagLabels);
+  useOrderBags.getState().setHasUpdateOrderBagLabels(hasUpdateOrderBagLabels);
 };

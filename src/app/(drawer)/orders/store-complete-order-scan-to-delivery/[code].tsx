@@ -25,18 +25,18 @@ import ImageUploader from '~/src/components/ImageUploader';
 import { Input } from '~/src/components/Input';
 import SBottomSheet from '~/src/components/SBottomSheet';
 import { SectionAlert } from '~/src/components/SectionAlert';
-import InvoiceInfo from '~/src/components/store-complete-scan-to-deivery/invoice-info';
+import InvoiceInfo from '~/src/components/store-complete-order-scan-to-delivery/invoice-info';
 import { ORDER_STATUS, ORDER_TAGS } from '@/core/constants/order';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import {
   setCompleteUploadedImages,
-  useCompleteOrderScanToDelivery,
-} from '~/src/core/store/complete-order-scan-to-delivery';
+  useStoreCompleteOrderScanToDelivery,
+} from '~/src/core/store/store-complete-order-scan-to-delivery';
 import { setLoading } from '~/src/core/store/loading';
 import { OrderDetailHeader } from '~/src/types/order-pick';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import ShipperInfo from '~/src/components/shared/shipper-info';
-import Header from '~/src/components/shared/Header';
+import Header from '~/src/components/shared/header';
 import ButtonBack from '~/src/components/ButtonBack';
 import { getScanToDeliveryInfo } from '~/src/core/utils/order';
 import { queryClient } from '~/src/api/shared/api-provider';
@@ -59,7 +59,7 @@ const OrderScanToDelivery = () => {
   const { tags, status, codAmount, deliveryType, shipping } =
     (header as OrderDetailHeader) || {};
 
-  const proofImages = useCompleteOrderScanToDelivery.use.uploadedImages();
+  const proofImages = useStoreCompleteOrderScanToDelivery.use.uploadedImages();
   const [failureReason, setFailureReason] = useState('');
   const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
   const failureBottomSheetRef = useRef<any>(null);

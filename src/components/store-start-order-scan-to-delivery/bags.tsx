@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { transformOrderBags } from '~/src/core/utils/order-bag';
-import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
+import { transformOrderBags } from '~/src/core/utils/order-bags';
+import { OrderBagLabel, OrderBagType } from '~/src/types/order-bags';
 import Box from '../Box';
 import BagType from './bag-type';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';

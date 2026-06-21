@@ -7,9 +7,8 @@ export type OrderShippingInfo = {
   driverPhone?: string;
 };
 
-export const hasOrderDriverInfo = (
-  shipping?: OrderShippingInfo,
-): boolean => !!shipping?.driverName;
+export const hasOrderDriverInfo = (shipping?: OrderShippingInfo): boolean =>
+  !!shipping?.driverName;
 
 export const isApartmentComplexDriverHandover = ({
   deliveryType,
@@ -71,9 +70,9 @@ export const getScanToDeliveryInfo = ({
           status === ORDER_STATUS.SHIPPING ||
           status === ORDER_STATUS.COMPLETED
         ) {
-          return APP_ROUTES.STORE_COMPLETE_SCAN_TO_DELIVERY(orderCode);
+          return APP_ROUTES.STORE_COMPLETE_ORDER_SCAN_TO_DELIVERY(orderCode);
         }
-        return APP_ROUTES.STORE_START_SCAN_TO_DELIVERY(orderCode);
+        return APP_ROUTES.STORE_START_ORDER_SCAN_TO_DELIVERY(orderCode);
       };
       return {
         title: 'Scan túi - Giao hàng nội khu',

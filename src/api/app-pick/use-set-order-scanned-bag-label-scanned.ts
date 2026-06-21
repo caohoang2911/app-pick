@@ -14,7 +14,7 @@ const setOrderBagLabelScanned = async (
   return await axiosClient.post('app-pick/setOrderBagLabelScanned', params);
 };
 
-export const useSetOrderScanedBagLabelScanned = () => {
+export const useSetOrderScannedBagLabelScanned = () => {
   return useMutation({
     mutationFn: (params: Variables) => setOrderBagLabelScanned(params),
     onSuccess: (response: Response, variables: Variables) => {

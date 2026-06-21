@@ -25,9 +25,9 @@ import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsF
 import {
   handleScanBarcode,
   resolvePickScanBarcode,
-} from '~/src/core/utils/order-bag';
+} from '~/src/core/utils/order-bags';
 import { Product, ProductItemGroup } from '~/src/types/product';
-import Empty from '../shared/Empty';
+import Empty from '../shared/empty';
 import OrderPickProduct from './product';
 import ProductCombo from './product-combo';
 import ProductGift from './product-gift';

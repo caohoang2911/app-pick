@@ -10,7 +10,7 @@ import InputAmountPopup from '~/src/components/order-pick/input-amount-popup';
 import OrderPickProducts from '~/src/components/order-pick/products';
 import ReplacePickedProducts from '~/src/components/order-pick/replace-picked-products';
 import { SectionAlert } from '~/src/components/SectionAlert';
-import ScannerBox from '~/src/components/shared/ScannerBox';
+import ScannerBox from '~/src/components/shared/scanner-box';
 import {
   setCurrentId,
   setIsPickedByManualBarcodeInput,
@@ -30,7 +30,7 @@ import { splitBarcode } from '~/src/core/utils/number';
 import {
   handleScanBarcode,
   resolvePickScanBarcode,
-} from '~/src/core/utils/order-bag';
+} from '~/src/core/utils/order-bags';
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import Loading from '~/src/components/Loading';
 

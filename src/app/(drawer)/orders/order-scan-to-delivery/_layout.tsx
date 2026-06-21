@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { View } from 'react-native';
-import Header from '~/src/components/shared/Header';
+import Header from '~/src/components/shared/header';
 
 export default function OrderScanToDeliveryLayout() {
   return (

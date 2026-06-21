@@ -12,7 +12,7 @@ import {
   OrderBagItem,
   OrderBagLabel,
   OrderBagType,
-} from '~/src/types/order-bag';
+} from '~/src/types/order-bags';
 import Box from '../Box';
 import BagType from './bag-type';
 

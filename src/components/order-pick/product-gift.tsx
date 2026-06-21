@@ -1,19 +1,16 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text } from 'react-native';
 import { GiftPack, Product } from '~/src/types/product';
 import OrderPickProduct from './product';
 import { colors } from '~/src/ui/colors';
 
-const ProductCombo = ({
+const ProductGift = ({
   giftPack,
   statusOrder,
 }: {
   giftPack: GiftPack;
   statusOrder: string;
 }) => {
-  const isHasPickedQuantity = giftPack.elements?.some((product: Product) => {
-    return product.pickedQuantity === 0 || product.pickedQuantity === null;
-  });
   return (
     <>
       <View
@@ -29,9 +26,7 @@ const ProductCombo = ({
           {giftPack.elements?.map((product: Product, index: number) => (
             <OrderPickProduct
               {...product}
-              key={product.id}
-              index={index}
-              disable={isHasPickedQuantity}
+              key={product.id || product.barcode || `gift-element-${index}`}
               statusOrder={statusOrder}
             />
           ))}
@@ -41,4 +36,4 @@ const ProductCombo = ({
   );
 };
 
-export default ProductCombo;
+export default memo(ProductGift);

@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useConfig } from '~/src/core/store/config';
 import {
+  getIsShowAmountInput,
   setCurrentId,
   setIsEditManual,
   setReplacePickedProductId,
@@ -338,7 +339,6 @@ const OrderPickProduct = memo(
     }
   >) => {
     const { code } = useLocalSearchParams<{ code: string }>();
-    const isShowAmountInput = useOrderPick.use.isShowAmountInput();
     const config = useConfig.use.config();
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const { width: screenWidth } = useWindowDimensions();
@@ -346,10 +346,11 @@ const OrderPickProduct = memo(
     // Image: 90% of 1/3 screen width, scaled
     const imageSize = Math.round(((screenWidth - 32) / 3) * 0.9 * cardScale);
 
-    const lastScannedId = useOrderPick.use.lastScannedId();
-
-    const isActive =
-      id != null && lastScannedId != null && id === lastScannedId;
+    // Selector dẫn xuất: chỉ re-render khi trạng thái active của chính item này
+    // đổi, thay vì mỗi lần lastScannedId toàn cục đổi.
+    const isActive = useOrderPick(
+      (s) => id != null && s.lastScannedId != null && s.lastScannedId === id,
+    );
 
     const isGift = useMemo(() => {
       return tags?.includes('GIFT');
@@ -458,12 +459,11 @@ const OrderPickProduct = memo(
     const handleEditPress = useCallback(() => {
       if (isDisable || !id || !barcode) return;
 
-      toggleShowAmountInput(!isShowAmountInput, id);
+      toggleShowAmountInput(!getIsShowAmountInput(), id);
       setSuccessForBarcodeScan(barcode);
       setCurrentId(id);
       setIsEditManual(true);
     }, [
-      isShowAmountInput,
       id,
       barcode,
       isDisable,

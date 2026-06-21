@@ -24,7 +24,7 @@ import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
-import Empty from './Empty';
+import Empty from './empty';
 
 type StoreType = Option & { address: string; tenant: string };
 
@@ -323,9 +323,13 @@ const StoreSelection = forwardRef<any, Props>(
           data={filteredStores}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          initialNumToRender={20}
-          maxToRenderPerBatch={20}
-          windowSize={15}
+          // Tối ưu ảo hóa: giảm số item dựng đồng bộ lúc mở (khi sheet đang
+          // animate) và trải đều phần còn lại → nhẹ hơn khi mở. Chỉ đổi tham
+          // số render, không đổi data/logic/tương tác.
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          updateCellsBatchingPeriod={50}
           removeClippedSubviews={false}
           ListEmptyComponent={ListEmptyComponent}
           keyboardShouldPersistTaps="always"

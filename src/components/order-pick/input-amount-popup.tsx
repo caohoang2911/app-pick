@@ -33,7 +33,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import {
   useSetOrderItemPicked,
   type SetOrderItemPickedProduct,
-} from '~/src/api/app-pick/set-order-item-picked';
+} from '~/src/api/app-pick/use-set-order-item-picked';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -56,7 +56,7 @@ import {
   roundToDecimalDecrease,
   roundToDecimalIncrease,
 } from '~/src/core/utils/number';
-import { barcodeCondition } from '~/src/core/utils/order-bag';
+import { barcodeCondition } from '~/src/core/utils/order-bags';
 import {
   mergePickedProductIntoOrderDetailData,
   type OrderDetailQueryData,

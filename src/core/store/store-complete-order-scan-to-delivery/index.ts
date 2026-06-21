@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { OrderBagItem } from '~/src/types/order-bag';
+import { OrderBagItem } from '~/src/types/order-bags';
 import { createSelectors } from '../../utils/browser';
 interface CompleteOrderScanToDeliveryState {
   orderBags: OrderBagItem[];
@@ -8,7 +8,7 @@ interface CompleteOrderScanToDeliveryState {
   setCompleteUploadedImages: (uploadedImage: string, reset?: boolean) => void;
 }
 
-const _useCompleteOrderScanToDelivery =
+const _useStoreCompleteOrderScanToDelivery =
   create<CompleteOrderScanToDeliveryState>((set, get) => ({
     orderBags: [],
     uploadedImages: [],
@@ -30,23 +30,25 @@ const _useCompleteOrderScanToDelivery =
     },
   }));
 
-export const useCompleteOrderScanToDelivery = createSelectors(
-  _useCompleteOrderScanToDelivery,
+export const useStoreCompleteOrderScanToDelivery = createSelectors(
+  _useStoreCompleteOrderScanToDelivery,
 );
 
 export const setCompleteOrderBags = (orderBags: OrderBagItem[]) => {
-  _useCompleteOrderScanToDelivery.getState().setCompleteOrderBags(orderBags);
+  _useStoreCompleteOrderScanToDelivery
+    .getState()
+    .setCompleteOrderBags(orderBags);
 };
 
 export const getCompleteUploadedImages = () => {
-  return useCompleteOrderScanToDelivery((state) => state.uploadedImages);
+  return useStoreCompleteOrderScanToDelivery((state) => state.uploadedImages);
 };
 
 export const setCompleteUploadedImages = (
   uploadedImage: string,
   reset?: boolean,
 ) => {
-  _useCompleteOrderScanToDelivery
+  _useStoreCompleteOrderScanToDelivery
     .getState()
     .setCompleteUploadedImages(uploadedImage, reset);
 };

@@ -8,7 +8,7 @@ import { getRelativeTime } from '~/src/core/utils/moment';
 import { OrderDetail } from '~/src/types/order-pick';
 import { Badge } from '../Badge';
 import CopyButton from '../shared/copy-button';
-import LabelTags from '../shared/LabelTags';
+import LabelTags from '../shared/label-tags';
 import HeaderActionBtn from './header-action-btn';
 
 const OrderPickHeader = () => {

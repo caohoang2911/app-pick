@@ -5,7 +5,7 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { expectedDeliveryTime } from '~/src/core/utils/moment';
-import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
+import { OrderBagLabel, OrderBagType } from '~/src/types/order-bags';
 
 const WIDTH_LABEL = 472;
 const HEIGHT_LABEL = 315;

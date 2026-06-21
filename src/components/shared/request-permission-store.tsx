@@ -1,11 +1,11 @@
 import { isEmpty } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { View } from 'react-native';
-import { useGetConfig } from '~/src/api/config/useGetConfig';
+import { useGetConfig } from '~/src/api/config/use-get-config';
 import { useConfig } from '~/src/core/store/config';
 import { Button } from '../Button';
 import Loading from '../Loading';
-import StoreSelection from './StoreSelection';
+import StoreSelection from './store-selection';
 import { setLoading } from '~/src/core/store/loading';
 
 interface Props {

@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
-import { useUpdateOrderDeliveryType } from '~/src/api/app-pick/update-order-delivery-type';
+import { useUpdateOrderDeliveryType } from '~/src/api/app-pick/use-update-order-delivery-type';
 import { useConfig } from '~/src/core/store/config';
 import { Button } from '../Button';
 import SBottomSheet from '../SBottomSheet';

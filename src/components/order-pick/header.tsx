@@ -5,7 +5,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useCanEditOrderPick } from '~/src/core/hooks/useCanEditOrderPick';
 import { isDevelopment } from '~/src/core/env';
@@ -24,40 +24,44 @@ import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';
 import CopyButton from '../shared/copy-button';
-import LabelTags from '../shared/LabelTags';
-import WaveButton from '../shared/WaveButton';
+import LabelTags from '../shared/label-tags';
+import WaveButton from '../shared/wave-button';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 
-const Picker = ({ picker }: { picker: { username: string; name: string } }) => {
-  if (!picker) return null;
-  const orderPickProductsFlat = useOrderPickProductsFlat();
+const Picker = memo(
+  ({ picker }: { picker: { username: string; name: string } }) => {
+    const orderPickProductsFlat = useOrderPickProductsFlat();
 
-  const totalPickedDone = useMemo(() => {
-    return orderPickProductsFlat?.filter(
-      (bag: Product | ProductItemGroup) => (bag as Product).pickedTime,
-    )?.length;
-  }, [orderPickProductsFlat]);
+    const totalPickedDone = useMemo(() => {
+      return orderPickProductsFlat?.filter(
+        (bag: Product | ProductItemGroup) => (bag as Product).pickedTime,
+      )?.length;
+    }, [orderPickProductsFlat]);
 
-  return (
-    <View className="flex flex-row items-center justify-between mt-2">
-      <View className="flex flex-row items-center">
-        <Feather name="package" size={18} color="gray" />
-        <View className="flex flex-row gap-1 items-center ml-2 max-w-[80%]">
-          <Text className="text-sm text-gray-500">Picker</Text>
-          <Text className="text-sm" numberOfLines={1} ellipsizeMode="tail">
-            {picker?.name} - {picker?.username}
-          </Text>
+    // Guard sau hooks để không vi phạm rules-of-hooks.
+    if (!picker) return null;
+
+    return (
+      <View className="flex flex-row items-center justify-between mt-2">
+        <View className="flex flex-row items-center">
+          <Feather name="package" size={18} color="gray" />
+          <View className="flex flex-row gap-1 items-center ml-2 max-w-[80%]">
+            <Text className="text-sm text-gray-500">Picker</Text>
+            <Text className="text-sm" numberOfLines={1} ellipsizeMode="tail">
+              {picker?.name} - {picker?.username}
+            </Text>
+          </View>
+        </View>
+        <View className="flex flex-row gap-1 items-center">
+          <Badge
+            label={`Pick ${totalPickedDone || 0}/${orderPickProductsFlat?.length || 0}`}
+            variant="default"
+          />
         </View>
       </View>
-      <View className="flex flex-row gap-1 items-center">
-        <Badge
-          label={`Pick ${totalPickedDone || 0}/${orderPickProductsFlat?.length || 0}`}
-          variant="default"
-        />
-      </View>
-    </View>
-  );
-};
+    );
+  },
+);
 type Props = {
   onClickHeaderAction?: () => void;
 };

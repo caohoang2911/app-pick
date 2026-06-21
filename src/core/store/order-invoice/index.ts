@@ -2,12 +2,12 @@ import { create } from 'zustand';
 import { OrderDetail } from '~/src/types/order-pick';
 import { createSelectors } from '../../utils/browser';
 
-interface OrdersState {
+interface OrderInvoiceState {
   orderInvoice: OrderDetail;
   setOrderInvoice: (orderDetail: OrderDetail) => void;
 }
 
-const _useOrderInvoice = create<OrdersState>((set, get) => ({
+const _useOrderInvoice = create<OrderInvoiceState>((set, get) => ({
   orderInvoice: {} as OrderDetail,
   setOrderInvoice: (orderInvoice: OrderDetail) => {
     set({ orderInvoice });

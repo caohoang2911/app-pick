@@ -19,9 +19,9 @@ import { getItem } from '~/src/core/storage';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
-import { useOrderBag } from '~/src/core/store/order-bag';
+import { useOrderBags } from '~/src/core/store/order-bags';
 import { getDeviceIpHintText } from '~/src/core/utils/printer-connection';
-import { OrderBagType } from '~/src/types/order-bag';
+import { OrderBagType } from '~/src/types/order-bags';
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
 const PRINT_DELAY = 300; // ms per item
@@ -45,7 +45,7 @@ function PrintPreview() {
 
   const orderDetailProcessing = isPending || isFetching;
 
-  const orderBags = useOrderBag.use.orderBags();
+  const orderBags = useOrderBags.use.orderBags();
 
   const bagLabelsPrint = useMemo(() => {
     const merged = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];

@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { Text, View } from 'react-native';
-import { useDriverSetMyOrderAssignStatus } from '~/src/api/app-pick-driver/useDriverSetMyOrderAssignStatus';
+import { useDriverSetMyOrderAssignStatus } from '~/src/api/app-pick-driver/use-driver-set-my-order-assign-status';
 import { setUser, useAuth } from '~/src/core/store/auth';
 import { setUserInfo } from '~/src/core/store/auth/utils';
 import { Button } from '../Button';

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { OrderBagItem } from '~/src/types/order-bag';
+import { OrderBagItem } from '~/src/types/order-bags';
 import { Button } from '../Button';
-import { removeOrderBag } from '~/src/core/store/order-bag';
+import { removeOrderBag } from '~/src/core/store/order-bags';
 const BagItem = ({ code, type }: OrderBagItem) => {
   return (
     <View className="flex-row justify-between items-center">
@@ -22,4 +22,4 @@ const BagItem = ({ code, type }: OrderBagItem) => {
   );
 };
 
-export default BagItem;
+export default React.memo(BagItem);

@@ -1,11 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
-import { useOrderBag } from '~/src/core/store/order-bag';
-import { OrderBagLabel, OrderBagType } from '~/src/types/order-bag';
+import { useOrderBags } from '~/src/core/store/order-bags';
+import { OrderBagLabel, OrderBagType } from '~/src/types/order-bags';
 import BagType from './bag-type';
 
 const Bags = () => {
-  const orderBags = useOrderBag.use.orderBags();
+  const orderBags = useOrderBags.use.orderBags();
 
   return (
     <View className="mb-2">

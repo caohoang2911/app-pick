@@ -4,9 +4,9 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { ORDER_COUNTER_STATUS } from '@/core/constants/order';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
-import { useOrderBag } from '~/src/core/store/order-bag';
+import { useOrderBags } from '~/src/core/store/order-bags';
 import { Badge } from '../Badge';
-import LabelTags from '../shared/LabelTags';
+import LabelTags from '../shared/label-tags';
 
 function HeaderBag() {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -15,7 +15,7 @@ function HeaderBag() {
   const status = orderDetail?.header?.status;
   const tags = orderDetail?.header?.tags;
 
-  const totalBagsCount = useOrderBag((s) => {
+  const totalBagsCount = useOrderBags((s) => {
     const b = s.orderBags;
     return (
       (b?.DRY?.length || 0) + (b?.FRESH?.length || 0) + (b?.FROZEN?.length || 0)

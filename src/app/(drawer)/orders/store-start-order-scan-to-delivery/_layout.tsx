@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import Header from '~/src/components/shared/Header';
+import Header from '~/src/components/shared/header';
 import HeaderRightAction from '~/src/components/store-start-order-scan-to-delivery/header-right-action';
 
 export default function OrderScanToDeliveryLayout() {

@@ -19,7 +19,7 @@ const searchOrdersByKeyword = async (
   });
 };
 
-export const useSearchOrdersByKeywork = (
+export const useSearchOrdersByKeyword = (
   keyword?: string,
   options?: any,
   queryKey?: string,

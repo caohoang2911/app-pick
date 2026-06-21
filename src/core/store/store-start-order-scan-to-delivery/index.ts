@@ -1,9 +1,9 @@
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import { showMessage } from 'react-native-flash-message';
 import { create } from 'zustand';
-import { OrderBagItem } from '~/src/types/order-bag';
+import { OrderBagItem } from '~/src/types/order-bags';
 import { createSelectors } from '../../utils/browser';
-import { isValidOrderBagCode } from '../../utils/order-bag';
+import { isValidOrderBagCode } from '../../utils/order-bags';
 interface StoreStartOrderScanToDeliveryState {
   isScanQrCodeProduct: boolean;
   orderBags: OrderBagItem[];

@@ -187,7 +187,8 @@ export const replaceWithScanToDelivery = (deliveryCode: string) => {
  */
 export const navigateToStoreStartScanToDelivery = (code: string) => {
   safeNavigate(
-    () => router.push(ROUTES.APP.STORE_START_SCAN_TO_DELIVERY(code) as any),
+    () =>
+      router.push(ROUTES.APP.STORE_START_ORDER_SCAN_TO_DELIVERY(code) as any),
     ROUTES.APP.ORDERS,
     'Không thể mở màn hình bắt đầu giao hàng',
   );
@@ -198,7 +199,10 @@ export const navigateToStoreStartScanToDelivery = (code: string) => {
  */
 export const navigateToStoreCompleteScanToDelivery = (code: string) => {
   safeNavigate(
-    () => router.push(ROUTES.APP.STORE_COMPLETE_SCAN_TO_DELIVERY(code) as any),
+    () =>
+      router.push(
+        ROUTES.APP.STORE_COMPLETE_ORDER_SCAN_TO_DELIVERY(code) as any,
+      ),
     ROUTES.APP.ORDERS,
     'Không thể mở màn hình hoàn thành giao hàng',
   );
@@ -210,7 +214,9 @@ export const navigateToStoreCompleteScanToDelivery = (code: string) => {
 export const replaceWithStoreCompleteScanToDelivery = (code: string) => {
   safeNavigate(
     () =>
-      router.replace(ROUTES.APP.STORE_COMPLETE_SCAN_TO_DELIVERY(code) as any),
+      router.replace(
+        ROUTES.APP.STORE_COMPLETE_ORDER_SCAN_TO_DELIVERY(code) as any,
+      ),
     ROUTES.APP.ORDERS,
     'Không thể chuyển đến màn hình hoàn thành',
   );

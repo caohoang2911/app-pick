@@ -2,7 +2,7 @@ import { DrawerContent } from '@/components/DrawerContent';
 import { PortalProvider } from '@gorhom/portal';
 import { Drawer } from 'expo-router/drawer';
 import { useEffect } from 'react';
-import { ConfigResponse, useGetConfig } from '~/src/api/config/useGetConfig';
+import { ConfigResponse, useGetConfig } from '~/src/api/config/use-get-config';
 import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import Loading from '~/src/components/Loading';
 import { useAuth } from '~/src/core';

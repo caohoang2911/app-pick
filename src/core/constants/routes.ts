@@ -43,9 +43,9 @@ export const APP_ROUTES = {
   // Delivery screens
   ORDER_SCAN_TO_DELIVERY: (code: string) =>
     `/orders/order-scan-to-delivery/${code}`,
-  STORE_START_SCAN_TO_DELIVERY: (code: string) =>
+  STORE_START_ORDER_SCAN_TO_DELIVERY: (code: string) =>
     `/orders/store-start-order-scan-to-delivery/${code}`,
-  STORE_COMPLETE_SCAN_TO_DELIVERY: (code: string) =>
+  STORE_COMPLETE_ORDER_SCAN_TO_DELIVERY: (code: string) =>
     `/orders/store-complete-order-scan-to-delivery/${code}`,
 
   // Other screens

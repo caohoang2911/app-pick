@@ -1,4 +1,4 @@
-import { OrderBagItem } from './order-bag';
+import { OrderBagItem } from './order-bags';
 import { OrderStatus, OrderStatusValue } from './order';
 import { Product, ProductItemGroup } from './product';
 import { Customer, Employee } from './employee';

@@ -3,8 +3,8 @@ import { showMessage } from 'react-native-flash-message';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import { queryClient } from '~/src/api/shared/api-provider';
-import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/useAssignOrderShippingToMe';
-import { useDriverCancelMyOrderShipping } from '~/src/api/app-pick-driver/useDriverCancelMyOrderShipping';
+import { useAssignOrderShippingToMe } from '~/src/api/app-pick-driver/use-assign-order-shipping-to-me';
+import { useDriverCancelMyOrderShipping } from '~/src/api/app-pick-driver/use-driver-cancel-my-order-shipping';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { NavigationHelpers } from '~/src/core/utils/navigation';
 

@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
 
-import { useSetFCMRegistrationToken } from '@/api/employee/useSetFCMRegistrationToken';
+import { useSetFCMRegistrationToken } from '@/api/employee/use-set-fcm-registration-token';
 import { APIProvider } from '@/api/shared';
 import Loading from '@/components/Loading';
 import { hydrateAuth, useAuth } from '@/core';
