@@ -5,6 +5,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import {
   useCreateInvoiceFlow,
   useCreateInvoiceProcess,
@@ -178,10 +179,20 @@ const OrderActionsSubmenuBottomSheet = ({
       case 'change-delivery-type':
         setOrderDeliveryTypeVisible(true);
         break;
-      case 'reprint-invoice':
+      case 'reprint-invoice': {
+        const effectiveInvoiceCode =
+          invoiceCode || orderDetail?.header?.invoiceCode;
+        if (!effectiveInvoiceCode?.trim()) {
+          showMessage({
+            message: 'Đơn hàng chưa tạo hóa đơn không thể in lại hóa đơn',
+            type: 'warning',
+          });
+          break;
+        }
         setLoading(true);
         createInvoiceFlow({ orderCode: code || orderCode || '' });
         break;
+      }
       case 'history-order':
         setOrderHistoryVisible(true);
         break;

@@ -37,6 +37,7 @@ import {
   parseWeightRangeItemKGs,
 } from './weight-range-line-items';
 import { colors } from '~/src/ui/colors';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 // Base design width — iPhone 14 Pro
 const BASE_WIDTH = 390;
 
@@ -156,7 +157,7 @@ const WarningMessage = memo(
     isLast = false,
   }: {
     errorName: string | React.ReactNode;
-    iconVariant?: 'default' | 'check';
+    iconVariant?: 'default' | 'note';
     isLast?: boolean;
   }) => (
     <View
@@ -164,8 +165,13 @@ const WarningMessage = memo(
       style={{ backgroundColor: colors.orange[200] }}
     >
       <View className="flex flex-row items-start gap-2">
-        {iconVariant == 'check' ? (
-          <Text className="text-white font-semibold text-sm shrink-0">✓</Text>
+        {iconVariant == 'note' ? (
+          <MaterialCommunityIcons
+            className="-mr-1"
+            name="fire"
+            size={17}
+            color="white"
+          />
         ) : (
           <View className="size-1.5 bg-white rounded-full self-start mt-2 shrink-0" />
         )}
@@ -424,7 +430,7 @@ const OrderPickProduct = memo(
       const items: Array<{
         key: string;
         errorName: React.ReactNode;
-        iconVariant?: 'default' | 'check';
+        iconVariant?: 'default' | 'note';
       }> = [];
 
       if (pickedErrorName) {
@@ -436,7 +442,7 @@ const OrderPickProduct = memo(
           errorName: (
             <Text className="text-white font-bold text-sm">{pickedNote}</Text>
           ),
-          iconVariant: 'check',
+          iconVariant: 'note',
         });
       }
       if (isWarningOverQuantity) {

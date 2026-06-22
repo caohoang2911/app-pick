@@ -56,6 +56,10 @@ export enum ORDER_DELIVERY_TYPE {
   OFFLINE_HOME_DELIVERY = 'OFFLINE_HOME_DELIVERY',
 }
 
+export enum OrderShippingCancelReason {
+  CANCEL_BY_OTHER = 'CANCEL_BY_OTHER',
+}
+
 export const ORDER_STATUS_ARRAY = Object.values(ORDER_STATUS);
 
 export enum ORDER_TAGS {

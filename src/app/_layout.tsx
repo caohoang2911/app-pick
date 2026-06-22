@@ -2,9 +2,16 @@ import { useReactNavigationDevTools } from '@dev-plugins/react-navigation';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Portal, PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { StatusBar, StyleSheet, View } from 'react-native';
-import FlashMessage from 'react-native-flash-message';
+import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
+import FlashMessage, { hideMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+// `onShow` được hỗ trợ ở runtime nhưng thiếu trong type defs của lib.
+declare module 'react-native-flash-message' {
+  interface FlashMessageProps {
+    onShow?: () => void;
+  }
+}
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -24,7 +31,7 @@ import { setDefaultTimeZone } from '@/core/utils/moment';
 import { setupExpoModulesErrorHandler } from '@/core/utils/safe-expo-modules';
 
 import '@/ui/global.css';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -206,19 +213,45 @@ function Providers({ children }: { children: React.ReactNode }) {
     [insets.bottom],
   );
 
+  // Theo dõi toast đang hiển thị để bật lớp phủ "chạm ra ngoài để ẩn".
+  const [isFlashVisible, setIsFlashVisible] = useState(false);
+  const handleFlashShow = useCallback(() => setIsFlashVisible(true), []);
+  const handleFlashHide = useCallback(() => setIsFlashVisible(false), []);
+  const dismissFlash = useCallback(() => hideMessage(), []);
+
+  // Giữ <FlashMessage> ổn định, không remount khi bật/tắt lớp phủ.
+  const flashMessageEl = useMemo(
+    () => (
+      <FlashMessage
+        position="bottom"
+        duration={5000}
+        style={flashMessageStyle}
+        statusBarHeight={StatusBar.currentHeight}
+        MessageComponent={FlashMessageWithMarkdown}
+        onShow={handleFlashShow}
+        onHide={handleFlashHide}
+      />
+    ),
+    [flashMessageStyle, handleFlashShow, handleFlashHide],
+  );
+
   const flashMessagePortal = useMemo(
     () => (
       <View pointerEvents="box-none" style={flashPortalStyles.wrap}>
-        <FlashMessage
-          position="bottom"
-          duration={5000}
-          style={flashMessageStyle}
-          statusBarHeight={StatusBar.currentHeight}
-          MessageComponent={FlashMessageWithMarkdown}
-        />
+        {/* Chạm ra ngoài toast để ẩn — chỉ mount khi đang có toast.
+            Toast (zIndex 99) nằm trên nên vẫn nhận chạm riêng của nó. */}
+        {isFlashVisible && (
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={dismissFlash}
+            accessibilityRole="button"
+            accessibilityLabel="Đóng thông báo"
+          />
+        )}
+        {flashMessageEl}
       </View>
     ),
-    [flashMessageStyle],
+    [isFlashVisible, flashMessageEl, dismissFlash],
   );
 
   return (

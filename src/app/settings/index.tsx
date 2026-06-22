@@ -23,6 +23,9 @@ import { useConfig } from '~/src/core/store/config';
 import { checkNotificationPermission } from '~/src/core/utils/notification-permission';
 import { showPrinterConnectionFailMessage } from '~/src/core/utils/printer-connection';
 
+/** Tạm ẩn cài đặt đăng ký thông báo theo loại đơn — bật lại khi cần */
+const SHOW_NOTIFICATION_SUBSCRIPTION_SETTINGS = false;
+
 const Settings = () => {
   const { data } = useGetSettingQuery();
   const noti = data?.data?.noti || ({} as any);
@@ -294,30 +297,34 @@ const Settings = () => {
           <View className="bg-white p-3 mx-4 rounded-lg" style={styles.box}>
             <Text className="text-base font-bold">Thông báo</Text>
             <View className="flex flex-col gap-4 mt-3">
-              <View className="flex flex-row items-center justify-between">
-                <Text className="text-base">Đơn Shipper giao hàng</Text>
-                <Switch
-                  disabled
-                  value={isSubcribeOrderShipperDelivery as boolean}
-                  onValueChange={setIsSubcribeOrderShipperDelivery}
-                />
-              </View>
-              <View className="flex flex-row items-center justify-between">
-                <Text className="text-base">Đơn Store giao hàng</Text>
-                <Switch
-                  disabled
-                  value={isSubcribeOrderStoreDelivery as boolean}
-                  onValueChange={setIsSubcribeOrderStoreDelivery}
-                />
-              </View>
-              <View className="flex flex-row items-center justify-between">
-                <Text className="text-base">Đơn khách hàng pickup</Text>
-                <Switch
-                  disabled
-                  value={isSubcribeOrderCustomerPickup as boolean}
-                  onValueChange={setIsSubcribeOrderCustomerPickup}
-                />
-              </View>
+              {SHOW_NOTIFICATION_SUBSCRIPTION_SETTINGS && (
+                <>
+                  <View className="flex flex-row items-center justify-between">
+                    <Text className="text-base">Đơn Shipper giao hàng</Text>
+                    <Switch
+                      disabled
+                      value={isSubcribeOrderShipperDelivery as boolean}
+                      onValueChange={setIsSubcribeOrderShipperDelivery}
+                    />
+                  </View>
+                  <View className="flex flex-row items-center justify-between">
+                    <Text className="text-base">Đơn Store giao hàng</Text>
+                    <Switch
+                      disabled
+                      value={isSubcribeOrderStoreDelivery as boolean}
+                      onValueChange={setIsSubcribeOrderStoreDelivery}
+                    />
+                  </View>
+                  <View className="flex flex-row items-center justify-between">
+                    <Text className="text-base">Đơn khách hàng pickup</Text>
+                    <Switch
+                      disabled
+                      value={isSubcribeOrderCustomerPickup as boolean}
+                      onValueChange={setIsSubcribeOrderCustomerPickup}
+                    />
+                  </View>
+                </>
+              )}
               <View className="flex flex-row items-center justify-between">
                 <Text className="text-base text-orange-500">
                   Test gửi thông báo

@@ -5,16 +5,28 @@ import {
   Dimensions,
   InteractionManager,
   Keyboard,
+  LayoutAnimation,
   ListRenderItemInfo,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
+  UIManager,
   View,
 } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
+
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 import { queryClient } from '~/src/api/shared';
 import {
   setCurrentId,
   setInitOrderPickProducts,
   setIsPickedByManualBarcodeInput,
+  setIsScrolledDown,
   setKeyword,
   setLastScannedId,
   setSuccessForBarcodeScan,
@@ -357,28 +369,43 @@ const OrderPickProducts = () => {
   const initialNumToRender = Math.min(Math.max(visibleItems, 4), 10);
   const maxToRenderPerBatch = Math.min(6, initialNumToRender);
 
-  const listHeader = useMemo(
-    () => (
-      <View className="flex flex-col gap-2">
-        <UserNote orderDetail={orderDetail} />
-      </View>
-    ),
-    [orderDetail],
-  );
-
   const listFooter = useMemo(() => <View style={{ height: 20 }} />, []);
 
   const dismissKeyboardOnScroll = useCallback(() => {
     Keyboard.dismiss();
   }, []);
 
+  const isScrolledDownRef = useRef(false);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = event.nativeEvent.contentOffset.y;
+      const shouldCollapse = y > 30;
+      if (shouldCollapse !== isScrolledDownRef.current) {
+        isScrolledDownRef.current = shouldCollapse;
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setIsScrolledDown(shouldCollapse);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      setIsScrolledDown(false);
+    };
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
+      <UserNote orderDetail={orderDetail} />
       <FlatList
         ref={flatListRef}
         className="flex-1"
         keyboardDismissMode="on-drag"
         onScrollBeginDrag={dismissKeyboardOnScroll}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         keyExtractor={keyExtractor}
@@ -386,7 +413,6 @@ const OrderPickProducts = () => {
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
         ListFooterComponent={listFooter}
-        ListHeaderComponent={listHeader}
         data={filteredProducts || []}
         ListEmptyComponent={
           listIsEmpty ? <EmptyProductList /> : <View style={{ height: 20 }} />

@@ -42,6 +42,8 @@ interface OrderPickState {
   setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => void;
   replacePickedProductId: number | null;
   isVisibleReplaceProduct: boolean;
+  isScrolledDown: boolean;
+  setIsScrolledDown: (value: boolean) => void;
   resetOrderPick: () => void;
   setCurrentCode: (code: string) => void;
   setIsPickedByManualBarcodeInput: (isManual: boolean) => void;
@@ -70,6 +72,7 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
   action: null,
   replacePickedProductId: null,
   isVisibleReplaceProduct: false,
+  isScrolledDown: false,
   resetOrderPick: () => {
     set({
       isScanQrCodeProduct: false,
@@ -89,6 +92,7 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
       replacePickedProductId: null,
       isVisibleReplaceProduct: false,
       isPickedByManualBarcodeInput: false,
+      isScrolledDown: false,
     });
   },
   setCurrentCode: (code: string) => {
@@ -187,6 +191,9 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
   setIsVisibleReplaceProduct: (isVisibleReplaceProduct: boolean) => {
     set({ isVisibleReplaceProduct });
   },
+  setIsScrolledDown: (value: boolean) => {
+    set({ isScrolledDown: value });
+  },
 }));
 
 export const useOrderPick = createSelectors(_useOrderPick);
@@ -260,3 +267,6 @@ export const drainWeightRangePendingScanKGs = () =>
 
 export const clearWeightRangePendingScanKGs = () =>
   _useOrderPick.getState().clearWeightRangePendingScanKGs();
+
+export const setIsScrolledDown = (value: boolean) =>
+  _useOrderPick.getState().setIsScrolledDown(value);

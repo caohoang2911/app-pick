@@ -93,6 +93,8 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
   const { status, statusName, lastTimeUpdateStatus, tags, picker } =
     header || {};
 
+  const isScrolledDown = useOrderPick.use.isScrolledDown();
+
   const shouldDisplayQrScan = useCanEditOrderPick(code as string);
   const barcodeKeyboardType = isDevelopment() ? 'default' : 'number-pad';
 
@@ -129,8 +131,12 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
           <More2Fill width={20} height={20} />
         </Pressable>
       </View>
-      <LabelTags tags={tags} />
-      <Picker picker={picker as Employee} />
+      {!isScrolledDown && (
+        <>
+          <LabelTags tags={tags} />
+          <Picker picker={picker as Employee} />
+        </>
+      )}
       <View className="flex flex-row mt-2 justify-between items-center pb-3 gap-3">
         <Input
           className="flex-grow"

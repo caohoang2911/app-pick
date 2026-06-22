@@ -2,21 +2,23 @@ import { axiosClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { showMessage } from 'react-native-flash-message';
+import { OrderShippingCancelReason } from '~/src/core/constants/order';
 
 type Variables = {
   orderCode: string;
-  cancelReason: string;
+  cancelReason: OrderShippingCancelReason | string;
+  cancelDesc?: string;
 };
 
 type Response = { error: string } & AxiosResponse;
 
-const cancelAhamoveShipper = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/cancelAhamoveShipper', params);
+const cancelBookShipper = async (params: Variables): Promise<Response> => {
+  return await axiosClient.post('app-pick/cancelBookShipper', params);
 };
 
-export const useCancelAhamoveShipper = (cb?: () => void) => {
+export const useCancelBookShipper = (cb?: () => void) => {
   return useMutation({
-    mutationFn: (params: Variables) => cancelAhamoveShipper(params),
+    mutationFn: (params: Variables) => cancelBookShipper(params),
     onSuccess: (data: Response) => {
       cb?.();
       if (!data.error) {
