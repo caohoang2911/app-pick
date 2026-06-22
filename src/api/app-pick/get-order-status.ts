@@ -3,12 +3,11 @@ import { Role } from '~/src/types/employee';
 import { OrderStatusValue } from '~/src/types/order';
 
 /**
- * Response của `getOrderStatus`. BE có thể trả status ở nhiều dạng (chuỗi trực
- * tiếp hoặc bọc trong `{ status }`) nên xử lý phòng thủ ở `getOrderStatus`.
+ * Response của `getOrderStatus`.
  */
 type GetOrderStatusResponse = {
   error?: string;
-  data?: OrderStatusValue | { status?: OrderStatusValue } | string | null;
+  data?: OrderStatusValue | null;
 };
 
 /**
@@ -32,6 +31,7 @@ export const getOrderStatus = async (
   })) as unknown as GetOrderStatusResponse;
 
   const status = res?.data;
+  if (!status) return null;
 
-  return status as OrderStatusValue | null;
+  return status;
 };

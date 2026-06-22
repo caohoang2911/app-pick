@@ -2,7 +2,10 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef } from 'react';
 import { getOrderStatus } from '~/src/api/app-pick/get-order-status';
 import { queryClient } from '~/src/api/shared';
-import { isPostInFlight } from '~/src/api/shared/http-busy';
+import {
+  shouldDiscardStatusPollResult,
+  shouldSkipStatusPoll,
+} from '~/src/api/shared/http-busy';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { OrderDetail } from '~/src/types/order-pick';
 import { useRole } from './useRole';
@@ -11,6 +14,8 @@ import { useRole } from './useRole';
 const POLL_INTERVAL_MS = 3000;
 /** stackId để alert "đơn thay đổi" chỉ tồn tại một bản trong queue. */
 const STATUS_CHANGED_ALERT_STACK_ID = 'order-status-changed';
+/** Sau khi user bấm cập nhật, chờ refetch xong rồi mới poll lại. */
+const MANUAL_SYNC_COOLDOWN_MS = 3000;
 
 type OrderDetailCache = { data?: OrderDetail } | undefined;
 
@@ -31,8 +36,8 @@ type Options = {
  * - Chỉ chạy khi màn đang focus (dùng `useFocusEffect`) → tránh nhiều màn trong
  *   stack cùng poll một đơn.
  * - BE trả null/empty → BỎ QUA, không so sánh.
- * - Đang có HTTP POST bay (xem `http-busy`) → tạm dừng tick để tránh xung đột API;
- *   POST xong (dù lỗi hay không) tick sau sẽ tự chạy lại.
+ * - GET đã gửi trước POST nhưng response về sau → bỏ qua (xem
+ *   `shouldDiscardStatusPollResult`).
  * - Toàn bộ tick bọc try/catch → timer không bao giờ chết vĩnh viễn.
  * - Sau khi đã show popup thì ngừng poll cho tới khi user bấm cập nhật (tránh
  *   hỏi lại liên tục mỗi 3s).
@@ -47,6 +52,7 @@ export const useOrderStatusAutoRefresh = (
   // Tránh chồng request và tránh show popup nhiều lần.
   const isCheckingRef = useRef(false);
   const hasShownRef = useRef(false);
+  const manualSyncUntilRef = useRef(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,6 +61,7 @@ export const useOrderStatusAutoRefresh = (
       // Re-arm mỗi khi focus lại / đổi đơn.
       hasShownRef.current = false;
       isCheckingRef.current = false;
+      manualSyncUntilRef.current = 0;
 
       let cancelled = false;
 
@@ -76,30 +83,37 @@ export const useOrderStatusAutoRefresh = (
           stackId: STATUS_CHANGED_ALERT_STACK_ID,
           onConfirm: () => {
             hideAlert();
-            // Tải lại đơn tại chỗ → status FE cập nhật theo BE.
-            queryClient.invalidateQueries({
-              queryKey: ['orderDetail', orderCode],
-            });
-            // Cho phép phát hiện thay đổi tiếp theo.
-            hasShownRef.current = false;
+            manualSyncUntilRef.current = Date.now() + MANUAL_SYNC_COOLDOWN_MS;
+            void queryClient
+              .refetchQueries({
+                queryKey: ['orderDetail', orderCode],
+                exact: true,
+              })
+              .finally(() => {
+                hasShownRef.current = false;
+              });
           },
         });
       };
 
       const tick = async () => {
         if (cancelled) return;
-        if (isCheckingRef.current) return; // đang có request status chạy
-        if (hasShownRef.current) return; // đã show popup, chờ user cập nhật
-        if (isPostInFlight()) return; // pause khi đang có POST → tránh conflict
+        if (isCheckingRef.current) return;
+        if (hasShownRef.current) return;
+        if (Date.now() < manualSyncUntilRef.current) return;
+        if (shouldSkipStatusPoll()) return;
 
-        const feStatus = getFeStatus();
-        if (!feStatus) return; // FE chưa có status → chưa so sánh
+        const pollStartedAt = Date.now();
 
         isCheckingRef.current = true;
         try {
           const beStatus = await getOrderStatus(orderCode, role);
           if (cancelled) return;
-          if (!beStatus) return; // BE null/empty → bỏ qua
+          if (shouldDiscardStatusPollResult(pollStartedAt)) return;
+          if (Date.now() < manualSyncUntilRef.current) return;
+
+          const feStatus = getFeStatus();
+          if (!feStatus || !beStatus) return;
           if (beStatus !== feStatus) {
             showStatusChangedAlert();
           }
@@ -111,7 +125,6 @@ export const useOrderStatusAutoRefresh = (
       };
 
       const intervalId = setInterval(() => {
-        // Bọc thêm một lớp cho chắc, dù tick đã tự try/catch.
         void tick();
       }, POLL_INTERVAL_MS);
 
