@@ -6,7 +6,8 @@ import {
 } from '~/src/types/order-bags';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { toUpper } from 'lodash';
-import { Env } from '~/env';
+
+const SUFFIX_BARCODE_LENGTH = 6;
 
 export const transformBagsData: any = (bags: OrderBagItem[]) => {
   if (!bags) return { DRY: [], FROZEN: [], FRESH: [] };
@@ -93,24 +94,21 @@ export const barcodeCondition = (
   return refBarcodes.includes(barcode);
 };
 
-const MIN_SUFFIX_BARCODE_LENGTH = 5;
-
 const matchesRefBarcodeKeyword = (
   refBarcode: string,
   keywordUpper: string,
 ): boolean => {
   const barcodeUpper = toUpper(refBarcode);
 
-  // Prod: chỉ so sánh bằng (exact match) để tránh khớp nhầm theo đuôi mã.
-  if (Env.IS_PRODUCTION) {
-    return barcodeUpper === keywordUpper;
+  if (barcodeUpper === keywordUpper) {
+    return true;
   }
 
-  // Dev: giữ logic hiện tại (khớp bằng hoặc khớp đuôi >= MIN_SUFFIX_BARCODE_LENGTH ký tự).
+  // Cho phép nhập 6 số cuối của barcode (vd: 901015 → 9991105901015).
   return (
-    barcodeUpper === keywordUpper ||
-    (keywordUpper.length >= MIN_SUFFIX_BARCODE_LENGTH &&
-      barcodeUpper.endsWith(keywordUpper))
+    keywordUpper.length >= SUFFIX_BARCODE_LENGTH &&
+    /^\d+$/.test(keywordUpper) &&
+    barcodeUpper.endsWith(keywordUpper)
   );
 };
 
