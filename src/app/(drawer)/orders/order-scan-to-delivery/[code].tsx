@@ -250,22 +250,25 @@ const OrderScanToDelivery = () => {
     return 'Tạo hoá đơn & giao cho khách';
   }, [deliveryType]);
 
-  // const generateMessageCreateInvoice = useMemo(() => {
-  //   if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
-  //     return 'Bạn có chắc chắn tạo hóa đơn & giao cho tài xế?';
-  //   }
-  //   return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
-  // }, [deliveryType]);
+  const generateMessageCreateInvoice = useMemo(() => {
+    if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
+      return 'Bạn có chắc chắn tạo hóa đơn & giao cho tài xế?';
+    }
+    // return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
+    return null;
+  }, [deliveryType]);
 
   const { mutate: setOrderScannedBagLabel } =
     useSetOrderScannedBagLabelScanned();
 
   const { checkShift } = useCheckShift(() => {
+    const isCustomerPickup =
+      deliveryType === ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP;
     showAlertDialog({
       title: 'Tạo hoá đơn & hoàn tất đơn hàng',
-      // message: generateMessageCreateInvoice,
-      isHideCancelButton: true,
-      blockDismiss: true,
+      message: generateMessageCreateInvoice,
+      isHideCancelButton: isCustomerPickup,
+      blockDismiss: isCustomerPickup,
       onConfirm: () => {
         hideAlert();
         createInvoiceFlowOrderCodeRef.current = code;
@@ -390,19 +393,39 @@ const OrderScanToDelivery = () => {
     });
   }, [handoverStatus, code, uploadedImages, handoverOrder]);
 
-  const handleScanQrCodeProduct = (result: BarcodeScanningResult) => {
-    scanQrCodeSuccess(result, () => {
-      if (result?.data) {
+  const handleScanQrCodeProduct = useCallback(
+    (result: BarcodeScanningResult) => {
+      scanQrCodeSuccess(result, () => {
+        if (!result?.data) return;
         setOrderScannedBagLabel({ orderCode: code, bagCode: result?.data });
-      }
-    });
-  };
+
+        if (isOfflineHomeDelivery) return;
+        if (deliveryType !== ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP) return;
+
+        const bags = useOrderScanToDelivery.getState().orderBags;
+        const allBagsScanned =
+          bags.length > 0 &&
+          bags.every((bag) => bag.isDone || bag.lastScannedTime);
+        if (!allBagsScanned) return;
+
+        toggleScanQrCodeProduct(false);
+        handleCheckoutOrderBagsWithInvoice();
+      });
+    },
+    [
+      code,
+      deliveryType,
+      isOfflineHomeDelivery,
+      setOrderScannedBagLabel,
+      handleCheckoutOrderBagsWithInvoice,
+    ],
+  );
 
   const showAlert = useMemo(() => {
     return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);
   }, [tags]);
 
-  const disableActionWithoutInvoice = useMemo(() => {
+  const disableActionWithInvoice = useMemo(() => {
     const hasDriverInfo = hasOrderDriverInfo(header?.shipping);
     const baseDisable =
       !orderBags.length || isOrderDetailLoading || handoverStatus === 'DISABLE';
@@ -441,7 +464,7 @@ const OrderScanToDelivery = () => {
           loading={isLoadingHandoverOrder || isLoadingCreateInvoice}
           onPress={handleCheckoutOrderBagsWithInvoice}
           label={actionTypeWithInvoice}
-          disabled={disableActionWithoutInvoice}
+          disabled={disableActionWithInvoice}
           variant="warning"
         />
       )
@@ -462,7 +485,7 @@ const OrderScanToDelivery = () => {
     actionType,
     actionTypeWithInvoice,
     isOfflineHomeDelivery,
-    disableActionWithoutInvoice,
+    disableActionWithInvoice,
     isOrderDetailLoading,
     handoverStatus,
     toggleScanQrCodeProduct,
