@@ -26,7 +26,12 @@ const WHITE_LIST_ROLE = [
   EmployeeRole.STORE_MANAGER,
   EmployeeRole.ADMIN,
   EmployeeRole.DRIVER,
+  EmployeeRole.STORE_SHIFT_SUPERVISOR,
 ];
+
+const isAllowedAuthorizeRole = (role?: string) =>
+  !!role &&
+  (WHITE_LIST_ROLE.includes(role as EmployeeRole) || role.startsWith('STORE'));
 
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
@@ -78,7 +83,7 @@ const Authorize = () => {
         const { authInfo } = dataParser.data || {};
         const { zas, role } = authInfo || {};
 
-        if (WHITE_LIST_ROLE.includes(role)) {
+        if (isAllowedAuthorizeRole(role)) {
           let authorizedZas: string;
           try {
             const response = await authorizeAppPickClient({ zas });
