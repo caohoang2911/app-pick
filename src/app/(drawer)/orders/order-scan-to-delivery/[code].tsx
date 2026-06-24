@@ -250,20 +250,22 @@ const OrderScanToDelivery = () => {
     return 'Tạo hoá đơn & giao cho khách';
   }, [deliveryType]);
 
-  const generateMessageCreateInvoice = useMemo(() => {
-    if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
-      return 'Bạn có chắc chắn tạo hóa đơn & giao cho tài xế?';
-    }
-    return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
-  }, [deliveryType]);
+  // const generateMessageCreateInvoice = useMemo(() => {
+  //   if (deliveryType === ORDER_DELIVERY_TYPE.SHIPPER_DELIVERY) {
+  //     return 'Bạn có chắc chắn tạo hóa đơn & giao cho tài xế?';
+  //   }
+  //   return 'Bạn có chắc chắn tạo hóa đơn & giao cho khách?';
+  // }, [deliveryType]);
 
   const { mutate: setOrderScannedBagLabel } =
     useSetOrderScannedBagLabelScanned();
 
   const { checkShift } = useCheckShift(() => {
     showAlertDialog({
-      title: 'Tạo hoá đơn?',
-      message: generateMessageCreateInvoice,
+      title: 'Tạo hoá đơn & hoàn tất đơn hàng',
+      // message: generateMessageCreateInvoice,
+      isHideCancelButton: true,
+      blockDismiss: true,
       onConfirm: () => {
         hideAlert();
         createInvoiceFlowOrderCodeRef.current = code;
