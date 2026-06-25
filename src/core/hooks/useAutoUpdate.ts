@@ -44,16 +44,20 @@ const RELEASE_CHANNEL_PREFIX =
   process.env.EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX?.trim() ?? 'dev-';
 
 /**
- * Đã xác nhận native ≥ remote → lưu `isLatest` + `nativeBuildVersionRaw`.
- * Các lần mở app sau: nếu cùng bản native thì không gọi GitHub nữa.
- * Cài bản mới (chuỗi native đổi) → xóa khớp → check lại.
- * Lưu ý: có release native mới trên GitHub mà user vẫn cùng binary thì không tự phát hiện cho tới khi gỡ cờ (cài bản mới / xóa data app).
+ * Đã xác nhận native ≥ remote → lưu `nativeBuildVersionRaw` + `checkedAt`.
+ * Cùng binary VÀ còn trong TTL → bỏ qua gọi GitHub (tránh spam API ở kho nhiều máy chung IP).
+ * Hết TTL hoặc đổi binary (cài bản mới) → check lại.
+ * Khác bản cũ: nhờ TTL, có release native mới trên GitHub thì vẫn tự phát hiện sau tối đa `AUTO_UPDATE_LATEST_TTL_MS`, kể cả khi user vẫn cùng binary (không cần gỡ cài / xóa data).
  */
 const AUTO_UPDATE_LATEST_KEY = 'autoUpdate:isLatest';
+
+/** Bỏ qua fetch GitHub tối đa bấy nhiêu sau lần xác nhận "đang mới nhất" (cùng binary). */
+const AUTO_UPDATE_LATEST_TTL_MS = 30 * 60 * 1000; // 30 phút
 
 type AutoUpdateLatestStore = {
   isLatest: true;
   nativeBuildVersionRaw: string;
+  checkedAt: number;
 };
 
 async function clearAutoUpdateLatest() {
@@ -64,6 +68,7 @@ async function writeAutoUpdateLatest(nativeBuildVersionRaw: string) {
   await setItem(AUTO_UPDATE_LATEST_KEY, {
     isLatest: true,
     nativeBuildVersionRaw,
+    checkedAt: Date.now(),
   });
 }
 
@@ -73,11 +78,21 @@ function shouldSkipGithubFetchDueToLatest(
   const st = getItem<AutoUpdateLatestStore>(AUTO_UPDATE_LATEST_KEY);
   if (!st || typeof st !== 'object') return false;
   const raw = (st as AutoUpdateLatestStore).nativeBuildVersionRaw;
-  return (
-    (st as AutoUpdateLatestStore).isLatest === true &&
-    typeof raw === 'string' &&
-    raw === nativeBuildVersionRaw
-  );
+  if (
+    (st as AutoUpdateLatestStore).isLatest !== true ||
+    typeof raw !== 'string' ||
+    raw !== nativeBuildVersionRaw
+  ) {
+    return false;
+  }
+  // Cache cũ (không có checkedAt) hoặc hết TTL → fetch lại để bắt release mới.
+  const checkedAt = (st as AutoUpdateLatestStore).checkedAt;
+  if (typeof checkedAt !== 'number' || !Number.isFinite(checkedAt)) {
+    return false;
+  }
+  const age = Date.now() - checkedAt;
+  // age < 0 (đồng hồ bị chỉnh lùi) → coi như hết hạn, check lại cho an toàn.
+  return age >= 0 && age < AUTO_UPDATE_LATEST_TTL_MS;
 }
 
 /** Tránh 2 lần `run()` chồng nhau (Strict Mode / race trước khi ghi MMKV) → gọi GitHub trùng. */
@@ -114,6 +129,39 @@ function parseNativeBuildVersion(raw: string | null | undefined): number {
 
   const n = Number(trimmed);
   return Number.isFinite(n) ? n : NaN;
+}
+
+/**
+ * So sánh 2 chuỗi version theo TỪNG phần số (semver-ish), không chỉ lấy segment cuối.
+ * Tách theo dấu '.', so từng số; phần thiếu coi như 0.
+ * Trả: <0 nếu a < b, 0 nếu bằng, >0 nếu a > b.
+ * Dùng được cho cả iOS semver ("1.0.127") lẫn Android versionCode số thuần ("131").
+ * Nhờ vậy bump major/minor (vd 1.0.131 → 1.1.5) vẫn so đúng, khác kiểu cũ chỉ lấy số cuối.
+ */
+function compareBuildVersions(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): number {
+  const parse = (v: string | null | undefined): number[] => {
+    if (v == null) return [];
+    return String(v)
+      .trim()
+      .replace(/^v/i, '')
+      .split('.')
+      .map((seg) => {
+        const n = parseInt(seg, 10);
+        return Number.isFinite(n) ? n : 0;
+      });
+  };
+  const pa = parse(a);
+  const pb = parse(b);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const x = pa[i] ?? 0;
+    const y = pb[i] ?? 0;
+    if (x !== y) return x - y;
+  }
+  return 0;
 }
 
 function scheduleUpdateUi(show: () => void) {
@@ -170,15 +218,12 @@ async function fetchReleaseForUpdate(
         !(r as GitHubRelease).draft &&
         (r as GitHubRelease).tag_name.startsWith(fullTagPrefix),
     )
-    .sort((a, b) => {
-      const nb = parseNativeBuildVersion(
+    .sort((a, b) =>
+      compareBuildVersions(
         tagBuildSegment(b.tag_name, fullTagPrefix),
-      );
-      const na = parseNativeBuildVersion(
         tagBuildSegment(a.tag_name, fullTagPrefix),
-      );
-      return (Number.isFinite(nb) ? nb : 0) - (Number.isFinite(na) ? na : 0);
-    })[0];
+      ),
+    )[0];
 
   return target ?? null;
 }
@@ -245,20 +290,25 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
   const effectiveEnabled = enabled && nativeGithubUpdateAllowed;
 
   const [isDownloading, setIsDownloading] = useState(false);
-  /** Chỉ true khi thật sự cần chờ check GitHub; false ngay nếu tắt native update (kể cả lúc chờ CodePush). */
-  const [isChecking, setIsChecking] = useState(nativeGithubUpdateAllowed);
+  /**
+   * Chỉ true khi thật sự cần chờ check GitHub; false ngay nếu tắt native update (kể cả lúc chờ CodePush).
+   * Lazy-init theo cache: còn trong TTL (mới xác nhận latest gần đây) → khởi tạo false để KHỎI flash
+   * "Đang kiểm tra cập nhật" và vào app luôn (GitHub sẽ bị skip ở effect bên dưới).
+   */
+  const [isChecking, setIsChecking] = useState(() => {
+    if (!nativeGithubUpdateAllowed) return false;
+    const raw = String(Application.nativeBuildVersion ?? '');
+    return !shouldSkipGithubFetchDueToLatest(raw);
+  });
   const [progress, setProgress] = useState(0);
   /** iOS: còn bản GitHub mới hơn native — hiện lại popup khi quay lại app (ví dụ từ TestFlight). */
-  const iosMandatoryRef = useRef<{ remoteBuild: number } | null>(null);
+  const iosMandatoryRef = useRef<{ remoteBuildRaw: string } | null>(null);
 
-  const presentIosMandatoryAlert = useCallback((remoteBuild: number) => {
+  const presentIosMandatoryAlert = useCallback((remoteBuildRaw: string) => {
     const rawNative = Application.nativeBuildVersion;
-    const nativeCurrent = parseNativeBuildVersion(rawNative);
-    const nativeLabel = Number.isFinite(nativeCurrent)
-      ? String(nativeCurrent)
-      : (rawNative ?? '—');
+    const nativeLabel = rawNative ?? '—';
     if (!APP_STORE_URL) {
-      const body = `Build mới: ${remoteBuild} | Hiện tại: ${nativeLabel}`;
+      const body = `Build mới: ${remoteBuildRaw} | Hiện tại: ${nativeLabel}`;
       showAlert({
         title: 'Cần cập nhật phiên bản',
         message: body,
@@ -275,7 +325,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
     const { confirmText, hint } = iosUpdateOpenLabel(APP_STORE_URL);
     showAlert({
       title: 'Cần cập nhật phiên bản',
-      message: `Phiên bản mới (build ${remoteBuild}) đã có. Thiết bị đang dùng build ${nativeLabel}.\n\n${hint}`,
+      message: `Phiên bản mới (build ${remoteBuildRaw}) đã có. Thiết bị đang dùng build ${nativeLabel}.\n\n${hint}`,
       confirmText,
       isHideCancelButton: true,
       blockDismiss: true,
@@ -295,17 +345,15 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
       const pending = iosMandatoryRef.current;
       if (!pending) return;
 
-      const native = parseNativeBuildVersion(Application.nativeBuildVersion);
-      if (Number.isFinite(native) && native >= pending.remoteBuild) {
+      const nativeRaw = String(Application.nativeBuildVersion ?? '');
+      if (compareBuildVersions(nativeRaw, pending.remoteBuildRaw) >= 0) {
         iosMandatoryRef.current = null;
-        void writeAutoUpdateLatest(
-          String(Application.nativeBuildVersion ?? ''),
-        );
+        void writeAutoUpdateLatest(nativeRaw);
         return;
       }
 
       setIsChecking(true);
-      scheduleUpdateUi(() => presentIosMandatoryAlert(pending.remoteBuild));
+      scheduleUpdateUi(() => presentIosMandatoryAlert(pending.remoteBuildRaw));
     };
 
     const sub = AppState.addEventListener('change', onAppState);
@@ -436,10 +484,8 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
           return;
         }
 
-        const currentBuild = Number.isFinite(native) ? native : 0;
-        const remoteBuild = parseNativeBuildVersion(
-          tagBuildSegment(tag, fullTagPrefix),
-        );
+        const remoteRaw = tagBuildSegment(tag, fullTagPrefix);
+        const remoteBuild = parseNativeBuildVersion(remoteRaw);
 
         if (!Number.isFinite(remoteBuild)) {
           githubAutoUpdateRan = false;
@@ -455,7 +501,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
           return;
         }
 
-        if (currentBuild >= remoteBuild) {
+        if (compareBuildVersions(nativeRawForCache, remoteRaw) >= 0) {
           if (Platform.OS === 'ios') {
             iosMandatoryRef.current = null;
           }
@@ -463,9 +509,9 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
           if (__DEV__) {
             console.log(
               '[useAutoUpdate] Không cần cập nhật: native',
-              currentBuild,
+              nativeRawForCache,
               '>= remote',
-              remoteBuild,
+              remoteRaw,
               tag,
             );
           }
@@ -600,8 +646,8 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
 
         if (Platform.OS === 'ios') {
           deferUnlock = true;
-          iosMandatoryRef.current = { remoteBuild };
-          scheduleUpdateUi(() => presentIosMandatoryAlert(remoteBuild));
+          iosMandatoryRef.current = { remoteBuildRaw: remoteRaw };
+          scheduleUpdateUi(() => presentIosMandatoryAlert(remoteRaw));
           return;
         }
       } catch (e) {

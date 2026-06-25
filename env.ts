@@ -72,7 +72,7 @@ const configs = {
     ENABLE_CRASH_REPORTING: false,
     ENABLE_DEBUG_TOOLS: true,
     /** Check/tải bản native qua GitHub — tách theo nền (ghi đè bằng EXPO_PUBLIC_*). */
-    NATIVE_GITHUB_UPDATE_IOS: false,
+    NATIVE_GITHUB_UPDATE_IOS: true,
     NATIVE_GITHUB_UPDATE_ANDROID: false,
   },
   prod: {
@@ -86,7 +86,7 @@ const configs = {
     ENABLE_ANALYTICS: true,
     ENABLE_CRASH_REPORTING: true,
     ENABLE_DEBUG_TOOLS: false,
-    NATIVE_GITHUB_UPDATE_IOS: false,
+    NATIVE_GITHUB_UPDATE_IOS: true,
     NATIVE_GITHUB_UPDATE_ANDROID: false,
   },
 };
