@@ -19,6 +19,8 @@ import { showMessage } from 'react-native-flash-message';
 import { useAssignOrderToPicker } from '~/src/api/app-pick/use-assign-order-to-picker';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { queryClient } from '~/src/api/shared/api-provider';
+import { useAuth } from '~/src/core/store/auth';
+import { Role } from '~/src/types/employee';
 import { BillLine, PrintLine, QRScanLine } from '~/src/core/svgs';
 import {
   getScanToDeliveryInfo,
@@ -47,6 +49,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
   const [submenuVisible, setSubmenuVisible] = useState(false);
 
   const employeeSelectionRef = useRef<any>();
+  const userRole = useAuth.use.userInfo()?.role;
 
   const { orderDetail } = useOrderDetailForCode(code);
   const header = orderDetail?.header;
@@ -210,7 +213,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
       {
         key: 'assign-order-to-picker',
         title: 'Gán đơn cho NV Pick',
-        enabled: true,
+        enabled: userRole !== Role.STORE,
         icon: <SimpleLineIcons name="user-follow" size={22} color="black" />,
       },
       {
@@ -239,7 +242,7 @@ const OrderPickHeadeActionBottomSheet = forwardRef<any, Props>(({}, ref) => {
         icon: <MaterialIcons name="more-horiz" size={24} color="black" />,
       },
     ],
-    [status, deliveryType, code, shipping],
+    [status, deliveryType, code, shipping, userRole],
   );
 
   return (

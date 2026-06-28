@@ -1,10 +1,6 @@
 import { axiosClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
 
-type Variables = {
-  keyword: string;
-};
-
 type Response = { error: string } & {
   data: {
     id: number;
