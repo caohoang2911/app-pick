@@ -52,6 +52,7 @@ interface Props {
   onChangeText?: (text: string) => void;
   renderItem?: (item: Item) => React.ReactNode | null;
   maxDropdownHeight?: number;
+  showOverlay?: boolean;
 }
 
 export interface SearchableDropdownRef {
@@ -87,6 +88,7 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(
       allowSearch = false,
       maxDropdownHeight = 300,
       showDropdownOnEmptySearch = false,
+      showOverlay = true,
     },
     ref,
   ) => {
@@ -193,12 +195,17 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(
 
     return (
       <View style={[styles.outerContainer, containerStyle]}>
-        {isDropdownOpen && (
-          <Pressable style={[styles.overlay]} onPress={handleOutsideClick} />
+        {showOverlay && isDropdownOpen && (
+          <Pressable style={styles.overlay} onPress={handleOutsideClick} />
         )}
         <View style={styles.rowContainer}>
           <View style={styles.inputWrapper} ref={containerRef}>
-            <View style={styles.inputContainer}>
+            <View
+              style={[
+                styles.inputContainer,
+                isDropdownOpen && styles.inputContainerOpen,
+              ]}
+            >
               <TextInput
                 ref={inputRef}
                 value={searchText}
@@ -232,50 +239,50 @@ const SearchableDropdown = forwardRef<SearchableDropdownRef, Props>(
                 </TouchableOpacity>
               )}
             </View>
+
+            {isDropdownOpen && (
+              <View style={[styles.dropdown, { maxHeight: maxDropdownHeight }]}>
+                {isLoading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color="#999" />
+                    <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
+                  </View>
+                ) : filteredItems.length > 0 ? (
+                  <FlatList
+                    data={filteredItems}
+                    keyboardDismissMode="on-drag"
+                    onScrollBeginDrag={Keyboard.dismiss}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => {
+                      if (renderItem) {
+                        return renderItem(item) as any;
+                      }
+
+                      return (
+                        <TouchableOpacity
+                          style={[styles.item, itemStyle]}
+                          onPress={() => handleSelect(item)}
+                        >
+                          <Text style={[styles.itemText, itemTextStyle]}>
+                            {item.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                    nestedScrollEnabled
+                    keyboardShouldPersistTaps="handled"
+                  />
+                ) : (
+                  <View style={styles.noResults}>
+                    <Text style={styles.noResultsText}>{noResultsText}</Text>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
 
           {right && <View style={styles.rightComponentContainer}>{right}</View>}
         </View>
-
-        {isDropdownOpen && (
-          <View style={[styles.dropdown, { maxHeight: maxDropdownHeight }]}>
-            {isLoading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="#999" />
-                <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
-              </View>
-            ) : filteredItems.length > 0 ? (
-              <FlatList
-                data={filteredItems}
-                keyboardDismissMode="on-drag"
-                onScrollBeginDrag={Keyboard.dismiss}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                  if (renderItem) {
-                    return renderItem(item) as any;
-                  }
-
-                  return (
-                    <TouchableOpacity
-                      style={[styles.item, itemStyle]}
-                      onPress={() => handleSelect(item)}
-                    >
-                      <Text style={[styles.itemText, itemTextStyle]}>
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }}
-                nestedScrollEnabled
-                keyboardShouldPersistTaps="handled"
-              />
-            ) : (
-              <View style={styles.noResults}>
-                <Text style={styles.noResultsText}>{noResultsText}</Text>
-              </View>
-            )}
-          </View>
-        )}
       </View>
     );
   },
@@ -285,35 +292,34 @@ const styles = StyleSheet.create({
   outerContainer: {
     width: '100%',
     zIndex: 1000,
-    minHeight: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
-    position: 'absolute',
-    paddingHorizontal: 12,
     zIndex: 1000,
   },
 
   inputWrapper: {
     flex: 1,
-    position: 'relative',
     zIndex: 1000,
   },
 
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
     width: '100%',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#fff',
+  },
+
+  inputContainerOpen: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomColor: '#eee',
   },
 
   input: {
@@ -358,27 +364,24 @@ const styles = StyleSheet.create({
     height: 9999,
   },
   dropdown: {
-    position: 'absolute',
-    top: 45,
-    left: 0,
-    right: 0,
     backgroundColor: '#fff',
-    borderRadius: 8,
     borderWidth: 1,
+    borderTopWidth: 0,
     borderColor: '#ddd',
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
     maxHeight: 200,
-    elevation: 5,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
     overflow: 'hidden',
     zIndex: 1001,
-    marginHorizontal: 12,
   },
   item: {
     padding: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#eee',
   },
   itemText: {

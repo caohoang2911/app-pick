@@ -26,6 +26,8 @@ type Props = {
   topHeader?: React.ReactNode;
   onClose: () => void;
   disableScrollView?: boolean; // When true, children won't be wrapped in ScrollView (useful for BottomSheetFlatList)
+  scrollViewKey?: string;
+  scrollViewProps?: Record<string, any>;
   /** Đóng sheet khi click vào backdrop overlay. Mặc định true. */
   closeOnBackdropPress?: boolean;
   [key: string]: any;
@@ -111,6 +113,8 @@ const SBottomSheet = forwardRef<any, Props>(
       disableScrollView = false,
       hideCloseButton = false,
       closeOnBackdropPress = true,
+      scrollViewKey,
+      scrollViewProps,
       ...rests
     },
     ref,
@@ -134,15 +138,21 @@ const SBottomSheet = forwardRef<any, Props>(
           });
         },
         scrollToEnd: (params?: { animated?: boolean }) => {
-          bottomSheetScrollViewRef.current?.scrollToEnd?.({
+          const scrollView = bottomSheetScrollViewRef.current;
+          if (!scrollView?.scrollToEnd) return false;
+          scrollView.scrollToEnd({
             animated: params?.animated ?? true,
           });
+          return true;
         },
         scrollTo: (params: { y: number; animated?: boolean }) => {
-          bottomSheetScrollViewRef.current?.scrollTo?.({
+          const scrollView = bottomSheetScrollViewRef.current;
+          if (!scrollView?.scrollTo) return false;
+          scrollView.scrollTo({
             y: params?.y,
             animated: params?.animated ?? true,
           });
+          return true;
         },
       }),
       [onClose],
@@ -201,11 +211,13 @@ const SBottomSheet = forwardRef<any, Props>(
           children
         ) : (
           <SafeBottomSheetScrollView
+            key={scrollViewKey}
             ref={bottomSheetScrollViewRef}
             keyboardDismissMode="on-drag"
             bounces={true}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={true}
+            {...scrollViewProps}
           >
             {children}
           </SafeBottomSheetScrollView>

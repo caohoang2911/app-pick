@@ -1,5 +1,4 @@
 import { Stack } from 'expo-router';
-import Header from '~/src/components/shared/header';
 
 export default function PickerShiftManagementLayout() {
   return (
@@ -7,8 +6,7 @@ export default function PickerShiftManagementLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerShown: true,
-          header: () => <Header title="Quản lý ca FullTime Picker" />,
+          headerShown: false,
         }}
       />
     </Stack>
