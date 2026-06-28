@@ -13,6 +13,7 @@ const BLACK_LIST_SHOW_MESSAGE = [
   // getOrderStatus là poll nền 3s/lần của auto-refresh — không show flash khi lỗi.
   '/app-pick/getOrderStatus',
   '/app-pick-driver/getOrderStatus',
+  '/app-pick/getUnseenNotiCounter',
 ];
 const PUBLIC_AUTH_ENDPOINTS = [
   'auth/genHRVLoginURL',

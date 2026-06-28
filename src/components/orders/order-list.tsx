@@ -9,6 +9,10 @@ import React, {
 } from 'react';
 import { ActivityIndicator, Keyboard, Text, View } from 'react-native';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler';
+import {
+  UNSEEN_NOTI_COUNTER_POLL_MS,
+  useGetUnseenNotiCounter,
+} from '~/src/api/app-pick/use-get-unseen-noti-counter';
 import { useSearchOrders } from '~/src/api/app-pick/use-search-orders';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
@@ -124,6 +128,18 @@ const OrderList = () => {
   const fromScanQrCode = useOrders.use.fromScanQrCode();
 
   const isDriver = useRoleDriver();
+  const [isOrderListFocused, setIsOrderListFocused] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsOrderListFocused(true);
+      return () => setIsOrderListFocused(false);
+    }, []),
+  );
+
+  useGetUnseenNotiCounter(!isDriver && isOrderListFocused, {
+    refetchInterval: isOrderListFocused ? UNSEEN_NOTI_COUNTER_POLL_MS : false,
+  });
 
   // Initialize default tab based on user role
   useEffect(() => {

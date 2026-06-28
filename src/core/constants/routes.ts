@@ -51,8 +51,12 @@ export const APP_ROUTES = {
   // Other screens
   PRINT_PREVIEW: '/orders/print-preview',
 
-  // Settings
+  // Settings & utilities
   SETTINGS: '/settings',
+  NOTIFICATIONS: '/notifications',
+  PROCESSING_SLIPS: '/processing-slips',
+  SUPPORT_CENTER: '/support-center',
+  PICKER_SHIFT_MANAGEMENT: '/picker-shift-management',
   OTA_GATE: '/ota-gate',
 } as const;
 

@@ -12,14 +12,18 @@ const Header = ({
   title?: React.ReactNode;
 }) => {
   return (
-    <View className="flex flex-row items-center justify-between py-3 bg-white border-b border-gray-200 px-4">
-      {headerLeft || <ButtonBack />}
+    <View className="relative flex-row items-center justify-center py-3 bg-white border-b border-gray-200 px-4 min-h-[48px]">
+      <View className="absolute left-4 z-10">
+        {headerLeft ?? <ButtonBack />}
+      </View>
       {typeof title === 'string' ? (
-        <Text className="text-lg font-medium">{title}</Text>
+        <Text className="text-lg font-medium text-center px-10">{title}</Text>
       ) : (
         title
       )}
-      {headerRight || <View />}
+      <View className="absolute right-4 z-10">
+        {headerRight ?? <View className="w-6" />}
+      </View>
     </View>
   );
 };

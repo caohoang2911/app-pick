@@ -3,11 +3,10 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { DrawerActions } from '@react-navigation/native';
 
 import { useIsFetching, useIsMutating } from '@tanstack/react-query';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { useGetOrderStatusCounters } from '~/src/api/app-pick';
-import { toUpper } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Images } from '~/assets';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
@@ -33,8 +32,18 @@ import DeliveryType from './delivery-type';
 import InputSearch from './input-search';
 import MissingInvoiceBottomSheet from './missing-invoice-bottom-sheet';
 import OrderStatusBottomSheet from './order-status-bottom-sheet';
+import { useGetUnseenNotiCounter } from '~/src/api/app-pick/use-get-unseen-noti-counter';
+import { ROUTES } from '@/core/constants/routes';
 
 const MAX_DRIVER_ASSIGNED_STORE_CODES = 2;
+
+/** Tên gọi đại diện — lấy từ cuối chuỗi họ tên (vd. "Võ Thị Anh Thy" → "Thy"). */
+const getRepresentativeFirstName = (fullName?: string) => {
+  const trimmed = fullName?.trim();
+  if (!trimmed) return '';
+  const parts = trimmed.split(/\s+/);
+  return parts[parts.length - 1] ?? trimmed;
+};
 
 const Header = () => {
   const userInfo = useAuth.use.userInfo();
@@ -47,6 +56,7 @@ const Header = () => {
   const storeRef = useRef<any>(null);
   const storeName = getConfigNameById(stores, userInfo?.storeCode);
   const roleName = getConfigNameById(employeeRoles, userInfo?.role);
+  const representativeName = getRepresentativeFirstName(userInfo?.name);
 
   const driverAssignedStoreCodes = userInfo?.driverAssignedStoreCodes || [];
   const driverOrderAssignStatus = userInfo?.driverOrderAssignStatus;
@@ -71,6 +81,8 @@ const Header = () => {
 
   const { data: counterData } = useGetOrderStatusCounters();
   const missingInvoiceCount = counterData?.data?.MISSING_INVOICE ?? 0;
+  const { data: unseenNotiCounterData } = useGetUnseenNotiCounter(false);
+  const unseenNotiCount = unseenNotiCounterData?.data ?? 10;
 
   const handleOrderStatusBottomSheet = () => {
     orderStatusBottomSheetRef.current?.present();
@@ -84,10 +96,9 @@ const Header = () => {
     refreshTokenAsync();
   });
 
-  const { mutateAsync: refreshTokenAsync, isPending: isPendingRefreshToken } =
-    useRefreshToken((data) => {
-      queryClient.invalidateQueries({});
-    });
+  const { mutateAsync: refreshTokenAsync } = useRefreshToken((data) => {
+    queryClient.invalidateQueries({});
+  });
 
   // Track mutation state from mutationKey to get isPending from any instance
   const isLoadingRefreshToken =
@@ -248,47 +259,47 @@ const Header = () => {
 
   return (
     <View className="py-2 bg-blue-100">
-      <View className="flex px-4 flex-row justify-between items-center mb-2">
-        <View className="flex flex-row gap-2 items-center">
-          <TouchableOpacity onPress={toggleMenu}>
-            <Avatar>
-              <AvatarImage source={Images.avatar_default} alt="@shadcn" />
-            </Avatar>
-          </TouchableOpacity>
-          <View className="flex-grow">
-            <View className="flex flex-row items-center justify-between gap-2 flex-grow">
-              <View className="flex-1 mr-2">
-                <Text
-                  className="font-semibold text-base"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {userInfo?.name} - {toUpper(userInfo?.username)}
-                </Text>
-              </View>
-
-              <View className="flex-shrink-0 flex-row gap-3 justify-center items-center">
-                <Pressable
-                  className="flex flex-row items-center gap-1"
-                  hitSlop={10}
-                  onPress={() => refreshTokenAsync()}
-                >
-                  {isPendingRefreshToken ? (
-                    <ActivityIndicator size="small" color={colors.blue[400]} />
-                  ) : (
-                    <MaterialIcons
-                      name="refresh"
-                      size={14}
-                      color={colors.blue[400]}
-                    />
-                  )}
-                </Pressable>
-                <Badge label={roleName || userInfo?.role} />
-              </View>
+      <View className="flex px-4 flex-row items-start mb-2 gap-2">
+        <TouchableOpacity onPress={toggleMenu} className="self-start">
+          <Avatar>
+            <AvatarImage source={Images.avatar_default} alt="@shadcn" />
+          </Avatar>
+        </TouchableOpacity>
+        <View className="flex-1 min-w-0">
+          <View className="flex flex-row items-start justify-between gap-2">
+            <View className="flex-1 min-w-0 flex-row items-center gap-1.5">
+              <Text
+                className="font-semibold text-base shrink"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {userInfo?.username} - {representativeName}
+              </Text>
+              <Badge label={roleName || userInfo?.role} />
             </View>
-            {!isDriver && renderStoreSelection}
-            {isDriver && renderDriverSelection}
+            <Pressable
+              className="self-start pt-0.5"
+              hitSlop={10}
+              onPress={() => router.push(ROUTES.APP.NOTIFICATIONS)}
+            >
+              <View className="relative">
+                <Ionicons
+                  name="notifications-outline"
+                  size={22}
+                  color={colors.black}
+                />
+                {unseenNotiCount > 0 && (
+                  <View className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 rounded-full bg-red-500 items-center justify-center px-1">
+                    <Text className="text-[10px] font-bold text-white leading-3">
+                      {unseenNotiCount > 99 ? '99+' : unseenNotiCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </Pressable>
           </View>
+          {!isDriver && renderStoreSelection}
+          {isDriver && renderDriverSelection}
         </View>
       </View>
       <View className="flex flex-row mt-2 justify-between z-10 items-center gap-3">
