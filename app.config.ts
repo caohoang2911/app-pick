@@ -71,7 +71,13 @@ export default (): ExpoConfig => {
     ...base,
 
     // Plugins
-    plugins: [...(base.plugins || [])],
+    plugins: [
+      ...(base.plugins || []),
+      // CallKeep: quyền Android + ConnectionService, background mode iOS.
+      '@config-plugins/react-native-callkeep',
+      // VoIP push (iOS PushKit) — phần không có plugin nào cover.
+      './plugins/withStringeeVoip',
+    ],
 
     // Enable dev client for development
     developmentClient: isDev

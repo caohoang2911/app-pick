@@ -206,49 +206,10 @@ export const usePushNotifications: any = () => {
         }
       });
 
-    // Handle background messages (critical for iOS sound)
-    messaging().setBackgroundMessageHandler(async (remoteMessage: any) => {
-      console.log('Message handled in the background!', remoteMessage);
-
-      try {
-        // iOS requires specific structure for sound to work
-        if (Platform.OS === 'ios') {
-          // Xử lý đặc biệt cho iOS để phát âm thanh thông báo khi ở nền
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: remoteMessage.notification?.title || 'Thông báo mới',
-              body: remoteMessage.notification?.body || '',
-              data: {
-                ...remoteMessage.data,
-                // iOS cần cấu trúc APS đặc biệt để phát âm thanh
-                aps: {
-                  sound: 'ding.mp3',
-                  badge: 1,
-                  'content-available': 1,
-                },
-              },
-              sound: 'ding.mp3', // Use custom sound instead of default
-            },
-            trigger: null,
-          });
-        } else {
-          // Android background notification with sound
-          const notification = {
-            title: remoteMessage.notification?.title || '',
-            body: remoteMessage.notification?.body || '',
-            data: remoteMessage.data || {},
-            sound: 'ding.mp3', // Reference to sound file in res/raw
-            channelId: 'default_channel_id',
-          };
-          await Notifications.scheduleNotificationAsync({
-            content: notification,
-            trigger: null,
-          });
-        }
-      } catch (error) {
-        console.log('Error scheduling background notification:', error);
-      }
-    });
+    // NOTE: Handler FCM background/quit được đăng ký 1 lần duy nhất ở entry point
+    // (`index.js` → `registerBackgroundCallHandler`) để chạy được cả khi app bị
+    // kill và để hiển thị cuộc gọi Stringee đến. Không đăng ký lại ở đây vì
+    // FirebaseMessaging chỉ cho phép 1 background handler (cái đăng ký sau ghi đè).
 
     // Handle push notifications when the app is in the foreground
     const handlePushNotification = async (remoteMessage: any) => {

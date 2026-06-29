@@ -1,0 +1,83 @@
+import messaging from '@react-native-firebase/messaging';
+import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
+type DataPayload = Record<string, unknown>;
+
+/** Nhận diện push cuộc gọi Stringee qua data payload. */
+function isStringeeCallPush(data: DataPayload): boolean {
+  return (
+    !!data?.callId ||
+    data?.callStatus === 'started' ||
+    data?.callStatus === 'ringing'
+  );
+}
+
+/** Hiển thị màn hình cuộc gọi đến (Android, khi app ở background/bị kill). */
+function showIncomingCallFromPush(data: DataPayload): void {
+  // Lazy require để không nạp module native ở các push không phải cuộc gọi.
+  const RNCallKeep = require('react-native-callkeep').default;
+  const uuid = String(data.callId ?? data.serial ?? Date.now());
+  RNCallKeep.displayIncomingCall(
+    uuid,
+    String(data.fromNumber ?? data.from ?? 'unknown'),
+    String(data.fromAlias ?? data.from ?? 'Tổng đài'),
+    'generic',
+    false,
+  );
+}
+
+/** Giữ nguyên hành vi cũ: phát thông báo có âm thanh khi nhận push ở background. */
+async function showNotificationWithSound(
+  remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+): Promise<void> {
+  if (Platform.OS === 'ios') {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: remoteMessage.notification?.title || 'Thông báo mới',
+        body: remoteMessage.notification?.body || '',
+        data: {
+          ...remoteMessage.data,
+          aps: { sound: 'ding.mp3', badge: 1, 'content-available': 1 },
+        },
+        sound: 'ding.mp3',
+      },
+      trigger: null,
+    });
+  } else {
+    // channelId được truyền qua biến để tránh excess-property-check của TS.
+    const content: any = {
+      title: remoteMessage.notification?.title || '',
+      body: remoteMessage.notification?.body || '',
+      data: remoteMessage.data || {},
+      sound: 'ding.mp3',
+      channelId: 'default_channel_id',
+    };
+    await Notifications.scheduleNotificationAsync({ content, trigger: null });
+  }
+}
+
+/**
+ * Đăng ký 1 handler DUY NHẤT cho FCM background/quit message.
+ *
+ * Phải gọi ở entry point (top-level, xem `index.js`) để chạy được cả khi app
+ * bị kill (headless JS task). FirebaseMessaging chỉ cho phép 1 background
+ * handler — handler này thay thế cho cái cũ trong `usePushNotifications`:
+ *  - Cuộc gọi Stringee (Android) → hiển thị CallKeep.
+ *  - Còn lại → thông báo có âm thanh như trước.
+ */
+export function registerBackgroundCallHandler(): void {
+  messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+    const data = (remoteMessage?.data || {}) as DataPayload;
+    try {
+      if (Platform.OS === 'android' && isStringeeCallPush(data)) {
+        showIncomingCallFromPush(data);
+        return;
+      }
+      await showNotificationWithSound(remoteMessage);
+    } catch (e) {
+      console.log('[BackgroundCall] handler error', e);
+    }
+  });
+}

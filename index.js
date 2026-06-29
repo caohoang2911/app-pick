@@ -1,8 +1,9 @@
-import { registerRootComponent } from 'expo';
+// Entry point tuỳ biến cho expo-router.
+// Đăng ký handler nhận FCM background/quit (cuộc gọi Stringee + thông báo)
+// TRƯỚC khi expo-router khởi động, để hoạt động cả khi app bị kill (headless JS).
+import { registerBackgroundCallHandler } from './src/core/services/stringee/register-background-call-handler';
 
-import App from './src';
+registerBackgroundCallHandler();
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
-registerRootComponent(App);
+// expo-router/entry tự gọi registerRootComponent với context routing.
+require('expo-router/entry');

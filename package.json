@@ -1,7 +1,7 @@
 {
   "name": "seedcom-app-pick",
   "version": "1.0.0",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "scripts": {
     "start:dev": "cross-env EAS_BUILD_PROFILE=dev expo start --dev-client",
     "start:prod": "cross-env EAS_BUILD_PROFILE=prod expo start --dev-client",
@@ -41,6 +41,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@config-plugins/react-native-callkeep": "^14.0.1",
     "@dev-plugins/react-navigation": "^0.0.6",
     "@dev-plugins/react-query": "^0.0.6",
     "@expo/metro-runtime": "~3.2.1",
@@ -89,6 +90,7 @@
     "react-hook-form": "^7.52.1",
     "react-native": "0.74.5",
     "react-native-avoid-softinput": "^4.0.1",
+    "react-native-callkeep": "^4.3.16",
     "react-native-element-dropdown": "^2.12.1",
     "react-native-flash-message": "^0.4.2",
     "react-native-gesture-handler": "~2.16.1",
@@ -102,12 +104,14 @@
     "react-native-tcp-socket": "^6.2.0",
     "react-native-view-shot": "3.8.0",
     "react-native-vision-camera": "^4.7.3",
+    "react-native-voip-push-notification": "^3.3.3",
     "react-native-volume-manager": "^1.10.0",
     "react-native-web": "~0.19.10",
     "react-native-webview": "13.8.6",
     "react-native-worklets": "^0.6.0",
     "react-native-worklets-core": "^1.6.3",
     "react-query-kit": "^3.3.0",
+    "stringee-react-native-v2": "^1.0.11",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "with-react-native-tcp-socket": "^1.0.1",

@@ -9,7 +9,7 @@ const getUnseenNotiCounter = async (): Promise<Response> => {
   return await axiosClient.get('app-pick/getUnseenNotiCounter');
 };
 
-export const UNSEEN_NOTI_COUNTER_POLL_MS = 3000;
+export const UNSEEN_NOTI_COUNTER_POLL_MS = 30000;
 
 type UseGetUnseenNotiCounterOptions = {
   enabled?: boolean;

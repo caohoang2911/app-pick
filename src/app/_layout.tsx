@@ -24,6 +24,7 @@ import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
+import { useStringeeCall } from '@/core/hooks/useStringeeCall';
 import { hydrateConfig } from '@/core/store/config';
 import { useLoading } from '@/core/store/loading';
 import { ErrorBoundary as CustomErrorBoundary } from '@/core/utils/error-boundary';
@@ -39,6 +40,7 @@ import {
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
+import { CallOverlay } from '../components/call/CallOverlay';
 import FlashMessageWithMarkdown from '../components/FlashMessageWithMarkdown';
 import NetworkStatus from '../components/NetWorkStatus';
 import { OtaUpdateReadyModal } from '../components/OtaUpdateReadyModal';
@@ -123,6 +125,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useProtectedRoute();
   useHandleDeepLink();
   useWatchResponse();
+  useStringeeCall();
   return <>{children}</>;
 };
 
@@ -298,6 +301,8 @@ function Providers({ children }: { children: React.ReactNode }) {
                 </View>
 
                 <AlertDialog />
+
+                <CallOverlay />
 
                 <OtaUpdateReadyModal />
 
