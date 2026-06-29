@@ -273,7 +273,7 @@ const Header = () => {
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {userInfo?.username} - {representativeName}
+                {userInfo?.username?.toUpperCase()} - {representativeName}
               </Text>
               <Badge label={roleName || userInfo?.role} />
             </View>
@@ -302,7 +302,7 @@ const Header = () => {
           {isDriver && renderDriverSelection}
         </View>
       </View>
-      <View className="flex flex-row mt-2 justify-between z-10 items-center gap-3">
+      <View className="flex flex-row mt-2 px-4 justify-between z-10 items-center gap-3">
         <InputSearch toggleScanQrCode={() => toggleScanQrCode(true)} />
       </View>
       <View className="px-4">

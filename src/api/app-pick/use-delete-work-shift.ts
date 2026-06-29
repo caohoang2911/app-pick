@@ -12,7 +12,7 @@ type Response = { error: string } & {
 };
 
 const deleteWorkShift = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/deleteWorkShift', params);
+  return await axiosClient.post('app-pick/deletePickerWorkShift', params);
 };
 
 export const useDeleteWorkShift = (cb?: () => void) =>
@@ -22,7 +22,9 @@ export const useDeleteWorkShift = (cb?: () => void) =>
     onSuccess: (data: Response) => {
       setLoading(false);
       if (!data?.error) {
-        queryClient.invalidateQueries({ queryKey: ['getListWorkShifts'] });
+        queryClient.invalidateQueries({
+          queryKey: ['getListPickerWorkShifts'],
+        });
         cb?.();
       }
     },

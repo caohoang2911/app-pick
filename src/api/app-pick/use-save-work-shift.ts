@@ -13,7 +13,7 @@ type Response = { error: string } & {
 };
 
 const saveWorkShift = async (params: Variables): Promise<Response> => {
-  return await axiosClient.post('app-pick/saveWorkShift', params);
+  return await axiosClient.post('app-pick/savePickerWorkShift', params);
 };
 
 export const useSaveWorkShift = (cb?: () => void) =>
@@ -23,7 +23,9 @@ export const useSaveWorkShift = (cb?: () => void) =>
     onSuccess: (data: Response) => {
       setLoading(false);
       if (!data?.error) {
-        queryClient.invalidateQueries({ queryKey: ['getListWorkShifts'] });
+        queryClient.invalidateQueries({
+          queryKey: ['getListPickerWorkShifts'],
+        });
         cb?.();
       }
     },

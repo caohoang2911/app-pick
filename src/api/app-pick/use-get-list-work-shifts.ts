@@ -8,7 +8,7 @@ type Response = { error: string } & {
 };
 
 const getListWorkShifts = async (timeRange: string): Promise<Response> => {
-  return await axiosClient.get('app-pick/getListWorkShifts', {
+  return await axiosClient.get('app-pick/getListPickerWorkShifts', {
     params: {
       filter: JSON.stringify({ timeRange }),
     },
@@ -19,7 +19,7 @@ export const useGetListWorkShifts = (timeRange?: string, enabled = true) => {
   const range = timeRange ?? getDefaultWorkShiftTimeRange().timeRangeFilter;
 
   return useQuery({
-    queryKey: ['getListWorkShifts', range],
+    queryKey: ['getListPickerWorkShifts', range],
     queryFn: () => getListWorkShifts(range),
     enabled,
     staleTime: 0,

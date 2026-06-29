@@ -162,7 +162,14 @@ const SDropdown = ({
         ref.current?.close();
       }}
     >
-      <Text>{item[labelField]}</Text>
+      <View style={styles.itemContent}>
+        <Text style={styles.itemTitle}>{item[labelField]}</Text>
+        {item.subtitle ? (
+          <Text style={styles.itemSubtitle} numberOfLines={1}>
+            {item.subtitle}
+          </Text>
+        ) : null}
+      </View>
       {value === item?.[valueField] && (
         <CheckCircleFill width={20} height={20} color="green" />
       )}
@@ -438,6 +445,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  itemContent: {
+    flex: 1,
+    marginRight: 8,
+  },
+  itemTitle: {
+    fontSize: 14,
+    color: '#111',
+  },
+  itemSubtitle: {
+    marginTop: 2,
+    fontSize: 12,
+    color: '#718096',
   },
   modalBackdrop: {
     flex: 1,

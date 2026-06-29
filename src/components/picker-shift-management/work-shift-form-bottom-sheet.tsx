@@ -20,6 +20,8 @@ import {
   WORK_SHIFT_PRESETS,
   type WorkShiftPreset,
 } from '~/src/core/constants/work-shift';
+import { useConfig } from '~/src/core/store/config';
+import { getConfigNameById } from '~/src/core/utils/config';
 import {
   WORK_SHIFT_TIMEZONE,
   buildWorkShiftTimes,
@@ -40,6 +42,7 @@ type EmployeeOption = {
   id: number;
   name: string;
   username: string;
+  role?: string;
 };
 
 const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
@@ -52,6 +55,7 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
     const [selectedPreset, setSelectedPreset] =
       useState<WorkShiftPreset | null>(WORK_SHIFT_PRESETS[0] ?? null);
     const sheetRef = useRef<any>(null);
+    const employeeRoles = useConfig.use.config()?.employeeRoles || [];
 
     const isEdit = !!editingShift;
 
@@ -63,10 +67,16 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
 
     const employees = employeesData?.data ?? [];
 
+    const getEmployeeRoleLabel = useCallback(
+      (role?: string) => getConfigNameById(employeeRoles, role) || role || '',
+      [employeeRoles],
+    );
+
     const employeeDropdownData = useMemo(() => {
       const items = employees.map((employee) => ({
         id: String(employee.id),
         name: `${employee.name} - ${employee.username}`,
+        subtitle: getEmployeeRoleLabel(employee.role),
       }));
 
       if (
@@ -76,11 +86,12 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
         items.unshift({
           id: String(selectedEmployee.id),
           name: `${selectedEmployee.name} - ${selectedEmployee.username}`,
+          subtitle: getEmployeeRoleLabel(selectedEmployee.role),
         });
       }
 
       return items;
-    }, [employees, selectedEmployee]);
+    }, [employees, getEmployeeRoleLabel, selectedEmployee]);
 
     const presetDropdownData = useMemo(
       () =>
@@ -189,6 +200,7 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
             id: employee.id,
             name: employee.name,
             username: employee.username,
+            role: employee.role,
           });
           return;
         }

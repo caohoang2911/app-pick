@@ -77,7 +77,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
       show: !isDriver,
     },
     {
-      label: 'Quản lý ca FullTime Picker',
+      label: 'Quản lý ca FT-Picker',
       icon: <Ionicons name="calendar-outline" size={20} color="black" />,
       onPress: () => navigateFromDrawer(ROUTES.APP.PICKER_SHIFT_MANAGEMENT),
       enable: canAccessPickerShiftManagement,
