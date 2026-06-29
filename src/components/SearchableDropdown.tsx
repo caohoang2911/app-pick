@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
 
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     width: '100%',
     zIndex: 1000,
   },
