@@ -296,6 +296,8 @@ const styles = StyleSheet.create({
 
   rowContainer: {
     flexDirection: 'row',
+    // 'center' căn giữa nút `right` (QR) theo ô input. An toàn vì dropdown đã
+    // absolute → inputWrapper không bị kéo cao khi mở (không còn lỗi QR trôi).
     alignItems: 'center',
     width: '100%',
     zIndex: 1000,
@@ -354,16 +356,25 @@ const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
+    // left/right âm để lớp dim TRÀN ra ngoài px-4 của header → phủ kín bề ngang
+    // màn hình (trước đây left/right:0 nên hở 'padding 2 bên'). Cặp translateY/height
+    // lo phủ chiều dọc. (width:'100%' bỏ đi vì xung đột với left+right.)
+    left: -1000,
+    right: -1000,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 999,
     transform: [{ translateY: -1000 }],
     height: 9999,
   },
   dropdown: {
+    // Overlay (absolute): khi mở, dropdown KHÔNG nằm trong luồng nên KHÔNG kéo cao
+    // header → KHÔNG đẩy tabs/listing phía dưới xuống (header child vẫn vẽ đè lên
+    // content — bằng chứng là lớp dim phủ kín listing). Cũng nhờ vậy inputWrapper
+    // không bị giãn → nút `right` (QR) hết bị căn trôi xuống giữa.
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderTopWidth: 0,
