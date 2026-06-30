@@ -24,6 +24,12 @@
         "EAS_BUILD_PROFILE": "dev"
       }
     },
+    "dev-device": {
+      "extends": "dev",
+      "ios": {
+        "distribution": "internal"
+      }
+    },
     "prod": {
       "node": "22.9.0",
       "autoIncrement": true,

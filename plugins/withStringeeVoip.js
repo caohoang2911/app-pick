@@ -56,6 +56,7 @@ const REGISTRY_INIT = `
 const PUSHKIT_METHODS = `
 #pragma mark - Stringee VoIP push (PushKit) — @stringee-voip
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(PKPushType)type {
+  NSLog(@"[StringeeVoIP] didUpdatePushCredentials: VoIP token length=%lu", (unsigned long)credentials.token.length);
   [RNVoipPushNotificationManager didUpdatePushCredentials:credentials forType:(NSString *)type];
 }
 
@@ -66,6 +67,7 @@ const PUSHKIT_METHODS = `
   // ⚠️ Cấu trúc payload VoIP của Stringee có thể lồng nhiều tầng — xác nhận bằng
   // cách log payload.dictionaryPayload trên máy thật. Các fallback giữ an toàn.
   NSDictionary *dict = payload.dictionaryPayload;
+  NSLog(@"[StringeeVoIP] didReceiveIncomingPush — FULL payload=%@", dict);
   NSDictionary *data = dict[@"data"][@"map"][@"data"][@"map"];
   if (![data isKindOfClass:[NSDictionary class]]) data = dict[@"data"];
   if (![data isKindOfClass:[NSDictionary class]]) data = dict;
@@ -74,6 +76,7 @@ const PUSHKIT_METHODS = `
   NSNumber *serial = [data[@"serial"] isKindOfClass:[NSNumber class]] ? data[@"serial"] : @(1);
   NSString *callerName = data[@"fromAlias"] ?: data[@"from"] ?: @"Tổng đài";
   NSString *handle = data[@"from"] ?: @"unknown";
+  NSLog(@"[StringeeVoIP] parsed callId=%@ serial=%@ caller=%@ handle=%@", callId, serial, callerName, handle);
 
   // Dùng ĐÚNG uuid mà JS call.generateUUID() sẽ trả về (cùng singleton cache theo
   // callId-serial) để khi answer, registry tra cứu được StringeeCall2 tương ứng.
@@ -83,6 +86,7 @@ const PUSHKIT_METHODS = `
 
   [RNVoipPushNotificationManager didReceiveIncomingPushWithPayload:payload forType:(NSString *)type];
 
+  NSLog(@"[StringeeVoIP] reportNewIncomingCall uuid=%@", uuid);
   // iOS 13+: BẮT BUỘC report cuộc gọi tới CallKit ngay khi nhận VoIP push.
   [RNCallKeep reportNewIncomingCall:uuid
                              handle:handle
