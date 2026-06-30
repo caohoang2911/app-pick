@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
@@ -31,6 +32,11 @@ const UNSAVED_BAG_MSG =
 const OrderBags = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const navigation = useNavigation();
+  // Store order-bags là singleton toàn cục; trong Expo Router Stack màn của đơn
+  // trước vẫn mounted (chỉ mất focus). Dùng isFocused để CHỈ màn đang focus được
+  // ghi vào store → màn nền đơn khác không thể clobber (root cause của rò mã chéo
+  // đơn — xem memory order-bags-singleton-cross-order-leak).
+  const isFocused = useIsFocused();
   const hasBagUnsavedRef = useRef(false);
   const { isOrderDetailLoading, orderDetailError, orderDetail } =
     useOrderDetailForCode(code);
@@ -72,14 +78,17 @@ const OrderBags = () => {
   });
 
   useEffect(() => {
-    if (orderDetail) {
+    // CHỈ màn đang focus mới được populate store global. Màn đơn khác còn mounted
+    // trong Stack (orderDetail của nó refetch theo poll/staleTime) sẽ KHÔNG ghi đè
+    // store bằng túi của đơn nó nữa.
+    if (isFocused && orderDetail) {
       setHasUpdateOrderBagLabels(false);
       setOrderBags(transformBagsData(orderDetail?.header?.bagLabels));
     }
     if (!isOrderDetailLoading && isInitialLoad) {
       setIsInitialLoad(false);
     }
-  }, [orderDetail, isOrderDetailLoading, isInitialLoad]);
+  }, [isFocused, orderDetail, isOrderDetailLoading, isInitialLoad]);
 
   const shipping = orderDetail?.header?.shipping;
   const { packageSize } = shipping || {};
@@ -142,6 +151,10 @@ const OrderBags = () => {
   }, [doPrintAll]);
 
   useEffect(() => {
+    // Chỉ màn đang focus mới auto-save. Tránh màn nền đơn khác POST nhầm sang
+    // orderCode của nó, hoặc đụng cờ hasUpdateOrderBagLabels (global) làm hỏng
+    // chu kỳ lưu của màn đang focus.
+    if (!isFocused) return;
     if (!code || !hasUpdateOrderBagLabels || isInitialLoad) return;
 
     const mergedOrderBags = [
@@ -155,6 +168,7 @@ const OrderBags = () => {
       orderCode: code,
     });
   }, [
+    isFocused,
     code,
     hasUpdateOrderBagLabels,
     isInitialLoad,

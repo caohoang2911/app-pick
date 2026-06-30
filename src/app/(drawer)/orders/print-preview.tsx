@@ -21,7 +21,6 @@ import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import { useOrderBags } from '~/src/core/store/order-bags';
 import { getDeviceIpHintText } from '~/src/core/utils/printer-connection';
-import { OrderBagType } from '~/src/types/order-bags';
 
 const TIMEOUT_CONNECT_PRINTER = 5000;
 const PRINT_DELAY = 300; // ms per item
@@ -48,15 +47,20 @@ function PrintPreview() {
   const orderBags = useOrderBags.use.orderBags();
 
   const bagLabelsPrint = useMemo(() => {
-    const merged = [...orderBags.DRY, ...orderBags.FRESH, ...orderBags.FROZEN];
+    // Chỉ in tem của đơn hiện tại. Store order-bags là singleton toàn cục, có thể
+    // chứa túi của đơn khác (xem memory order-bags-singleton-cross-order-leak); in
+    // nhầm mã lạ tạo tem vật lý sai → scan giao hàng báo "không tìm thấy túi".
+    const merged = [
+      ...orderBags.DRY,
+      ...orderBags.FRESH,
+      ...orderBags.FROZEN,
+    ].filter((item: any) => !orderCode || item?.code?.startsWith(orderCode));
     if (bagCode && type) {
-      const found = orderBags[type as OrderBagType]?.find(
-        (item: any) => item.code === bagCode,
-      );
+      const found = merged.find((item: any) => item.code === bagCode);
       return found ? [{ ...found }] : merged;
     }
     return merged;
-  }, [orderBags, bagCode, type]);
+  }, [orderBags, bagCode, type, orderCode]);
 
   const { mutate: setOrderPrintedBagLabel } = useSetOrderPrintedBagLabel(
     () => {},
