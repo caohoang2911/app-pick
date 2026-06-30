@@ -47,6 +47,18 @@ const DELEGATE_DECL = `
 `;
 
 const REGISTRY_INIT = `
+  // @stringee-voip: setup CallKeep NGAY ở native để CXProvider (sharedProvider)
+  // luôn sẵn sàng — kể cả khi app bị kill, VoIP push report CallKit TRƯỚC khi JS
+  // kịp chạy setupCallKeep(). Thiếu bước này thì reportNewIncomingCall gửi tới
+  // sharedProvider = nil ⇒ không hiện màn gọi. JS setup sau sẽ thành no-op
+  // (isSetupNatively) nhưng vẫn đăng ký listener bình thường.
+  [RNCallKeep setup:@{
+    @"appName": @"App Pick",
+    @"supportsVideo": @NO,
+    @"maximumCallGroups": @"1",
+    @"maximumCallsPerCallGroup": @"1"
+  }];
+
   // @stringee-voip: khởi tạo PushKit registry để nhận VoIP push
   PKPushRegistry *voipRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
   voipRegistry.delegate = self;
