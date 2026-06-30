@@ -63,7 +63,8 @@ const REGISTRY_INIT = `
     @"appName": @"App Pick",
     @"supportsVideo": @NO,
     @"maximumCallGroups": @"1",
-    @"maximumCallsPerCallGroup": @"1"
+    @"maximumCallsPerCallGroup": @"1",
+    @"handleType": @[@"generic", @"number"]
   }];
 
   // @stringee-voip: khởi tạo PushKit registry để nhận VoIP push
@@ -93,9 +94,22 @@ const PUSHKIT_METHODS = `
 
   NSString *callId = data[@"callId"] ? [NSString stringWithFormat:@"%@", data[@"callId"]] : @"";
   NSNumber *serial = [data[@"serial"] isKindOfClass:[NSNumber class]] ? data[@"serial"] : @(1);
-  NSString *callerName = data[@"fromAlias"] ?: data[@"from"] ?: @"Tổng đài";
-  NSString *handle = data[@"from"] ?: @"unknown";
-  NSLog(@"[StringeeVoIP] parsed callId=%@ serial=%@ caller=%@ handle=%@", callId, serial, callerName, handle);
+
+  // ⚠️ FIX (root cause không popup): Stringee để 'from' là DICT lồng {map:{alias,number}},
+  // KHÔNG có key 'fromAlias' ở tầng data. Trước đây gán thẳng data[@"from"] (NSDictionary)
+  // vào handle/callerName (khai báo NSString*) → CXHandle.value/localizedCallerName là
+  // NSDictionary → CXCallUpdate KHÔNG hợp lệ → callservicesd drop report IM LẶNG → completion
+  // không chạy, không popup. Phải trích ra NSString.
+  id fromObj = data[@"from"];
+  NSDictionary *fromMap = [fromObj isKindOfClass:[NSDictionary class]] ? fromObj[@"map"] : nil;
+  NSString *fromAlias = [fromMap[@"alias"] isKindOfClass:[NSString class]] ? fromMap[@"alias"] : nil;
+  NSString *fromNumber = fromMap[@"number"] ? [NSString stringWithFormat:@"%@", fromMap[@"number"]] : nil;
+  if (!fromAlias && [data[@"fromAlias"] isKindOfClass:[NSString class]]) fromAlias = data[@"fromAlias"];
+  if (!fromNumber && [fromObj isKindOfClass:[NSString class]]) fromNumber = (NSString *)fromObj; // payload phẳng
+  NSString *callerName = fromAlias.length ? fromAlias : (fromNumber.length ? fromNumber : @"Tổng đài");
+  NSString *handle = fromNumber.length ? fromNumber : @"Stringee";
+  NSLog(@"[StringeeVoIP] parsed callId=%@ serial=%@ caller=%@ (%@) handle=%@ (%@)",
+        callId, serial, callerName, [callerName class], handle, [handle class]);
 
   // Dùng ĐÚNG uuid mà JS call.generateUUID() sẽ trả về (cùng singleton cache theo
   // callId-serial) để khi answer, registry tra cứu được StringeeCall2 tương ứng.
