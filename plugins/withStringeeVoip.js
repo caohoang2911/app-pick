@@ -47,6 +47,13 @@ const DELEGATE_DECL = `
 `;
 
 const REGISTRY_INIT = `
+  // @stringee-voip: DẤU VÂN TAY BUILD — in version + build number lúc launch để
+  // biết bản đang cài có phải mới nhất không (đối chiếu với \`eas build:list\`).
+  // Tag "callkeep-native-setup" = bản này ĐÃ có fix CallKit setup ở native.
+  NSLog(@"[StringeeVoIP] APP LAUNCH — v%@ (build %@) | callkeep-native-setup",
+        [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
+        [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]);
+
   // @stringee-voip: setup CallKeep NGAY ở native để CXProvider (sharedProvider)
   // luôn sẵn sàng — kể cả khi app bị kill, VoIP push report CallKit TRƯỚC khi JS
   // kịp chạy setupCallKeep(). Thiếu bước này thì reportNewIncomingCall gửi tới
