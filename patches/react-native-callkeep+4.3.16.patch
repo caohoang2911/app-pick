@@ -1,0 +1,21 @@
+diff --git a/node_modules/react-native-callkeep/ios/RNCallKeep/RNCallKeep.m b/node_modules/react-native-callkeep/ios/RNCallKeep/RNCallKeep.m
+index 786045f..dbcb490 100644
+--- a/node_modules/react-native-callkeep/ios/RNCallKeep/RNCallKeep.m
++++ b/node_modules/react-native-callkeep/ios/RNCallKeep/RNCallKeep.m
+@@ -787,7 +787,16 @@ RCT_EXPORT_METHOD(getAudioRoutes: (RCTPromiseResolveBlock)resolve
+     callUpdate.localizedCallerName = localizedCallerName;
+ 
+     [RNCallKeep initCallKitProvider];
++    // PATCHED (seedcom-app-pick): luôn NSLog kết quả report để debug được trên bản
++    // release/ad-hoc (Console.app) — biết killed app report CallKit thành công hay lỗi.
++    NSLog(@"[StringeeVoIP][CallKit] reportNewIncomingCall result uuid=%@ provider=%@ error=%@",
++          uuidString,
++          sharedProvider ? @"OK" : @"NIL(chưa setup!)",
++          @"pending");
+     [sharedProvider reportNewIncomingCallWithUUID:uuid update:callUpdate completion:^(NSError * _Nullable error) {
++        NSLog(@"[StringeeVoIP][CallKit] reportNewIncomingCall DONE uuid=%@ → %@",
++              uuidString,
++              error ? [NSString stringWithFormat:@"LỖI: %@", error.localizedDescription] : @"OK (CallKit đã nhận, màn gọi sẽ hiện)");
+         RNCallKeep *callKeep = [RNCallKeep allocWithZone: nil];
+         [callKeep sendEventWithNameWrapper:RNCallKeepDidDisplayIncomingCall body:@{
+             @"error": error && error.localizedDescription ? error.localizedDescription : @"",
