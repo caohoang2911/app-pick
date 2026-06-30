@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import clsx from 'clsx';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
@@ -23,6 +24,8 @@ if (
 }
 import { queryClient } from '~/src/api/shared';
 import {
+  resetOrderPick,
+  setCurrentCode,
   setCurrentId,
   setInitOrderPickProducts,
   setIsPickedByManualBarcodeInput,
@@ -99,6 +102,10 @@ const ProductItem = memo(
 // Component chính
 const OrderPickProducts = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
+  // Chỉ màn đang focus được ghi store global. Tránh màn order-pick ở nền (đơn cũ,
+  // vẫn mounted khi noti push đơn mới) refetch (vd reconnect / invalidate) rồi sync
+  // đè sản phẩm đơn cũ lên store của đơn đang xem.
+  const isFocused = useIsFocused();
   const keyword = useOrderPick.use.keyword();
   const { orderDetail } = useOrderDetailForCode(code);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -135,16 +142,26 @@ const OrderPickProducts = () => {
     }
   }, [orderDetail?.delivery?.itemGroups]);
 
-  // Đổi đơn / cache cập nhật → đồng bộ store
+  // Cache cập nhật khi đang xem đơn (pull-to-refresh / auto-refresh) → đồng bộ store.
+  // Gate isFocused: màn nền refetch sẽ KHÔNG sync đè (xem giải thích ở isFocused).
   useEffect(() => {
+    if (!isFocused) return;
     if (!code) return;
     syncPickProductsFromOrderDetail();
-  }, [code, syncPickProductsFromOrderDetail]);
+  }, [isFocused, code, syncPickProductsFromOrderDetail]);
 
-  // Quay lại màn pick: store có thể đã reset [] trong khi itemGroups cùng reference → cần hydrate lại
+  // Focus màn pick (mount mới / quay lại đơn cũ / noti push đơn khác lên trên):
+  // reset + hydrate ATOMIC trong CÙNG một effect focus. Chỉ màn đang focus chạy →
+  // không tranh chấp store global với màn nền (tránh ping-pong currentCode A↔B vô
+  // hạn); và reset rồi hydrate ngay trong 1 lượt nên KHÔNG bị wipe-sau-hydrate khi
+  // back lại đơn cũ (trước đây reset ở màn cha chạy sau hydrate ở con → xoá trắng).
   useFocusEffect(
     useCallback(() => {
       if (!code) return;
+      if (useOrderPick.getState().currentCode !== code) {
+        resetOrderPick();
+        setCurrentCode(code);
+      }
       syncPickProductsFromOrderDetail();
     }, [code, syncPickProductsFromOrderDetail]),
   );

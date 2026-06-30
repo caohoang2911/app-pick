@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
@@ -20,8 +20,6 @@ import {
   setScanMoreProduct,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
-  resetOrderPick,
-  setCurrentCode,
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
@@ -38,21 +36,14 @@ const OrderPick = () => {
   const navigation = useNavigation();
   const { code } = useLocalSearchParams<{ code: string }>();
 
-  const currentCode = useOrderPick.use.currentCode();
-
   const { isOrderDetailLoading, orderDetailError } =
     useOrderDetailForCode(code);
 
   useOrderStatusAutoRefresh(code);
 
-  useEffect(() => {
-    if (!code) return;
-    if (currentCode !== code) {
-      // Chỉ reset khi chuyển sang đơn KHÁC.
-      resetOrderPick();
-      setCurrentCode(code);
-    }
-  }, [code, currentCode]);
+  // Reset + hydrate store theo đơn được chuyển vào products.tsx (useFocusEffect) để
+  // 2 việc này chạy ATOMIC, chỉ cho màn đang focus — tránh ping-pong currentCode
+  // giữa 2 màn order-pick (noti push) và tránh wipe-sau-hydrate khi back đơn cũ.
 
   const isScanQrCodeProduct = useOrderPick.use.isScanQrCodeProduct();
 
