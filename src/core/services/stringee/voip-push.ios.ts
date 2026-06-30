@@ -16,7 +16,10 @@ export const configureVoipPush = (): void => {
 
   VoipPushNotification.addEventListener('register', (token) => {
     _voipToken = token;
-    void registerStringeePush(token, true); // isVoip = true
+    // isVoip = true; isProduction = true vì cả 2 EAS profile đều
+    // `ios.distribution: store` ⇒ entitlement aps-environment = production.
+    // (Đừng dùng Env.IS_PRODUCTION — đó là môi trường API, không phải APNs.)
+    void registerStringeePush(token, true, true);
   });
 
   VoipPushNotification.addEventListener('notification', (notification) => {

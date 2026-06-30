@@ -1,3 +1,4 @@
+import { AppState, Platform } from 'react-native';
 import {
   SignalingState,
   StringeeCall2Listener,
@@ -17,11 +18,23 @@ import {
 } from '@/core/store/call';
 
 import { getUuidByCall, registerCall } from './call-registry';
-import { displayIncomingCall, reportCallEnded } from './callkeep';
+import {
+  consumePendingAnswer,
+  displayIncomingCall,
+  hasPendingAnswer,
+  reportCallEnded,
+} from './callkeep';
 
 let client: StringeeClient | null = null;
 let currentUserId: string | null = null;
 let isConnecting = false;
+// Lưu lần đăng ký push gần nhất để đăng ký lại sau khi `onConnect` (token có thể
+// được lấy trước khi connect xong — nhất là iOS với event VoIP `register`).
+let _lastPushReg: {
+  deviceToken: string;
+  isProduction: boolean;
+  isVoip: boolean;
+} | null = null;
 
 export const getStringeeClient = (): StringeeClient | null => client;
 
@@ -34,6 +47,16 @@ function ensureClient(): StringeeClient {
 
   listener.onConnect = (_c, userId) => {
     console.log('[Stringee] onConnect', userId);
+    // Đăng ký lại push sau khi đã connect để không mất lần đăng ký chạy trước đó.
+    if (_lastPushReg && client) {
+      client
+        .registerPush(
+          _lastPushReg.deviceToken,
+          _lastPushReg.isProduction,
+          _lastPushReg.isVoip,
+        )
+        .catch((e) => console.warn('[Stringee] re-registerPush failed', e));
+    }
   };
   listener.onDisConnect = () => {
     console.log('[Stringee] onDisConnect');
@@ -100,7 +123,12 @@ async function handleIncomingCall(call: StringeeCall2): Promise<void> {
   try {
     bindCallListener(call);
     await call.initAnswer();
-    const uuid = await call.generateUUID();
+
+    // iOS: generateUUID() trả về đúng UUID mà CallKit/PushKit đã report (cùng
+    // singleton cache theo callId-serial). Android: generateUUID() reject (chỉ
+    // iOS) — dùng callId ổn định, cũng là UUID mà handler FCM nền đã dùng.
+    const uuid =
+      Platform.OS === 'ios' ? await call.generateUUID() : String(call.callId);
     registerCall(uuid, call);
 
     const info = {
@@ -110,7 +138,16 @@ async function handleIncomingCall(call: StringeeCall2): Promise<void> {
       fromAlias: call.fromAlias,
     };
     setIncomingCall(info);
-    displayIncomingCall(info);
+
+    // Tránh hiển thị trùng: nếu cuộc gọi tới khi app ở nền/bị kill thì màn hình
+    // gọi gốc đã do native (iOS PushKit) / headless (Android FCM) dựng sẵn, và
+    // user có thể đã bấm Nhận (pending answer). Chỉ tự hiển thị khi đang foreground.
+    if (AppState.currentState === 'active' && !hasPendingAnswer(uuid)) {
+      displayIncomingCall(info);
+    }
+
+    // Áp answer đã xếp hàng (khi user Nhận lúc app còn bị kill).
+    await consumePendingAnswer(uuid);
   } catch (e) {
     console.warn('[Stringee] handleIncomingCall failed', e);
   }
@@ -148,14 +185,20 @@ export const disconnectStringee = (): void => {
 /**
  * Đăng ký device token để Stringee đẩy push đánh thức máy khi có cuộc gọi.
  * @param isVoip iOS: true = VoIP push (PushKit); Android: false.
+ * @param isProduction iOS: PHẢI khớp môi trường APNs của bản build (App Store
+ *   / store distribution ⇒ production). Mặc định `Env.IS_PRODUCTION` (môi trường
+ *   API) — KHÔNG nhất thiết bằng môi trường APNs, nên iOS cần truyền tường minh.
  */
 export const registerStringeePush = async (
   deviceToken: string,
   isVoip: boolean,
+  isProduction: boolean = Env.IS_PRODUCTION,
 ): Promise<void> => {
-  if (!client || !deviceToken) return;
+  if (!deviceToken) return;
+  _lastPushReg = { deviceToken, isProduction, isVoip };
+  if (!client) return;
   try {
-    await client.registerPush(deviceToken, Env.IS_PRODUCTION, isVoip);
+    await client.registerPush(deviceToken, isProduction, isVoip);
   } catch (e) {
     console.warn('[Stringee] registerPush failed', e);
   }
@@ -164,6 +207,7 @@ export const registerStringeePush = async (
 export const unregisterStringeePush = async (
   deviceToken: string,
 ): Promise<void> => {
+  _lastPushReg = null;
   if (!client || !deviceToken) return;
   try {
     await client.unregisterPush(deviceToken);

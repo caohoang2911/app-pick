@@ -15,10 +15,16 @@ function isStringeeCallPush(data: DataPayload): boolean {
 }
 
 /** Hiển thị màn hình cuộc gọi đến (Android, khi app ở background/bị kill). */
-function showIncomingCallFromPush(data: DataPayload): void {
+async function showIncomingCallFromPush(data: DataPayload): Promise<void> {
   // Lazy require để không nạp module native ở các push không phải cuộc gọi.
+  const { setupCallKeep } = require('./callkeep');
   const RNCallKeep = require('react-native-callkeep').default;
-  const uuid = String(data.callId ?? data.serial ?? Date.now());
+  // Killed state: cây React chưa mount nên CallKeep chưa được setup ở context
+  // chính → phải setup ngay trong headless task này thì mới dựng được màn gọi.
+  await setupCallKeep();
+  // UUID phải KHỚP `String(call.callId)` mà foreground dùng (xem stringee-client)
+  // để khi app thức dậy, registry tra cứu đúng call lúc answer.
+  const uuid = String(data.callId ?? data.serial);
   RNCallKeep.displayIncomingCall(
     uuid,
     String(data.fromNumber ?? data.from ?? 'unknown'),
@@ -72,7 +78,7 @@ export function registerBackgroundCallHandler(): void {
     const data = (remoteMessage?.data || {}) as DataPayload;
     try {
       if (Platform.OS === 'android' && isStringeeCallPush(data)) {
-        showIncomingCallFromPush(data);
+        await showIncomingCallFromPush(data);
         return;
       }
       await showNotificationWithSound(remoteMessage);

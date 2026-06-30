@@ -12,6 +12,7 @@
 const {
   withInfoPlist,
   withAppDelegate,
+  AndroidConfig,
   createRunOncePlugin,
 } = require('@expo/config-plugins');
 
@@ -19,12 +20,31 @@ const pkg = { name: 'with-stringee-voip', version: '1.0.0' };
 
 const BACKGROUND_MODES = ['voip', 'audio'];
 
+// Quyền Android cho cuộc gọi nền/kill mà @config-plugins/react-native-callkeep
+// KHÔNG thêm (chỉ thêm FOREGROUND_SERVICE/BIND_TELECOM/READ_PHONE_*/RECORD_AUDIO).
+const ANDROID_CALL_PERMISSIONS = [
+  'android.permission.POST_NOTIFICATIONS', // Android 13+: hiển thị thông báo
+  'android.permission.USE_FULL_SCREEN_INTENT', // màn gọi full-screen khi khoá máy
+  'android.permission.FOREGROUND_SERVICE_PHONE_CALL', // API 34: VoiceConnectionService foregroundServiceType=phoneCall
+  'android.permission.DISABLE_KEYGUARD',
+];
+
 const IMPORT_ANCHOR = '#import "AppDelegate.h"';
+// Dùng import dạng framework (app bật use_frameworks! :static + use_modular_headers!).
 const IMPORTS = [
   '#import <PushKit/PushKit.h>',
-  '#import "RNVoipPushNotificationManager.h"',
-  '#import "RNCallKeep.h"',
+  '#import <RNVoipPushNotification/RNVoipPushNotificationManager.h>',
+  '#import <RNCallKeep/RNCallKeep.h>',
+  '#import <RNStringee/RNStringeeInstanceManager.h>',
 ].join('\n');
+
+// Khai báo AppDelegate tuân thủ PKPushRegistryDelegate (bắt buộc để
+// `voipRegistry.delegate = self` hợp lệ — nếu thiếu sẽ lỗi compile
+// "assigning to 'id<PKPushRegistryDelegate>' from incompatible type 'AppDelegate *'").
+const DELEGATE_DECL = `
+@interface AppDelegate () <PKPushRegistryDelegate>
+@end
+`;
 
 const REGISTRY_INIT = `
   // @stringee-voip: khởi tạo PushKit registry để nhận VoIP push
@@ -43,10 +63,23 @@ const PUSHKIT_METHODS = `
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion {
-  NSDictionary *data = payload.dictionaryPayload[@"data"] ?: payload.dictionaryPayload;
-  NSString *uuid = [[NSUUID UUID] UUIDString];
+  // ⚠️ Cấu trúc payload VoIP của Stringee có thể lồng nhiều tầng — xác nhận bằng
+  // cách log payload.dictionaryPayload trên máy thật. Các fallback giữ an toàn.
+  NSDictionary *dict = payload.dictionaryPayload;
+  NSDictionary *data = dict[@"data"][@"map"][@"data"][@"map"];
+  if (![data isKindOfClass:[NSDictionary class]]) data = dict[@"data"];
+  if (![data isKindOfClass:[NSDictionary class]]) data = dict;
+
+  NSString *callId = data[@"callId"] ? [NSString stringWithFormat:@"%@", data[@"callId"]] : @"";
+  NSNumber *serial = [data[@"serial"] isKindOfClass:[NSNumber class]] ? data[@"serial"] : @(1);
   NSString *callerName = data[@"fromAlias"] ?: data[@"from"] ?: @"Tổng đài";
   NSString *handle = data[@"from"] ?: @"unknown";
+
+  // Dùng ĐÚNG uuid mà JS call.generateUUID() sẽ trả về (cùng singleton cache theo
+  // callId-serial) để khi answer, registry tra cứu được StringeeCall2 tương ứng.
+  NSString *uuid = callId.length > 0
+      ? [RNStringeeInstanceManager.instance generateUUID:callId serial:serial]
+      : [[NSUUID UUID] UUIDString]; // fallback: iOS 13+ BẮT BUỘC luôn report 1 call
 
   [RNVoipPushNotificationManager didReceiveIncomingPushWithPayload:payload forType:(NSString *)type];
 
@@ -96,6 +129,15 @@ function withPushKitAppDelegate(config) {
       );
     }
 
+    // 1.5) khai báo conformance PKPushRegistryDelegate qua class extension
+    // (chèn ngay trước @implementation AppDelegate).
+    if (!contents.includes('PKPushRegistryDelegate')) {
+      contents = contents.replace(
+        /(@implementation AppDelegate\b)/,
+        `${DELEGATE_DECL}\n$1`,
+      );
+    }
+
     // 2) khởi tạo registry trong didFinishLaunchingWithOptions
     if (!contents.includes('desiredPushTypes')) {
       contents = contents.replace(
@@ -104,8 +146,11 @@ function withPushKitAppDelegate(config) {
       );
     }
 
-    // 3) chèn các method PushKit trước @end cuối cùng
-    if (!contents.includes('@stringee-voip')) {
+    // 3) chèn các method PushKit trước @end cuối cùng.
+    // ⚠️ Guard phải dùng marker RIÊNG của khối method — KHÔNG dùng '@stringee-voip'
+    // vì bước (2) REGISTRY_INIT đã chèn marker đó rồi ⇒ sẽ skip nhầm, mất method
+    // didReceiveIncomingPush ⇒ iOS không report CallKit ⇒ background/killed không đổ chuông.
+    if (!contents.includes('didReceiveIncomingPushWithPayload')) {
       const lastEnd = contents.lastIndexOf('@end');
       if (lastEnd !== -1) {
         contents =
@@ -121,9 +166,17 @@ function withPushKitAppDelegate(config) {
   });
 }
 
+function withCallAndroidPermissions(config) {
+  return AndroidConfig.Permissions.withPermissions(
+    config,
+    ANDROID_CALL_PERMISSIONS,
+  );
+}
+
 const withStringeeVoip = (config) => {
   config = withVoipBackgroundModes(config);
   config = withPushKitAppDelegate(config);
+  config = withCallAndroidPermissions(config);
   return config;
 };
 

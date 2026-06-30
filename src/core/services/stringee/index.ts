@@ -1,7 +1,9 @@
 export {
   answerFromApp,
+  consumePendingAnswer,
   displayIncomingCall,
   endCall,
+  hasPendingAnswer,
   reportCallEnded,
   setupCallKeep,
   toggleMuteFromApp,

@@ -4,7 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router, usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, InteractionManager, Platform } from 'react-native';
+import {
+  AppState,
+  InteractionManager,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 import { useAuth } from '~/src/core';
 
 export enum TargetScreen {
@@ -158,6 +163,13 @@ export const usePushNotifications: any = () => {
     if (Platform.OS === 'ios') {
       configureIOS();
     } else if (Platform.OS === 'android') {
+      // Android 13+ (API 33): xin quyền POST_NOTIFICATIONS để hiển thị thông báo
+      // và màn hình cuộc gọi đến từ trạng thái nền/kill.
+      if (typeof Platform.Version === 'number' && Platform.Version >= 33) {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        ).catch(() => {});
+      }
       // Giữ nguyên logic Android hiện tại
       Notifications.getNotificationChannelsAsync().then((value) =>
         setChannels(value ?? []),

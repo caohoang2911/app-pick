@@ -8,6 +8,9 @@ import { getCallByUuid, removeCall } from './call-registry';
 
 let _isSetup = false;
 let _listenersAdded = false;
+// UUID của cuộc gọi mà user đã bấm "Nhận" trên màn hình gốc TRƯỚC khi cuộc gọi
+// qua socket kịp được đăng ký (xảy ra khi app bị kill rồi mở lại để answer).
+let _pendingAnswerUuid: string | null = null;
 
 const SETUP_OPTIONS = {
   ios: {
@@ -37,8 +40,15 @@ const SETUP_OPTIONS = {
 const onAnswerCall = async ({ callUUID }: { callUUID: string }) => {
   if (getCallState().status === 'answered') return; // tránh answer 2 lần
   const call = getCallByUuid(callUUID);
+  if (!call) {
+    // Đánh thức từ background/kill: cuộc gọi qua socket chưa kịp đăng ký. Xếp
+    // hàng để `consumePendingAnswer` answer ngay khi `handleIncomingCall` xong.
+    _pendingAnswerUuid = callUUID;
+    RNCallKeep.setCurrentCallActive(callUUID);
+    return;
+  }
   try {
-    await call?.answer();
+    await call.answer();
     setCallAnswered();
     RNCallKeep.setCurrentCallActive(callUUID);
   } catch (e) {
@@ -130,6 +140,7 @@ export const reportCallEnded = (callUuid: string): void => {
       // bỏ qua
     }
   }
+  if (_pendingAnswerUuid === callUuid) _pendingAnswerUuid = null;
   removeCall(callUuid);
 };
 
@@ -154,8 +165,31 @@ export const endCall = async (callUuid: string): Promise<void> => {
   } catch {
     // bỏ qua
   }
+  if (_pendingAnswerUuid === callUuid) _pendingAnswerUuid = null;
   removeCall(callUuid);
   resetCall();
+};
+
+/** Có answer đang chờ cho `callUuid` không (đã bấm Nhận trước khi call đăng ký). */
+export const hasPendingAnswer = (callUuid: string): boolean =>
+  _pendingAnswerUuid === callUuid;
+
+/**
+ * Áp dụng answer đã xếp hàng từ background/kill — gọi từ `handleIncomingCall`
+ * NGAY SAU khi `registerCall`, lúc này `getCallByUuid(uuid)` đã có call thật.
+ */
+export const consumePendingAnswer = async (callUuid: string): Promise<void> => {
+  if (_pendingAnswerUuid !== callUuid) return;
+  _pendingAnswerUuid = null;
+  if (getCallState().status === 'answered') return;
+  const call = getCallByUuid(callUuid);
+  try {
+    await call?.answer();
+    setCallAnswered();
+    RNCallKeep.setCurrentCallActive(callUuid);
+  } catch (e) {
+    console.warn('[CallKeep] consumePendingAnswer failed', e);
+  }
 };
 
 /** Nhận cuộc gọi từ nút bấm trong app (foreground). */
