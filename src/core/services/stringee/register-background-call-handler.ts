@@ -32,6 +32,7 @@ async function showIncomingCallFromPush(data: DataPayload): Promise<void> {
     'generic',
     false,
   );
+  console.log('[StringeeBg] displayIncomingCall xong, uuid=', uuid);
 }
 
 /** Giữ nguyên hành vi cũ: phát thông báo có âm thanh khi nhận push ở background. */
@@ -76,14 +77,21 @@ async function showNotificationWithSound(
 export function registerBackgroundCallHandler(): void {
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     const data = (remoteMessage?.data || {}) as DataPayload;
+    console.log(
+      '[StringeeBg] FCM background/killed message NHẬN ĐƯỢC — isCall=',
+      isStringeeCallPush(data),
+      'data=',
+      data,
+    );
     try {
       if (Platform.OS === 'android' && isStringeeCallPush(data)) {
+        console.log('[StringeeBg] → cuộc gọi Stringee, callId=', data.callId);
         await showIncomingCallFromPush(data);
         return;
       }
       await showNotificationWithSound(remoteMessage);
     } catch (e) {
-      console.log('[BackgroundCall] handler error', e);
+      console.log('[StringeeBg] handler error', e);
     }
   });
 }

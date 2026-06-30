@@ -75,11 +75,14 @@ function ensureClient(): StringeeClient {
     }
   };
   listener.onIncomingCall2 = (_c, call) => {
+    // Event cuộc gọi qua SOCKET (foreground, hoặc sau khi app thức dậy + connect lại).
     console.log(
-      '[Stringee] onIncomingCall2 from=',
+      '[Stringee] onIncomingCall2 (socket) from=',
       call.from,
       'alias=',
       call.fromAlias,
+      'callId=',
+      call.callId,
     );
     void handleIncomingCall(call);
   };
