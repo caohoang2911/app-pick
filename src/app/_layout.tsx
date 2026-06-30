@@ -1,3 +1,6 @@
+// Tắt phóng to chữ theo máy (allowFontScaling=false) — phải chạy trước khi UI render.
+import '@/core/utils/disable-font-scaling';
+
 import { useReactNavigationDevTools } from '@dev-plugins/react-navigation';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Portal, PortalProvider } from '@gorhom/portal';

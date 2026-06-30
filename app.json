@@ -76,7 +76,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      ["expo-notifications"],
+      ["expo-notifications", { "sounds": ["./assets/sounds/ding.mp3"] }],
       [
         "react-native-vision-camera",
         {

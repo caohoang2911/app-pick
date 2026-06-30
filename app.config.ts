@@ -77,6 +77,12 @@ export default (): ExpoConfig => {
       '@config-plugins/react-native-callkeep',
       // VoIP push (iOS PushKit) — phần không có plugin nào cover.
       './plugins/withStringeeVoip',
+      // Khoá font-scale = 1.0 ở native Android (iOS dùng JS allowFontScaling).
+      './plugins/withAndroidFontScaleLock',
+      // Meta-data Firebase notification (channel_id + sound ding) — survive --clean.
+      './plugins/withFcmNotificationConfig',
+      // gradle.properties tuning (RAM build + parallel/daemon/caching).
+      './plugins/withAndroidGradleTuning',
     ],
 
     // Enable dev client for development

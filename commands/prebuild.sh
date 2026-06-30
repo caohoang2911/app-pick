@@ -72,33 +72,9 @@ else
   exit 1
 fi
 
-# Step 3: Fix AndroidManifest.xml to add Firebase notification channel meta-data
-fix_android_manifest() {
-  local manifest_file="./android/app/src/main/AndroidManifest.xml"
-  
-  if [ ! -f "$manifest_file" ]; then
-    echo "⚠️  AndroidManifest.xml not found, skipping manifest fix"
-    return
-  fi
-  
-  # Check if meta-data already exists
-  if grep -q "com.google.firebase.messaging.default_notification_channel_id" "$manifest_file"; then
-    echo "✅ Firebase notification channel meta-data already exists"
-    return
-  fi
-  
-  echo "🔧 Adding Firebase notification channel meta-data to AndroidManifest.xml..."
-  
-  # Add meta-data after the EXPO_UPDATE_URL line
-  sed -i.bak '/<meta-data android:name="expo.modules.updates.EXPO_UPDATE_URL"/a\
-    <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="default_channel_id" tools:replace="android:value"/>
-' "$manifest_file"
-  
-  rm -f "${manifest_file}.bak"
-  echo "✅ Firebase notification channel meta-data added successfully"
-}
-
-# Run the Android manifest fix
-fix_android_manifest
+# Step 3: Firebase notification channel/sound meta-data
+# → ĐÃ CHUYỂN sang config plugin `plugins/withFcmNotificationConfig.js` (chạy trong
+#   `expo prebuild`, thêm channel_id + sound và xử lý đúng xmlns:tools cho tools:replace).
+#   Không còn sed thủ công ở đây (sed cũ thêm tools:replace mà thiếu xmlns:tools → mong manh).
 
 echo "✨ Prebuild process completed successfully!"
