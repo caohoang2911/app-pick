@@ -1,4 +1,4 @@
-import { EmployeeRole } from '~/src/types/employee';
+import { EmployeeRole, Role } from '~/src/types/employee';
 
 /** Tên gọi đại diện — lấy từ cuối chuỗi họ tên (vd. "Võ Thị Anh Thy" → "Thy"). */
 export const getRepresentativeFirstName = (fullName?: string) => {
@@ -11,9 +11,10 @@ export const getRepresentativeFirstName = (fullName?: string) => {
 const PICKER_SHIFT_MANAGEMENT_ROLES: EmployeeRole[] = [
   EmployeeRole.STORE_MANAGER,
   EmployeeRole.STORE_SHIFT_SUPERVISOR,
+  EmployeeRole.ADMIN,
 ];
 
-// export const canManagePickerShift = (role?: string) =>
-//   !!role && PICKER_SHIFT_MANAGEMENT_ROLES.includes(role as EmployeeRole);
-
-export const canManagePickerShift = (role?: string) => true;
+/** Quản lý ca FT-Picker — tạm ẩn với NV Siêu Thị (`STORE`). */
+export const canManagePickerShift = (role?: string): boolean => {
+  return PICKER_SHIFT_MANAGEMENT_ROLES.includes(role as EmployeeRole);
+};
