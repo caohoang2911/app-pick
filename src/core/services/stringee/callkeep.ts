@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import RNCallKeep, { CONSTANTS as CK_CONSTANTS } from 'react-native-callkeep';
 
 import { getCallState, resetCall, setCallAnswered } from '@/core/store/call';
@@ -8,6 +8,8 @@ import { getCallByUuid, removeCall } from './call-registry';
 
 let _isSetup = false;
 let _listenersAdded = false;
+// Đã nhắc user bật "tài khoản gọi" chưa (tránh mở màn cài đặt lặp lại).
+let _promptedEnable = false;
 // UUID của cuộc gọi mà user đã bấm "Nhận" trên màn hình gốc TRƯỚC khi cuộc gọi
 // qua socket kịp được đăng ký (xảy ra khi app bị kill rồi mở lại để answer).
 let _pendingAnswerUuid: string | null = null;
@@ -108,6 +110,36 @@ export const setupCallKeep = async (): Promise<void> => {
     _isSetup = true;
   } catch (e) {
     console.warn('[CallKeep] setup failed', e);
+  }
+};
+
+/**
+ * Android (managed ConnectionService, selfManaged=false): tài khoản gọi phải
+ * được user BẬT trong Cài đặt → Tài khoản gọi thì `displayIncomingCall` mới
+ * dựng được màn gọi khi app ở background/kill. `RNCallKeep.setup()` chỉ ĐĂNG KÝ
+ * account chứ KHÔNG tự bật (managed mode không thể bật bằng code). Nếu chưa bật,
+ * `RNCallKeepModule.displayIncomingCall` bị bỏ qua IM LẶNG (guard hasPhoneAccount).
+ *
+ * Hàm này kiểm tra, nếu chưa bật thì mở thẳng màn cài đặt cho user bật (chỉ 1 lần
+ * mỗi phiên). PHẢI gọi ở foreground (sau đăng nhập) — KHÔNG gọi trong headless
+ * task vì không mở được UI cài đặt từ đó.
+ */
+export const ensurePhoneAccountEnabled = async (): Promise<void> => {
+  if (Platform.OS !== 'android' || _promptedEnable) return;
+  try {
+    const enabled = await RNCallKeep.checkPhoneAccountEnabled();
+    console.log('[CallKeep] phoneAccountEnabled =', enabled);
+    if (!enabled) {
+      _promptedEnable = true;
+      console.warn(
+        '[CallKeep] Tài khoản gọi CHƯA bật → cuộc gọi nền/kill sẽ KHÔNG hiện. Mở màn "Tài khoản gọi" để user bật.',
+      );
+      // `openPhoneAccounts` = màn "Calling accounts" (danh sách account để bật/tắt).
+      // Không public trên RNCallKeep JS nên gọi qua native module.
+      NativeModules.RNCallKeep?.openPhoneAccounts?.();
+    }
+  } catch (e) {
+    console.warn('[CallKeep] ensurePhoneAccountEnabled failed', e);
   }
 };
 

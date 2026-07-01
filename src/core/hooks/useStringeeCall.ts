@@ -7,6 +7,7 @@ import {
   configureVoipPush,
   connectStringee,
   disconnectStringee,
+  ensurePhoneAccountEnabled,
   registerStringeePush,
   setupCallKeep,
   unregisterStringeePush,
@@ -40,6 +41,7 @@ export const useStringeeCall = (): void => {
     }
 
     let cancelled = false;
+    let unsubscribeTokenRefresh: (() => void) | undefined;
     (async () => {
       await setupCallKeep();
       if (cancelled) return;
@@ -50,19 +52,38 @@ export const useStringeeCall = (): void => {
         // iOS: VoIP token được đăng ký với Stringee qua listener PushKit.
         configureVoipPush();
       } else {
+        // Android: managed ConnectionService cần "tài khoản gọi" được BẬT thì
+        // cuộc gọi nền/kill mới hiện được. Kiểm tra + mở cài đặt nếu chưa bật.
+        await ensurePhoneAccountEnabled();
+        if (cancelled) return;
+
         // Android: dùng FCM token để registerPush (isVoip = false).
         try {
           const fcmToken = await messaging().getToken();
+          if (cancelled) return;
           androidTokenRef.current = fcmToken;
           await registerStringeePush(fcmToken, false);
         } catch (e) {
           console.warn('[Stringee] android push register failed', e);
         }
+        if (cancelled) return;
+
+        // Android: FCM token có thể xoay vòng (cài lại app, clear data, khôi phục
+        // máy, hết hạn…). Không đăng ký lại token mới ⇒ Stringee vẫn đẩy tới token
+        // cũ đã chết ⇒ mất chuông khi background/killed. Lắng nghe refresh để
+        // registerPush token mới + cập nhật ref cho lần unregister lúc đăng xuất.
+        unsubscribeTokenRefresh = messaging().onTokenRefresh((newToken) => {
+          console.log('[Stringee] FCM token refreshed → re-registerPush');
+          androidTokenRef.current = newToken;
+          void registerStringeePush(newToken, false);
+        });
+        if (cancelled) unsubscribeTokenRefresh();
       }
     })();
 
     return () => {
       cancelled = true;
+      unsubscribeTokenRefresh?.();
     };
   }, [status, userInfo?.username]);
 

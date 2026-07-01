@@ -5,30 +5,79 @@ import { Platform } from 'react-native';
 
 type DataPayload = Record<string, unknown>;
 
-/** Nhận diện push cuộc gọi Stringee qua data payload. */
-function isStringeeCallPush(data: DataPayload): boolean {
-  return (
-    !!data?.callId ||
-    data?.callStatus === 'started' ||
-    data?.callStatus === 'ringing'
-  );
+/** Thông tin cuộc gọi Stringee sau khi bóc tách khỏi payload FCM. */
+type StringeeCallData = {
+  callId?: string | number;
+  serial?: string | number;
+  callStatus?: string;
+  from?: { number?: string; alias?: string } | string;
+  fromNumber?: string;
+  fromAlias?: string;
+};
+
+/**
+ * Bóc tách payload cuộc gọi Stringee từ message FCM.
+ *
+ * ⚠️ Android FCM: MỌI field trong `data` là string, nên Stringee nhét toàn bộ
+ * thông tin cuộc gọi dưới dạng CHUỖI JSON ở `data.data` (xem doc RN push của
+ * Stringee), KHÔNG phải key phẳng `data.callId`. Handler cũ đọc phẳng nên
+ * `isStringeeCallPush` luôn trả false ⇒ cuộc gọi bị đẩy nhầm sang thông báo
+ * thường, không bao giờ hiện màn gọi. Hàm này parse `data.data` rồi fallback:
+ *  - `data.data` là object (một số transport) → dùng luôn
+ *  - payload phẳng (nếu backend đổi) → dùng chính `data`
+ */
+function parseStringeePayload(raw: DataPayload): StringeeCallData {
+  const inner = raw?.data;
+  if (typeof inner === 'string') {
+    try {
+      return JSON.parse(inner) as StringeeCallData;
+    } catch {
+      // không phải JSON hợp lệ → rơi xuống fallback bên dưới
+    }
+  }
+  if (inner && typeof inner === 'object') {
+    return inner as StringeeCallData;
+  }
+  return raw as StringeeCallData;
+}
+
+/** Nhận diện push cuộc gọi Stringee (đọc từ payload đã bóc tách). */
+function isStringeeCallPush(raw: DataPayload): boolean {
+  // marker top-level Stringee hay set → nhận diện nhanh, khỏi parse.
+  if (raw?.type === 'CALL_EVENT' || raw?.stringeePushNotification != null) {
+    return true;
+  }
+  const c = parseStringeePayload(raw);
+  return !!c.callId || c.callStatus === 'started' || c.callStatus === 'ringing';
 }
 
 /** Hiển thị màn hình cuộc gọi đến (Android, khi app ở background/bị kill). */
-async function showIncomingCallFromPush(data: DataPayload): Promise<void> {
+async function showIncomingCallFromPush(raw: DataPayload): Promise<void> {
   // Lazy require để không nạp module native ở các push không phải cuộc gọi.
   const { setupCallKeep } = require('./callkeep');
   const RNCallKeep = require('react-native-callkeep').default;
   // Killed state: cây React chưa mount nên CallKeep chưa được setup ở context
   // chính → phải setup ngay trong headless task này thì mới dựng được màn gọi.
   await setupCallKeep();
+
+  const c = parseStringeePayload(raw);
+  // `from` có thể là object {number, alias} (payload Stringee) hoặc string.
+  const from = c.from;
+  const number =
+    (typeof from === 'object' ? from?.number : from) ?? c.fromNumber;
+  const alias =
+    (typeof from === 'object' ? from?.alias : undefined) ??
+    c.fromAlias ??
+    number;
+
   // UUID phải KHỚP `String(call.callId)` mà foreground dùng (xem stringee-client)
-  // để khi app thức dậy, registry tra cứu đúng call lúc answer.
-  const uuid = String(data.callId ?? data.serial);
+  // để khi app thức dậy, registry tra cứu đúng call lúc answer. Dùng callId,
+  // KHÔNG dùng serial.
+  const uuid = String(c.callId ?? c.serial);
   RNCallKeep.displayIncomingCall(
     uuid,
-    String(data.fromNumber ?? data.from ?? 'unknown'),
-    String(data.fromAlias ?? data.from ?? 'Tổng đài'),
+    String(number ?? 'unknown'),
+    String(alias ?? 'Tổng đài'),
     'generic',
     false,
   );
@@ -77,16 +126,26 @@ async function showNotificationWithSound(
 export function registerBackgroundCallHandler(): void {
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     const data = (remoteMessage?.data || {}) as DataPayload;
+    const isCall = isStringeeCallPush(data);
     console.log(
       '[StringeeBg] FCM background/killed message NHẬN ĐƯỢC — isCall=',
-      isStringeeCallPush(data),
+      isCall,
       'data=',
       data,
     );
     try {
-      if (Platform.OS === 'android' && isStringeeCallPush(data)) {
-        console.log('[StringeeBg] → cuộc gọi Stringee, callId=', data.callId);
-        await showIncomingCallFromPush(data);
+      if (Platform.OS === 'android' && isCall) {
+        const status = parseStringeePayload(data).callStatus;
+        console.log('[StringeeBg] → cuộc gọi Stringee, callStatus=', status);
+        // Chỉ dựng màn gọi khi bắt đầu đổ chuông. Với ended/answered/agentEnded
+        // thì thôi — nhưng vẫn `return` để KHÔNG rơi xuống thông báo có tiếng.
+        if (
+          status === undefined ||
+          status === 'started' ||
+          status === 'ringing'
+        ) {
+          await showIncomingCallFromPush(data);
+        }
         return;
       }
       await showNotificationWithSound(remoteMessage);

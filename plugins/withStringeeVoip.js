@@ -21,12 +21,18 @@ const pkg = { name: 'with-stringee-voip', version: '1.0.0' };
 const BACKGROUND_MODES = ['voip', 'audio'];
 
 // Quyền Android cho cuộc gọi nền/kill mà @config-plugins/react-native-callkeep
-// KHÔNG thêm (chỉ thêm FOREGROUND_SERVICE/BIND_TELECOM/READ_PHONE_*/RECORD_AUDIO).
+// KHÔNG thêm (nó chỉ thêm FOREGROUND_SERVICE/BIND_TELECOM/READ_PHONE_*/
+// CALL_PHONE/RECORD_AUDIO). Danh sách còn lại theo tài liệu push Stringee RN.
+// Bỏ qua SYSTEM_ALERT_WINDOW: luồng này dùng CallKeep (ConnectionService +
+// full-screen intent) chứ không vẽ overlay đè app khác, nên không cần — thêm vào
+// còn bị Play Store soi kỹ. Chỉ cần nếu chuyển sang UI overlay tự vẽ.
 const ANDROID_CALL_PERMISSIONS = [
   'android.permission.POST_NOTIFICATIONS', // Android 13+: hiển thị thông báo
   'android.permission.USE_FULL_SCREEN_INTENT', // màn gọi full-screen khi khoá máy
   'android.permission.FOREGROUND_SERVICE_PHONE_CALL', // API 34: VoiceConnectionService foregroundServiceType=phoneCall
   'android.permission.DISABLE_KEYGUARD',
+  'android.permission.WAKE_LOCK', // đánh thức CPU khi push cuộc gọi tới lúc màn tắt
+  'android.permission.VIBRATE', // rung khi đổ chuông
 ];
 
 const IMPORT_ANCHOR = '#import "AppDelegate.h"';
