@@ -37,6 +37,16 @@ declare module 'stringee-react-native-v2' {
       isProduction: boolean,
       isVoip: boolean,
     ): Promise<void>;
+    /**
+     * Đăng ký token máy này ĐỒNG THỜI xoá token của các thiết bị khác (cùng
+     * user, có package name nằm trong `packageNames`) khỏi danh sách nhận push.
+     */
+    registerPushAndDeleteOthers(
+      deviceToken: string,
+      isProduction: boolean,
+      isVoip: boolean,
+      packageNames: string[],
+    ): Promise<void>;
     unregisterPush(deviceToken: string): Promise<void>;
   }
 

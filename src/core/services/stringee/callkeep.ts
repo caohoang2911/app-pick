@@ -13,6 +13,9 @@ let _promptedEnable = false;
 // UUID của cuộc gọi mà user đã bấm "Nhận" trên màn hình gốc TRƯỚC khi cuộc gọi
 // qua socket kịp được đăng ký (xảy ra khi app bị kill rồi mở lại để answer).
 let _pendingAnswerUuid: string | null = null;
+// UUID đã nhận event 'answerCall' từ native — để `answerFromApp` biết đường
+// answer qua native có phản hồi không (fallback khi thiếu connection native).
+let _answerHandledUuid: string | null = null;
 
 const SETUP_OPTIONS = {
   ios: {
@@ -40,6 +43,7 @@ const SETUP_OPTIONS = {
 
 /** User bấm "Nhận" trên màn hình gọi gốc (kể cả khi đang khoá máy / app bị kill). */
 const onAnswerCall = async ({ callUUID }: { callUUID: string }) => {
+  _answerHandledUuid = callUUID;
   if (getCallState().status === 'answered') return; // tránh answer 2 lần
   const call = getCallByUuid(callUUID);
   if (!call) {
@@ -224,17 +228,31 @@ export const consumePendingAnswer = async (callUuid: string): Promise<void> => {
   }
 };
 
-/** Nhận cuộc gọi từ nút bấm trong app (foreground). */
+/**
+ * Nhận cuộc gọi từ nút bấm trong app (foreground). KHÔNG answer thẳng Stringee:
+ * phải đi qua native (iOS CXAnswerCallAction / Android Connection.onAnswer) —
+ * đúng đường như bấm Nhận trên popup gọi gốc — để (1) popup gốc ngừng đổ chuông,
+ * (2) hệ thống chuyển audio sang chế độ đàm thoại (Android `setAudioModeIsVoip`,
+ * iOS activate audio session qua CallKit); thiếu bước này thì Stringee answer
+ * xong vẫn KHÔNG có tiếng. Native sau đó bắn event 'answerCall' →
+ * `onAnswerCall` answer Stringee + set state như bình thường.
+ */
 export const answerFromApp = async (callUuid: string): Promise<void> => {
   if (getCallState().status === 'answered') return;
-  const call = getCallByUuid(callUuid);
   try {
-    await call?.answer();
-    setCallAnswered();
-    RNCallKeep.setCurrentCallActive(callUuid);
+    RNCallKeep.answerIncomingCall(callUuid);
   } catch (e) {
-    console.warn('[CallKeep] answerFromApp failed', e);
+    console.warn('[CallKeep] answerIncomingCall failed', e);
   }
+  // Fallback: không có connection native (vd. Android chưa bật "tài khoản gọi"
+  // nên popup chưa từng hiện) → native nuốt lệnh IM LẶNG, event 'answerCall'
+  // không bao giờ về → answer trực tiếp qua chính handler đó.
+  setTimeout(() => {
+    if (_answerHandledUuid === callUuid) return; // native đã phản hồi
+    if (getCallState().status !== 'incoming') return; // đã nhận/đã kết thúc
+    console.warn('[CallKeep] native answer không phản hồi → answer trực tiếp');
+    void onAnswerCall({ callUUID: callUuid });
+  }, 700);
 };
 
 /** Bật/tắt mic từ nút bấm trong app. */

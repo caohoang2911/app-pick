@@ -11,6 +11,7 @@ import { Env } from '~/env';
 
 import { genStringeeToken } from '@/api/stringee/gen-stringee-token';
 import {
+  getCallState,
   resetCall,
   setCallAnswered,
   setCallEnded,
@@ -24,6 +25,19 @@ import {
   hasPendingAnswer,
   reportCallEnded,
 } from './callkeep';
+
+/**
+ * Package name (Android) / bundle id (iOS) của app, cả dev lẫn prod — PHẢI khớp
+ * `app.config.ts`. Dùng cho `registerPushAndDeleteOthers`: đăng ký token máy này
+ * đồng thời XOÁ token các máy khác cùng account có package nằm trong danh sách,
+ * để một account đăng nhập trên nhiều thiết bị thì chỉ 1 máy đổ chuông.
+ */
+const APP_PACKAGE_NAMES = [
+  'com.caohoang2911.AppPick',
+  'com.caohoang2911.AppPickDev',
+  'com.caohoang2911.seedcom-app-pick',
+  'com.caohoang2911.seedcom-app-pick-dev',
+];
 
 let client: StringeeClient | null = null;
 let currentUserId: string | null = null;
@@ -50,10 +64,11 @@ function ensureClient(): StringeeClient {
     // Đăng ký lại push sau khi đã connect để không mất lần đăng ký chạy trước đó.
     if (_lastPushReg && client) {
       client
-        .registerPush(
+        .registerPushAndDeleteOthers(
           _lastPushReg.deviceToken,
           _lastPushReg.isProduction,
           _lastPushReg.isVoip,
+          APP_PACKAGE_NAMES,
         )
         .catch((e) => console.warn('[Stringee] re-registerPush failed', e));
     }
@@ -117,6 +132,23 @@ function bindCallListener(call: StringeeCall2): void {
   };
 
   callListener.onAudioDeviceChange = () => {};
+
+  // Cuộc gọi đã được THIẾT BỊ KHÁC (cùng account) xử lý. Push chỉ đổ về 1 máy
+  // (registerPushAndDeleteOthers) nhưng khi nhiều máy cùng mở app thì socket
+  // vẫn đổ chuông tất cả — máy khác nhận/từ chối thì đóng màn gọi ở máy này.
+  callListener.onHandleOnAnotherDevice = (c, state) => {
+    console.log('[Stringee] handled on another device:', state);
+    if (getCallState().status === 'answered') return; // máy này đang đàm thoại
+    if (
+      state === SignalingState.answered ||
+      state === SignalingState.busy ||
+      state === SignalingState.ended
+    ) {
+      const uuid = getUuidByCall(c);
+      if (uuid) reportCallEnded(uuid);
+      resetCall();
+    }
+  };
 
   call.setListener(callListener);
 }
@@ -187,6 +219,8 @@ export const disconnectStringee = (): void => {
 
 /**
  * Đăng ký device token để Stringee đẩy push đánh thức máy khi có cuộc gọi.
+ * Dùng `registerPushAndDeleteOthers` thay vì `registerPush` để xoá luôn token
+ * của các thiết bị khác đang đăng nhập cùng account → chỉ máy này đổ chuông.
  * @param isVoip iOS: true = VoIP push (PushKit); Android: false.
  * @param isProduction iOS: PHẢI khớp môi trường APNs của bản build (App Store
  *   / store distribution ⇒ production). Mặc định `Env.IS_PRODUCTION` (môi trường
@@ -201,9 +235,14 @@ export const registerStringeePush = async (
   _lastPushReg = { deviceToken, isProduction, isVoip };
   if (!client) return;
   try {
-    await client.registerPush(deviceToken, isProduction, isVoip);
+    await client.registerPushAndDeleteOthers(
+      deviceToken,
+      isProduction,
+      isVoip,
+      APP_PACKAGE_NAMES,
+    );
   } catch (e) {
-    console.warn('[Stringee] registerPush failed', e);
+    console.warn('[Stringee] registerPushAndDeleteOthers failed', e);
   }
 };
 

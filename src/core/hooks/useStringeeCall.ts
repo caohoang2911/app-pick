@@ -8,6 +8,7 @@ import {
   connectStringee,
   disconnectStringee,
   ensurePhoneAccountEnabled,
+  getVoipToken,
   registerStringeePush,
   setupCallKeep,
   unregisterStringeePush,
@@ -87,13 +88,27 @@ export const useStringeeCall = (): void => {
     };
   }, [status, userInfo?.username]);
 
-  // Ngắt kết nối khi đăng xuất.
+  // Ngắt kết nối khi đăng xuất (logout chủ động hoặc bị đá văng vì hết phiên —
+  // mọi đường đều đi qua `signOut()` của auth store nên gom xử lý ở đây).
   useEffect(() => {
     if (prevStatusRef.current === 'signIn' && status === 'signOut') {
-      const token = androidTokenRef.current;
-      if (token) void unregisterStringeePush(token);
-      disconnectStringee();
-      resetCall();
+      void (async () => {
+        // unregisterPush để máy này KHÔNG còn nhận push cuộc gọi của account cũ.
+        // iOS dùng VoIP token (PushKit), Android dùng FCM token.
+        const token =
+          Platform.OS === 'ios' ? getVoipToken() : androidTokenRef.current;
+        if (token) {
+          // PHẢI đợi unregister xong mới disconnect (lệnh đi qua kết nối đang
+          // sống). Race timeout phòng socket đã chết → callback không bao giờ về.
+          await Promise.race([
+            unregisterStringeePush(token),
+            new Promise((resolve) => setTimeout(resolve, 3000)),
+          ]);
+        }
+        androidTokenRef.current = null;
+        disconnectStringee();
+        resetCall();
+      })();
     }
     prevStatusRef.current = status;
   }, [status]);

@@ -135,6 +135,14 @@ export function registerBackgroundCallHandler(): void {
     );
     try {
       if (Platform.OS === 'android' && isCall) {
+        // Đã đăng xuất nhưng token Stringee còn sót trên server (vd. logout lúc
+        // offline nên unregisterPush không tới nơi) → bỏ qua, không dựng màn gọi.
+        // Lazy require để push không phải cuộc gọi khỏi nạp MMKV.
+        const { getToken } = require('@/core/store/auth/utils');
+        if (!getToken()) {
+          console.log('[StringeeBg] đã đăng xuất → bỏ qua cuộc gọi');
+          return;
+        }
         const status = parseStringeePayload(data).callStatus;
         console.log('[StringeeBg] → cuộc gọi Stringee, callStatus=', status);
         // Chỉ dựng màn gọi khi bắt đầu đổ chuông. Với ended/answered/agentEnded
