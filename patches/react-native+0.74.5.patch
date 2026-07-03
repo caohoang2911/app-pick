@@ -1,3 +1,25 @@
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java
+index 7258ab9..eaeafeb 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java
+@@ -593,6 +593,17 @@ public class ReactInstanceManager {
+    */
+   @ThreadConfined(UI)
+   public void onHostPause(@Nullable Activity activity) {
++    // Guard against activity lifecycle desync (e.g. an Activity launched in the
++    // background for an incoming call is paused before onHostResume set the
++    // current activity). Skipping the assertion avoids a fatal "Unable to pause
++    // activity" AssertionError; the no-arg onHostPause() still runs the cleanup.
++    if (mCurrentActivity == null) {
++      FLog.w(
++          ReactConstants.TAG,
++          "onHostPause called with null current activity, skipping activity assertions.");
++      onHostPause();
++      return;
++    }
+     if (mRequireActivity) {
+       Assertions.assertCondition(mCurrentActivity != null);
+     }
 diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java
 index 82976b5..0e8ecd1 100644
 --- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactHorizontalScrollView.java
