@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { InteractionManager, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Button } from '~/src/components/Button';
 import SBottomSheet from '~/src/components/SBottomSheet';
 import {
@@ -33,8 +33,12 @@ type Props = {
 };
 
 const WEEKDAY_HEADERS = WORK_SHIFT_DAY_LABELS;
-const MONTHS_BACK = 2;
-const MONTHS_FORWARD = 2;
+// Neo danh sách quanh THÁNG ĐANG CHỌN: chỉ chừa 1 tháng phía trước (để còn cuộn
+// lên xem tháng trước) và 3 tháng phía sau (ưu tiên chọn ca tương lai). Nhờ vậy
+// tháng đang chọn nằm gần đầu list → mở lịch gần như không phải cuộn.
+// (Muốn mở lên tuyệt đối không nhảy scroll: đặt MONTHS_BACK = 0.)
+const MONTHS_BACK = 1;
+const MONTHS_FORWARD = 3;
 const DAY_ROW_HEIGHT = 50;
 const DEFAULT_LIST_VIEWPORT_HEIGHT = 340;
 /** Chừa vùng trên list để không dính header cố định (range + weekdays). */
@@ -255,8 +259,13 @@ const WorkShiftDatePickerBottomSheet = forwardRef<
   );
 
   const months = useMemo(() => {
-    const anchor = moment
-      .tz(WORK_SHIFT_TIMEZONE)
+    // Neo quanh tháng ĐANG CHỌN (không phải quanh "now") để tháng đó nằm gần đầu
+    // list → mở lên thấy đúng vùng chọn gần như tức thì, bỏ được đoạn cuộn dài.
+    const anchor = (
+      scrollTargetDayKey
+        ? moment.tz(scrollTargetDayKey, 'YYYY-MM-DD', WORK_SHIFT_TIMEZONE)
+        : moment.tz(WORK_SHIFT_TIMEZONE)
+    )
       .startOf('month')
       .subtract(MONTHS_BACK, 'month');
 
@@ -264,7 +273,7 @@ const WorkShiftDatePickerBottomSheet = forwardRef<
       { length: MONTHS_BACK + MONTHS_FORWARD + 1 },
       (_, index) => anchor.clone().add(index, 'month'),
     );
-  }, [visible]);
+  }, [scrollTargetDayKey]);
 
   const monthHeights = useMemo(() => months.map(getMonthBlockHeight), [months]);
 
@@ -328,58 +337,87 @@ const WorkShiftDatePickerBottomSheet = forwardRef<
     hasScrolledToTarget.current = false;
   }, [clearScrollRetryTimers]);
 
-  const scrollToTargetDay = useCallback(() => {
-    if (hasScrolledToTarget.current || !scrollTargetDayKey) return;
+  // markDone=false: lần cuộn "best-effort" lúc sheet có thể còn khoá scroll
+  // (gorhom reset về 0) → cuộn thử nhưng KHÔNG chốt để còn thử lại.
+  // markDone=true: coi như đã unlock → cuộn xong chốt luôn, dừng retry.
+  const scrollToTargetDay = useCallback(
+    (markDone: boolean = true) => {
+      if (hasScrolledToTarget.current || !scrollTargetDayKey) return;
 
-    const list = listRef.current;
-    if (!list) return;
+      const list = listRef.current;
+      if (!list) return;
 
-    const monthIndex = targetMonthIndex;
-    const viewportHeight =
-      listViewportHeight > 0
-        ? listViewportHeight
-        : DEFAULT_LIST_VIEWPORT_HEIGHT;
-    const offset = getCenteredScrollOffsetForDay(
-      scrollTargetDayKey,
+      const monthIndex = targetMonthIndex;
+      const viewportHeight =
+        listViewportHeight > 0
+          ? listViewportHeight
+          : DEFAULT_LIST_VIEWPORT_HEIGHT;
+      const offset = getCenteredScrollOffsetForDay(
+        scrollTargetDayKey,
+        months,
+        viewportHeight,
+      );
+
+      if (typeof list.scrollToOffset === 'function') {
+        list.scrollToOffset({ offset, animated: false });
+        if (markDone) hasScrolledToTarget.current = true;
+        return;
+      }
+
+      if (
+        typeof list.scrollToIndex === 'function' &&
+        monthIndex >= 0 &&
+        monthIndex < months.length
+      ) {
+        try {
+          list.scrollToIndex({
+            index: monthIndex,
+            viewOffset: targetViewOffset,
+            animated: false,
+          });
+          if (markDone) hasScrolledToTarget.current = true;
+        } catch (error) {
+          // months rỗng/đổi độ dài khi sheet đóng giữa chừng → tránh "scrollToIndex out of range"
+          if (__DEV__) {
+            console.warn('scrollToTargetDay scrollToIndex failed:', error);
+          }
+        }
+      }
+    },
+    [
+      listViewportHeight,
       months,
-      viewportHeight,
-    );
-
-    if (typeof list.scrollToOffset === 'function') {
-      list.scrollToOffset({ offset, animated: false });
-      hasScrolledToTarget.current = true;
-      return;
-    }
-
-    if (typeof list.scrollToIndex === 'function') {
-      list.scrollToIndex({
-        index: monthIndex,
-        viewOffset: targetViewOffset,
-        animated: false,
-      });
-      hasScrolledToTarget.current = true;
-    }
-  }, [
-    listViewportHeight,
-    months,
-    scrollTargetDayKey,
-    targetMonthIndex,
-    targetViewOffset,
-  ]);
+      scrollTargetDayKey,
+      targetMonthIndex,
+      targetViewOffset,
+    ],
+  );
 
   const scheduleScrollToTarget = useCallback(() => {
     if (hasScrolledToTarget.current || !scrollTargetDayKey) return;
 
     clearScrollRetryTimers();
-    const run = () => {
+    const run = (markDone: boolean) => () => {
       if (!hasScrolledToTarget.current) {
-        scrollToTargetDay();
+        scrollToTargetDay(markDone);
       }
     };
 
-    // Chờ bottom sheet unlock scroll (gorhom reset về 0 khi còn LOCKED lúc animate mở).
-    [600, 1000, 1500, 2000].forEach((delay) => {
-      const timer = setTimeout(run, delay);
+    // Cuộn NGAY khi sheet vừa settle. 3 nhịp đầu (0–140ms) là best-effort: nếu
+    // gorhom còn khoá scroll lúc animate mở thì bị reset về 0 nhưng KHÔNG chốt,
+    // để nhịp sau cuộn lại. Từ ~260ms coi như đã unlock → cuộn + chốt. Trước đây
+    // nhịp đầu tận 600ms nên nhìn như "đợi mấy giây" mới nhảy tới vùng đang chọn.
+    (
+      [
+        [0, false],
+        [60, false],
+        [140, false],
+        [260, true],
+        [420, true],
+        [650, true],
+      ] as const
+    ).forEach(([delay, markDone]) => {
+      const timer = setTimeout(run(markDone), delay);
       scrollRetryTimers.current.push(timer);
     });
   }, [clearScrollRetryTimers, scrollTargetDayKey, scrollToTargetDay]);
@@ -387,15 +425,33 @@ const WorkShiftDatePickerBottomSheet = forwardRef<
   const handleScrollToIndexFailed = useCallback(
     (info: { index: number }) => {
       const timer = setTimeout(() => {
-        listRef.current?.scrollToIndex?.({
-          index: info.index,
-          viewOffset: targetViewOffset,
-          animated: false,
-        });
+        const list = listRef.current;
+        // Khi timer chạy, sheet có thể đã đóng / months đã đổi → chặn
+        // "scrollToIndex out of range: item length 0 but minimum is 1".
+        if (
+          !list ||
+          typeof list.scrollToIndex !== 'function' ||
+          months.length === 0 ||
+          info.index < 0 ||
+          info.index >= months.length
+        ) {
+          return;
+        }
+        try {
+          list.scrollToIndex({
+            index: info.index,
+            viewOffset: targetViewOffset,
+            animated: false,
+          });
+        } catch (error) {
+          if (__DEV__) {
+            console.warn('scrollToIndex retry failed:', error);
+          }
+        }
       }, 120);
       scrollRetryTimers.current.push(timer);
     },
-    [targetViewOffset],
+    [months, targetViewOffset],
   );
 
   useImperativeHandle(
@@ -427,10 +483,10 @@ const WorkShiftDatePickerBottomSheet = forwardRef<
 
   const handleSheetChange = useCallback(
     (index: number) => {
+      // Sheet settle (index >= 0) → lên lịch cuộn ngay, không bọc
+      // runAfterInteractions nữa (thêm độ trễ không cần thiết).
       if (index >= 0) {
-        InteractionManager.runAfterInteractions(() => {
-          scheduleScrollToTarget();
-        });
+        scheduleScrollToTarget();
       }
     },
     [scheduleScrollToTarget],
