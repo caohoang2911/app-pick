@@ -1,5 +1,5 @@
 import { axiosClient } from '@/api/shared';
-import { getStoredConfigVersion } from '@/core/store/config';
+import { getStoredConfigVersion, setConfig } from '@/core/store/config';
 import { useQuery } from '@tanstack/react-query';
 import type { ConfigResponse } from './types';
 
@@ -25,9 +25,16 @@ type UseGetConfigOptions = {
 export const useGetConfig = ({ localVersion }: UseGetConfigOptions) =>
   useQuery({
     queryKey: ['configs'],
-    queryFn: () => {
+    queryFn: async () => {
       const v = getStoredConfigVersion();
-      return getAll(v ? { version: v } : { version: '' });
+      const res = await getAll(v ? { version: v } : { version: '' });
+      // Persist ngay khi fetch thành công. react-query v5 bỏ onSuccess của
+      // useQuery nên gom vào queryFn: mọi nơi dùng useGetConfig tự đồng bộ
+      // config vào store (MMKV + zustand), chạy đúng 1 lần mỗi lần fetch thật.
+      if (!res?.error && res?.data) {
+        setConfig(res.data as ConfigResponse);
+      }
+      return res;
     },
     enabled: !localVersion,
   });

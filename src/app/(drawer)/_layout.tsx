@@ -2,11 +2,11 @@ import { DrawerContent } from '@/components/DrawerContent';
 import { PortalProvider } from '@gorhom/portal';
 import { Drawer } from 'expo-router/drawer';
 import { useEffect } from 'react';
-import { ConfigResponse, useGetConfig } from '~/src/api/config/use-get-config';
+import { useGetConfig } from '~/src/api/config/use-get-config';
 import { useGetMyProfile } from '~/src/api/employee/use-get-my-profile';
 import Loading from '~/src/components/Loading';
 import { useAuth } from '~/src/core';
-import { setConfig, useConfig } from '~/src/core/store/config';
+import { useConfig } from '~/src/core/store/config';
 import CrashlyticsService from '~/src/core/utils/crashlytics';
 
 const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -32,11 +32,7 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   }, [status, userInfo]);
 
-  const {
-    data,
-    refetch,
-    isLoading: isLoadingGetConfig,
-  } = useGetConfig({
+  const { refetch, isLoading: isLoadingGetConfig } = useGetConfig({
     localVersion: version,
   });
 
@@ -45,13 +41,6 @@ const ConfigWrapper = ({ children }: { children: React.ReactNode }) => {
       refetch();
     }
   }, [status, version, refetch]);
-
-  useEffect(() => {
-    if (data?.error) return;
-    if (data?.data) {
-      setConfig(data.data as ConfigResponse);
-    }
-  }, [data]);
 
   if (!version && isLoadingGetConfig) {
     return (
