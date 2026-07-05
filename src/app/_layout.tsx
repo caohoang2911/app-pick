@@ -178,6 +178,7 @@ function RootLayoutNav() {
           }}
         />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="permissions" />
         <Stack.Screen name="notifications" />
         <Stack.Screen name="processing-slips" />
         <Stack.Screen name="support-center" />
