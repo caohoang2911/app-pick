@@ -13,6 +13,9 @@ import { SafeBottomSheetScrollView } from '~/src/core/utils/safe-scrollview';
 
 const width = Dimensions.get('window').width;
 
+/** Style ổn định, tránh tạo object mới mỗi render (gorhom cảnh báo unstable ref). */
+const HANDLE_INDICATOR_STYLE = { display: 'none', padding: 0 } as const;
+
 type Props = {
   snapPoints?: any;
   title?: string;
@@ -33,7 +36,19 @@ type Props = {
   [key: string]: any;
 };
 
-const Header = ({
+type HeaderProps = {
+  title?: string;
+  renderTitle?: React.ReactNode;
+  extraTitle?: React.ReactNode;
+  hideHeader?: boolean;
+  topHeader?: React.ReactNode;
+  titleAlign?: 'left' | 'center';
+  bottomSheetModalRef: React.MutableRefObject<any>;
+  hideCloseButton?: boolean;
+  onClose?: () => void;
+};
+
+const HeaderBase = ({
   title,
   renderTitle,
   extraTitle,
@@ -43,9 +58,7 @@ const Header = ({
   bottomSheetModalRef,
   hideCloseButton,
   onClose,
-}: Props) => {
-  if (hideHeader) return null;
-
+}: HeaderProps) => {
   const renderCloseButton = useMemo(() => {
     if (hideCloseButton) return null;
     return (
@@ -68,7 +81,9 @@ const Header = ({
         <CloseLine />
       </Pressable>
     );
-  }, [onClose, bottomSheetModalRef, hideCloseButton]);
+  }, [onClose, bottomSheetModalRef, hideCloseButton, topHeader]);
+
+  if (hideHeader) return null;
 
   return (
     <View className="pb-4 border border-x-0 border-t-0 border-b-4 border-gray-200 px-4">
@@ -95,6 +110,8 @@ const Header = ({
     </View>
   );
 };
+
+const Header = React.memo(HeaderBase);
 
 const SBottomSheet = forwardRef<any, Props>(
   (
@@ -181,7 +198,7 @@ const SBottomSheet = forwardRef<any, Props>(
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={snapPoints}
-        handleIndicatorStyle={{ display: 'none', padding: 0 }}
+        handleIndicatorStyle={HANDLE_INDICATOR_STYLE}
         // key={'order-pick-action'}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={closeOnBackdropPress && !hideCloseButton}
@@ -204,8 +221,6 @@ const SBottomSheet = forwardRef<any, Props>(
           titleAlign={titleAlign}
           bottomSheetModalRef={bottomSheetModalRef}
           onClose={onClose}
-          children={children}
-          visible={visible}
         />
         {disableScrollView ? (
           children
@@ -228,4 +243,10 @@ const SBottomSheet = forwardRef<any, Props>(
   },
 );
 
-export default React.memo(SBottomSheet);
+/**
+ * KHÔNG bọc React.memo ở đây: caller hầu như luôn truyền `children` là element
+ * mới mỗi render nên memo không bao giờ bail out (false isolation). Muốn cô lập
+ * re-render khi gõ phím thì để state ở leaf (vd SBottomSheetTextInput), đừng dựa
+ * vào memo của SBottomSheet.
+ */
+export default SBottomSheet;
