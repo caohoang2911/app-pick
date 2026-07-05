@@ -28,7 +28,7 @@
             "CFBundleURLSchemes": ["apppick"]
           }
         ],
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": ["remote-notification", "voip", "audio"]
       }
     },
     "android": {
