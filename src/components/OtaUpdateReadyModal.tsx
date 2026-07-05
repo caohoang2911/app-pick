@@ -27,8 +27,13 @@ export function OtaUpdateReadyModal() {
     setIsReloading(true);
 
     setPendingRestart(true);
-    // Give camera time to deactivate native session before reload
-    await new Promise((r) => setTimeout(r, 500));
+    // LOAD-BEARING (do NOT shorten): pendingRestart makes ScannerBox drop the
+    // camera frame-processor prop, so vision-camera releases the FrameProcessor +
+    // its worklet closures (holding jsi::Functions bound to the JS runtime) on the
+    // main queue. This delay lets React commit that prop change AND lets the
+    // main-queue removeFrameProcessor block run BEFORE reloadAsync() frees the
+    // runtime — otherwise ~jsi::Function hits a dead runtime → EXC_BAD_ACCESS.
+    await new Promise((r) => setTimeout(r, 700));
 
     try {
       if (Updates?.reloadAsync) {

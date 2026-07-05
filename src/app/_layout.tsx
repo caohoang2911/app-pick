@@ -5,7 +5,7 @@ import { useReactNavigationDevTools } from '@dev-plugins/react-navigation';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Portal, PortalProvider } from '@gorhom/portal';
 import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
-import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import FlashMessage, { hideMessage } from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -92,6 +92,15 @@ const NotificationWrapper = ({
   }, [token, status]);
 
   useEffect(() => {
+    // ANDROID ONLY: re-check OTA when the app returns to foreground.
+    // On iOS this is intentionally DISABLED: surfacing the "Mở lại app" reload
+    // modal while the order-list camera / vision-camera FrameProcessor is still
+    // mounted lets the user trigger Updates.reloadAsync() under live worklet
+    // jsi::Functions → worklets-core reload UAF crash (EXC_BAD_ACCESS). iOS still
+    // checks OTA at startup via the root useCodepush() mount effect, so updates
+    // are not lost — they simply apply on the next cold launch instead of
+    // popping a mid-session reload. Android is unaffected by that crash class.
+    if (Platform.OS !== 'android') return;
     if (appState === 'active') {
       onFetchUpdateAsync();
     }

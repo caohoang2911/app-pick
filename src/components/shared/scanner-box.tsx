@@ -414,7 +414,22 @@ const ScannerBox = ({
                 videoStabilizationMode="off"
                 photoHdr={false}
                 videoHdr={false}
-                {...(currentScannerType ? qrCameraProps : barcodeCameraProps)}
+                // CRASH FIX (EXC_BAD_ACCESS on OTA reload): on pendingRestart,
+                // DROP the frame-processor prop. vision-camera then runs
+                // removeFrameProcessor → view.frameProcessor = nil on the main
+                // queue, releasing the FrameProcessor + its worklet closures
+                // (which hold jsi::Functions bound to the main Hermes runtime,
+                // e.g. handleBarcodeScanned via useRunOnJS) WHILE the runtime is
+                // still alive — before Updates.reloadAsync() frees it. Otherwise
+                // ~jsi::Function runs against a dead runtime → crash
+                // (worklets-core 1.6.3 has no runtime-alive guard). The 500ms
+                // delay in OtaUpdateReadyModal lets this main-queue release land
+                // before the reload.
+                {...(pendingRestart
+                  ? {}
+                  : currentScannerType
+                    ? qrCameraProps
+                    : barcodeCameraProps)}
                 // FIX: isActive controls the native session — never rely on
                 // unmounting the Camera to "stop" it. Declared AFTER the
                 // scanner prop spread so these can never be overridden by it.
