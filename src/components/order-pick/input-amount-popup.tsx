@@ -1153,17 +1153,12 @@ const InputAmountPopup = () => {
             enableContentPanningGesture={!isWeightRange}
             extraButton={
               isKeyboardVisible ? undefined : (
-                <View
-                  className="px-4 pt-3 border-t border-gray-200 bg-white"
-                  style={{ paddingBottom: Math.max(insets.bottom, 16) }}
-                >
-                  <Button
-                    onPress={() => handleSubmit()}
-                    label="Xác nhận"
-                    disabled={isError}
-                    loading={isSetOrderTemToPickedPending}
-                  />
-                </View>
+                <Button
+                  onPress={() => handleSubmit()}
+                  label="Xác nhận"
+                  disabled={isError}
+                  loading={isSetOrderTemToPickedPending}
+                />
               )
             }
           >

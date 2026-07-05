@@ -86,13 +86,7 @@ const BookShipperActionsBottomsheet = forwardRef<any, Props>(({}, ref) => {
         snapPoints={[550]}
         ref={actionRef}
         extraButton={
-          <View className="px-4 py-4 mb-6">
-            <Button
-              className="mt-4"
-              label="Book xe"
-              onPress={() => submitRef.current?.()}
-            />
-          </View>
+          <Button label="Book xe" onPress={() => submitRef.current?.()} />
         }
         onClose={() => setVisible(false)}
       >

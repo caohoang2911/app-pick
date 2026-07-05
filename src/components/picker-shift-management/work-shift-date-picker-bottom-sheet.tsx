@@ -524,13 +524,11 @@ const WorkShiftDatePickerBottomSheet = forwardRef<
       onChange={handleSheetChange}
       disableScrollView
       extraButton={
-        <View className="px-4 pb-6 pt-2 bg-white border-t border-gray-100">
-          <Button
-            label="Áp dụng"
-            onPress={handleConfirm}
-            disabled={draftStart == null}
-          />
-        </View>
+        <Button
+          label="Áp dụng"
+          onPress={handleConfirm}
+          disabled={draftStart == null}
+        />
       }
     >
       <View className="px-4 pt-2 pb-3 bg-white border-b border-gray-100">

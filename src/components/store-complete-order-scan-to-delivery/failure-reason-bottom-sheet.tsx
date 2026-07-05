@@ -84,7 +84,7 @@ const FailureReasonBottomSheet = React.memo(
         onClose={handleClose}
         snapPoints={FAILURE_SNAP_POINTS}
         extraButton={
-          <View className="px-4 pt-3 pb-6 bg-white flex-row gap-3">
+          <View className="flex-row gap-3">
             <Button
               label="Hủy"
               onPress={() => bottomSheetRef.current?.dismiss()}

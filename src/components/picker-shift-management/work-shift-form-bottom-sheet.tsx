@@ -228,14 +228,12 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
         snapPoints={[380]}
         onClose={handleClose}
         extraButton={
-          <View className="px-4 pb-6 pt-2 bg-white border-t border-gray-100">
-            <Button
-              label="Xác nhận"
-              onPress={handleConfirm}
-              loading={isPending}
-              disabled={isPending}
-            />
-          </View>
+          <Button
+            label="Xác nhận"
+            onPress={handleConfirm}
+            loading={isPending}
+            disabled={isPending}
+          />
         }
       >
         <View className="px-4 pb-4 gap-5 mt-3">

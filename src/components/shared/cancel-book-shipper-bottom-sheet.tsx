@@ -181,16 +181,11 @@ const CancelBookShipperBottomsheet = forwardRef<any, Props>(
         onClose={closeBottomSheet}
         extraButton={
           hasSelectedReason && !isKeyboardOpen ? (
-            <View
-              className="px-4 pt-3"
-              style={{ paddingBottom: Math.max(insets.bottom, 12) }}
-            >
-              <Button
-                loading={isLoadingCancelBookShipper}
-                label="Huỷ book shipper"
-                onPress={() => submitRef.current?.()}
-              />
-            </View>
+            <Button
+              loading={isLoadingCancelBookShipper}
+              label="Huỷ book shipper"
+              onPress={() => submitRef.current?.()}
+            />
           ) : undefined
         }
       >
