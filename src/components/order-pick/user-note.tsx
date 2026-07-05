@@ -1,8 +1,10 @@
 import clsx from 'clsx';
-import React, { memo } from 'react';
-import { Platform, Text, View } from 'react-native';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-pick';
+
+const COLLAPSED_LINE_LIMIT = 2;
 
 const stickyNoteShadow = Platform.select({
   ios: {
@@ -18,13 +20,29 @@ const stickyNoteShadow = Platform.select({
 const UserNote = ({ orderDetail }: { orderDetail: OrderDetail }) => {
   const pickerNote = orderDetail?.header?.pickerNote;
   const isSticky = useOrderPick.use.isScrolledDown();
+  const [expanded, setExpanded] = useState(false);
+
+  const lines = useMemo(
+    () =>
+      (pickerNote ?? '')
+        .trim()
+        .split(/\n+/)
+        .filter((line) => line.trim()),
+    [pickerNote],
+  );
+
+  const isLongNote = lines.length > COLLAPSED_LINE_LIMIT;
+  const visibleLines = expanded ? lines : lines.slice(0, COLLAPSED_LINE_LIMIT);
+
+  useEffect(() => {
+    setExpanded(false);
+  }, [pickerNote]);
+
+  const handleToggleExpand = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
 
   if (!pickerNote) return null;
-
-  const lines = pickerNote
-    .trim()
-    .split(/\n+/)
-    .filter((line) => line.trim());
 
   return (
     <View
@@ -39,7 +57,7 @@ const UserNote = ({ orderDetail }: { orderDetail: OrderDetail }) => {
           isSticky ? 'mb-0 ' : 'mb-3 ',
         )}
       >
-        {lines.map((line, index) => (
+        {visibleLines.map((line, index) => (
           <View key={`${index}-${line}`} className="flex-row items-start">
             <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5 shrink-0" />
             <View style={{ flex: 1, flexShrink: 1, minWidth: 0 }}>
@@ -49,6 +67,17 @@ const UserNote = ({ orderDetail }: { orderDetail: OrderDetail }) => {
             </View>
           </View>
         ))}
+        {isLongNote ? (
+          <Pressable
+            onPress={handleToggleExpand}
+            hitSlop={8}
+            className="mt-1 self-end"
+          >
+            <Text className="text-sm font-semibold text-white underline">
+              {expanded ? 'Thu gọn' : 'Xem thêm'}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );

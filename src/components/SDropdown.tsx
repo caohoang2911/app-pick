@@ -20,6 +20,9 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { cn } from '@/lib/utils';
 import { CheckCircleFill, CloseLine } from '../core/svgs';
 import ArrowDown from '../core/svgs/ArrowDown';
+import SearchLine from '../core/svgs/SearchLine';
+import { stringUtils } from '../core/utils/string';
+import { Input } from './Input';
 
 const ScrollDownHint = ({ onPress }: { onPress: () => void }) => {
   const bounce = useRef(new Animated.Value(0)).current;
@@ -72,8 +75,13 @@ export interface SDropdownProps {
   /** Hiển thị khi `data` rỗng (modal mode). */
   emptyText?: string;
   renderEmpty?: () => React.ReactNode;
+  /** Gọi khi search đổi (server-side filter). Không truyền → filter client trên `data`. */
+  onSearchChange?: (text: string) => void;
   [key: string]: any;
 }
+
+const MODAL_HEADER_HEIGHT = 49;
+const MODAL_SEARCH_HEIGHT = 44;
 
 const SDropdown = ({
   label,
@@ -94,10 +102,12 @@ const SDropdown = ({
   maxHeight = 400,
   emptyText = 'Không có dữ liệu',
   renderEmpty,
+  onSearchChange,
   ...rests
 }: SDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [listContentHeight, setListContentHeight] = useState(0);
   const ref = useRef<any>(null);
@@ -116,25 +126,46 @@ const SDropdown = ({
   }, [modalHeight, maxHeight]);
 
   const resolvedScrollHeight = useMemo(() => {
+    const searchOffset = showSearch ? MODAL_SEARCH_HEIGHT : 0;
     // Reserve header/action space inside modal.
-    return Math.max(120, resolvedModalHeight - 64);
-  }, [resolvedModalHeight]);
-
-  const MODAL_HEADER_HEIGHT = 49;
+    return Math.max(
+      120,
+      resolvedModalHeight - MODAL_HEADER_HEIGHT - searchOffset,
+    );
+  }, [resolvedModalHeight, showSearch]);
 
   const fittedModalHeight = useMemo(() => {
+    const searchOffset = showSearch ? MODAL_SEARCH_HEIGHT : 0;
     if (listContentHeight <= 0) return resolvedModalHeight;
-    const naturalHeight = MODAL_HEADER_HEIGHT + listContentHeight;
+    const naturalHeight =
+      MODAL_HEADER_HEIGHT + searchOffset + listContentHeight;
     return Math.min(resolvedModalHeight, Math.max(220, naturalHeight));
-  }, [listContentHeight, resolvedModalHeight]);
+  }, [listContentHeight, resolvedModalHeight, showSearch]);
 
   const fittedScrollHeight = useMemo(() => {
     if (listContentHeight <= 0) return resolvedScrollHeight;
     return Math.min(resolvedScrollHeight, listContentHeight);
   }, [listContentHeight, resolvedScrollHeight]);
 
+  const filteredData = useMemo(() => {
+    if (!showSearch || onSearchChange) return data;
+    const query = stringUtils.removeAccents(searchText.trim().toLowerCase());
+    if (!query) return data;
+    return data.filter((item: any) => {
+      const title = stringUtils.removeAccents(
+        String(item[labelField] ?? '').toLowerCase(),
+      );
+      const subtitle = stringUtils.removeAccents(
+        String(item.subtitle ?? '').toLowerCase(),
+      );
+      return title.includes(query) || subtitle.includes(query);
+    });
+  }, [data, labelField, onSearchChange, searchText, showSearch]);
+
+  const listData = showSearch ? filteredData : data;
+
   const selectedItem = data.find((item: any) => item[valueField] === value);
-  const selectedIndex = data.findIndex(
+  const selectedIndex = listData.findIndex(
     (item: any) => item[valueField] === value,
   );
 
@@ -149,8 +180,24 @@ const SDropdown = ({
     if (mode === 'modal' && !modalVisible) {
       hasScrolledToSelectedRef.current = false;
       setListContentHeight(0);
+      setSearchText('');
+      onSearchChange?.('');
     }
-  }, [mode, modalVisible]);
+  }, [mode, modalVisible, onSearchChange]);
+
+  const handleSearchChange = useCallback(
+    (text: string) => {
+      setSearchText(text);
+      onSearchChange?.(text);
+    },
+    [onSearchChange],
+  );
+
+  const handleClearSearch = useCallback(() => {
+    setSearchText('');
+    onSearchChange?.('');
+  }, [onSearchChange]);
+
   const displayText = selectedItem
     ? String(selectedItem[labelField] ?? '')
     : placeholder;
@@ -280,6 +327,25 @@ const SDropdown = ({
                   <CloseLine width={22} height={22} color="#666" />
                 </Pressable>
               </View>
+              {showSearch ? (
+                <View style={styles.modalSearchWrap}>
+                  <Input
+                    className="gap-0"
+                    inputClasses="text-sm"
+                    style={styles.modalSearchInput}
+                    placeholder={
+                      searchPlaceholder ||
+                      'Tìm kiếm theo mã nhân viên, tên nhân viên'
+                    }
+                    prefix={<SearchLine width={16} height={16} />}
+                    value={searchText}
+                    onChangeText={handleSearchChange}
+                    allowClear
+                    onClear={handleClearSearch}
+                    autoFocus
+                  />
+                </View>
+              ) : null}
               <View
                 style={[
                   styles.modalScrollWrap,
@@ -326,8 +392,8 @@ const SDropdown = ({
                   }}
                   scrollEventThrottle={32}
                 >
-                  {data.length > 0
-                    ? data.map((item: any) => renderItem(item))
+                  {listData.length > 0
+                    ? listData.map((item: any) => renderItem(item))
                     : renderEmptyContent()}
                 </ScrollView>
                 {showScrollDown ? (
@@ -518,6 +584,19 @@ const styles = StyleSheet.create({
   },
   modalCloseBtn: {
     padding: 4,
+  },
+  modalSearchWrap: {
+    paddingHorizontal: 12,
+    paddingTop: 6,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  modalSearchInput: {
+    height: 36,
+    paddingVertical: 6,
+    fontSize: 14,
+    lineHeight: 18,
   },
   modalScrollWrap: {
     position: 'relative',

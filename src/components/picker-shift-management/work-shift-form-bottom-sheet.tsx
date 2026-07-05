@@ -242,10 +242,12 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
             label="Chọn nhân viên"
             labelClasses="text-sm font-medium text-gray-700"
             placeholder="Chọn nhân viên"
+            showSearch
+            searchPlaceholder="Tìm kiếm theo mã nhân viên, tên nhân viên"
             data={employeeDropdownData}
             value={selectedEmployee ? String(selectedEmployee.id) : undefined}
             onSelect={handleSelectEmployee}
-            modalProps={{ height: 420 }}
+            modalProps={{ height: 480 }}
           />
 
           <SDropdown
