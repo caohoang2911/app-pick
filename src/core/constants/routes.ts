@@ -53,6 +53,7 @@ export const APP_ROUTES = {
 
   // Settings & utilities
   SETTINGS: '/settings',
+  PERMISSIONS: '/permissions',
   NOTIFICATIONS: '/notifications',
   PROCESSING_SLIPS: '/processing-slips',
   SUPPORT_CENTER: '/support-center',

@@ -90,6 +90,13 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
       enable: true,
       show: !isDriver,
     },
+    {
+      label: 'Quyền ứng dụng',
+      icon: <MaterialIcons name="privacy-tip" size={20} color="black" />,
+      onPress: () => navigateFromDrawer(ROUTES.APP.PERMISSIONS),
+      enable: true,
+      show: true,
+    },
   ];
 
   return (
