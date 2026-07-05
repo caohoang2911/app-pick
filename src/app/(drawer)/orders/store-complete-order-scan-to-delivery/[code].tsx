@@ -4,27 +4,24 @@ import {
   useNavigation,
   useSegments,
 } from 'expo-router';
-import React, {
+import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
-import { Dimensions, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
 import { useHandoverOrder } from '~/src/api/app-pick/use-handover-order';
 import { showMessage } from 'react-native-flash-message';
-import { useValidateDeliveryOrderFail } from '~/src/api/app-pick/use-validate-delivery-order-fail';
 import Box from '~/src/components/Box';
 import { Button } from '~/src/components/Button';
 import ImageUploader from '~/src/components/ImageUploader';
-import { Input } from '~/src/components/Input';
-import SBottomSheet from '~/src/components/SBottomSheet';
 import { SectionAlert } from '~/src/components/SectionAlert';
+import FailureReasonBottomSheet from '~/src/components/store-complete-order-scan-to-delivery/failure-reason-bottom-sheet';
 import InvoiceInfo from '~/src/components/store-complete-order-scan-to-delivery/invoice-info';
 import { ORDER_STATUS, ORDER_TAGS } from '@/core/constants/order';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
@@ -60,14 +57,7 @@ const OrderScanToDelivery = () => {
     (header as OrderDetailHeader) || {};
 
   const proofImages = useStoreCompleteOrderScanToDelivery.use.uploadedImages();
-  const [failureReason, setFailureReason] = useState('');
   const [showFailureBottomSheet, setShowFailureBottomSheet] = useState(false);
-  const failureBottomSheetRef = useRef<any>(null);
-
-  const failureBottomSheetHeight = useMemo(() => {
-    const maxHeight = Math.floor(Dimensions.get('window').height * 0.55);
-    return Math.min(420, maxHeight);
-  }, []);
 
   const title = getScanToDeliveryInfo({
     deliveryType,
@@ -75,10 +65,6 @@ const OrderScanToDelivery = () => {
     orderCode: code,
     shipping,
   })?.title;
-
-  const closeFailureBottomSheet = useCallback(() => {
-    setShowFailureBottomSheet(false);
-  }, []);
 
   const { mutate: handoverOrder, isPending: isLoadingHandoverOrder } =
     useHandoverOrder(() => {
@@ -90,21 +76,6 @@ const OrderScanToDelivery = () => {
       setCompleteUploadedImages('', true);
       router.push(`/orders`);
     });
-
-  const {
-    mutate: validateDeliveryOrderFail,
-    isPending: isLoadingValidateFail,
-  } = useValidateDeliveryOrderFail(() => {
-    setLoading(false);
-
-    const currentPath = segments.join('/');
-
-    if (currentPath.includes('store-start-order-scan-to-delivery')) {
-      router.dismiss(2);
-    } else {
-      router.back();
-    }
-  });
 
   useLayoutEffect(() => {
     if (code) setCompleteUploadedImages('', true);
@@ -127,12 +98,6 @@ const OrderScanToDelivery = () => {
       setCompleteUploadedImages('', true);
     };
   }, []);
-
-  useEffect(() => {
-    if (showFailureBottomSheet) {
-      failureBottomSheetRef.current?.present();
-    }
-  }, [showFailureBottomSheet]);
 
   const handleUploadedImages = useCallback((image: string) => {
     setCompleteUploadedImages(image);
@@ -160,25 +125,12 @@ const OrderScanToDelivery = () => {
   }, [code, handoverOrder, proofImages]);
 
   const handleHandoverFailOrder = useCallback(() => {
-    setFailureReason('');
     setShowFailureBottomSheet(true);
   }, []);
 
-  const handleSubmitFailure = useCallback(() => {
-    if (!failureReason.trim()) {
-      showAlert({
-        title: 'Lỗi',
-        message: 'Vui lòng nhập lý do giao hàng thất bại',
-        onConfirm: () => {
-          hideAlert();
-        },
-      });
-      return;
-    }
-
-    failureBottomSheetRef.current?.dismiss();
-    validateDeliveryOrderFail({ orderCode: code, reason: failureReason });
-  }, [code, failureReason, validateDeliveryOrderFail]);
+  const handleCloseFailureBottomSheet = useCallback(() => {
+    setShowFailureBottomSheet(false);
+  }, []);
 
   if (orderDetailError) {
     return (
@@ -227,7 +179,6 @@ const OrderScanToDelivery = () => {
           />
           <Button
             className="flex-1"
-            loading={isLoadingValidateFail}
             onPress={handleHandoverFailOrder}
             label={'Giao hàng thất bại'}
             variant="warning"
@@ -235,43 +186,12 @@ const OrderScanToDelivery = () => {
         </View>
       </View>
 
-      <SBottomSheet
+      <FailureReasonBottomSheet
         visible={showFailureBottomSheet}
-        ref={failureBottomSheetRef}
-        title="Lý do giao hàng thất bại"
-        onClose={closeFailureBottomSheet}
-        snapPoints={[failureBottomSheetHeight]}
-      >
-        <View
-          key={showFailureBottomSheet ? 'open' : 'closed'}
-          className="px-4 py-4"
-        >
-          <Input
-            placeholder="Nhập lý do giao hàng thất bại..."
-            value={failureReason}
-            onChangeText={setFailureReason}
-            multiline
-            numberOfLines={4}
-            useBottomSheetTextInput
-            textAlignVertical="top"
-            style={{ minHeight: 100, textAlignVertical: 'top' }}
-          />
-          <View className="flex-row gap-3 mt-6">
-            <Button
-              label="Hủy"
-              onPress={() => failureBottomSheetRef.current?.dismiss()}
-              variant="secondary"
-              className="flex-1"
-            />
-            <Button
-              label="Xác nhận"
-              onPress={handleSubmitFailure}
-              loading={isLoadingValidateFail}
-              className="flex-1"
-            />
-          </View>
-        </View>
-      </SBottomSheet>
+        orderCode={code}
+        onClose={handleCloseFailureBottomSheet}
+        segments={segments}
+      />
     </>
   );
 };
