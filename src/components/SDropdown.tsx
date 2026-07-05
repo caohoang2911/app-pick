@@ -69,6 +69,9 @@ export interface SDropdownProps {
   onSelect?: (value: string) => void;
   onClear?: () => void;
   mode?: 'default' | 'modal' | 'auto';
+  /** Hiển thị khi `data` rỗng (modal mode). */
+  emptyText?: string;
+  renderEmpty?: () => React.ReactNode;
   [key: string]: any;
 }
 
@@ -89,6 +92,8 @@ const SDropdown = ({
   mode = 'default',
   modalProps,
   maxHeight = 400,
+  emptyText = 'Không có dữ liệu',
+  renderEmpty,
   ...rests
 }: SDropdownProps) => {
   const [isFocus, setIsFocus] = useState(false);
@@ -149,6 +154,15 @@ const SDropdown = ({
   const displayText = selectedItem
     ? String(selectedItem[labelField] ?? '')
     : placeholder;
+
+  const renderEmptyContent = () => {
+    if (renderEmpty) return renderEmpty();
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>{emptyText}</Text>
+      </View>
+    );
+  };
 
   const renderItem = (item: any) => (
     <TouchableOpacity
@@ -312,7 +326,9 @@ const SDropdown = ({
                   }}
                   scrollEventThrottle={32}
                 >
-                  {data.map((item: any) => renderItem(item))}
+                  {data.length > 0
+                    ? data.map((item: any) => renderItem(item))
+                    : renderEmptyContent()}
                 </ScrollView>
                 {showScrollDown ? (
                   <ScrollDownHint
@@ -458,6 +474,17 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 12,
     color: '#718096',
+  },
+  emptyContainer: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#718096',
+    textAlign: 'center',
   },
   modalBackdrop: {
     flex: 1,

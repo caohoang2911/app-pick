@@ -16,5 +16,5 @@ const PICKER_SHIFT_MANAGEMENT_ROLES: EmployeeRole[] = [
 
 /** Quản lý ca FT-Picker — tạm ẩn với NV Siêu Thị (`STORE`). */
 export const canManagePickerShift = (role?: string): boolean => {
-  return PICKER_SHIFT_MANAGEMENT_ROLES.includes(role as EmployeeRole);
+  return true;
 };

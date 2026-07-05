@@ -168,7 +168,11 @@ const OrderPickHeader = ({ onClickHeaderAction }: Props) => {
             waveSize={120}
           >
             <View className="bg-colorPrimary rounded-md size-10 flex flex-row justify-center items-center">
-              <FontAwesome name="qrcode" size={24} color="white" />
+              <MaterialCommunityIcons
+                name="barcode-scan"
+                size={19}
+                color="white"
+              />
             </View>
           </WaveButton>
         )}
