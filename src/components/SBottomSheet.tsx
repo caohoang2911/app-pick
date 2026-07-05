@@ -140,6 +140,14 @@ const SBottomSheet = forwardRef<any, Props>(
     const bottomSheetScrollViewRef = useRef<any>(null);
     const insets = useSafeAreaInsets();
 
+    // Footer chuẩn cho extraButton: caller chỉ truyền nội dung nút, SBottomSheet
+    // lo chrome (nền/viền/padding ngang-trên) + chừa safe-area đáy theo inset
+    // (sàn 16px cho máy không notch) → layout footer đồng bộ, không mỗi màn tự bọc.
+    const extraButtonStyle = useMemo(
+      () => ({ paddingBottom: Math.max(insets.bottom, 16) }),
+      [insets.bottom],
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -237,7 +245,14 @@ const SBottomSheet = forwardRef<any, Props>(
             {children}
           </SafeBottomSheetScrollView>
         )}
-        {extraButton && extraButton}
+        {extraButton && (
+          <View
+            className="px-4 pt-3 bg-white-500 border-t border-gray-100"
+            style={extraButtonStyle}
+          >
+            {extraButton}
+          </View>
+        )}
       </BottomSheetModal>
     );
   },

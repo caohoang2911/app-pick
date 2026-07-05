@@ -87,16 +87,14 @@ const PickedCompleteConfirmation = ({
         setVisible(false);
       }}
       extraButton={
-        <View className="flex gap-3 mt-auto mb-6 px-4 pb-3">
-          <Button
-            label="Đã pick xong"
-            onPress={() => {
-              setVisible(false);
-              actionRef.current?.dismiss();
-              onConfirm();
-            }}
-          />
-        </View>
+        <Button
+          label="Đã pick xong"
+          onPress={() => {
+            setVisible(false);
+            actionRef.current?.dismiss();
+            onConfirm();
+          }}
+        />
       }
     >
       <View className="flex-1 px-4 pt-1 mb-4 ">

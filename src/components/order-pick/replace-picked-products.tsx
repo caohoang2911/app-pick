@@ -86,14 +86,12 @@ const ReplacePickedProducts = () => {
         setSelectedProductId(null);
       }}
       extraButton={
-        <View className="flex gap-3 mt-auto mb-10 px-4">
-          <Button
-            label="Xác nhận thay thế"
-            disabled={!selectedProductId}
-            loading={isPending}
-            onPress={handleConfirmReplace}
-          />
-        </View>
+        <Button
+          label="Xác nhận thay thế"
+          disabled={!selectedProductId}
+          loading={isPending}
+          onPress={handleConfirmReplace}
+        />
       }
     >
       <View className="flex-1 mb-4">
