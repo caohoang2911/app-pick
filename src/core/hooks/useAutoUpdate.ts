@@ -41,7 +41,7 @@ function iosUpdateOpenLabel(url: string) {
 }
 
 const RELEASE_CHANNEL_PREFIX =
-  process.env.EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX?.trim() ?? 'dev-';
+  process.env.EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX?.trim() ?? 'prod-';
 
 /**
  * Đã xác nhận native ≥ remote → lưu `nativeBuildVersionRaw` + `checkedAt`.
