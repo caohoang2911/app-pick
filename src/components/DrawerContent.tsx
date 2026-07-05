@@ -77,7 +77,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
       show: !isDriver,
     },
     {
-      label: 'Quản lý ca FT-Picker',
+      label: 'Quản lý ca Picker',
       icon: <Ionicons name="calendar-outline" size={20} color="black" />,
       onPress: () => navigateFromDrawer(ROUTES.APP.PICKER_SHIFT_MANAGEMENT),
       enable: canAccessPickerShiftManagement,
@@ -121,7 +121,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
             </Text>
           </View>
           <Text className="font-medium text-gray-500" numberOfLines={1}>
-            {userInfo?.username} - {roleName || userInfo?.role}
+            {userInfo?.username?.toUpperCase()} - {roleName || userInfo?.role}
           </Text>
         </View>
       </View>

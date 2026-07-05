@@ -1,3 +1,5 @@
+import { stringUtils } from '@/core/utils/string';
+
 export const PRODUCT_PICKED_ERROR_TYPES = {
   OUT_OF_STOCK: 'OUT_OF_STOCK',
   QUALITY_DECLINE: 'QUALITY_DECLINE',
@@ -8,6 +10,8 @@ export const PRODUCT_PICKED_ERROR_TYPES = {
   EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE:
     'EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE',
   INCORRECT_ORDERED_WEIGHT: 'INCORRECT_ORDERED_WEIGHT',
+  /** SP pick không đủ nguyên thùng/lốc */
+  INCOMPLETE_CASE_OR_PACK: 'INCOMPLETE_CASE_OR_PACK',
 } as const;
 
 export const PRODUCT_ACTIONS = {
@@ -32,3 +36,34 @@ export const PRODUCT_ACTION_LABELS = {
 
 export type ProductAction =
   (typeof PRODUCT_ACTIONS)[keyof typeof PRODUCT_ACTIONS];
+
+/** Unit chuẩn hóa: bỏ dấu + UPPERCASE (vd. "Lốc" → "LOC"). */
+export const normalizeProductUnit = (unit?: string): string =>
+  stringUtils.removeAccents(unit?.trim() ?? '').toUpperCase();
+
+/** Chỉ Thùng / Lốc / Pack mới áp dụng lý do thiếu nguyên kiện. */
+export const isCaseOrPackUnit = (unit?: string): boolean => {
+  const normalized = normalizeProductUnit(unit);
+  if (!normalized) return false;
+  return (
+    normalized.startsWith('THUNG') ||
+    normalized.startsWith('LOC') ||
+    normalized.startsWith('PACK')
+  );
+};
+
+export const isIncompleteCaseOrPackPickReason = (item: {
+  id?: string;
+  name?: string;
+}): boolean => {
+  if (item.id === PRODUCT_PICKED_ERROR_TYPES.INCOMPLETE_CASE_OR_PACK) {
+    return true;
+  }
+  const name = item.name?.toLowerCase() ?? '';
+  return (
+    name.includes('nguyên thùng/lốc') ||
+    name.includes('nguyên thùng, lốc') ||
+    name.includes('không đủ nguyên thùng') ||
+    name.includes('không còn đủ nguyên thùng')
+  );
+};

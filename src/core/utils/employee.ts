@@ -9,12 +9,14 @@ export const getRepresentativeFirstName = (fullName?: string) => {
 };
 
 const PICKER_SHIFT_MANAGEMENT_ROLES: EmployeeRole[] = [
+  EmployeeRole.ADMIN,
+  EmployeeRole.STORE,
   EmployeeRole.STORE_MANAGER,
   EmployeeRole.STORE_SHIFT_SUPERVISOR,
-  EmployeeRole.ADMIN,
 ];
 
-/** Quản lý ca FT-Picker — tạm ẩn với NV Siêu Thị (`STORE`). */
+/** Quản lý ca Picker — ADMIN, STORE, STORE_MANAGER, STORE_SHIFT_SUPERVISOR. */
 export const canManagePickerShift = (role?: string): boolean => {
-  return true;
+  if (!role) return false;
+  return (PICKER_SHIFT_MANAGEMENT_ROLES as string[]).includes(role);
 };

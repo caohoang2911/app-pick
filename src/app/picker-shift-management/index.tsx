@@ -158,10 +158,11 @@ export default function PickerShiftManagementScreen() {
       <WorkShiftItem
         shift={item}
         index={index}
+        canManage={canAccess}
         onOpenActions={(shift) => actionsRef.current?.present(shift)}
       />
     ),
-    [],
+    [canAccess],
   );
 
   if (!canAccess) {

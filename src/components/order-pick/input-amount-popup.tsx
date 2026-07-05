@@ -22,6 +22,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  isCaseOrPackUnit,
+  isIncompleteCaseOrPackPickReason,
   PRODUCT_ACTIONS,
   PRODUCT_PICKED_ERROR_TYPES,
   type ProductAction,
@@ -367,9 +369,8 @@ const ReasonDropdown = memo(
 
     useEffect(() => {
       if (
-        isWeightRange &&
-        values?.pickedErrorType ===
-          PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT
+        (isWeightRange || !isCaseOrPackUnit(unit)) &&
+        isIncompleteCaseOrPackPickReason({ id: values?.pickedErrorType })
       ) {
         setFieldValue('pickedErrorType', '');
         return;
@@ -407,14 +408,23 @@ const ReasonDropdown = memo(
 
     const productPickedErrorsWithUnit = useMemo(() => {
       return productPickedErrorTypes
-        .map((item: any) =>
-          item.id === PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT
-            ? {
-                ...item,
-                disabled: isWeightRange || toLower(unit) !== 'kg',
-              }
-            : item,
-        )
+        .map((item: any) => {
+          if (item.id === PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT) {
+            return {
+              ...item,
+              // Weight range: quét theo KG dù unit hiển thị là Bông/Quả/Trái...
+              disabled: !isWeightRange && toLower(unit) !== 'kg',
+            };
+          }
+          if (isIncompleteCaseOrPackPickReason(item)) {
+            return {
+              ...item,
+              // Chỉ unit Thùng/Lốc/Pack; weight range cũng không áp dụng
+              disabled: isWeightRange || !isCaseOrPackUnit(unit),
+            };
+          }
+          return item;
+        })
         ?.reverse();
     }, [productPickedErrorTypes, unit, isWeightRange]);
 

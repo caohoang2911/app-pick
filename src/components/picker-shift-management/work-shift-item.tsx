@@ -10,10 +10,16 @@ import type { WorkShift } from '~/src/types/work-shift';
 type Props = {
   shift: WorkShift;
   index: number;
+  canManage?: boolean;
   onOpenActions: (shift: WorkShift) => void;
 };
 
-const WorkShiftItem = ({ shift, index, onOpenActions }: Props) => {
+const WorkShiftItem = ({
+  shift,
+  index,
+  canManage = true,
+  onOpenActions,
+}: Props) => {
   const barColor = getWorkShiftPresetColor(
     shift.startTime,
     shift.endTime,
@@ -34,9 +40,11 @@ const WorkShiftItem = ({ shift, index, onOpenActions }: Props) => {
           </Text>
           <Text className="text-sm text-gray-600">{timeLabel}</Text>
         </View>
-        <Pressable onPress={() => onOpenActions(shift)} hitSlop={10}>
-          <Feather name="more-vertical" size={16} color="#A0AEC0" />
-        </Pressable>
+        {canManage ? (
+          <Pressable onPress={() => onOpenActions(shift)} hitSlop={10}>
+            <Feather name="more-vertical" size={16} color="#A0AEC0" />
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
