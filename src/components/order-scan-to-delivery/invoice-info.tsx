@@ -48,6 +48,7 @@ const InvoiceInfo = () => {
     tags,
     codAmount = 0,
     groupShippingCode,
+    lastTimeUpdateStatus,
   } = header || {};
 
   const config = useConfig.use.config();
@@ -70,7 +71,7 @@ const InvoiceInfo = () => {
               <Text className="text-xs text-contentPrimary">
                 {' '}
                 | &nbsp;
-                {getRelativeTime(orderTime)}
+                {getRelativeTime(lastTimeUpdateStatus ?? orderTime)}
               </Text>
             }
             variant={toLower(status as string) as any}
