@@ -114,7 +114,6 @@ const SDropdown = ({
   const scrollRef = useRef<any>(null);
   const contentHeightRef = useRef(0);
   const scrollLayoutHeightRef = useRef(0);
-  const hasScrolledToSelectedRef = useRef(false);
   const { height: modalHeight, ...nativeModalProps } = modalProps || {};
 
   const resolvedModalHeight = useMemo(() => {
@@ -164,21 +163,20 @@ const SDropdown = ({
 
   const listData = showSearch ? filteredData : data;
 
-  const selectedItem = data.find((item: any) => item[valueField] === value);
-  const selectedIndex = listData.findIndex(
-    (item: any) => item[valueField] === value,
-  );
+  const displayListData = useMemo(() => {
+    if (!value || listData.length === 0) return listData;
+    const selectedIdx = listData.findIndex(
+      (item: any) => item[valueField] === value,
+    );
+    if (selectedIdx <= 0) return listData;
+    const selected = listData[selectedIdx];
+    return [selected, ...listData.filter((_, index) => index !== selectedIdx)];
+  }, [listData, value, valueField]);
 
-  const scrollToSelectedItem = useCallback(() => {
-    if (selectedIndex < 0 || !scrollRef.current) return;
-    const itemHeight = 45;
-    const y = Math.max(0, selectedIndex * itemHeight - 40);
-    scrollRef.current.scrollTo({ y, animated: true });
-  }, [selectedIndex]);
+  const selectedItem = data.find((item: any) => item[valueField] === value);
 
   useEffect(() => {
     if (mode === 'modal' && !modalVisible) {
-      hasScrolledToSelectedRef.current = false;
       setListContentHeight(0);
       setSearchText('');
       onSearchChange?.('');
@@ -365,14 +363,6 @@ const SDropdown = ({
                     setListContentHeight(h);
                     const layoutH = scrollLayoutHeightRef.current;
                     setShowScrollDown(layoutH > 0 && h > layoutH);
-                    if (
-                      modalVisible &&
-                      !hasScrolledToSelectedRef.current &&
-                      selectedIndex >= 0
-                    ) {
-                      hasScrolledToSelectedRef.current = true;
-                      setTimeout(() => scrollToSelectedItem(), 50);
-                    }
                   }}
                   onLayout={(e) => {
                     const { height } = e.nativeEvent.layout;
@@ -392,8 +382,8 @@ const SDropdown = ({
                   }}
                   scrollEventThrottle={32}
                 >
-                  {listData.length > 0
-                    ? listData.map((item: any) => renderItem(item))
+                  {displayListData.length > 0
+                    ? displayListData.map((item: any) => renderItem(item))
                     : renderEmptyContent()}
                 </ScrollView>
                 {showScrollDown ? (

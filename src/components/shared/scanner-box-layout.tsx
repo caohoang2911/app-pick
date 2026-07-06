@@ -12,6 +12,8 @@ export type ScannerLayoutProps = {
   isQRScanner?: boolean;
   onToggleScanner?: () => void;
   scanRegion: ScanRegion;
+  /** Ẩn nút chuyển QR/Barcode (dùng khi màn chỉ cho quét QR). */
+  hideToggle?: boolean;
 };
 
 const ScannerLayout = React.memo(
@@ -20,6 +22,7 @@ const ScannerLayout = React.memo(
     isQRScanner,
     onToggleScanner,
     scanRegion,
+    hideToggle,
   }: ScannerLayoutProps) => {
     const {
       x: holeX,
@@ -72,16 +75,18 @@ const ScannerLayout = React.memo(
           </Pressable>
         </View>
 
-        <View className="absolute left-1/2 -translate-x-1/2 bottom-14 z-10">
-          <Pressable onPress={onToggleScanner} style={styles.toggleButton}>
-            <View style={styles.toggleButtonContent}>
-              <Ionicons name="swap-horizontal" size={16} color="white" />
-              <Text style={styles.toggleButtonText}>
-                {isQRScanner ? 'Chuyển sang Barcode' : 'Chuyển sang QR Code'}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
+        {!hideToggle && (
+          <View className="absolute left-1/2 -translate-x-1/2 bottom-14 z-10">
+            <Pressable onPress={onToggleScanner} style={styles.toggleButton}>
+              <View style={styles.toggleButtonContent}>
+                <Ionicons name="swap-horizontal" size={16} color="white" />
+                <Text style={styles.toggleButtonText}>
+                  {isQRScanner ? 'Chuyển sang Barcode' : 'Chuyển sang QR Code'}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        )}
       </View>
     );
   },

@@ -20,3 +20,15 @@ export const canManagePickerShift = (role?: string): boolean => {
   if (!role) return false;
   return (PICKER_SHIFT_MANAGEMENT_ROLES as string[]).includes(role);
 };
+
+const STORE_EMPLOYEE_MANAGEMENT_ROLES: EmployeeRole[] = [
+  EmployeeRole.ADMIN,
+  EmployeeRole.STORE_MANAGER,
+  EmployeeRole.STORE_SHIFT_SUPERVISOR,
+];
+
+/** Quản lý nhân viên siêu thị — chỉ ADMIN, STORE_MANAGER, STORE_SHIFT_SUPERVISOR (loại STORE). */
+export const canManageStoreEmployees = (role?: string): boolean => {
+  if (!role) return false;
+  return (STORE_EMPLOYEE_MANAGEMENT_ROLES as string[]).includes(role);
+};

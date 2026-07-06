@@ -71,6 +71,8 @@ type Props = {
   onDestroy?: () => void;
   onSuccessBarcodeScanned?: (result: BarcodeScanningResult) => void;
   isQRScanner?: boolean;
+  /** Ẩn nút chuyển QR/Barcode — chỉ cho quét QR. */
+  hideScannerToggle?: boolean;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -89,6 +91,7 @@ const ScannerBox = ({
   onDestroy,
   onSuccessBarcodeScanned,
   isQRScanner = true,
+  hideScannerToggle = false,
 }: Props) => {
   const { permission, requestPermission } = useCamera();
   const isFocused = useIsFocused();
@@ -447,6 +450,7 @@ const ScannerBox = ({
               onClose={onDestroyRef.current!}
               isQRScanner={currentScannerType}
               onToggleScanner={handleToggleScanner}
+              hideToggle={hideScannerToggle}
               scanRegion={scanRegion}
             />
           </View>

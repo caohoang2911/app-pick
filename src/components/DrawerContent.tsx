@@ -14,7 +14,10 @@ import { DUMMY_PROCESSING_SLIP_COUNT } from '~/src/core/constants/drawer';
 import { ROUTES } from '~/src/core/constants/routes';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
 import { useSignOut } from '~/src/core/hooks/useSignOut';
-import { canManagePickerShift } from '~/src/core/utils/employee';
+import {
+  canManagePickerShift,
+  canManageStoreEmployees,
+} from '~/src/core/utils/employee';
 import { SafeScrollView } from '~/src/core/utils/safe-scrollview';
 import { useAuth } from '../core';
 import { useConfig } from '../core/store/config';
@@ -44,6 +47,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
 
   const isDriver = useRoleDriver();
   const canAccessPickerShiftManagement = canManagePickerShift(userInfo?.role);
+  const canManageEmployees = canManageStoreEmployees(userInfo?.role);
 
   const triggerSignOut = useSignOut();
 
@@ -82,6 +86,13 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
       onPress: () => navigateFromDrawer(ROUTES.APP.PICKER_SHIFT_MANAGEMENT),
       enable: canAccessPickerShiftManagement,
       show: !isDriver && canAccessPickerShiftManagement,
+    },
+    {
+      label: 'Quản lý nhân viên',
+      icon: <Ionicons name="people-outline" size={20} color="black" />,
+      onPress: () => navigateFromDrawer(ROUTES.APP.EMPLOYEE_MANAGEMENT),
+      enable: canManageEmployees,
+      show: !isDriver && canManageEmployees,
     },
     {
       label: 'Cài đặt',

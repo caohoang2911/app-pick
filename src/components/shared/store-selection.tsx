@@ -11,26 +11,42 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { showMessage } from 'react-native-flash-message';
+import { Portal } from '@gorhom/portal';
+import {
+  Linking,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useAuth } from '~/src/core/store/auth';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
-import { CheckCircleFill } from '~/src/core/svgs';
+import { CheckCircleFill, CloseLine } from '~/src/core/svgs';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
+import { EmployeeRole } from '~/src/types/employee';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import Empty from './empty';
+import Header from './header';
+import StoreTransferQR from './store-transfer-qr';
 
 type StoreType = Option & { address: string; tenant: string };
 
-// Constants for role checking
-const ADMIN_ROLES = ['STORE_MANAGER', 'ADMIN'] as const;
-const TELEGRAM_LINK = 'https://t.me/+3BgB-1UkLUUyMWU1';
+// Roles chuyển siêu thị TRỰC TIẾP (assignMeToStore), không đi qua flow yêu cầu +
+// QR của nhân viên. TC (STORE_SHIFT_SUPERVISOR) là role quản lý — gộp cùng
+// SM/ADMIN để không bị hạ role về STORE khi chuyển siêu thị.
+const ADMIN_ROLES = [
+  'STORE_MANAGER',
+  'ADMIN',
+  'STORE_SHIFT_SUPERVISOR',
+] as const;
 
 // Tách thành component riêng để tránh re-render không cần thiết
 const StoreItem = memo(
@@ -164,26 +180,6 @@ const StoreSelection = forwardRef<any, Props>(
     const searchBarRef = useRef<any>(null);
     const { stores } = useConfig.use.config() || {};
 
-    // Memoize success callback to prevent recreation on every render
-    const onSuccessCallback = useCallback(() => {
-      setVisible(false);
-      showMessage({
-        message:
-          'Yêu cầu cấp quyền thành công, vui lòng đăng nhập lại sau vài phút. Vui lòng tham gia nhóm để cập nhật thông báo: [' +
-          TELEGRAM_LINK +
-          '](' +
-          TELEGRAM_LINK +
-          ').',
-        type: 'success',
-        duration: 10000,
-      });
-    }, []);
-
-    const { mutate: requestAssignMeToStore } = useRequestAssignMeToStore(
-      newbie,
-      onSuccessCallback,
-    );
-
     const userInfo = useAuth.use.userInfo();
 
     // Memoize extracted values to prevent unnecessary re-renders
@@ -193,6 +189,40 @@ const StoreSelection = forwardRef<any, Props>(
       () => userInfo?.tenant?.toString(),
       [userInfo?.tenant],
     );
+
+    // Nhớ store vừa chọn để hiển thị trong overlay QR.
+    const selectedStoreRef = useRef<StoreType | null>(null);
+    const [qrToken, setQrToken] = useState<string | null>(null);
+    const [showQr, setShowQr] = useState(false);
+
+    // Nhận token (data) rồi hiện overlay QR (Portal) để SM/TC siêu thị đích quét
+    // duyệt. Dùng Portal (như ScannerBox) thay vì điều hướng route: tránh bị
+    // portal của bottom sheet che và không phụ thuộc route mới đăng ký.
+    const onSuccessCallback = useCallback((token: string) => {
+      actionRef.current?.dismiss?.();
+      setVisible(false);
+      setQrToken(token ?? '');
+      setShowQr(true);
+    }, []);
+
+    const { mutate: requestAssignMeToStore } =
+      useRequestAssignMeToStore(onSuccessCallback);
+
+    const handleRegenerate = useCallback(() => {
+      const store = selectedStoreRef.current;
+      if (!store) return;
+      setLoading(true);
+      requestAssignMeToStore({
+        storeCode: store.id.toString(),
+        employeeCode: code || userCode || '',
+        role: EmployeeRole.STORE,
+      });
+    }, [code, userCode, requestAssignMeToStore]);
+
+    const handleCloseQr = useCallback(() => {
+      setShowQr(false);
+      setQrToken(null);
+    }, []);
 
     const isKeyboardVisible = useKeyboardVisible();
 
@@ -262,9 +292,11 @@ const StoreSelection = forwardRef<any, Props>(
           onConfirm: () => {
             hideAlert();
             setLoading(true);
+            selectedStoreRef.current = store;
             requestAssignMeToStore({
               storeCode: store.id.toString(),
               employeeCode: code || userCode || '',
+              role: EmployeeRole.STORE,
             });
           },
         });
@@ -307,42 +339,76 @@ const StoreSelection = forwardRef<any, Props>(
     }, [visible]);
 
     return (
-      <SBottomSheet
-        visible={visible}
-        title="Chọn cửa hàng"
-        ref={actionRef}
-        snapPoints={[700, '80%']}
-        keyboardBehavior="fillParent"
-        onClose={handleClose}
-        scrollEnabled={false}
-        disableScrollView={true}
-      >
-        <SearchBar ref={searchBarRef} onSearch={handleSearch} />
+      <>
+        <SBottomSheet
+          visible={visible}
+          title="Chọn cửa hàng"
+          ref={actionRef}
+          snapPoints={[700, '80%']}
+          keyboardBehavior="fillParent"
+          onClose={handleClose}
+          scrollEnabled={false}
+          disableScrollView={true}
+        >
+          <SearchBar ref={searchBarRef} onSearch={handleSearch} />
 
-        <BottomSheetFlatList
-          data={filteredStores}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          // Tối ưu ảo hóa: giảm số item dựng đồng bộ lúc mở (khi sheet đang
-          // animate) và trải đều phần còn lại → nhẹ hơn khi mở. Chỉ đổi tham
-          // số render, không đổi data/logic/tương tác.
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          updateCellsBatchingPeriod={50}
-          removeClippedSubviews={false}
-          ListEmptyComponent={ListEmptyComponent}
-          keyboardShouldPersistTaps="always"
-          keyboardDismissMode="none"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom:
-              Platform.OS === 'android' && isKeyboardVisible ? 260 : 16,
-          }}
-        />
-      </SBottomSheet>
+          <BottomSheetFlatList
+            data={filteredStores}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            // Tối ưu ảo hóa: giảm số item dựng đồng bộ lúc mở (khi sheet đang
+            // animate) và trải đều phần còn lại → nhẹ hơn khi mở. Chỉ đổi tham
+            // số render, không đổi data/logic/tương tác.
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            updateCellsBatchingPeriod={50}
+            removeClippedSubviews={false}
+            ListEmptyComponent={ListEmptyComponent}
+            keyboardShouldPersistTaps="always"
+            keyboardDismissMode="none"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom:
+                Platform.OS === 'android' && isKeyboardVisible ? 260 : 16,
+            }}
+          />
+        </SBottomSheet>
+        {showQr && (
+          <Portal>
+            <View style={styles.qrOverlay}>
+              <SafeAreaView edges={['top']} style={styles.qrSafe}>
+                <Header
+                  headerLeft={
+                    <TouchableOpacity onPress={handleCloseQr} hitSlop={15}>
+                      <CloseLine />
+                    </TouchableOpacity>
+                  }
+                />
+                <StoreTransferQR
+                  token={qrToken ?? ''}
+                  storeName={selectedStoreRef.current?.name}
+                  employeeCode={code || userCode || ''}
+                  employeeName={userInfo?.name}
+                  onRegenerate={handleRegenerate}
+                />
+              </SafeAreaView>
+            </View>
+          </Portal>
+        )}
+      </>
     );
   },
 );
+
+const styles = StyleSheet.create({
+  qrOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'white',
+    zIndex: 9999,
+    elevation: 9999,
+  },
+  qrSafe: { flex: 1 },
+});
 
 export default React.memo(StoreSelection);

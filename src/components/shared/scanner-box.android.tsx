@@ -39,6 +39,8 @@ type Props = {
   onDestroy?: () => void;
   onSuccessBarcodeScanned?: (result: BarcodeScanningResult) => void;
   isQRScanner?: boolean;
+  /** Ẩn nút chuyển QR/Barcode — chỉ cho quét QR. */
+  hideScannerToggle?: boolean;
 };
 
 const { deviceWidth, deviceHeight } = SCAN_REGION_DIMENSIONS;
@@ -94,6 +96,7 @@ const ScannerBox = ({
   onDestroy,
   onSuccessBarcodeScanned,
   isQRScanner = true,
+  hideScannerToggle = false,
 }: Props) => {
   const { permission, facing, requestPermission } = useCamera();
   const pendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
@@ -203,6 +206,7 @@ const ScannerBox = ({
               onClose={onDestroy!}
               isQRScanner={currentScannerType}
               onToggleScanner={handleToggleScanner}
+              hideToggle={hideScannerToggle}
               scanRegion={scanRegion}
             />
           </CameraView>
