@@ -139,7 +139,7 @@ const Authorize = () => {
         break;
       case 'content':
         // Xử lý content được gửi từ website
-        const { type, data: contentData, timestamp } = dataParser;
+        const { type, data: contentData } = dataParser;
         // console.log(`[WebView Content] ${type}:`, contentData);
 
         // Chỉ xử lý elementText

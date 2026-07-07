@@ -21,12 +21,20 @@ interface OrderPickState {
   isScanMoreProduct: boolean;
   /** Các KG đã quét, chờ form append vào weightRangeItemKGs. */
   weightRangePendingScanKGs: number[];
+  /**
+   * Bản nháp danh sách KG đang thao tác trong popup (mirror của form), gắn theo
+   * product id. Giúp form KHÔI PHỤC lại khi Formik bị remount giữa chừng (đổi
+   * key do cache/currentProduct resolve lại) thay vì mất item đã quét.
+   * null = chưa có phiên nào đang mở (mở mới sẽ seed từ dữ liệu đã lưu).
+   */
+  weightRangeDraft: { id: number; items: number[] } | null;
   action: ProductAction | null;
   setAction: (action: ProductAction | null) => void;
   setScanMoreProduct: (isScanMoreProduct: boolean) => void;
   appendWeightRangeScanKg: (kg: number) => void;
   drainWeightRangePendingScanKGs: () => number[];
   clearWeightRangePendingScanKGs: () => void;
+  setWeightRangeDraft: (draft: { id: number; items: number[] } | null) => void;
   setIsEditManual: (isEditManual: boolean, action?: ProductAction) => void;
   setKeyword: (keyword: string) => void;
   toggleScanQrCode: (status: boolean) => void;
@@ -69,6 +77,7 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
   isEditManual: false,
   isScanMoreProduct: false,
   weightRangePendingScanKGs: [],
+  weightRangeDraft: null,
   action: null,
   replacePickedProductId: null,
   isVisibleReplaceProduct: false,
@@ -88,6 +97,7 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
       isEditManual: false,
       isScanMoreProduct: false,
       weightRangePendingScanKGs: [],
+      weightRangeDraft: null,
       action: null,
       replacePickedProductId: null,
       isVisibleReplaceProduct: false,
@@ -119,6 +129,9 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
   },
   clearWeightRangePendingScanKGs: () => {
     set({ weightRangePendingScanKGs: [] });
+  },
+  setWeightRangeDraft: (draft) => {
+    set({ weightRangeDraft: draft });
   },
   setAction: (action: ProductAction | null) => {
     set({ action });
@@ -267,6 +280,14 @@ export const drainWeightRangePendingScanKGs = () =>
 
 export const clearWeightRangePendingScanKGs = () =>
   _useOrderPick.getState().clearWeightRangePendingScanKGs();
+
+export const setWeightRangeDraft = (
+  draft: { id: number; items: number[] } | null,
+) => _useOrderPick.getState().setWeightRangeDraft(draft);
+
+/** Đọc non-reactive: dùng trong initialValues (chỉ cần giá trị tại thời điểm mount). */
+export const getWeightRangeDraft = () =>
+  _useOrderPick.getState().weightRangeDraft;
 
 export const setIsScrolledDown = (value: boolean) =>
   _useOrderPick.getState().setIsScrolledDown(value);

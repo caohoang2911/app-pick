@@ -51,6 +51,21 @@ export function getWeightRangeOrderQuantity(
   );
 }
 
+/**
+ * Nguồn phát hiện DUY NHẤT cho sản phẩm bán theo range trọng lượng.
+ * Dùng chung ở scan handler ([code].tsx), popup và list item để tránh lệch flow:
+ * nếu chỉ 1 nơi coi là weight range, phần khác sẽ không append/submit
+ * `pickedExtraQuantities.weightRangeItemKGs` → server chặn "pickedExtraQuantities required".
+ */
+export function isWeightRangeProduct(
+  product?: Pick<Product, 'tags' | 'orderQuantityConversion'>,
+): boolean {
+  return (
+    (product?.tags?.includes('WEIGHT_RANGE') ?? false) ||
+    !!product?.orderQuantityConversion?.weightRange?.length
+  );
+}
+
 /** h-11 */
 const WEIGHT_RANGE_ITEM_HEIGHT = 44;
 /** gap-2 */

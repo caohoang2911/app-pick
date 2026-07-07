@@ -48,6 +48,8 @@ import {
   setReplacePickedProductId,
   clearWeightRangePendingScanKGs,
   drainWeightRangePendingScanKGs,
+  getWeightRangeDraft,
+  setWeightRangeDraft,
   setScanMoreProduct,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
@@ -75,6 +77,7 @@ import { UnitText } from './unit-text';
 import PickMoreScanButton from './pick-more-scan-button';
 import WeightRangeLineItems, {
   getWeightRangeOrderQuantity,
+  isWeightRangeProduct,
   normalizeWeightRangeItemKGs,
   parseWeightRangeItemKGs,
   sumWeightRangeItemKGs,
@@ -771,9 +774,7 @@ const InputAmountPopup = () => {
     return null;
   }, [currentProduct?.unit]);
 
-  const isWeightRange =
-    (currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false) ||
-    !!currentProduct?.orderQuantityConversion?.weightRange?.length;
+  const isWeightRange = isWeightRangeProduct(currentProduct);
 
   // Memoize title component
   const renderTitle = useMemo(
@@ -942,6 +943,7 @@ const InputAmountPopup = () => {
     setCurrentId(null);
     setQuantityFromBarcode(0);
     clearWeightRangePendingScanKGs();
+    setWeightRangeDraft(null);
     setActionProduct(null);
   }, [
     toggleShowAmountInput,
@@ -1036,11 +1038,17 @@ const InputAmountPopup = () => {
 
   // Memoize initial values
   const initialValues = useMemo(() => {
+    // Ưu tiên bản nháp đang thao tác (mirror trong store) để KHÔNG mất item đã
+    // quét khi Formik remount giữa chừng. draft gắn theo product id để không lẫn
+    // sản phẩm; null = mở phiên mới → seed từ dữ liệu đã lưu.
+    const draft = getWeightRangeDraft();
     const weightRangeItemKGs = isWeightRange
-      ? parseWeightRangeItemKGs(
-          (currentProduct as Product)?.pickedExtraQuantities
-            ?.weightRangeItemKGs,
-        )
+      ? draft && draft.id === (currentProduct as Product)?.id
+        ? draft.items
+        : parseWeightRangeItemKGs(
+            (currentProduct as Product)?.pickedExtraQuantities
+              ?.weightRangeItemKGs,
+          )
       : [];
 
     return {
@@ -1098,15 +1106,37 @@ const InputAmountPopup = () => {
           const pending = drainWeightRangePendingScanKGs();
           if (pending.length === 0) return;
 
-          setFieldValue('weightRangeItemKGs', [
-            ...weightRangeItemsRef.current,
-            ...pending,
-          ]);
+          const merged = [...weightRangeItemsRef.current, ...pending];
+          setFieldValue('weightRangeItemKGs', merged);
+          // Cập nhật draft ngay trong cùng layout-effect (sau khi đã drain queue)
+          // để không có cửa sổ mất item nếu remount xảy ra trước passive effect.
+          const id = (currentProduct as Product)?.id;
+          if (id != null) {
+            setWeightRangeDraft({ id, items: merged });
+          }
         }, [
           isShowAmountInput,
           isWeightRange,
           weightRangePendingScanKGs,
+          currentProduct,
           setFieldValue,
+        ]);
+
+        // Mirror danh sách KG hiện tại → store draft (gắn product id) để remount
+        // giữa chừng có thể khôi phục, tránh mất item đã quét → submit rỗng.
+        useEffect(() => {
+          if (!isShowAmountInput || !isWeightRange) return;
+          const id = (currentProduct as Product)?.id;
+          if (id == null) return;
+          setWeightRangeDraft({
+            id,
+            items: values?.weightRangeItemKGs ?? [],
+          });
+        }, [
+          isShowAmountInput,
+          isWeightRange,
+          currentProduct,
+          values?.weightRangeItemKGs,
         ]);
 
         useEffect(() => {

@@ -34,6 +34,7 @@ import MoreActionsBtn from './more-actions-btn';
 import { UnitText } from './unit-text';
 import {
   getWeightRangeOrderQuantity,
+  isWeightRangeProduct,
   parseWeightRangeItemKGs,
 } from './weight-range-line-items';
 import { colors } from '~/src/ui/colors';
@@ -367,41 +368,39 @@ const OrderPickProduct = memo(
 
     const isDisable = false;
 
-    const isWeightRangeProduct = useMemo(
-      () =>
-        tags?.includes('WEIGHT_RANGE') ||
-        !!orderQuantityConversion?.weightRange?.length,
-      [tags, orderQuantityConversion?.weightRange],
+    const isWeightRange = useMemo(
+      () => isWeightRangeProduct({ tags, orderQuantityConversion }),
+      [tags, orderQuantityConversion],
     );
 
     const displayOrderQuantity = useMemo(() => {
-      if (isWeightRangeProduct) {
+      if (isWeightRange) {
         return getWeightRangeOrderQuantity({
           orderQuantity: orderQuantity ?? 0,
           orderQuantityConversion,
         });
       }
       return orderQuantity;
-    }, [isWeightRangeProduct, orderQuantity, orderQuantityConversion]);
+    }, [isWeightRange, orderQuantity, orderQuantityConversion]);
 
     const displayPickedQuantity = useMemo(() => {
-      if (!isWeightRangeProduct) return pickedQuantity;
+      if (!isWeightRange) return pickedQuantity;
 
       const pickedCount = parseWeightRangeItemKGs(
         pickedExtraQuantities?.weightRangeItemKGs,
       ).length;
       return pickedCount > 0 ? pickedCount : undefined;
     }, [
-      isWeightRangeProduct,
+      isWeightRange,
       pickedExtraQuantities?.weightRangeItemKGs,
       pickedQuantity,
     ]);
 
-    const displayUnit = isWeightRangeProduct
+    const displayUnit = isWeightRange
       ? (orderQuantityConversion?.unit ?? unit)
       : unit;
     const isDisplayUnitConversion =
-      isWeightRangeProduct && !!orderQuantityConversion?.unit;
+      isWeightRange && !!orderQuantityConversion?.unit;
 
     const orderQuantityNum = Number(orderQuantity);
     const allowedExcess = orderQuantityNum * 0.05; // 5% tolerance
@@ -409,12 +408,12 @@ const OrderPickProduct = memo(
     const isWarningOverQuantity = useMemo(() => {
       const pickedQuantityNum = Number(pickedQuantity);
 
-      if (isWeightRangeProduct) {
+      if (isWeightRange) {
         return false;
       }
 
       return pickedQuantityNum > orderQuantityNum + allowedExcess;
-    }, [pickedQuantity, orderQuantityNum, allowedExcess, isWeightRangeProduct]);
+    }, [pickedQuantity, orderQuantityNum, allowedExcess, isWeightRange]);
 
     // Memoize expensive calculations
     const productPickedErrorTypes = useMemo(
