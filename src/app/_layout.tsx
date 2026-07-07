@@ -41,6 +41,8 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { useWatchResponse } from '~/src/core/hooks/useWatchResponse';
+import { useAlertStore } from '~/src/core/store/alert-dialog';
+import { useOtaUpdateReadyModal } from '~/src/core/store/ota-update-modal';
 import AlertDialog from '../components/AlertDialog';
 import { AppStateEffect } from '../components/AppStateEffect';
 import { CallOverlay } from '../components/call/CallOverlay';
@@ -123,6 +125,9 @@ hydrateConfig();
 setDefaultTimeZone();
 SplashScreen.preventAutoHideAsync();
 
+/** Check/tải update treo (mạng chập chờn) thì không giam app sau splash quá lâu. */
+const SPLASH_MAX_WAIT_MS = 10_000;
+
 /** Stable wrapper styles for @gorhom/portal — inline arrays/objects change every render and retrigger Portal's children effect → infinite update loop. */
 const flashPortalStyles = StyleSheet.create({
   wrap: {
@@ -198,13 +203,11 @@ function Providers({ children }: { children: React.ReactNode }) {
   const status = useAuth.use.status();
   const loading = useLoading.use.loading();
 
-  const { isUpdateAvailable } = useUpdatesSafe();
-
   // ✅ CodePush chạy trước
   const { isDoneCodepush, onFetchUpdateAsync } = useCodepush();
 
   // ✅ GitHub auto-update chỉ chạy sau khi CodePush xong
-  const { isChecking, progress, isDownloading } = useAutoUpdate({
+  const { progress, isDownloading } = useAutoUpdate({
     enabled: isDoneCodepush,
   });
 
@@ -212,11 +215,29 @@ function Providers({ children }: { children: React.ReactNode }) {
     await SplashScreen.hideAsync();
   }, []);
 
+  // Splash chỉ chờ CodePush (check/fetch OTA chạy ngầm dưới splash, không còn
+  // màn Loading chặn). GitHub native check KHÔNG giữ splash: chạy tiếp sau khi
+  // vào app, cần update thì tự hiện alert chặn / modal tải APK đè lên sau.
+  // updateUiVisible: lỡ có alert/modal bật khi splash còn che thì hạ ngay.
+  const alertVisible = useAlertStore((s) => s.alerts.length > 0);
+  const otaModalVisible = useOtaUpdateReadyModal((s) => s.visible);
+  const waitingForUpdates = !isDoneCodepush;
+  const updateUiVisible = isDownloading || alertVisible || otaModalVisible;
+
   useEffect(() => {
-    if (status !== 'idle') {
-      hideSplash();
-    }
-  }, [status]);
+    if (status === 'idle') return;
+    if (waitingForUpdates && !updateUiVisible) return;
+    hideSplash();
+  }, [status, waitingForUpdates, updateUiVisible, hideSplash]);
+
+  // Failsafe: check update treo (mạng nghẽn, GitHub/OTA không phản hồi) →
+  // vẫn hạ splash sau tối đa SPLASH_MAX_WAIT_MS để app dùng được.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void SplashScreen.hideAsync();
+    }, SPLASH_MAX_WAIT_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     setupExpoModulesErrorHandler();
@@ -290,27 +311,22 @@ function Providers({ children }: { children: React.ReactNode }) {
                   pointerEvents={isDownloading ? 'none' : 'auto'}
                   collapsable={false}
                 >
-                  {/* Block toàn màn hình: check + tải APK (giống Android) — AlertDialog mount bên ngoài để vẫn bấm được khi isChecking */}
-                  {!isDoneCodepush && isUpdateAvailable ? (
-                    <Loading description="Đang tải bản cập nhật mới..." />
-                  ) : isChecking && !isDownloading ? (
-                    <Loading description="Đang kiểm tra cập nhật..." />
-                  ) : isDownloading ? (
-                    <Loading description="Đang tải bản cập nhật..." />
-                  ) : (
-                    <NotificationWrapper
-                      isDoneCodepush={isDoneCodepush}
-                      onFetchUpdateAsync={onFetchUpdateAsync}
-                    >
-                      <AuthWrapper>
-                        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                          <NetworkStatus />
-                          {loading && <Loading />}
-                          {children}
-                        </SafeAreaView>
-                      </AuthWrapper>
-                    </NotificationWrapper>
-                  )}
+                  {/* Check/tải update chạy ngầm dưới splash, không còn màn
+                      Loading chặn. NotificationWrapper vẫn tự blank khi đang
+                      fetch OTA (lúc đó splash còn che); đang tải APK thì
+                      pointerEvents='none' + UpdateDownloadModal lo phần UI. */}
+                  <NotificationWrapper
+                    isDoneCodepush={isDoneCodepush}
+                    onFetchUpdateAsync={onFetchUpdateAsync}
+                  >
+                    <AuthWrapper>
+                      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                        <NetworkStatus />
+                        {loading && <Loading />}
+                        {children}
+                      </SafeAreaView>
+                    </AuthWrapper>
+                  </NotificationWrapper>
                 </View>
 
                 <AlertDialog />
