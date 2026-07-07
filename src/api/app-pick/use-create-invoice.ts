@@ -23,10 +23,7 @@ const BASE64_REGEX = /^(data:image\/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$/;
 const INVOICE_API_URL = Env.INVOICE_API_URL;
 
 /** Error không enumerable → JSON.stringify(error) ra "{}". */
-const getMutationErrorMessage = (
-  error: unknown,
-  fallback: string,
-): string => {
+const getMutationErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) return error.message;
   if (typeof error === 'string') return error;
   const axiosErr = error as {
@@ -139,6 +136,22 @@ export const useCreateInvoice = () => {
   });
 };
 
+/**
+ * Khoá chống double-submit tạo hóa đơn theo orderCode (module-level → dùng chung
+ * mọi màn). Chặn được cả double-tap nút, auto-trigger sau khi scan túi (đơn PICK
+ * UP) lẫn dialog confirm bị stack — khi một request createInvoice cho cùng đơn
+ * đang chạy thì lần gọi thứ 2 bị bỏ qua, KHÔNG tắt loading của request đầu.
+ */
+const inFlightCreateInvoice = new Set<string>();
+
+/** Ném ra khi phát hiện lần tạo hóa đơn trùng đang chạy → onError bỏ qua lặng lẽ. */
+class DuplicateCreateInvoiceError extends Error {
+  constructor() {
+    super('DUPLICATE_CREATE_INVOICE');
+    this.name = 'DuplicateCreateInvoiceError';
+  }
+}
+
 export type UseCreateInvoiceFlowOptions = {
   /** Gọi khi tạo hóa đơn thành công (vd: gọi in nếu không COD) */
   onSuccess?: (orderCode: string) => void;
@@ -153,45 +166,58 @@ const CREATE_INVOICE_MSG = {
 export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
   return useMutation({
     mutationFn: async (params: Variables): Promise<Response> => {
-      // Kiểm tra kết nối máy in trước khi tạo hóa đơn
-      const probe = await checkPrinterConnection();
+      // Chặn tạo hóa đơn trùng: nếu đơn này đang có request createInvoice chạy
+      // dở thì bỏ qua lần gọi thứ 2 (giữ nguyên loading của request đầu).
+      if (inFlightCreateInvoice.has(params.orderCode)) {
+        throw new DuplicateCreateInvoiceError();
+      }
+      inFlightCreateInvoice.add(params.orderCode);
+
       try {
-        probe.destroy();
-      } catch {
-        /* ignore */
-      }
+        // Kiểm tra kết nối máy in trước khi tạo hóa đơn
+        const probe = await checkPrinterConnection();
+        try {
+          probe.destroy();
+        } catch {
+          /* ignore */
+        }
 
-      const result = await createInvoice(params);
-      const isFail = result?.status === 'FAIL';
+        const result = await createInvoice(params);
+        const isFail = result?.status === 'FAIL';
 
-      if (result?.error && !isFail) {
+        if (result?.error && !isFail) {
+          showMessage({
+            message: result.error,
+            type: 'danger',
+          });
+          throw new Error(result.error);
+        }
+
+        if (isFail) {
+          showMessage({
+            message: CREATE_INVOICE_MSG.fail,
+            type: 'warning',
+          });
+
+          return result;
+        }
+
         showMessage({
-          message: result.error,
-          type: 'danger',
-        });
-        throw new Error(result.error);
-      }
-
-      if (isFail) {
-        showMessage({
-          message: CREATE_INVOICE_MSG.fail,
-          type: 'warning',
+          message: CREATE_INVOICE_MSG.success,
+          type: 'success',
         });
 
         return result;
+      } finally {
+        inFlightCreateInvoice.delete(params.orderCode);
       }
-
-      showMessage({
-        message: CREATE_INVOICE_MSG.success,
-        type: 'success',
-      });
-
-      return result;
     },
     onSuccess: (_data, variables) => {
       options?.onSuccess?.(variables.orderCode);
     },
-    onError: () => {
+    onError: (error) => {
+      // Request trùng bị chặn: không tắt loading (request đầu vẫn đang chạy).
+      if (error instanceof DuplicateCreateInvoiceError) return;
       setLoading(false);
     },
   });
@@ -299,10 +325,7 @@ export const useCreateInvoiceProcess = (
       }
     },
     onError: (error: unknown) => {
-      const message = getMutationErrorMessage(
-        error,
-        'Không thể in hóa đơn',
-      );
+      const message = getMutationErrorMessage(error, 'Không thể in hóa đơn');
       showMessage({
         message,
         type: 'danger',
