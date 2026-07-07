@@ -31,6 +31,7 @@ import {
 } from '~/src/core/utils/order-bags';
 import { BarcodeScanningResult } from '~/src/types/scanner';
 import Loading from '~/src/components/Loading';
+import { isWeightRangeProduct as getIsWeightRangeProduct } from '~/src/components/order-pick/weight-range-line-items';
 
 const OrderPick = () => {
   const navigation = useNavigation();
@@ -103,8 +104,7 @@ const OrderPick = () => {
       const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
       setCurrentId(currentProduct?.id);
 
-      const isWeightRangeProduct =
-        currentProduct?.tags?.includes('WEIGHT_RANGE') ?? false;
+      const isWeightRangeProduct = getIsWeightRangeProduct(currentProduct);
       const weightRange = currentProduct?.orderQuantityConversion?.weightRange;
       if (weightRange?.length === 2 && quantity) {
         const [minWeight, maxWeight] = weightRange;
