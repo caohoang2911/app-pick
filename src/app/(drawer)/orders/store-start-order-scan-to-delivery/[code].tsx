@@ -230,6 +230,8 @@ const OrderScanToDelivery = () => {
 
   const { checkShift } = useCheckShift(() => {
     showAlert({
+      // Cùng stackId → tránh double-tap tạo nhiều dialog confirm gọi tạo hóa đơn.
+      stackId: `create-invoice-${code}`,
       title: btnWithInvoiceLabel + '?',
       onConfirm: () => {
         hideAlert();
