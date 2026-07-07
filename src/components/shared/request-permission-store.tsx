@@ -19,8 +19,13 @@ import {
   useSafeAreaInsets,
   SafeAreaView,
 } from 'react-native-safe-area-context';
+import {
+  usePollQRAccessTokenStatus,
+  QRAccessTokenStatus,
+} from '~/src/api/app-pick/use-get-qr-access-token-info';
 import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
 import { useGetConfig } from '~/src/api/config/use-get-config';
+import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { useAuth } from '~/src/core/store/auth';
 import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
@@ -106,6 +111,8 @@ const RequestPermissionStore = ({ code }: Props) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStore, setSelectedStore] = useState<StoreType | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  // Đã được duyệt → giữ màn QR nhưng ép mã về hết hạn, không cho tạo lại.
+  const [approved, setApproved] = useState(false);
 
   // Đọc role hiện tại trong callback thành công (callback tạo 1 lần).
   const selectedRoleRef = useRef(selectedRole);
@@ -116,6 +123,7 @@ const RequestPermissionStore = ({ code }: Props) => {
   const onRequestSuccess = useCallback((newToken: string) => {
     if (selectedRoleRef.current === EmployeeRole.STORE) {
       // NV → hiển thị mã QR để SM/TC quét duyệt tại chỗ.
+      setApproved(false);
       setToken(newToken);
     } else {
       // SM/TC → bot Telegram báo group, chờ Admin duyệt. Kèm link nhóm Telegram
@@ -193,7 +201,46 @@ const RequestPermissionStore = ({ code }: Props) => {
 
   const handleBackFromQr = useCallback(() => {
     setToken(null);
+    setApproved(false);
   }, []);
+
+  // Đang hiển thị QR (NV) → poll trạng thái duyệt 1s/lần; duyệt xong thì ngừng.
+  const isWaitingApproval =
+    !!token && !approved && selectedRole === EmployeeRole.STORE;
+  const approvedHandledRef = useRef(false);
+
+  const { data: tokenInfo } = usePollQRAccessTokenStatus(
+    token,
+    isWaitingApproval,
+  );
+
+  useEffect(() => {
+    approvedHandledRef.current = false;
+  }, [token]);
+
+  useEffect(() => {
+    if (
+      !isWaitingApproval ||
+      approvedHandledRef.current ||
+      tokenInfo?.status !== QRAccessTokenStatus.APPROVED
+    ) {
+      return;
+    }
+    approvedHandledRef.current = true;
+    // Giữ màn QR phía sau alert nhưng đưa về trạng thái hết hạn (mã đã dùng xong).
+    setApproved(true);
+    showAlert({
+      title: 'Cấp quyền thành công',
+      message:
+        'Bạn đã được duyệt vào siêu thị. Vui lòng đăng nhập lại để bắt đầu sử dụng app.',
+      confirmText: 'Đăng nhập lại',
+      isHideCancelButton: true,
+      onConfirm: () => {
+        hideAlert();
+        router.replace('/login');
+      },
+    });
+  }, [isWaitingApproval, tokenInfo?.status]);
 
   if (isFetching) return null;
 
@@ -219,13 +266,16 @@ const RequestPermissionStore = ({ code }: Props) => {
             hint="Vui lòng đưa mã này cho Quản lý / Trưởng ca siêu thị bạn chọn quét để cấp quyền."
             storeName={selectedStore?.name}
             employeeCode={employeeCode}
-            employeeName={userInfo?.name}
+            // Tài khoản mới thường chưa có name trong userInfo → lấy từ payload
+            // của poll getQRAccesTokenInfo (có sau nhịp poll đầu ~1s).
+            employeeName={userInfo?.name || tokenInfo?.payload?.employeeName}
             compact
-            onRegenerate={handleSubmit}
+            forceExpired={approved}
+            onRegenerate={approved ? undefined : handleSubmit}
           />
         </ScrollView>
-        {/* Không kiểm soát được trạng thái đã duyệt hay chưa ở màn này, nên chỉ
-            hướng dẫn + link "Đăng nhập lại" thay vì nút CTA ngụ ý đã được duyệt. */}
+        {/* Duyệt xong poll sẽ bắn alert "Đăng nhập lại" nên footer chỉ cần
+            dòng hướng dẫn, không cần link điều hướng riêng. */}
         <View
           style={{
             paddingHorizontal: 16,
@@ -236,15 +286,6 @@ const RequestPermissionStore = ({ code }: Props) => {
             Sau khi được xác nhận cấp quyền thành công, vui lòng đăng nhập lại
             để bắt đầu.
           </Text>
-          <TouchableOpacity
-            onPress={() => router.replace('/login')}
-            hitSlop={12}
-            className="self-center py-2"
-          >
-            <Text className="text-base font-semibold text-blue-600 underline">
-              Đăng nhập lại
-            </Text>
-          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );

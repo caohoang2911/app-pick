@@ -1,11 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import Svg, { Circle } from 'react-native-svg';
 
-// TODO(BE): lấy TTL token từ backend nếu response có trả; tạm hardcode 60s theo mock.
-const DEFAULT_TTL_MS = 60_000;
+// TODO(BE): lấy TTL token từ backend nếu response có trả; tạm hardcode 5 phút.
+const DEFAULT_TTL_MS = 5 * 60_000;
 const QR_SIZE = 220;
+
+// Vòng progress quanh đồng hồ: vơi dần theo % thời gian còn lại.
+const TIMER_SIZE = 56;
+const TIMER_STROKE = 3;
+const TIMER_RADIUS = (TIMER_SIZE - TIMER_STROKE) / 2;
+const TIMER_CIRCUMFERENCE = 2 * Math.PI * TIMER_RADIUS;
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const formatTime = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -32,6 +48,11 @@ type Props = {
   ttlMs?: number;
   /** Giảm padding trên (màn onboarding cấp quyền). */
   compact?: boolean;
+  /**
+   * Ép QR về trạng thái hết hạn ngay (timer 0:00, QR mờ + overlay) — dùng khi
+   * đã được duyệt nên mã không còn giá trị. Không gọi onExpire.
+   */
+  forceExpired?: boolean;
   onExpire?: () => void;
   /** Có onRegenerate thì khi hết hạn cho phép chạm QR / bấm nút để tạo lại mã. */
   onRegenerate?: () => void;
@@ -52,6 +73,7 @@ const StoreTransferQR = ({
   employeeName,
   ttlMs = DEFAULT_TTL_MS,
   compact = false,
+  forceExpired = false,
   onExpire,
   onRegenerate,
 }: Props) => {
@@ -60,7 +82,33 @@ const StoreTransferQR = ({
   const onExpireRef = useRef(onExpire);
   onExpireRef.current = onExpire;
 
+  // 1 → 0 trong đúng ttlMs, chạy song song với interval đếm chữ.
+  const progressAnim = useRef(new Animated.Value(1)).current;
+
   useEffect(() => {
+    if (forceExpired || !token) {
+      progressAnim.setValue(0);
+      return;
+    }
+    progressAnim.setValue(1);
+    const anim = Animated.timing(progressAnim, {
+      toValue: 0,
+      duration: ttlMs,
+      easing: Easing.linear,
+      // stroke của react-native-svg không chạy được trên native driver
+      useNativeDriver: false,
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [token, ttlMs, forceExpired, progressAnim]);
+
+  useEffect(() => {
+    // Đã duyệt → về 0:00 ngay, không chạy countdown và không bắn onExpire.
+    if (forceExpired) {
+      setRemainingMs(0);
+      return;
+    }
+
     // Reset đồng hồ mỗi khi token đổi (lần đầu hoặc "Tạo lại mã").
     endAtRef.current = Date.now() + ttlMs;
     setRemainingMs(ttlMs);
@@ -77,10 +125,10 @@ const StoreTransferQR = ({
     }, 250);
 
     return () => clearInterval(id);
-  }, [token, ttlMs]);
+  }, [token, ttlMs, forceExpired]);
 
   const hasToken = !!token;
-  const expired = remainingMs <= 0 || !hasToken;
+  const expired = forceExpired || remainingMs <= 0 || !hasToken;
 
   return (
     <View className={`items-center px-6 ${compact ? 'pb-6 pt-1' : 'py-8'}`}>
@@ -98,16 +146,49 @@ const StoreTransferQR = ({
         </Text>
       )}
 
-      <View
-        className={`mb-5 h-14 w-14 items-center justify-center rounded-full border-2 ${
-          expired ? 'border-red-400' : 'border-blue-500'
-        }`}
-      >
-        <Text
-          className={`text-sm font-semibold ${expired ? 'text-red-500' : 'text-blue-600'}`}
+      {/* Svg là phần tử layout (đúng 56px), text overlay absolute lên chính
+          giữa cùng box → ring và số luôn đồng tâm, không phụ thuộc rem/h-14. */}
+      <View className="mb-5">
+        <Svg width={TIMER_SIZE} height={TIMER_SIZE}>
+          {/* Track nền; hết hạn thì thành vòng đỏ đầy như cũ */}
+          <Circle
+            cx={TIMER_SIZE / 2}
+            cy={TIMER_SIZE / 2}
+            r={TIMER_RADIUS}
+            stroke={expired ? '#f87171' : '#e5e7eb'}
+            strokeWidth={TIMER_STROKE}
+            fill="none"
+          />
+          {!expired && (
+            <AnimatedCircle
+              cx={TIMER_SIZE / 2}
+              cy={TIMER_SIZE / 2}
+              r={TIMER_RADIUS}
+              stroke="#3b82f6"
+              strokeWidth={TIMER_STROKE}
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={`${TIMER_CIRCUMFERENCE} ${TIMER_CIRCUMFERENCE}`}
+              // Offset âm → phần trống lan theo chiều kim đồng hồ (trái qua phải)
+              strokeDashoffset={progressAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-TIMER_CIRCUMFERENCE, 0],
+              })}
+              // Xoay trong toạ độ SVG để mốc bắt đầu nằm ở đỉnh (12h)
+              transform={`rotate(-90 ${TIMER_SIZE / 2} ${TIMER_SIZE / 2})`}
+            />
+          )}
+        </Svg>
+        <View
+          style={StyleSheet.absoluteFill}
+          className="items-center justify-center"
         >
-          {formatTime(remainingMs)}
-        </Text>
+          <Text
+            className={`text-sm font-semibold ${expired ? 'text-red-500' : 'text-blue-600'}`}
+          >
+            {formatTime(remainingMs)}
+          </Text>
+        </View>
       </View>
 
       <View className="rounded-2xl bg-white p-4" style={styles.qrCard}>
@@ -137,7 +218,7 @@ const StoreTransferQR = ({
               style={StyleSheet.absoluteFillObject}
             >
               <View
-                className="items-center gap-2 rounded-2xl px-5 py-3"
+                className="items-center gap-2 rounded-2xl px-6 py-4"
                 style={styles.expiredChip}
               >
                 <View className="h-12 w-12 items-center justify-center rounded-full bg-blue-500">
@@ -147,7 +228,9 @@ const StoreTransferQR = ({
                   Mã đã hết hạn
                 </Text>
                 {!!onRegenerate && (
-                  <Text className="text-xs text-gray-500">Chạm để tạo lại</Text>
+                  <Text className="text-lg font-bold text-blue-600">
+                    Chạm để tạo lại
+                  </Text>
                 )}
               </View>
             </TouchableOpacity>
@@ -156,7 +239,7 @@ const StoreTransferQR = ({
       </View>
 
       {!!employeeCode && (
-        <Text className="mt-5 text-center text-base font-bold text-gray-900">
+        <Text className="mt-5 text-center text-base font-bold uppercase text-gray-900">
           {employeeCode}
         </Text>
       )}

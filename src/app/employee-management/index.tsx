@@ -11,6 +11,10 @@ import {
   View,
 } from 'react-native';
 import { useAcceptTokenAssignEmployeeToStore } from '~/src/api/app-pick/use-accept-token-assign-employee-to-store';
+import {
+  useGetQRAccessTokenInfo,
+  type QRAccessTokenInfoPayload,
+} from '~/src/api/app-pick/use-get-qr-access-token-info';
 import { useRemoveEmployeeFromStore } from '~/src/api/app-pick/use-remove-employee-from-store';
 import {
   useSearchStoreEmployees,
@@ -36,6 +40,7 @@ export default function EmployeeManagementScreen() {
 
   const config = useConfig.use.config();
   const employeeRoles = config?.employeeRoles || [];
+  const stores = config?.stores || [];
 
   const [searchText, setSearchText] = useState('');
   const [keyword, setKeyword] = useState('');
@@ -56,6 +61,27 @@ export default function EmployeeManagementScreen() {
   const { mutate: removeEmployee } = useRemoveEmployeeFromStore(() =>
     refetch(),
   );
+
+  const handleQRTokenInfo = useCallback(
+    (info: QRAccessTokenInfoPayload, token: string) => {
+      const storeName =
+        getConfigNameById(stores, info.storeCode) || info.storeCode;
+
+      showAlert({
+        title: 'Thêm nhân viên vào siêu thị',
+        message: `Bạn có chắc muốn thêm nhân viên này vào siêu thị?\n\nSiêu thị: ${storeName}\nNhân viên: ${info.employeeName}\nMã NV: ${info.employeeCode}`,
+        onConfirm: () => {
+          hideAlert();
+          setLoading(true);
+          acceptToken({ token });
+        },
+      });
+    },
+    [acceptToken, stores],
+  );
+
+  const { mutate: fetchQRTokenInfo } =
+    useGetQRAccessTokenInfo(handleQRTokenInfo);
 
   const debouncedSetKeyword = useMemo(
     () => debounce((text: string) => setKeyword(text), 300),
@@ -92,17 +118,11 @@ export default function EmployeeManagementScreen() {
       setScannerVisible(false);
       const token = result?.data?.trim();
       if (!token) return;
-      showAlert({
-        title: 'Thêm nhân viên vào siêu thị',
-        message: 'Bạn có chắc muốn thêm nhân viên này vào siêu thị?',
-        onConfirm: () => {
-          hideAlert();
-          setLoading(true);
-          acceptToken({ token });
-        },
-      });
+
+      setLoading(true);
+      fetchQRTokenInfo({ token });
     },
-    [acceptToken],
+    [fetchQRTokenInfo],
   );
 
   const handleRemove = useCallback(
