@@ -26,10 +26,10 @@ type Variables = {
 };
 
 type Response = { error?: string } & {
-  payload?: QRAccessTokenInfoPayload;
+  payload?: unknown;
   status?: string;
   data?: {
-    payload?: QRAccessTokenInfoPayload;
+    payload?: unknown;
     status?: string;
   };
 };
@@ -42,10 +42,38 @@ const getQRAccessTokenInfo = async ({
   });
 };
 
-const normalizeInfo = (res: Response): QRAccessTokenInfo => ({
-  status: res.status ?? res.data?.status,
-  payload: res.payload ?? res.data?.payload,
-});
+/** BE có thể bọc payload trong `map` (Java Map serialize). */
+const normalizePayload = (
+  payload: unknown,
+): QRAccessTokenInfoPayload | undefined => {
+  if (!payload || typeof payload !== 'object') return undefined;
+
+  const record = payload as Record<string, unknown>;
+  const nested =
+    record.map && typeof record.map === 'object'
+      ? (record.map as Record<string, unknown>)
+      : record;
+
+  const { storeCode, employeeCode, employeeName, expireAt } = nested;
+  if (
+    typeof storeCode !== 'string' ||
+    typeof employeeCode !== 'string' ||
+    typeof employeeName !== 'string' ||
+    typeof expireAt !== 'number'
+  ) {
+    return undefined;
+  }
+
+  return { storeCode, employeeCode, employeeName, expireAt };
+};
+
+const normalizeInfo = (res: Response): QRAccessTokenInfo => {
+  const rawPayload = res.payload ?? res.data?.payload;
+  return {
+    status: res.status ?? res.data?.status,
+    payload: normalizePayload(rawPayload),
+  };
+};
 
 /** SM/TC quét QR nhân viên → lấy thông tin trước khi confirm thêm vào siêu thị. */
 export const useGetQRAccessTokenInfo = (
@@ -60,7 +88,7 @@ export const useGetQRAccessTokenInfo = (
         return;
       }
 
-      const payload = data.payload ?? data.data?.payload;
+      const { payload } = normalizeInfo(data);
       if (!payload) {
         showMessage({
           message: 'Không lấy được thông tin mã QR',

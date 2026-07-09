@@ -12,14 +12,18 @@ import {
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { EmployeeRole } from '~/src/types/employee';
 import { authorizeAppPickClient } from '../api/auth/use-authorize-app-pick-client';
+import AuthorizeLoadingOverlay from '../components/shared/authorize-loading-overlay';
 import RequestPermissionStore from '../components/shared/request-permission-store';
 import { setLoading } from '../core/store/loading';
+
+/** Quá thời gian này mà chưa nhận được event login thì bỏ màn che để user thấy web/lỗi. */
+const AUTHORIZE_OVERLAY_TIMEOUT_MS = 30000;
 
 const WHITE_LIST_ROLE = [
   EmployeeRole.STORE,
@@ -33,6 +37,17 @@ const isAllowedAuthorizeRole = (role?: string) =>
   !!role &&
   (WHITE_LIST_ROLE.includes(role as EmployeeRole) || role.startsWith('STORE'));
 
+/**
+ * Đích redirect sau SSO (haravan.com) là trang seedcom.vn — chỉ nhận khi hostname
+ * của trang đang mở đúng là seedcom.vn/*.seedcom.vn. Không dùng includes() trần
+ * (dính redirect_uri=…seedcom.vn… trên URL SSO) hay phủ định !haravan.com
+ * (dính about:blank / hop trung gian).
+ */
+const isSeedcomVnUrl = (url?: string) => {
+  const host = url?.match(/^https?:\/\/([^/:?#]+)/i)?.[1]?.toLowerCase();
+  return !!host && (host === 'seedcom.vn' || host.endsWith('.seedcom.vn'));
+};
+
 const Authorize = () => {
   const urlRedirect = useAuth.use.urlRedirect();
   const [isRequestPermission, setIsRequestPermission] = useState(false);
@@ -45,6 +60,15 @@ const Authorize = () => {
 
   const [currentUrl, setCurrentUrl] = useState<string>();
 
+  // Che UI web bằng overlay từ lúc điều hướng qua seedcom.vn đến khi bắt được event login.
+  const [isMaskingWebUI, setIsMaskingWebUI] = useState(false);
+  const isMaskingWebUIRef = useRef(false);
+
+  const setMaskWebUI = useCallback((masking: boolean) => {
+    isMaskingWebUIRef.current = masking;
+    setIsMaskingWebUI(masking);
+  }, []);
+
   useEffect(() => {
     setCurrentUrl(urlRedirect);
   }, [urlRedirect]);
@@ -55,11 +79,27 @@ const Authorize = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isMaskingWebUI) return;
+    const timeout = setTimeout(
+      () => setMaskWebUI(false),
+      AUTHORIZE_OVERLAY_TIMEOUT_MS,
+    );
+    return () => clearTimeout(timeout);
+  }, [isMaskingWebUI, setMaskWebUI]);
+
   const handleNavigationStateChange = (data: any) => {
-    if (data?.url?.startsWith?.('seedcom.vn') && flag.current) {
+    if (
+      isSeedcomVnUrl(data?.url) &&
+      !data?.url?.includes?.('haravan.com') &&
+      flag.current
+    ) {
       flag.current = false;
-      setCurrentUrl(data?.url);
-      webViewRef.current.reload();
+      // Chỉ che UI, giữ nguyên điều hướng tự nhiên của web. KHÔNG setCurrentUrl/reload:
+      // đổi key sẽ remount WebView (incognito) → mất session SSO vừa tạo → trang
+      // seedcom.vn không còn đăng nhập → event login không bao giờ tới → kẹt overlay.
+      setMaskWebUI(true);
+      setLoading(false);
     }
   };
 
@@ -209,44 +249,52 @@ const Authorize = () => {
   }
 
   return (
-    <WebView
-      key={currentUrl || urlRedirect || 'authorize'}
-      ref={webViewRef}
-      originWhitelist={['*']}
-      style={styles.container}
-      source={{
-        uri: currentUrl || '',
-        // Tránh dùng bản cache HTTP (Android + iOS vẫn tôn trọng cacheEnabled/incognito).
-        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
-      }}
-      onLoadStart={() => setLoading(true, 'Đang tải trang...')}
-      onLoadEnd={() => {
-        setLoading(false, 'Vui lòng đợi...');
-      }}
-      onError={() => {
-        setLoading(false);
-      }}
-      onHttpError={() => {
-        setLoading(false);
-      }}
-      onNavigationStateChange={handleNavigationStateChange}
-      injectedJavaScript={INJECTED_SCRIPT}
-      onMessage={onMessage}
-      javaScriptEnabled
-      domStorageEnabled
-      allowFileAccess
-      allowUniversalAccessFromFileURLs
-      thirdPartyCookiesEnabled
-      saveFormDataDisabled
-      allowFileAccessFromFileURLs
-      cacheEnabled={false}
-      cacheMode="LOAD_NO_CACHE"
-      incognito
-      sharedCookiesEnabled={false}
-      useSharedProcessPool={false}
-      startInLoadingState={false}
-      allowsBackForwardNavigationGestures={false}
-    />
+    <View style={styles.container}>
+      <WebView
+        key={currentUrl || urlRedirect || 'authorize'}
+        ref={webViewRef}
+        originWhitelist={['*']}
+        style={styles.container}
+        source={{
+          uri: currentUrl || '',
+          // Tránh dùng bản cache HTTP (Android + iOS vẫn tôn trọng cacheEnabled/incognito).
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
+        }}
+        onLoadStart={() => {
+          if (isMaskingWebUIRef.current) return;
+          setLoading(true, 'Đang tải trang...');
+        }}
+        onLoadEnd={() => {
+          setLoading(false, 'Vui lòng đợi...');
+        }}
+        onError={() => {
+          setLoading(false);
+          setMaskWebUI(false);
+        }}
+        onHttpError={() => {
+          setLoading(false);
+          setMaskWebUI(false);
+        }}
+        onNavigationStateChange={handleNavigationStateChange}
+        injectedJavaScript={INJECTED_SCRIPT}
+        onMessage={onMessage}
+        javaScriptEnabled
+        domStorageEnabled
+        allowFileAccess
+        allowUniversalAccessFromFileURLs
+        thirdPartyCookiesEnabled
+        saveFormDataDisabled
+        allowFileAccessFromFileURLs
+        cacheEnabled={false}
+        cacheMode="LOAD_NO_CACHE"
+        incognito
+        sharedCookiesEnabled={false}
+        useSharedProcessPool={false}
+        startInLoadingState={false}
+        allowsBackForwardNavigationGestures={false}
+      />
+      {isMaskingWebUI && <AuthorizeLoadingOverlay />}
+    </View>
   );
 };
 

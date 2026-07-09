@@ -9,7 +9,6 @@ import { DrawerActions } from '@react-navigation/native';
 import { router, useNavigation } from 'expo-router';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Images } from '~/assets';
 import { DUMMY_PROCESSING_SLIP_COUNT } from '~/src/core/constants/drawer';
 import { ROUTES } from '~/src/core/constants/routes';
 import { useRoleDriver } from '~/src/core/hooks/useRole';
@@ -19,11 +18,12 @@ import {
   canManageStoreEmployees,
 } from '~/src/core/utils/employee';
 import { SafeScrollView } from '~/src/core/utils/safe-scrollview';
+import { stringUtils } from '~/src/core/utils/string';
 import { useAuth } from '../core';
 import { useConfig } from '../core/store/config';
 import { getConfigNameById } from '../core/utils/config';
 import { colors } from '../ui/colors';
-import { Avatar, AvatarImage } from './Avatar';
+import { Avatar, AvatarFallback } from './Avatar';
 import { VersionDisplay } from './VersionDisplay';
 
 type DrawerMenuItem = {
@@ -115,7 +115,12 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
       <View className="flex flex-row gap-2 items-center border-b border-gray-200 pb-2 px-3">
         <TouchableOpacity onPress={toggleMenu}>
           <Avatar>
-            <AvatarImage source={Images.avatar_default} alt="@shadcn" />
+            <AvatarFallback
+              className="bg-blue-500"
+              textClassname="text-sm font-bold text-white"
+            >
+              {stringUtils.getInitials(userInfo?.name || userInfo?.username)}
+            </AvatarFallback>
           </Avatar>
         </TouchableOpacity>
         <View className="gap-1">

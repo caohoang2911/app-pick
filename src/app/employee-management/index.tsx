@@ -22,6 +22,7 @@ import {
 } from '~/src/api/app-pick/use-search-store-employees';
 import ButtonBack from '~/src/components/ButtonBack';
 import EmployeeItem from '~/src/components/employee-management/employee-item';
+import AddEmployeeConfirmContent from '~/src/components/employee-management/add-employee-confirm-content';
 import { Input } from '~/src/components/Input';
 import ScannerBox, {
   type BarcodeScanningResult,
@@ -69,7 +70,16 @@ export default function EmployeeManagementScreen() {
 
       showAlert({
         title: 'Thêm nhân viên vào siêu thị',
-        message: `Bạn có chắc muốn thêm nhân viên này vào siêu thị?\n\nSiêu thị: ${storeName}\nNhân viên: ${info.employeeName}\nMã NV: ${info.employeeCode}`,
+        message: (
+          <AddEmployeeConfirmContent
+            storeName={storeName}
+            storeCode={info.storeCode}
+            employeeName={info.employeeName}
+            employeeCode={info.employeeCode}
+          />
+        ),
+        width: 350,
+        confirmText: 'Xác nhận',
         onConfirm: () => {
           hideAlert();
           setLoading(true);
