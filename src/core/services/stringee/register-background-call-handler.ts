@@ -42,7 +42,7 @@ function parseStringeePayload(raw: DataPayload): StringeeCallData {
 }
 
 /** Nhận diện push cuộc gọi Stringee (đọc từ payload đã bóc tách). */
-function isStringeeCallPush(raw: DataPayload): boolean {
+export function isStringeeCallPush(raw: DataPayload): boolean {
   // marker top-level Stringee hay set → nhận diện nhanh, khỏi parse.
   if (raw?.type === 'CALL_EVENT' || raw?.stringeePushNotification != null) {
     return true;
@@ -128,31 +128,60 @@ export function registerBackgroundCallHandler(): void {
     const data = (remoteMessage?.data || {}) as DataPayload;
     const isCall = isStringeeCallPush(data);
     console.log(
-      '[StringeeBg] FCM background/killed message NHẬN ĐƯỢC — isCall=',
+      '[StringeeBg] FCM background/killed nhận được — isCall=',
       isCall,
-      'data=',
-      data,
     );
     try {
       if (Platform.OS === 'android' && isCall) {
         // Đã đăng xuất nhưng token Stringee còn sót trên server (vd. logout lúc
         // offline nên unregisterPush không tới nơi) → bỏ qua, không dựng màn gọi.
         // Lazy require để push không phải cuộc gọi khỏi nạp MMKV.
-        const { getToken } = require('@/core/store/auth/utils');
+        const { getToken, getUserInfo } = require('@/core/store/auth/utils');
         if (!getToken()) {
           console.log('[StringeeBg] đã đăng xuất → bỏ qua cuộc gọi');
           return;
         }
-        const status = parseStringeePayload(data).callStatus;
-        console.log('[StringeeBg] → cuộc gọi Stringee, callStatus=', status);
-        // Chỉ dựng màn gọi khi bắt đầu đổ chuông. Với ended/answered/agentEnded
-        // thì thôi — nhưng vẫn `return` để KHÔNG rơi xuống thông báo có tiếng.
+        const payload = parseStringeePayload(data);
+        const status = payload.callStatus;
+        console.log('[StringeeBg] cuộc gọi Stringee, callStatus=', status);
+        // Chỉ dựng màn gọi khi bắt đầu đổ chuông. Với answered thì thôi — nhưng
+        // vẫn `return` để KHÔNG rơi xuống thông báo có tiếng.
         if (
           status === undefined ||
           status === 'started' ||
           status === 'ringing'
         ) {
           await showIncomingCallFromPush(data);
+          // Kéo app lên foreground ngay khi đổ chuông để IncomingCallScreen
+          // trong app hiện (thay vì chỉ heads-up nhỏ của hệ thống). Android 10+
+          // có thể chặn (khi đó còn nguyên popup hệ thống) — gọi vẫn vô hại.
+          const { backToForegroundIfNeeded } = require('./callkeep');
+          backToForegroundIfNeeded();
+          // App bị KILL: màn gọi gốc hiện được nhưng chưa có StringeeCall2 nào
+          // để Nhận/Từ chối → connect Stringee ngay trong headless context này
+          // (cùng JS runtime). Call sẽ về qua socket → handleIncomingCall đăng
+          // ký call (setIncomingCall → IncomingCallScreen hiện khi app đã mở)
+          // + tiêu thụ pending answer/reject user đã bấm. Khi user mở app sau
+          // đó, connectStringee có guard isConnected + cùng userId nên KHÔNG
+          // reconnect làm rơi cuộc gọi.
+          const { connectStringee } = require('./stringee-client');
+          const { getStringeeUserId } = require('@/core/utils/stringee-user');
+          const userId = getStringeeUserId(getUserInfo() ?? undefined);
+          if (userId) {
+            await connectStringee(userId);
+          } else {
+            console.warn('[StringeeBg] thiếu userId → không connect được');
+          }
+        } else if (status === 'ended' || status === 'agentEnded') {
+          // Caller huỷ khi máy này còn đang đổ chuông → hạ màn gọi gốc, không
+          // để chuông treo tới timeout. Không đụng tới cuộc gọi ĐÃ nghe (đường
+          // socket onChangeSignalingState lo việc kết thúc đàm thoại).
+          const { getCallState, resetCall } = require('@/core/store/call');
+          if (getCallState().status !== 'answered') {
+            const { reportCallEnded } = require('./callkeep');
+            reportCallEnded(String(payload.callId ?? payload.serial));
+            resetCall();
+          }
         }
         return;
       }

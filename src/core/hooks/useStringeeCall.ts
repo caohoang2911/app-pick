@@ -7,6 +7,7 @@ import {
   configureVoipPush,
   connectStringee,
   disconnectStringee,
+  ensureMicPermission,
   ensurePhoneAccountEnabled,
   getVoipToken,
   registerStringeePush,
@@ -56,6 +57,11 @@ export const useStringeeCall = (): void => {
         // Android: managed ConnectionService cần "tài khoản gọi" được BẬT thì
         // cuộc gọi nền/kill mới hiện được. Kiểm tra + mở cài đặt nếu chưa bật.
         await ensurePhoneAccountEnabled();
+        if (cancelled) return;
+
+        // Xin quyền mic ngay sau đăng nhập — thiếu quyền thì đàm thoại câm
+        // (bên kia không nghe thấy app) dù cuộc gọi vẫn kết nối bình thường.
+        await ensureMicPermission();
         if (cancelled) return;
 
         // Android: dùng FCM token để registerPush (isVoip = false).

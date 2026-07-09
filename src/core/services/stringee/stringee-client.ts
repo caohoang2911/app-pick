@@ -20,9 +20,12 @@ import {
 
 import { getUuidByCall, registerCall } from './call-registry';
 import {
+  backToForegroundIfNeeded,
   consumePendingAnswer,
+  consumePendingReject,
   displayIncomingCall,
   hasPendingAnswer,
+  isAnsweringCall,
   reportCallEnded,
 } from './callkeep';
 
@@ -139,12 +142,17 @@ function bindCallListener(call: StringeeCall2): void {
   callListener.onHandleOnAnotherDevice = (c, state) => {
     console.log('[Stringee] handled on another device:', state);
     if (getCallState().status === 'answered') return; // máy này đang đàm thoại
+    const uuid = getUuidByCall(c);
+    // Đang answer DỞ trên chính máy này (answer() chưa phản hồi nên status chưa
+    // kịp 'answered') → sự kiện 'answered' là CỦA MÌNH, không phải máy khác.
+    if (uuid && isAnsweringCall(uuid) && state === SignalingState.answered) {
+      return;
+    }
     if (
       state === SignalingState.answered ||
       state === SignalingState.busy ||
       state === SignalingState.ended
     ) {
-      const uuid = getUuidByCall(c);
       if (uuid) reportCallEnded(uuid);
       resetCall();
     }
@@ -153,18 +161,32 @@ function bindCallListener(call: StringeeCall2): void {
   call.setListener(callListener);
 }
 
-/** Xử lý cuộc gọi đến: chuẩn bị answer, sinh UUID, hiển thị CallKeep. */
+/** Xử lý cuộc gọi đến: hiển thị UI TRƯỚC, rồi mới chuẩn bị answer. */
 async function handleIncomingCall(call: StringeeCall2): Promise<void> {
   try {
     bindCallListener(call);
-    await call.initAnswer();
 
     // iOS: generateUUID() trả về đúng UUID mà CallKit/PushKit đã report (cùng
     // singleton cache theo callId-serial). Android: generateUUID() reject (chỉ
     // iOS) — dùng callId ổn định, cũng là UUID mà handler FCM nền đã dùng.
-    const uuid =
-      Platform.OS === 'ios' ? await call.generateUUID() : String(call.callId);
+    // iOS mà generateUUID lỗi thì fallback callId — answer qua CallKit có thể
+    // lệch UUID nhưng UI trong app vẫn phải hiện.
+    let uuid: string;
+    if (Platform.OS === 'ios') {
+      try {
+        uuid = await call.generateUUID();
+      } catch (e) {
+        console.warn('[Stringee] generateUUID lỗi → fallback callId', e);
+        uuid = String(call.callId);
+      }
+    } else {
+      uuid = String(call.callId);
+    }
     registerCall(uuid, call);
+
+    // User đã bấm "Từ chối" trên màn gọi gốc khi app còn bị kill (trước khi call
+    // qua socket kịp về) → reject ngay cho caller nhận tín hiệu, bỏ qua hiển thị.
+    if (await consumePendingReject(uuid)) return;
 
     const info = {
       callUuid: uuid,
@@ -172,6 +194,8 @@ async function handleIncomingCall(call: StringeeCall2): Promise<void> {
       fromNumber: call.from,
       fromAlias: call.fromAlias,
     };
+    // Set store TRƯỚC mọi await dễ lỗi (initAnswer) — store là thứ quyết định
+    // IncomingCallScreen/OngoingCallScreen trong app có hiện hay không.
     setIncomingCall(info);
 
     // Tránh hiển thị trùng: nếu cuộc gọi tới khi app ở nền/bị kill thì màn hình
@@ -179,6 +203,17 @@ async function handleIncomingCall(call: StringeeCall2): Promise<void> {
     // user có thể đã bấm Nhận (pending answer). Chỉ tự hiển thị khi đang foreground.
     if (AppState.currentState === 'active' && !hasPendingAnswer(uuid)) {
       displayIncomingCall(info);
+    } else {
+      // App ở nền: store vừa set 'incoming' → kéo app lên (nếu OS cho phép) để
+      // IncomingCallScreen trong app hiện thay vì chỉ heads-up nhỏ của hệ thống.
+      backToForegroundIfNeeded();
+    }
+
+    // Chuẩn bị media cho answer — SAU khi UI đã lên; lỗi thì answer sẽ báo riêng.
+    try {
+      await call.initAnswer();
+    } catch (e) {
+      console.warn('[Stringee] initAnswer failed', e);
     }
 
     // Áp answer đã xếp hàng (khi user Nhận lúc app còn bị kill).
@@ -193,6 +228,12 @@ async function handleIncomingCall(call: StringeeCall2): Promise<void> {
 /** Lấy token cho `userId` rồi kết nối tới Stringee. */
 export const connectStringee = async (userId: string): Promise<void> => {
   if (isConnecting) return;
+  // Đã kết nối đúng user này rồi — vd. handler FCM headless connect lúc app bị
+  // kill, sau đó user mở app → useStringeeCall gọi lại. connect() lần nữa sẽ
+  // re-handshake làm rơi cuộc gọi đang đổ chuông → giữ nguyên session cũ.
+  if (client?.isConnected && currentUserId === userId) {
+    return;
+  }
   isConnecting = true;
   try {
     currentUserId = userId;

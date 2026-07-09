@@ -3,6 +3,7 @@ export {
   consumePendingAnswer,
   displayIncomingCall,
   endCall,
+  ensureMicPermission,
   ensurePhoneAccountEnabled,
   hasPendingAnswer,
   reportCallEnded,

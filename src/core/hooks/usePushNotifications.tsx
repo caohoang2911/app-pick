@@ -1,3 +1,4 @@
+import { isStringeeCallPush } from '@/core/services/stringee/register-background-call-handler';
 import { registerForPushNotificationsAsync } from '@/core/utils/notification';
 import messaging from '@react-native-firebase/messaging';
 import { useQueryClient } from '@tanstack/react-query';
@@ -226,6 +227,12 @@ export const usePushNotifications: any = () => {
     // Handle push notifications when the app is in the foreground
     const handlePushNotification = async (remoteMessage: any) => {
       try {
+        // Push CUỘC GỌI Stringee khi foreground: cuộc gọi đã đổ qua socket
+        // (onIncomingCall2) → không hiện notification "ding" cho nó.
+        if (isStringeeCallPush(remoteMessage?.data || {})) {
+          return;
+        }
+
         // Handle foreground notifications by setting params like background clicks
         const { action } = remoteMessage.data || {};
 
