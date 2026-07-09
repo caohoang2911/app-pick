@@ -28,6 +28,7 @@ function AlertModalBody({
     isHideConfirmButton,
     blockDismiss,
     loading,
+    width = 270,
   } = current;
 
   return (
@@ -39,7 +40,7 @@ function AlertModalBody({
         onRequestClose={blockDismiss ? () => {} : onCancelPress}
       >
         <View style={styles.modalBackground}>
-          <View className=" bg-white rounded-lg" style={{ width: 270 }}>
+          <View className=" bg-white rounded-lg" style={{ width }}>
             <View className="px-4 py-5">
               {title &&
                 (typeof title === 'string' ? (

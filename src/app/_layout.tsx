@@ -188,6 +188,7 @@ function RootLayoutNav() {
         <Stack.Screen name="processing-slips" />
         <Stack.Screen name="support-center" />
         <Stack.Screen name="picker-shift-management" />
+        <Stack.Screen name="employee-management" />
         <Stack.Screen
           name="ota-gate"
           options={{ gestureEnabled: false, fullScreenGestureEnabled: false }}

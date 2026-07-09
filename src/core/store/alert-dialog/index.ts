@@ -18,6 +18,8 @@ export type AlertInstance = {
   isHideCancelButton: boolean;
   isHideConfirmButton: boolean;
   blockDismiss: boolean;
+  /** Chiều rộng modal (mặc định 270). */
+  width?: number;
   onConfirm: () => void;
   onCancel?: () => void;
 };
@@ -36,6 +38,7 @@ export interface AlertState {
     isHideConfirmButton?: boolean;
     blockDismiss?: boolean;
     stackId?: string;
+    width?: number;
   }) => void;
   /** FIFO: bỏ alerts[0], alert kế hiển thị tự động */
   hideAlert: () => void;
@@ -58,6 +61,7 @@ const _useAlertStore = create<AlertState>((set) => ({
     isHideConfirmButton,
     blockDismiss,
     stackId,
+    width,
   }) => {
     const id = nextAlertId++;
     const item: AlertInstance = {
@@ -71,6 +75,7 @@ const _useAlertStore = create<AlertState>((set) => ({
       isHideCancelButton: isHideCancelButton ?? false,
       isHideConfirmButton: isHideConfirmButton ?? false,
       blockDismiss: blockDismiss ?? false,
+      width: width ?? 270,
       onConfirm: onConfirm ?? (() => {}),
       onCancel,
     };
@@ -105,6 +110,7 @@ export const showAlert = ({
   isHideConfirmButton,
   blockDismiss,
   stackId,
+  width,
 }: {
   title?: string | ReactNode;
   message?: ReactNode;
@@ -117,6 +123,7 @@ export const showAlert = ({
   isHideConfirmButton?: boolean;
   blockDismiss?: boolean;
   stackId?: string;
+  width?: number;
 }) => {
   _useAlertStore.getState().showAlert({
     title,
@@ -130,6 +137,7 @@ export const showAlert = ({
     isHideConfirmButton,
     blockDismiss,
     stackId,
+    width,
   });
 };
 

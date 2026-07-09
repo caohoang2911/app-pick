@@ -8,11 +8,10 @@ import { useGetOrderStatusCounters } from '~/src/api/app-pick';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Images } from '~/assets';
 import { useAssignMeToStore } from '~/src/api/app-pick/use-assign-me-to-store';
 import { useRefreshToken } from '~/src/api/auth/use-refresh-token';
 import { queryClient } from '~/src/api/shared';
-import { Avatar, AvatarImage } from '~/src/components/Avatar';
+import { Avatar, AvatarFallback } from '~/src/components/Avatar';
 import TabsStatus from '~/src/components/orders/tab-status';
 import { useAuth } from '~/src/core';
 import { useRole, useRoleDriver } from '~/src/core/hooks/useRole';
@@ -20,6 +19,7 @@ import { useConfig } from '~/src/core/store/config';
 import { setLoading } from '~/src/core/store/loading';
 import { toggleScanQrCode, useOrders } from '~/src/core/store/orders';
 import { getConfigNameById } from '~/src/core/utils/config';
+import { stringUtils } from '~/src/core/utils/string';
 import { Option } from '~/src/types/commons';
 import { Role } from '~/src/types/employee';
 import { colors } from '~/src/ui/colors';
@@ -262,7 +262,12 @@ const Header = () => {
       <View className="flex px-4 flex-row items-start mb-2 gap-2">
         <TouchableOpacity onPress={toggleMenu} className="self-start">
           <Avatar>
-            <AvatarImage source={Images.avatar_default} alt="@shadcn" />
+            <AvatarFallback
+              className="bg-blue-500"
+              textClassname="text-sm font-bold text-white"
+            >
+              {stringUtils.getInitials(userInfo?.name || userInfo?.username)}
+            </AvatarFallback>
           </Avatar>
         </TouchableOpacity>
         <View className="flex-1 min-w-0">
