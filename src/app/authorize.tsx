@@ -123,6 +123,8 @@ const Authorize = () => {
         const { authInfo } = dataParser.data || {};
         const { zas, role } = authInfo || {};
 
+        setMaskWebUI(false);
+
         if (isAllowedAuthorizeRole(role)) {
           let authorizedZas: string;
           try {
