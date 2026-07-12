@@ -62,8 +62,7 @@ function ensureClient(): StringeeClient {
   const stringeeClient = new StringeeClient();
   const listener = new StringeeClientListener();
 
-  listener.onConnect = (_c, userId) => {
-    console.log('[Stringee] onConnect', userId);
+  listener.onConnect = (_c, _userId) => {
     // Đăng ký lại push sau khi đã connect để không mất lần đăng ký chạy trước đó.
     if (_lastPushReg && client) {
       client
@@ -76,9 +75,7 @@ function ensureClient(): StringeeClient {
         .catch((e) => console.warn('[Stringee] re-registerPush failed', e));
     }
   };
-  listener.onDisConnect = () => {
-    console.log('[Stringee] onDisConnect');
-  };
+  listener.onDisConnect = () => {};
   listener.onFailWithError = (_c, code, message) => {
     console.warn('[Stringee] onFailWithError', code, message);
   };
@@ -94,14 +91,11 @@ function ensureClient(): StringeeClient {
   };
   listener.onIncomingCall2 = (_c, call) => {
     // Event cuộc gọi qua SOCKET (foreground, hoặc sau khi app thức dậy + connect lại).
-    console.log(
-      '[Stringee] onIncomingCall2 (socket) from=',
-      call.from,
-      'alias=',
-      call.fromAlias,
-      'callId=',
-      call.callId,
-    );
+    void handleIncomingCall(call);
+  };
+  // Call v1 (không phải Call2): tổng đài/CS có thể makeCall thay vì makeCall2.
+  // Trước đây chỉ lắng nghe onIncomingCall2 → cuộc gọi v1 bị nuốt im lặng.
+  listener.onIncomingCall = (_c, call) => {
     void handleIncomingCall(call);
   };
 
@@ -115,7 +109,6 @@ function bindCallListener(call: StringeeCall2): void {
   const callListener = new StringeeCall2Listener();
 
   callListener.onChangeSignalingState = (c, state) => {
-    console.log('[Stringee] signaling state:', state);
     if (state === SignalingState.answered) {
       setCallAnswered();
     } else if (
@@ -130,9 +123,7 @@ function bindCallListener(call: StringeeCall2): void {
     }
   };
 
-  callListener.onChangeMediaState = (_c, mediaState) => {
-    console.log('[Stringee] media state:', mediaState);
-  };
+  callListener.onChangeMediaState = () => {};
 
   callListener.onAudioDeviceChange = () => {};
 
@@ -140,7 +131,6 @@ function bindCallListener(call: StringeeCall2): void {
   // (registerPushAndDeleteOthers) nhưng khi nhiều máy cùng mở app thì socket
   // vẫn đổ chuông tất cả — máy khác nhận/từ chối thì đóng màn gọi ở máy này.
   callListener.onHandleOnAnotherDevice = (c, state) => {
-    console.log('[Stringee] handled on another device:', state);
     if (getCallState().status === 'answered') return; // máy này đang đàm thoại
     const uuid = getUuidByCall(c);
     // Đang answer DỞ trên chính máy này (answer() chưa phản hồi nên status chưa
@@ -225,6 +215,31 @@ async function handleIncomingCall(call: StringeeCall2): Promise<void> {
 
 // ─── API công khai ────────────────────────────────────────────────────────────
 
+/**
+ * Lấy token cho `userId`, retry vài lần trước khi bỏ cuộc. Login là thời điểm
+ * dễ tổn thương nhất: fetch token fail 1 phát là user mất socket CẢ PHIÊN
+ * (push vẫn đổ chuông nhưng không có StringeeCall2 để nhận/từ chối — chuông
+ * treo, caller không nhận tín hiệu) vì không có gì trigger connect lại.
+ */
+async function genTokenWithRetry(
+  userId: string,
+  attempts: number,
+): Promise<string> {
+  let lastErr: unknown;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await genStringeeToken(userId);
+    } catch (e) {
+      lastErr = e;
+      console.warn(`[Stringee] genToken lần ${i}/${attempts} lỗi`, e);
+      if (i < attempts) {
+        await new Promise((resolve) => setTimeout(resolve, 1500 * i));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 /** Lấy token cho `userId` rồi kết nối tới Stringee. */
 export const connectStringee = async (userId: string): Promise<void> => {
   if (isConnecting) return;
@@ -236,11 +251,20 @@ export const connectStringee = async (userId: string): Promise<void> => {
   }
   isConnecting = true;
   try {
+    // Đổi tài khoản trên cùng client (logout B → login C mà disconnect của
+    // luồng logout chưa/không chạy): ngắt session cũ TRƯỚC khi connect user
+    // mới — connect đè khi native còn giữ session user khác làm event cuộc
+    // gọi thất lạc khó đoán.
+    if (client && currentUserId && currentUserId !== userId) {
+      try {
+        client.disconnect();
+      } catch (e) {
+        console.warn('[Stringee] disconnect (đổi user) failed', e);
+      }
+    }
     currentUserId = userId;
     const c = ensureClient();
-    console.log('[Stringee] connecting as userId =', userId);
-    const token = await genStringeeToken(userId);
-    console.log('[Stringee] got token, length =', token?.length);
+    const token = await genTokenWithRetry(userId, 3);
     c.connect(token);
   } catch (e) {
     console.warn('[Stringee] connect failed', e);
@@ -287,14 +311,31 @@ export const registerStringeePush = async (
   }
 };
 
+/**
+ * Huỷ đăng ký push của user hiện tại lúc đăng xuất. Thất bại là để lại
+ * "registration ma" trên server: máy này vẫn nhận push cuộc gọi của account CŨ
+ * sau khi đăng nhập account khác → retry 1 lần + log rõ kết quả. Nếu vẫn fail
+ * thì lớp guard theo `to` trong payload (bg handler Android / listener VoIP
+ * iOS) sẽ chặn hiển thị các push ma đó.
+ */
 export const unregisterStringeePush = async (
   deviceToken: string,
-): Promise<void> => {
+): Promise<boolean> => {
   _lastPushReg = null;
-  if (!client || !deviceToken) return;
-  try {
-    await client.unregisterPush(deviceToken);
-  } catch (e) {
-    console.warn('[Stringee] unregisterPush failed', e);
+  if (!client || !deviceToken) return false;
+  for (let i = 1; i <= 2; i++) {
+    try {
+      await client.unregisterPush(deviceToken);
+      return true;
+    } catch (e) {
+      const msg = String(e);
+      // Token chưa từng đăng ký / đã xoá trên server → coi như đã sạch (idempotent).
+      if (/does not exist/i.test(msg)) {
+        return true;
+      }
+      console.warn(`[Stringee] unregisterPush lần ${i}/2 lỗi`, e);
+      if (i < 2) await new Promise((resolve) => setTimeout(resolve, 500));
+    }
   }
+  return false;
 };

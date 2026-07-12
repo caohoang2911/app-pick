@@ -7,10 +7,12 @@ export {
   ensurePhoneAccountEnabled,
   hasPendingAnswer,
   reportCallEnded,
+  resetCallKeepState,
   setupCallKeep,
   toggleMuteFromApp,
   toggleSpeakerFromApp,
 } from './callkeep';
+export { clearCalls } from './call-registry';
 export {
   connectStringee,
   disconnectStringee,

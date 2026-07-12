@@ -82,6 +82,14 @@ const onAnswerCall = async ({ callUUID }: { callUUID: string }) => {
   if (!call) {
     // Đánh thức từ background/kill: cuộc gọi qua socket chưa kịp đăng ký. Xếp
     // hàng để `consumePendingAnswer` answer ngay khi `handleIncomingCall` xong.
+    // ⚠️ Nếu socket KHÔNG BAO GIỜ giao cuộc gọi này (không connect được /
+    // connect user khác) thì answer kẹt ở đây vĩnh viễn: UI hiện đàm thoại
+    // (setCurrentCallActive) nhưng caller vẫn đổ chuông.
+    console.warn(
+      '[CallKeep] answerCall: CHƯA có StringeeCall2 cho uuid=',
+      callUUID,
+      '→ xếp hàng pendingAnswer, chờ call về qua socket',
+    );
     _pendingAnswerUuid = callUUID;
     RNCallKeep.setCurrentCallActive(callUUID);
     backToForegroundIfNeeded();
@@ -310,6 +318,7 @@ export const hasPendingAnswer = (callUuid: string): boolean =>
  */
 export const consumePendingAnswer = async (callUuid: string): Promise<void> => {
   if (_pendingAnswerUuid !== callUuid) return;
+  console.log('[CallKeep] consumePendingAnswer: answer cuộc gọi', callUuid);
   _pendingAnswerUuid = null;
   if (getCallState().status === 'answered') return;
   if (_answeringUuid === callUuid) return; // đang answer dở ở đường khác
@@ -360,6 +369,24 @@ export const consumePendingReject = async (
 /** Có đang answer dở `callUuid` không — sự kiện 'answered' lúc đó là của CHÍNH máy này. */
 export const isAnsweringCall = (callUuid: string): boolean =>
   _answeringUuid === callUuid;
+
+/**
+ * Dọn state CallKeep khi ĐĂNG XUẤT: pending answer/reject + uuid đang xử lý
+ * đều thuộc phiên user cũ — để sót sang phiên user mới thì answer/reject bị
+ * route lạc. Đồng thời hạ mọi màn gọi gốc còn treo (cuộc gọi của account cũ
+ * không còn ai xử lý được nữa).
+ */
+export const resetCallKeepState = (): void => {
+  _pendingAnswerUuid = null;
+  _pendingRejectUuid = null;
+  _answerHandledUuid = null;
+  _answeringUuid = null;
+  try {
+    RNCallKeep.endAllCalls();
+  } catch {
+    // bỏ qua
+  }
+};
 
 /**
  * Nhận cuộc gọi từ nút bấm trong app (foreground). KHÔNG answer thẳng Stringee:

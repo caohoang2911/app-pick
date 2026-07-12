@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { useAuth } from '@/core';
 import {
+  clearCalls,
   configureVoipPush,
   connectStringee,
   disconnectStringee,
@@ -11,6 +12,7 @@ import {
   ensurePhoneAccountEnabled,
   getVoipToken,
   registerStringeePush,
+  resetCallKeepState,
   setupCallKeep,
   unregisterStringeePush,
 } from '@/core/services/stringee';
@@ -29,6 +31,11 @@ export const useStringeeCall = (): void => {
   const userInfo = useAuth.use.userInfo();
   const androidTokenRef = useRef<string | null>(null);
   const prevStatusRef = useRef(status);
+  // Promise dọn dẹp của lần đăng xuất gần nhất — đăng nhập user mới PHẢI đợi
+  // nó xong: cleanup chạy async (unregister push đua timeout rồi mới
+  // disconnect), login nhanh mà connect trước thì disconnect trễ của user cũ
+  // sẽ giết luôn kết nối vừa mở của user mới.
+  const signOutCleanupRef = useRef<Promise<void>>(Promise.resolve());
 
   // Kết nối khi đăng nhập.
   useEffect(() => {
@@ -45,6 +52,8 @@ export const useStringeeCall = (): void => {
     let cancelled = false;
     let unsubscribeTokenRefresh: (() => void) | undefined;
     (async () => {
+      await signOutCleanupRef.current;
+      if (cancelled) return;
       await setupCallKeep();
       if (cancelled) return;
       await connectStringee(userId);
@@ -65,6 +74,8 @@ export const useStringeeCall = (): void => {
         if (cancelled) return;
 
         // Android: dùng FCM token để registerPush (isVoip = false).
+        // Không unregister/deleteToken mỗi lần mở app — dễ lệch registration
+        // trên Stringee và mất đổ chuông.
         try {
           const fcmToken = await messaging().getToken();
           if (cancelled) return;
@@ -98,21 +109,27 @@ export const useStringeeCall = (): void => {
   // mọi đường đều đi qua `signOut()` của auth store nên gom xử lý ở đây).
   useEffect(() => {
     if (prevStatusRef.current === 'signIn' && status === 'signOut') {
-      void (async () => {
+      signOutCleanupRef.current = (async () => {
         // unregisterPush để máy này KHÔNG còn nhận push cuộc gọi của account cũ.
         // iOS dùng VoIP token (PushKit), Android dùng FCM token.
         const token =
           Platform.OS === 'ios' ? getVoipToken() : androidTokenRef.current;
         if (token) {
           // PHẢI đợi unregister xong mới disconnect (lệnh đi qua kết nối đang
-          // sống). Race timeout phòng socket đã chết → callback không bao giờ về.
+          // sống). Race timeout phòng socket đã chết → callback không bao giờ
+          // về (5s đủ cho retry bên trong unregisterStringeePush).
           await Promise.race([
             unregisterStringeePush(token),
-            new Promise((resolve) => setTimeout(resolve, 3000)),
+            new Promise((resolve) => setTimeout(resolve, 5000)),
           ]);
         }
         androidTokenRef.current = null;
         disconnectStringee();
+        // Dọn state cuộc gọi của phiên cũ: registry uuid↔StringeeCall2, pending
+        // answer/reject trong CallKeep, màn gọi gốc còn treo — để sót sang phiên
+        // user mới là answer/reject bị route lạc.
+        clearCalls();
+        resetCallKeepState();
         resetCall();
       })();
     }
