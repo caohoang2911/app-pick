@@ -114,8 +114,9 @@ const PUSHKIT_METHODS = `
   if (!fromNumber && [fromObj isKindOfClass:[NSString class]]) fromNumber = (NSString *)fromObj; // payload phẳng
   NSString *callerName = fromAlias.length ? fromAlias : (fromNumber.length ? fromNumber : @"Tổng đài");
   NSString *handle = fromNumber.length ? fromNumber : @"Stringee";
-  NSLog(@"[StringeeVoIP] parsed callId=%@ serial=%@ caller=%@ (%@) handle=%@ (%@)",
-        callId, serial, callerName, [callerName class], handle, [handle class]);
+  NSString *callStatus = [data[@"callStatus"] isKindOfClass:[NSString class]] ? data[@"callStatus"] : @"";
+  NSLog(@"[StringeeVoIP] parsed callId=%@ serial=%@ status=%@ caller=%@ (%@) handle=%@ (%@)",
+        callId, serial, callStatus, callerName, [callerName class], handle, [handle class]);
 
   // Dùng ĐÚNG uuid mà JS call.generateUUID() sẽ trả về (cùng singleton cache theo
   // callId-serial) để khi answer, registry tra cứu được StringeeCall2 tương ứng.
@@ -126,6 +127,11 @@ const PUSHKIT_METHODS = `
   [RNVoipPushNotificationManager didReceiveIncomingPushWithPayload:payload forType:(NSString *)type];
 
   NSLog(@"[StringeeVoIP] reportNewIncomingCall uuid=%@", uuid);
+  // Push trạng thái KẾT THÚC (caller huỷ khi máy còn đổ chuông / agent kết
+  // thúc): iOS 13 vẫn BẮT BUỘC report call như dưới — uuid sinh từ cùng
+  // callId-serial nên trùng cuộc đang đổ chuông (report trùng là no-op) —
+  // xong hạ chuông NGAY trong completion, không để CallKit treo tới timeout.
+  BOOL isEndPush = [callStatus isEqualToString:@"ended"] || [callStatus isEqualToString:@"agentEnded"];
   // iOS 13+: BẮT BUỘC report cuộc gọi tới CallKit ngay khi nhận VoIP push.
   [RNCallKeep reportNewIncomingCall:uuid
                              handle:handle
@@ -138,7 +144,13 @@ const PUSHKIT_METHODS = `
                  supportsUngrouping:YES
                         fromPushKit:YES
                             payload:data
-              withCompletionHandler:completion];
+              withCompletionHandler:^{
+    if (isEndPush) {
+      NSLog(@"[StringeeVoIP] callStatus=%@ → endCallWithUUID %@ (hạ chuông)", callStatus, uuid);
+      [RNCallKeep endCallWithUUID:uuid reason:2]; // 2 = REMOTE_ENDED
+    }
+    if (completion) completion();
+  }];
 }
 `;
 

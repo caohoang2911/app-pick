@@ -11,6 +11,7 @@ type StringeeCallData = {
   serial?: string | number;
   callStatus?: string;
   from?: { number?: string; alias?: string } | string;
+  to?: { number?: string; alias?: string } | string;
   fromNumber?: string;
   fromAlias?: string;
 };
@@ -151,6 +152,29 @@ export function registerBackgroundCallHandler(): void {
           status === 'started' ||
           status === 'ringing'
         ) {
+          // Push cho user KHÁC user đang đăng nhập — "registration ma" còn sót
+          // trên server Stringee sau khi đổi tài khoản trên cùng máy (unregister
+          // lúc logout thất bại/offline). Nếu vẫn dựng màn gọi thì answer/reject
+          // không có StringeeCall2 (socket đang connect user mới) → chuông treo
+          // tới timeout, caller không nhận được tín hiệu gì → bỏ qua.
+          const { getStringeeUserId } = require('@/core/utils/stringee-user');
+          const currentUserId = getStringeeUserId(getUserInfo() ?? undefined);
+          const toNumber =
+            typeof payload.to === 'object' ? payload.to?.number : payload.to;
+          if (
+            toNumber != null &&
+            currentUserId &&
+            String(toNumber) !== currentUserId
+          ) {
+            console.log(
+              '[StringeeBg] push cho user khác (',
+              toNumber,
+              '≠',
+              currentUserId,
+              ') → bỏ qua',
+            );
+            return;
+          }
           await showIncomingCallFromPush(data);
           // Kéo app lên foreground ngay khi đổ chuông để IncomingCallScreen
           // trong app hiện (thay vì chỉ heads-up nhỏ của hệ thống). Android 10+
@@ -165,10 +189,8 @@ export function registerBackgroundCallHandler(): void {
           // đó, connectStringee có guard isConnected + cùng userId nên KHÔNG
           // reconnect làm rơi cuộc gọi.
           const { connectStringee } = require('./stringee-client');
-          const { getStringeeUserId } = require('@/core/utils/stringee-user');
-          const userId = getStringeeUserId(getUserInfo() ?? undefined);
-          if (userId) {
-            await connectStringee(userId);
+          if (currentUserId) {
+            await connectStringee(currentUserId);
           } else {
             console.warn('[StringeeBg] thiếu userId → không connect được');
           }

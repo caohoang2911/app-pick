@@ -49,12 +49,8 @@ const normalizePayload = (
   if (!payload || typeof payload !== 'object') return undefined;
 
   const record = payload as Record<string, unknown>;
-  const nested =
-    record.map && typeof record.map === 'object'
-      ? (record.map as Record<string, unknown>)
-      : record;
 
-  const { storeCode, employeeCode, employeeName, expireAt } = nested;
+  const { storeCode, employeeCode, employeeName, expireAt } = record;
   if (
     typeof storeCode !== 'string' ||
     typeof employeeCode !== 'string' ||
