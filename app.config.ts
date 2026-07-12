@@ -79,10 +79,12 @@ export default (): ExpoConfig => {
       './plugins/withStringeeVoip',
       // Khoá font-scale = 1.0 ở native Android (iOS dùng JS allowFontScaling).
       './plugins/withAndroidFontScaleLock',
-      // Meta-data Firebase notification (channel_id + sound ding) — survive --clean.
+      // Meta-data FCM sound + CustomFirebaseMessagingService (skip tray call Stringee).
       './plugins/withFcmNotificationConfig',
       // gradle.properties tuning (RAM build + parallel/daemon/caching).
       './plugins/withAndroidGradleTuning',
+      // REQUEST_INSTALL_PACKAGES + queries MIME APK — không có thì toggle “Cho phép từ nguồn này” bị khóa.
+      './plugins/withAndroidApkInstall',
     ],
 
     // Enable dev client for development

@@ -38,8 +38,9 @@ export const useCodepush = () => {
         if (update.isAvailable && allowUpdateByBuildNumber()) {
           try {
             await Updates.fetchUpdateAsync();
+            // Có OTA → bắt user reload. Chưa đánh dấu done để GitHub APK modal
+            // chỉ chạy sau khi app đã apply CodePush (lần mở lại, không còn update).
             openOtaUpdateReadyModal();
-            setIsDoneCodepush(true);
           } catch {
             setIsDoneCodepush(true);
           }

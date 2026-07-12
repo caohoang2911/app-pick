@@ -22,8 +22,8 @@ import AuthorizeLoadingOverlay from '../components/shared/authorize-loading-over
 import RequestPermissionStore from '../components/shared/request-permission-store';
 import { setLoading } from '../core/store/loading';
 
-/** Quá thời gian này mà chưa nhận được event login thì bỏ màn che để user thấy web/lỗi. */
-const AUTHORIZE_OVERLAY_TIMEOUT_MS = 30000;
+/** Failsafe: quá lâu không login thì bỏ overlay (SSO chậm / kẹt trang). */
+const AUTHORIZE_OVERLAY_TIMEOUT_MS = 60000;
 
 const WHITE_LIST_ROLE = [
   EmployeeRole.STORE,
@@ -109,135 +109,147 @@ const Authorize = () => {
     WebViewContentReader.getElementText(webViewRef.current, selector);
   }, []);
 
-  const onMessage = useCallback(async (e: WebViewMessageEvent) => {
-    const message = e.nativeEvent.data;
-    const { event, data }: any = parseEventData(message);
+  const onMessage = useCallback(
+    async (e: WebViewMessageEvent) => {
+      const message = e.nativeEvent.data;
+      const { event, data }: any = parseEventData(message);
 
-    let dataParser: any = {};
-    try {
-      if (data) dataParser = JSON.parse(data);
-    } catch (e) {}
+      let dataParser: any = {};
+      try {
+        if (data) dataParser = JSON.parse(data);
+      } catch (e) {}
 
-    switch (event) {
-      case 'login':
-        const { authInfo } = dataParser.data || {};
-        const { zas, role } = authInfo || {};
+      switch (event) {
+        case 'login':
+          const { authInfo } = dataParser.data || {};
+          const { zas, role } = authInfo || {};
 
-        setMaskWebUI(false);
+          // Giữ overlay đến khi signIn xong / lỗi / không đủ quyền — không tắt
+          // ngay khi nhận event (user vẫn còn trên WebView một nhịp).
+          if (isAllowedAuthorizeRole(role)) {
+            let authorizedZas: string;
+            try {
+              const response = await authorizeAppPickClient({ zas });
+              const newZas = response?.data?.zas;
 
-        if (isAllowedAuthorizeRole(role)) {
-          let authorizedZas: string;
-          try {
-            const response = await authorizeAppPickClient({ zas });
-            const newZas = response?.data?.zas;
-
-            if (!newZas) {
+              if (!newZas) {
+                console.error(
+                  '[Authorize] authorizeAppPickClient: missing zas in response',
+                );
+                setMaskWebUI(false);
+                return;
+              }
+              authorizedZas = newZas;
+            } catch (error) {
               console.error(
-                '[Authorize] authorizeAppPickClient: missing zas in response',
+                '[Authorize] authorizeAppPickClient failed:',
+                error,
               );
+              setMaskWebUI(false);
               return;
             }
-            authorizedZas = newZas;
-          } catch (error) {
-            console.error('[Authorize] authorizeAppPickClient failed:', error);
-            return;
-          }
 
-          signIn({
-            token: authorizedZas,
-            userInfo: { ...authInfo, zas: authorizedZas },
-          });
+            signIn({
+              token: authorizedZas,
+              userInfo: { ...authInfo, zas: authorizedZas },
+            });
+            // Overlay có thể tắt sau signIn — ProtectedRoute sẽ rời authorize.
+            setMaskWebUI(false);
 
-          // Check if there's a pending deep link to navigate to
-          const savedDeepLink = consumePendingDeepLink();
-          if (savedDeepLink && typeof savedDeepLink === 'string') {
-            // Add a small delay to ensure auth is completed
-            setTimeout(() => {
-              try {
-                processDeepLink(savedDeepLink);
-              } catch (error) {
-                // Error processing deep link
-                // NavigationHelpers.replaceWithOrders();
-              }
-            }, 500);
-          } else {
-            // NavigationHelpers.replaceWithOrders();
-          }
-        } else {
-          router.back();
-          showAlert({
-            title: 'Chưa thể đăng nhập',
-            message:
-              'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
-            onConfirm: () => {
-              hideAlert();
-              showMessage({
-                message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
-                type: 'success',
-              });
-            },
-          });
-        }
-        break;
-      case 'content':
-        // Xử lý content được gửi từ website
-        const { type, data: contentData } = dataParser;
-        // console.log(`[WebView Content] ${type}:`, contentData);
-
-        // Chỉ xử lý elementText
-        switch (type) {
-          case 'elementText':
-            if (
-              JSON.stringify(contentData).includes('HRV_REQUEST_PERMISSION')
-            ) {
-              setIsRequestPermission(true);
-              // clearInterval(intervalRef.current);
-
-              // Extract userId from the content data
-              try {
-                let code = null;
-                let userName = null;
-                let userId = null;
-
-                if (contentData?.text) {
-                  clearInterval(intervalRef.current);
-                  // Parse the escaped JSON string
-                  const parsedText = JSON.parse(contentData.text);
-                  const errorMessage = parsedText.error;
-
-                  // Extract code using regex (handles alphanumeric codes like sc000073)
-                  const codeMatch = errorMessage.match(/code:\s*([^,\s]+)/);
-                  if (codeMatch) {
-                    code = codeMatch[1];
-                    setExtractedCode(code); // Store in state
-                  }
-
-                  // Extract name using regex
-                  const userNameMatch = errorMessage.match(/name:\s*([^,]+)/);
-                  if (userNameMatch) {
-                    userName = userNameMatch[1].trim();
-                  }
-
-                  // Extract id using regex
-                  const userIdMatch = errorMessage.match(/id:\s*(\d+)/);
-                  if (userIdMatch) {
-                    userId = userIdMatch[1];
-                  }
+            // Check if there's a pending deep link to navigate to
+            const savedDeepLink = consumePendingDeepLink();
+            if (savedDeepLink && typeof savedDeepLink === 'string') {
+              // Add a small delay to ensure auth is completed
+              setTimeout(() => {
+                try {
+                  processDeepLink(savedDeepLink);
+                } catch (error) {
+                  // Error processing deep link
+                  // NavigationHelpers.replaceWithOrders();
                 }
-              } catch (error) {
-                // Error parsing content data
-              }
+              }, 500);
+            } else {
+              // NavigationHelpers.replaceWithOrders();
             }
-            break;
-          default:
-            // Bỏ qua các case khác
-            break;
-        }
-        break;
-      default:
-        break;
-    }
-  }, []);
+          } else {
+            setMaskWebUI(false);
+            router.back();
+            showAlert({
+              title: 'Chưa thể đăng nhập',
+              message:
+                'Bạn chưa được cấp quyền vào xem danh sách đơn hàng, vui lòng gửi yêu cầu để được mở quyền',
+              onConfirm: () => {
+                hideAlert();
+                showMessage({
+                  message: 'Đã gửi yêu cầu cấp quyền. Vui lòng đợi',
+                  type: 'success',
+                });
+              },
+            });
+          }
+          break;
+        case 'content':
+          // Xử lý content được gửi từ website
+          const { type, data: contentData } = dataParser;
+          // console.log(`[WebView Content] ${type}:`, contentData);
+
+          // Chỉ xử lý elementText
+          switch (type) {
+            case 'elementText':
+              if (
+                JSON.stringify(contentData).includes('HRV_REQUEST_PERMISSION')
+              ) {
+                setMaskWebUI(false);
+                setIsRequestPermission(true);
+                // clearInterval(intervalRef.current);
+
+                // Extract userId from the content data
+                try {
+                  let code = null;
+                  let userName = null;
+                  let userId = null;
+
+                  if (contentData?.text) {
+                    clearInterval(intervalRef.current);
+                    // Parse the escaped JSON string
+                    const parsedText = JSON.parse(contentData.text);
+                    const errorMessage = parsedText.error;
+
+                    // Extract code using regex (handles alphanumeric codes like sc000073)
+                    const codeMatch = errorMessage.match(/code:\s*([^,\s]+)/);
+                    if (codeMatch) {
+                      code = codeMatch[1];
+                      setExtractedCode(code); // Store in state
+                    }
+
+                    // Extract name using regex
+                    const userNameMatch = errorMessage.match(/name:\s*([^,]+)/);
+                    if (userNameMatch) {
+                      userName = userNameMatch[1].trim();
+                    }
+
+                    // Extract id using regex
+                    const userIdMatch = errorMessage.match(/id:\s*(\d+)/);
+                    if (userIdMatch) {
+                      userId = userIdMatch[1];
+                    }
+                  }
+                } catch (error) {
+                  // Error parsing content data
+                }
+              }
+              break;
+            default:
+              // Bỏ qua các case khác
+              break;
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [setMaskWebUI],
+  );
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -271,11 +283,11 @@ const Authorize = () => {
         }}
         onError={() => {
           setLoading(false);
-          setMaskWebUI(false);
+          // Không tắt overlay khi đang SSO — redirect OAuth hay báo lỗi giả.
         }}
         onHttpError={() => {
           setLoading(false);
-          setMaskWebUI(false);
+          // Giống onError: giữ mask trong lúc còn trên WebView SSO.
         }}
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScript={INJECTED_SCRIPT}

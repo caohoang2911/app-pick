@@ -240,9 +240,32 @@ async function genTokenWithRetry(
   throw lastErr;
 }
 
+/** Chờ native báo đã connect (hoặc timeout). `connect()` của SDK không await handshake. */
+function waitUntilConnected(timeoutMs: number): Promise<boolean> {
+  if (client?.isConnected) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (client?.isConnected) {
+        clearInterval(timer);
+        resolve(true);
+        return;
+      }
+      if (Date.now() - started >= timeoutMs) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, 100);
+  });
+}
+
 /** Lấy token cho `userId` rồi kết nối tới Stringee. */
 export const connectStringee = async (userId: string): Promise<void> => {
-  if (isConnecting) return;
+  if (isConnecting) {
+    // Đang connect dở — chờ xong thay vì return sớm (tránh race login nhanh).
+    await waitUntilConnected(15000);
+    return;
+  }
   // Đã kết nối đúng user này rồi — vd. handler FCM headless connect lúc app bị
   // kill, sau đó user mở app → useStringeeCall gọi lại. connect() lần nữa sẽ
   // re-handshake làm rơi cuộc gọi đang đổ chuông → giữ nguyên session cũ.
@@ -266,6 +289,12 @@ export const connectStringee = async (userId: string): Promise<void> => {
     const c = ensureClient();
     const token = await genTokenWithRetry(userId, 3);
     c.connect(token);
+    const ok = await waitUntilConnected(15000);
+    if (!ok) {
+      console.warn(
+        '[Stringee] connect timeout — chưa nhận onConnect trong 15s',
+      );
+    }
   } catch (e) {
     console.warn('[Stringee] connect failed', e);
   } finally {

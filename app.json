@@ -39,7 +39,8 @@
       "package": "com.caohoang2911.AppPick",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
       "googleServicesFile": "./google-services-prod.json",
       "intentFilters": [
