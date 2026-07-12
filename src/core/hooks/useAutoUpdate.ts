@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Linking from 'expo-linking';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
+import { signOut } from '@/core/store/auth';
 import { getItem, removeItem, setItem } from '@/core/storage';
 import { Env } from '~/env';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -232,53 +233,102 @@ function findApkAsset(assets: GitHubRelease['assets']) {
   return assets.find((a) => a.name.toLowerCase().endsWith('.apk'));
 }
 
-const APK_INSTALL_INTENT_FLAGS = 0x00000001 | 0x10000000;
+/** Intent.FLAG_GRANT_READ_URI_PERMISSION — bắt buộc khi đưa content:// APK cho installer. */
+const FLAG_GRANT_READ_URI_PERMISSION = 0x00000001;
 
-const SYSTEM_PACKAGE_INSTALLERS = [
-  'com.google.android.packageinstaller',
-  'com.android.packageinstaller',
-  'com.samsung.android.packageinstaller',
-  'com.miui.packageinstaller',
-  'com.miui.global.packageinstaller',
-];
+function delay(ms: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
 
-async function openApkPackageInstaller(contentUri: string) {
-  const base = {
+async function openUnknownSourcesSettings() {
+  const pkg = Application.applicationId;
+  if (!pkg) return;
+  try {
+    await IntentLauncher.startActivityAsync(
+      'android.settings.MANAGE_UNKNOWN_APP_SOURCES',
+      { data: `package:${pkg}` },
+    );
+  } catch {
+    try {
+      await IntentLauncher.startActivityAsync(
+        IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+        { data: `package:${pkg}` },
+      );
+    } catch (e) {
+      console.error(
+        'GitHub auto-update open unknown-sources settings failed',
+        e,
+      );
+    }
+  }
+}
+
+async function launchApkInstallIntent(contentUri: string) {
+  const installParams = {
     data: contentUri,
-    flags: APK_INSTALL_INTENT_FLAGS,
+    flags: FLAG_GRANT_READ_URI_PERMISSION,
     type: 'application/vnd.android.package-archive',
-    category: 'android.intent.category.DEFAULT' as const,
+    extra: {
+      'android.intent.extra.NOT_UNKNOWN_SOURCE': true,
+      'android.intent.extra.RETURN_RESULT': true,
+    },
   };
 
-  for (const packageName of SYSTEM_PACKAGE_INSTALLERS) {
-    try {
-      await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-        ...base,
-        packageName,
-      });
-      return;
-    } catch {
-      /* thử package kế tiếp */
-    }
+  try {
+    await IntentLauncher.startActivityAsync(
+      'android.intent.action.VIEW',
+      installParams,
+    );
+    return;
+  } catch (viewErr) {
+    console.warn('GitHub auto-update VIEW install failed', viewErr);
   }
 
   try {
-    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', base);
-  } catch (e) {
-    console.error('GitHub auto-update open installer failed', e);
-    scheduleUpdateUi(() =>
-      showAlert({
-        title: 'Cập nhật',
-        message:
-          'Không mở được màn hình cài đặt. Kiểm tra quyền cài ứng dụng từ nguồn này.',
-        confirmText: 'Đóng',
-        isHideCancelButton: true,
-        onConfirm: () => {
-          hideAlert();
-        },
-      }),
+    await IntentLauncher.startActivityAsync(
+      'android.intent.action.INSTALL_PACKAGE',
+      installParams,
     );
+    return;
+  } catch (installErr) {
+    console.warn('GitHub auto-update INSTALL_PACKAGE failed', installErr);
   }
+
+  try {
+    await Linking.openURL(contentUri);
+  } catch (linkErr) {
+    console.error('GitHub auto-update open installer failed', linkErr);
+    throw linkErr;
+  }
+}
+
+/**
+ * Thử mở Package Installer trước. Nếu fail (thường do chưa bật “Cho phép từ nguồn này”)
+ * thì hướng user vào settings — không mở settings rồi nhảy intent ngay (toggle chưa kịp bật).
+ */
+async function openApkPackageInstaller(contentUri: string) {
+  await delay(400);
+
+  try {
+    await launchApkInstallIntent(contentUri);
+    return;
+  } catch {
+    // fall through → hướng dẫn bật quyền
+  }
+
+  scheduleUpdateUi(() =>
+    showAlert({
+      title: 'Cần quyền cài đặt',
+      message:
+        'Bật “Cho phép từ nguồn này” cho App Pick trong Cài đặt, rồi quay lại app và bấm Cài đặt lại.',
+      confirmText: 'Mở cài đặt',
+      cancelText: 'Đóng',
+      onConfirm: () => {
+        hideAlert();
+        void openUnknownSourcesSettings();
+      },
+    }),
+  );
 }
 
 export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
@@ -303,6 +353,47 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
   const [progress, setProgress] = useState(0);
   /** iOS: còn bản GitHub mới hơn native — hiện lại popup khi quay lại app (ví dụ từ TestFlight). */
   const iosMandatoryRef = useRef<{ remoteBuildRaw: string } | null>(null);
+  /** Android: còn bản mới — hiện lại modal khi quay lại app (sau khi mở link / chưa cài xong). */
+  const androidMandatoryRef = useRef<{
+    remoteBuildRaw: string;
+    apkLink: string;
+  } | null>(null);
+  const downloadApkRef = useRef<
+    ((url: string, unlock: () => void) => Promise<void>) | null
+  >(null);
+  const androidInstallingRef = useRef(false);
+
+  const startAndroidInAppInstall = useCallback(() => {
+    const pending = androidMandatoryRef.current;
+    if (!pending) return;
+    void downloadApkRef.current?.(pending.apkLink, () => setIsChecking(false));
+  }, []);
+
+  const presentAndroidMandatoryAlert = useCallback(
+    (remoteBuildRaw: string, apkLink: string) => {
+      const nativeLabel = Application.nativeBuildVersion ?? '—';
+      showAlert({
+        title: 'Cần cập nhật phiên bản',
+        message: `Bạn cần cài đặt APK mới để tiếp tục sử dụng.\n\nPhiên bản mới: build ${remoteBuildRaw} (hiện tại: ${nativeLabel}).\n\nVui lòng truy cập link cấu hình để tải APK.`,
+        cancelText: 'Tải APK cài đặt!',
+        isHideConfirmButton: true,
+        // confirmText: 'Cài đặt ngay', // mở sau vì chưa có native request
+        blockDismiss: true,
+        width: 320,
+        onCancel: () => {
+          // Logout sync (MMKV) TRƯỚC khi mở browser — nếu openURL trước,
+          // Android có thể suspend/kill app trước khi signOut kịp chạy.
+          signOut();
+          void Linking.openURL(apkLink);
+        },
+        onConfirm: () => {
+          hideAlert();
+          startAndroidInAppInstall();
+        },
+      });
+    },
+    [startAndroidInAppInstall],
+  );
 
   const presentIosMandatoryAlert = useCallback((remoteBuildRaw: string) => {
     const rawNative = Application.nativeBuildVersion;
@@ -361,6 +452,33 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
   }, [effectiveEnabled, presentIosMandatoryAlert]);
 
   useEffect(() => {
+    if (!effectiveEnabled || Platform.OS !== 'android') return;
+
+    const onAppState = (next: AppStateStatus) => {
+      if (next !== 'active') return;
+      if (androidInstallingRef.current) return;
+      const pending = androidMandatoryRef.current;
+      if (!pending) return;
+
+      const nativeRaw = String(Application.nativeBuildVersion ?? '');
+      if (compareBuildVersions(nativeRaw, pending.remoteBuildRaw) >= 0) {
+        androidMandatoryRef.current = null;
+        void writeAutoUpdateLatest(nativeRaw);
+        setIsChecking(false);
+        return;
+      }
+
+      setIsChecking(true);
+      scheduleUpdateUi(() =>
+        presentAndroidMandatoryAlert(pending.remoteBuildRaw, pending.apkLink),
+      );
+    };
+
+    const sub = AppState.addEventListener('change', onAppState);
+    return () => sub.remove();
+  }, [effectiveEnabled, presentAndroidMandatoryAlert]);
+
+  useEffect(() => {
     // ✅ Tắt native GitHub: bỏ loading ngay — không phụ thuộc CodePush đã xong hay chưa
     if (!nativeGithubUpdateAllowed) {
       if (__DEV__) {
@@ -370,6 +488,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
         return;
       }
       iosMandatoryRef.current = null;
+      androidMandatoryRef.current = null;
       setIsChecking(false);
       return;
     }
@@ -383,6 +502,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
     const skipRawEarly = String(Application.nativeBuildVersion ?? '');
     if (shouldSkipGithubFetchDueToLatest(skipRawEarly)) {
       iosMandatoryRef.current = null;
+      androidMandatoryRef.current = null;
       setIsChecking(false);
       if (__DEV__) {
         console.log(
@@ -409,16 +529,19 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
         '[useAutoUpdate] Đang __DEV__: không check/tải cập nhật. Đặt EXPO_PUBLIC_AUTO_UPDATE_IN_DEV=1 để test.',
       );
       iosMandatoryRef.current = null;
+      androidMandatoryRef.current = null;
       setIsChecking(false);
       return;
     }
     if (Platform.OS === 'web') {
       iosMandatoryRef.current = null;
+      androidMandatoryRef.current = null;
       setIsChecking(false);
       return;
     }
     if (!GITHUB_REPO) {
       iosMandatoryRef.current = null;
+      androidMandatoryRef.current = null;
       setIsChecking(false);
       return;
     }
@@ -435,6 +558,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
 
       if (shouldSkipGithubFetchDueToLatest(nativeRawForCache)) {
         iosMandatoryRef.current = null;
+        androidMandatoryRef.current = null;
         setIsChecking(false);
         if (__DEV__) {
           console.log(
@@ -505,6 +629,9 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
           if (Platform.OS === 'ios') {
             iosMandatoryRef.current = null;
           }
+          if (Platform.OS === 'android') {
+            androidMandatoryRef.current = null;
+          }
           await writeAutoUpdateLatest(nativeRawForCache);
           if (__DEV__) {
             console.log(
@@ -543,6 +670,7 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
           }
 
           const fileUri = `${baseDir}update.apk`;
+          androidInstallingRef.current = true;
           setIsDownloading(true);
           setProgress(0);
 
@@ -563,27 +691,13 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
             if (!result?.uri)
               throw new Error('Download finished without a file URI');
 
-            if (__DEV__) {
-              const info = await FileSystem.getInfoAsync(result.uri, {
-                size: true,
-              });
-              console.log(
-                '[useAutoUpdate] APK path:',
-                result.uri,
-                'exists:',
-                info.exists,
-                'size:',
-                info.exists ? info.size : 'n/a',
-              );
-            }
-
             const contentUri = await FileSystem.getContentUriAsync(result.uri);
 
             scheduleUpdateUi(() =>
               showAlert({
                 title: 'Tải xong',
                 message:
-                  'Bấm Cài đặt để mở trình cài đặt và hoàn tất cập nhật. Ứng dụng cần phiên bản mới để tiếp tục.',
+                  'Bấm Cài đặt. Nếu máy hỏi, hãy cho phép cài app từ nguồn này, rồi quay lại để mở trình cài APK.',
                 confirmText: 'Cài đặt',
                 isHideCancelButton: true,
                 blockDismiss: true,
@@ -611,14 +725,18 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
               }),
             );
           } finally {
+            androidInstallingRef.current = false;
             setIsDownloading(false);
             setProgress(0);
           }
         };
+        downloadApkRef.current = downloadAndInstallApk;
 
         if (Platform.OS === 'android') {
           const apk = findApkAsset(release.assets ?? []);
-          if (!apk?.browser_download_url) {
+          const apkLink = apk?.browser_download_url || '';
+
+          if (!apkLink) {
             deferUnlock = true;
             scheduleUpdateUi(() =>
               showAlert({
@@ -637,9 +755,14 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
             return;
           }
 
+          // Chỉ hiện modal — không tự tải. User bấm "Cài đặt ngay" mới download.
           deferUnlock = true;
-          await downloadAndInstallApk(apk.browser_download_url, () =>
-            setIsChecking(false),
+          androidMandatoryRef.current = {
+            remoteBuildRaw: remoteRaw,
+            apkLink,
+          };
+          scheduleUpdateUi(() =>
+            presentAndroidMandatoryAlert(remoteRaw, apkLink),
           );
           return;
         }
@@ -663,7 +786,12 @@ export function useAutoUpdate({ enabled = true }: { enabled?: boolean } = {}): {
     };
 
     void run();
-  }, [enabled, nativeGithubUpdateAllowed, presentIosMandatoryAlert]);
+  }, [
+    enabled,
+    nativeGithubUpdateAllowed,
+    presentIosMandatoryAlert,
+    presentAndroidMandatoryAlert,
+  ]);
 
   return { isDownloading, isChecking, progress };
 }

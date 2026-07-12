@@ -6,6 +6,7 @@ export {
   ensureMicPermission,
   ensurePhoneAccountEnabled,
   hasPendingAnswer,
+  refreshCallKeepOnForeground,
   reportCallEnded,
   resetCallKeepState,
   setupCallKeep,

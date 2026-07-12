@@ -15,6 +15,9 @@ let _isSetup = false;
 let _listenersAdded = false;
 // Đã nhắc user bật "tài khoản gọi" chưa (tránh mở màn cài đặt lặp lại).
 let _promptedEnable = false;
+// Trạng thái phone account lần check gần nhất — để biết user vừa bật trong
+// Settings (false→true) và cần force `RNCallKeep.setup` lại như cold start.
+let _lastKnownPhoneAccountEnabled: boolean | null = null;
 // UUID của cuộc gọi mà user đã bấm "Nhận" trên màn hình gốc TRƯỚC khi cuộc gọi
 // qua socket kịp được đăng ký (xảy ra khi app bị kill rồi mở lại để answer).
 let _pendingAnswerUuid: string | null = null;
@@ -168,8 +171,10 @@ function registerListeners() {
 // ─── API công khai ────────────────────────────────────────────────────────────
 
 /** Khởi tạo CallKeep + đăng ký listener (idempotent). Gọi 1 lần sau khi đăng nhập. */
-export const setupCallKeep = async (): Promise<void> => {
-  if (_isSetup) return;
+export const setupCallKeep = async (opts?: {
+  force?: boolean;
+}): Promise<void> => {
+  if (_isSetup && !opts?.force) return;
   try {
     await RNCallKeep.setup(SETUP_OPTIONS);
     if (Platform.OS === 'android') {
@@ -194,21 +199,59 @@ export const setupCallKeep = async (): Promise<void> => {
  * task vì không mở được UI cài đặt từ đó.
  */
 export const ensurePhoneAccountEnabled = async (): Promise<void> => {
-  if (Platform.OS !== 'android' || _promptedEnable) return;
+  if (Platform.OS !== 'android') return;
   try {
     const enabled = await RNCallKeep.checkPhoneAccountEnabled();
     console.log('[CallKeep] phoneAccountEnabled =', enabled);
-    if (!enabled) {
-      _promptedEnable = true;
-      console.warn(
-        '[CallKeep] Tài khoản gọi CHƯA bật → popup nền/kill sẽ KHÔNG hiện + answer rơi vào fallback (dễ mất tiếng). Mở màn cài đặt cho user bật.',
-      );
-      // `openPhoneAccounts` = màn "Calling accounts" (danh sách account để bật/tắt).
-      // Không public trên RNCallKeep JS nên gọi qua native module.
-      NativeModules.RNCallKeep?.openPhoneAccounts?.();
+    _lastKnownPhoneAccountEnabled = enabled;
+    if (enabled) {
+      RNCallKeep.setAvailable(true);
+      return;
     }
+    if (_promptedEnable) return;
+    _promptedEnable = true;
+    console.warn(
+      '[CallKeep] Tài khoản gọi CHƯA bật → popup nền/kill sẽ KHÔNG hiện + answer rơi vào fallback (dễ mất tiếng). Mở màn cài đặt cho user bật.',
+    );
+    NativeModules.RNCallKeep?.openPhoneAccounts?.();
   } catch (e) {
     console.warn('[CallKeep] ensurePhoneAccountEnabled failed', e);
+  }
+};
+
+/**
+ * Gọi khi app quay lại foreground (sau Settings / cấp quyền).
+ * User vừa bật tài khoản gọi (false→true): `reloadAsync` như mở lại app —
+ * force setup trong cùng session thường KHÔNG đủ trên nhiều máy Android.
+ */
+export const refreshCallKeepOnForeground = async (): Promise<void> => {
+  if (Platform.OS !== 'android') return;
+  try {
+    const enabled = await RNCallKeep.checkPhoneAccountEnabled();
+    const wasEnabled = _lastKnownPhoneAccountEnabled;
+    _lastKnownPhoneAccountEnabled = enabled;
+    console.log(
+      '[CallKeep] refresh on foreground, phoneAccountEnabled =',
+      enabled,
+      'was=',
+      wasEnabled,
+    );
+    if (!enabled) return;
+
+    // Chỉ khi trước đó đã biết là TẮT rồi giờ BẬT (sau màn Settings).
+    // wasEnabled === null (lần đầu) mà đã bật sẵn → không reload (tránh loop login).
+    if (wasEnabled === false) {
+      console.log(
+        '[CallKeep] phone account vừa bật → reloadAsync (như tắt/mở app)',
+      );
+      const { reloadAppSafely } = require('@/core/utils/reload-app-safely');
+      await reloadAppSafely('phone-account-enabled');
+      return;
+    }
+
+    RNCallKeep.setAvailable(true);
+  } catch (e) {
+    console.warn('[CallKeep] refreshCallKeepOnForeground failed', e);
   }
 };
 
@@ -381,6 +424,8 @@ export const resetCallKeepState = (): void => {
   _pendingRejectUuid = null;
   _answerHandledUuid = null;
   _answeringUuid = null;
+  _promptedEnable = false;
+  _lastKnownPhoneAccountEnabled = null;
   try {
     RNCallKeep.endAllCalls();
   } catch {

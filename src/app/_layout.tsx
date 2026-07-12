@@ -207,9 +207,13 @@ function Providers({ children }: { children: React.ReactNode }) {
   // ✅ CodePush chạy trước
   const { isDoneCodepush, onFetchUpdateAsync } = useCodepush();
 
-  // ✅ GitHub auto-update chỉ chạy sau khi CodePush xong
+  // Chặn GitHub check khi còn modal OTA / đang chờ reload
+  const otaModalVisible = useOtaUpdateReadyModal((s) => s.visible);
+  const otaPendingRestart = useOtaUpdateReadyModal((s) => s.pendingRestart);
+
+  // ✅ GitHub auto-update chỉ chạy sau khi CodePush xong (đã apply / không còn OTA)
   const { progress, isDownloading } = useAutoUpdate({
-    enabled: isDoneCodepush,
+    enabled: isDoneCodepush && !otaModalVisible && !otaPendingRestart,
   });
 
   const hideSplash = useCallback(async () => {
@@ -218,10 +222,9 @@ function Providers({ children }: { children: React.ReactNode }) {
 
   // Splash chỉ chờ CodePush (check/fetch OTA chạy ngầm dưới splash, không còn
   // màn Loading chặn). GitHub native check KHÔNG giữ splash: chạy tiếp sau khi
-  // vào app, cần update thì tự hiện alert chặn / modal tải APK đè lên sau.
+  // CodePush xong (sau reload nếu có OTA), cần update thì tự hiện alert chặn.
   // updateUiVisible: lỡ có alert/modal bật khi splash còn che thì hạ ngay.
   const alertVisible = useAlertStore((s) => s.alerts.length > 0);
-  const otaModalVisible = useOtaUpdateReadyModal((s) => s.visible);
   const waitingForUpdates = !isDoneCodepush;
   const updateUiVisible = isDownloading || alertVisible || otaModalVisible;
 

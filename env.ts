@@ -87,7 +87,7 @@ const configs = {
     ENABLE_CRASH_REPORTING: true,
     ENABLE_DEBUG_TOOLS: false,
     NATIVE_GITHUB_UPDATE_IOS: true,
-    NATIVE_GITHUB_UPDATE_ANDROID: false,
+    NATIVE_GITHUB_UPDATE_ANDROID: true,
   },
 };
 

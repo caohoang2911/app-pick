@@ -1,4 +1,6 @@
 import { getItem, setItem } from '@/core/storage';
+import * as Application from 'expo-application';
+import * as Linking from 'expo-linking';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
@@ -17,9 +19,13 @@ import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
 import { Button } from '~/src/components/Button';
 import { Input } from '~/src/components/Input';
 import { Switch } from '~/src/components/Switch';
-import { useAuth } from '~/src/core';
+import { useAuth, signOut } from '~/src/core';
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { useConfig } from '~/src/core/store/config';
+import {
+  fetchLatestAndroidApkUrl,
+  getAndroidApkReleasesPageUrl,
+} from '~/src/core/utils/android-apk-update';
 import { checkNotificationPermission } from '~/src/core/utils/notification-permission';
 import { showPrinterConnectionFailMessage } from '~/src/core/utils/printer-connection';
 
@@ -64,6 +70,8 @@ const Settings = () => {
 
   const { mutate: testSendNoti, isPending: isPendingTestSendNoti } =
     useTestSendNoti();
+
+  const [isOpeningApkLink, setIsOpeningApkLink] = useState(false);
 
   const [isSubcribeOrderStoreDelivery, setIsSubcribeOrderStoreDelivery] =
     useState<any>(false);
@@ -276,6 +284,25 @@ const Settings = () => {
     testSendNoti();
   };
 
+  const handleOpenApkLink = async () => {
+    if (isOpeningApkLink) return;
+    setIsOpeningApkLink(true);
+    try {
+      const apkUrl = await fetchLatestAndroidApkUrl();
+      const url = apkUrl || getAndroidApkReleasesPageUrl();
+      // Logout sync trước khi rời app (browser/installer).
+      signOut();
+      await Linking.openURL(url);
+    } catch {
+      showMessage({
+        message: 'Không mở được link APK. Thử lại sau.',
+        type: 'danger',
+      });
+    } finally {
+      setIsOpeningApkLink(false);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       className="bg-gray-100 flex-1"
@@ -294,6 +321,24 @@ const Settings = () => {
         keyboardDismissMode="on-drag"
       >
         <View className="flex-grow flex mt-4 gap-3 pb-4">
+          {Platform.OS === 'android' && (
+            <View className="bg-white p-3 mx-4 rounded-lg" style={styles.box}>
+              <Text className="text-base font-bold">Cập nhật ứng dụng</Text>
+              <Text className="text-sm text-gray-500 mt-1">
+                Build hiện tại: {Application.nativeBuildVersion ?? '—'}
+              </Text>
+              <Text className="text-sm text-gray-600 mt-2">
+                Nếu bỏ lỡ thông báo cập nhật, mở link APK mới nhất tại đây.
+              </Text>
+              <View className="mt-3">
+                <Button
+                  label="Link APK"
+                  loading={isOpeningApkLink}
+                  onPress={handleOpenApkLink}
+                />
+              </View>
+            </View>
+          )}
           <View className="bg-white p-3 mx-4 rounded-lg" style={styles.box}>
             <Text className="text-base font-bold">Thông báo</Text>
             <View className="flex flex-col gap-4 mt-3">
