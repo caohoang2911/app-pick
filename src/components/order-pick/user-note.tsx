@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
+import { MarkdownText } from '@/core/utils/markdown';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-pick';
 
@@ -61,9 +62,12 @@ const UserNote = ({ orderDetail }: { orderDetail: OrderDetail }) => {
           <View key={`${index}-${line}`} className="flex-row items-start">
             <View className="size-1.5 bg-white rounded-full mr-2 mt-2.5 shrink-0" />
             <View style={{ flex: 1, flexShrink: 1, minWidth: 0 }}>
-              <Text className="text-base font-semibold text-white">
+              <MarkdownText
+                className="text-base font-semibold text-white"
+                linkStyle={{ color: '#ffffff' }}
+              >
                 {line.trim()}
-              </Text>
+              </MarkdownText>
             </View>
           </View>
         ))}

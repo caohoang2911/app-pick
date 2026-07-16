@@ -16,6 +16,7 @@ import { useSignOut } from '~/src/core/hooks/useSignOut';
 import {
   canManagePickerShift,
   canManageStoreEmployees,
+  stripEmployeeCodeFromName,
 } from '~/src/core/utils/employee';
 import { SafeScrollView } from '~/src/core/utils/safe-scrollview';
 import { stringUtils } from '~/src/core/utils/string';
@@ -37,6 +38,10 @@ type DrawerMenuItem = {
 
 export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
   const userInfo = useAuth.use.userInfo();
+  const displayName = stripEmployeeCodeFromName(
+    userInfo?.name,
+    userInfo?.username,
+  );
   const navigation = useNavigation();
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
   const closeDrawer = () => navigation.dispatch(DrawerActions.closeDrawer());
@@ -119,7 +124,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
               className="bg-blue-500"
               textClassname="text-sm font-bold text-white"
             >
-              {stringUtils.getInitials(userInfo?.name || userInfo?.username)}
+              {stringUtils.getInitials(displayName || userInfo?.username)}
             </AvatarFallback>
           </Avatar>
         </TouchableOpacity>
@@ -133,7 +138,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {userInfo?.name}
+              {displayName || userInfo?.name}
             </Text>
           </View>
           <Text className="font-medium text-gray-500" numberOfLines={1}>
