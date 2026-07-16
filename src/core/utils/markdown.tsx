@@ -3,6 +3,7 @@ import { Text, Linking, TextStyle } from 'react-native';
 
 interface MarkdownTextProps {
   children: string;
+  className?: string;
   style?: TextStyle;
   textStyle?: TextStyle;
   linkStyle?: TextStyle;
@@ -12,9 +13,13 @@ interface MarkdownTextProps {
 /**
  * Simple markdown parser cho React Native
  * Hỗ trợ: *bold*, _italic_, [link](url)
+ *
+ * Plain text để string trong Text cha (không bọc Text riêng) để giữ cùng font
+ * với NativeWind className — tránh Android đổi typeface khi mỗi span có fontWeight.
  */
 export const MarkdownText: React.FC<MarkdownTextProps> = ({
   children,
+  className,
   style,
   textStyle,
   linkStyle,
@@ -137,34 +142,24 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
 
   processedMatches.sort((a, b) => a.start - b.start);
 
-  // Build parts
+  // Build parts — text thường là string để inherit font từ Text cha
   for (const match of processedMatches) {
     if (match.start > currentIndex) {
       const textBefore = children.substring(currentIndex, match.start);
       if (textBefore) {
-        parts.push(
-          <Text key={`text-${key++}`} style={[style, textStyle]}>
-            {textBefore}
-          </Text>,
-        );
+        parts.push(textBefore);
       }
     }
 
     if (match.type === 'bold') {
       parts.push(
-        <Text
-          key={`bold-${key++}`}
-          style={[style, textStyle, { fontWeight: 'bold' }]}
-        >
+        <Text key={`bold-${key++}`} style={{ fontWeight: '700' }}>
           {match.content}
         </Text>,
       );
     } else if (match.type === 'italic') {
       parts.push(
-        <Text
-          key={`italic-${key++}`}
-          style={[style, textStyle, { fontStyle: 'italic' }]}
-        >
+        <Text key={`italic-${key++}`} style={{ fontStyle: 'italic' }}>
           {match.content}
         </Text>,
       );
@@ -172,12 +167,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
       parts.push(
         <Text
           key={`link-${key++}`}
-          style={[
-            style,
-            textStyle,
-            linkStyle,
-            { textDecorationLine: 'underline' },
-          ]}
+          style={[{ textDecorationLine: 'underline' }, linkStyle]}
           onPress={() => {
             if (match.url) {
               Linking.openURL(match.url).catch((err) =>
@@ -190,12 +180,8 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
         </Text>,
       );
     } else if (match.type === 'bracket') {
-      // Text trong ngoặc vuông [text] - làm mờ (opacity thấp hơn vì dòng đã có opacity 0.7)
       parts.push(
-        <Text
-          key={`bracket-${key++}`}
-          style={[style, textStyle, { opacity: 0.5 }]}
-        >
+        <Text key={`bracket-${key++}`} style={{ opacity: 0.5 }}>
           [{match.content}]
         </Text>,
       );
@@ -207,17 +193,13 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
   if (currentIndex < children.length) {
     const textAfter = children.substring(currentIndex);
     if (textAfter) {
-      parts.push(
-        <Text key={`text-${key++}`} style={[style, textStyle]}>
-          {textAfter}
-        </Text>,
-      );
+      parts.push(textAfter);
     }
   }
 
-  if (parts.length === 0) {
-    return <Text style={[style, textStyle]}>{children}</Text>;
-  }
-
-  return <Text style={style}>{parts}</Text>;
+  return (
+    <Text className={className} style={[style, textStyle]}>
+      {parts.length > 0 ? parts : children}
+    </Text>
+  );
 };

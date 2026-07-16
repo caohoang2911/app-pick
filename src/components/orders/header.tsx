@@ -34,16 +34,12 @@ import MissingInvoiceBottomSheet from './missing-invoice-bottom-sheet';
 import OrderStatusBottomSheet from './order-status-bottom-sheet';
 import { useGetUnseenNotiCounter } from '~/src/api/app-pick/use-get-unseen-noti-counter';
 import { ROUTES } from '@/core/constants/routes';
+import {
+  getRepresentativeFirstName,
+  stripEmployeeCodeFromName,
+} from '~/src/core/utils/employee';
 
 const MAX_DRIVER_ASSIGNED_STORE_CODES = 2;
-
-/** Tên gọi đại diện — lấy từ cuối chuỗi họ tên (vd. "Võ Thị Anh Thy" → "Thy"). */
-const getRepresentativeFirstName = (fullName?: string) => {
-  const trimmed = fullName?.trim();
-  if (!trimmed) return '';
-  const parts = trimmed.split(/\s+/);
-  return parts[parts.length - 1] ?? trimmed;
-};
 
 const Header = () => {
   const userInfo = useAuth.use.userInfo();
@@ -56,7 +52,12 @@ const Header = () => {
   const storeRef = useRef<any>(null);
   const storeName = getConfigNameById(stores, userInfo?.storeCode);
   const roleName = getConfigNameById(employeeRoles, userInfo?.role);
-  const representativeName = getRepresentativeFirstName(userInfo?.name);
+  // Tài xế nội bộ: name dạng "… - Sang Nguyễn - SC009226" — bỏ mã NV trước khi lấy tên/avatar.
+  const displayName = stripEmployeeCodeFromName(
+    userInfo?.name,
+    userInfo?.username,
+  );
+  const representativeName = getRepresentativeFirstName(displayName);
 
   const driverAssignedStoreCodes = userInfo?.driverAssignedStoreCodes || [];
   const driverOrderAssignStatus = userInfo?.driverOrderAssignStatus;
@@ -266,7 +267,7 @@ const Header = () => {
               className="bg-blue-500"
               textClassname="text-sm font-bold text-white"
             >
-              {stringUtils.getInitials(userInfo?.name || userInfo?.username)}
+              {stringUtils.getInitials(displayName || userInfo?.username)}
             </AvatarFallback>
           </Avatar>
         </TouchableOpacity>

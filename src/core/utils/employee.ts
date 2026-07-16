@@ -1,5 +1,30 @@
 import { EmployeeRole, Role } from '~/src/types/employee';
 
+/**
+ * Bỏ mã nhân viên khỏi cuối tên (vd. "KFM - Delivery - Sang Nguyễn - SC009226"
+ * + code SC009226 → "KFM - Delivery - Sang Nguyễn"), và cắt luôn dấu `-` thừa.
+ */
+export const stripEmployeeCodeFromName = (
+  fullName?: string,
+  employeeCode?: string,
+): string => {
+  let result = fullName?.trim() ?? '';
+  if (!result) return '';
+
+  const code = employeeCode?.trim();
+  if (code) {
+    const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result
+      .replace(new RegExp(`\\s*-\\s*${escaped}\\s*$`, 'i'), '')
+      .trim();
+    result = result.replace(new RegExp(`\\s+${escaped}\\s*$`, 'i'), '').trim();
+  }
+
+  // Cắt dấu `-` / khoảng trắng thừa ở cuối sau khi bỏ mã.
+  result = result.replace(/[\s-]+$/g, '').trim();
+  return result;
+};
+
 /** Tên gọi đại diện — lấy từ cuối chuỗi họ tên (vd. "Võ Thị Anh Thy" → "Thy"). */
 export const getRepresentativeFirstName = (fullName?: string) => {
   const trimmed = fullName?.trim();
