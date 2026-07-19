@@ -20,6 +20,7 @@
     "codepush:version": "node scripts/codepush-version.js",
     "codepush:prod": "node scripts/codepush-prod.js",
     "codepush:prod:no-version": "node scripts/codepush-prod-no-version.js",
+    "codepush:prod:multi": "node scripts/codepush-prod-multi.js",
     "env:prod": "node scripts/setup-env.js prod",
     "pod": "npx pod-install",
     "export": "expo export --platform web",
