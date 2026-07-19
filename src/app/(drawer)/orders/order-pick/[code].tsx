@@ -24,6 +24,7 @@ import {
 } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { useOrderStatusAutoRefresh } from '~/src/core/hooks/useOrderStatusAutoRefresh';
+import { usePdaScanTarget } from '~/src/core/hooks/usePdaScanTarget';
 import { splitBarcode } from '~/src/core/utils/number';
 import {
   handleScanBarcode,
@@ -162,6 +163,9 @@ const OrderPick = () => {
       isShowAmountInput,
     ],
   );
+
+  // Quét bằng máy PDA (đầu đọc laser) dùng chung handler với camera, không cần mở camera.
+  usePdaScanTarget(handleSuccessBarCode);
 
   if (isOrderDetailLoading) {
     return <Loading description="Đang tải đơn hàng..." />;

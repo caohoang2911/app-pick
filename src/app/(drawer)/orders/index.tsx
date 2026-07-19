@@ -1,4 +1,5 @@
 import Container from '@/components/Container';
+import { usePdaScanTarget } from '@/core/hooks/usePdaScanTarget';
 import { useRefreshOnFocus } from '@/core/hooks/useRefreshOnFocus';
 import {
   setDeliveryType,
@@ -18,7 +19,7 @@ import ScannerBox from '~/src/components/shared/scanner-box';
 import { checkNotificationPermission } from '~/src/core/utils/notification-permission';
 import { useAuth } from '~/src/core';
 import { useCodepush } from '@/core/hooks/useCodePush';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 const Orders = () => {
   const navigation = useNavigation();
@@ -80,6 +81,9 @@ const Orders = () => {
   const handleDestroy = useCallback(() => {
     toggleScanQrCode(false);
   }, []);
+
+  // Quét bằng máy PDA (đầu đọc laser) để tìm đơn — dùng chung handler với camera.
+  usePdaScanTarget(handleSuccessBarcodeScanned);
 
   // Sau CodePush (một nguồn từ useCodepushStore + mutex trong checkNotificationPermission)
   useEffect(() => {
