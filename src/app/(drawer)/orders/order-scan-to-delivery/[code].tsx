@@ -40,6 +40,7 @@ import ScannerBox from '~/src/components/shared/scanner-box';
 import ShipperInfo from '~/src/components/shared/shipper-info';
 import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+import { usePdaScanTarget } from '~/src/core/hooks/usePdaScanTarget';
 import {
   hideAlert,
   showAlert as showAlertDialog,
@@ -423,6 +424,9 @@ const OrderScanToDelivery = () => {
       handleCheckoutOrderBagsWithInvoice,
     ],
   );
+
+  // Quét túi bằng máy PDA (đầu đọc laser) dùng chung handler với camera.
+  usePdaScanTarget(handleScanQrCodeProduct);
 
   const showAlert = useMemo(() => {
     return !tags?.includes(ORDER_TAGS.ORDER_CREATED_INVOICE);

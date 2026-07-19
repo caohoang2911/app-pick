@@ -35,6 +35,7 @@ import Bags from '~/src/components/store-start-order-scan-to-delivery/bags';
 import InvoiceInfo from '~/src/components/store-start-order-scan-to-delivery/invoice-info';
 import { useAuth } from '~/src/core';
 import { useCheckShift } from '~/src/core/hooks/useCheckShift';
+import { usePdaScanTarget } from '~/src/core/hooks/usePdaScanTarget';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';
 import { showMessage } from 'react-native-flash-message';
@@ -227,6 +228,9 @@ const OrderScanToDelivery = () => {
       }
     });
   };
+
+  // Quét túi bằng máy PDA (đầu đọc laser) dùng chung handler với camera.
+  usePdaScanTarget(handleScanQrCodeProduct);
 
   const { checkShift } = useCheckShift(() => {
     showAlert({

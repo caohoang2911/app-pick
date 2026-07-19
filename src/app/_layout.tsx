@@ -25,6 +25,7 @@ import { hydrateAuth, useAuth } from '@/core';
 import { useAutoUpdate } from '@/core/hooks/useAutoUpdate';
 import { useCodepush } from '@/core/hooks/useCodePush';
 import useHandleDeepLink from '@/core/hooks/useHandleDeepLink';
+import { usePdaScan } from '@/core/hooks/usePdaScan';
 import { useProtectedRoute } from '@/core/hooks/useProtectedRoute';
 import { usePushNotifications } from '@/core/hooks/usePushNotifications';
 import { useStringeeCall } from '@/core/hooks/useStringeeCall';
@@ -143,6 +144,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   useHandleDeepLink();
   useWatchResponse();
   useStringeeCall();
+  usePdaScan(); // lắng nghe quét mã từ máy PDA (Android), route tới màn đang focus
   return <>{children}</>;
 };
 
