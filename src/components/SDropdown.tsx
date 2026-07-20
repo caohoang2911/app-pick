@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import {
-  Animated,
   Keyboard,
   Modal,
   Pressable,
@@ -23,40 +22,6 @@ import ArrowDown from '../core/svgs/ArrowDown';
 import SearchLine from '../core/svgs/SearchLine';
 import { stringUtils } from '../core/utils/string';
 import { Input } from './Input';
-
-const ScrollDownHint = ({ onPress }: { onPress: () => void }) => {
-  const bounce = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const anim = Animated.loop(
-      Animated.sequence([
-        Animated.timing(bounce, {
-          toValue: 4,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(bounce, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    anim.start();
-    return () => anim.stop();
-  }, [bounce]);
-  return (
-    <Pressable style={styles.scrollDownBtn} onPress={onPress}>
-      <Animated.View
-        style={[
-          styles.scrollDownIconWrap,
-          { transform: [{ translateY: bounce }] },
-        ]}
-      >
-        <ArrowDown width={20} height={20} color="#555" />
-      </Animated.View>
-    </Pressable>
-  );
-};
 
 export interface SDropdownProps {
   label?: string;
@@ -82,6 +47,8 @@ export interface SDropdownProps {
 
 const MODAL_HEADER_HEIGHT = 49;
 const MODAL_SEARCH_HEIGHT = 44;
+/** Ước lượng chiều cao 1 row (tránh đo contentSize → setState → chớp scroll). */
+const MODAL_ITEM_HEIGHT_ESTIMATE = 49;
 
 const SDropdown = ({
   label,
@@ -108,12 +75,7 @@ const SDropdown = ({
   const [isFocus, setIsFocus] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [showScrollDown, setShowScrollDown] = useState(false);
-  const [listContentHeight, setListContentHeight] = useState(0);
   const ref = useRef<any>(null);
-  const scrollRef = useRef<any>(null);
-  const contentHeightRef = useRef(0);
-  const scrollLayoutHeightRef = useRef(0);
   const { height: modalHeight, ...nativeModalProps } = modalProps || {};
 
   const resolvedModalHeight = useMemo(() => {
@@ -123,28 +85,6 @@ const SDropdown = ({
     }
     return Math.max(220, modalHeight);
   }, [modalHeight, maxHeight]);
-
-  const resolvedScrollHeight = useMemo(() => {
-    const searchOffset = showSearch ? MODAL_SEARCH_HEIGHT : 0;
-    // Reserve header/action space inside modal.
-    return Math.max(
-      120,
-      resolvedModalHeight - MODAL_HEADER_HEIGHT - searchOffset,
-    );
-  }, [resolvedModalHeight, showSearch]);
-
-  const fittedModalHeight = useMemo(() => {
-    const searchOffset = showSearch ? MODAL_SEARCH_HEIGHT : 0;
-    if (listContentHeight <= 0) return resolvedModalHeight;
-    const naturalHeight =
-      MODAL_HEADER_HEIGHT + searchOffset + listContentHeight;
-    return Math.min(resolvedModalHeight, Math.max(220, naturalHeight));
-  }, [listContentHeight, resolvedModalHeight, showSearch]);
-
-  const fittedScrollHeight = useMemo(() => {
-    if (listContentHeight <= 0) return resolvedScrollHeight;
-    return Math.min(resolvedScrollHeight, listContentHeight);
-  }, [listContentHeight, resolvedScrollHeight]);
 
   const filteredData = useMemo(() => {
     if (!showSearch || onSearchChange) return data;
@@ -173,11 +113,27 @@ const SDropdown = ({
     return [selected, ...listData.filter((_, index) => index !== selectedIdx)];
   }, [listData, value, valueField]);
 
+  const fittedModalHeight = useMemo(() => {
+    const searchOffset = showSearch ? MODAL_SEARCH_HEIGHT : 0;
+    const itemCount = Math.max(displayListData.length, 1);
+    const estimatedListHeight = itemCount * MODAL_ITEM_HEIGHT_ESTIMATE;
+    const naturalHeight =
+      MODAL_HEADER_HEIGHT + searchOffset + estimatedListHeight;
+    return Math.min(resolvedModalHeight, Math.max(220, naturalHeight));
+  }, [displayListData.length, resolvedModalHeight, showSearch]);
+
+  const fittedScrollHeight = useMemo(() => {
+    const searchOffset = showSearch ? MODAL_SEARCH_HEIGHT : 0;
+    return Math.max(
+      120,
+      fittedModalHeight - MODAL_HEADER_HEIGHT - searchOffset,
+    );
+  }, [fittedModalHeight, showSearch]);
+
   const selectedItem = data.find((item: any) => item[valueField] === value);
 
   useEffect(() => {
     if (mode === 'modal' && !modalVisible) {
-      setListContentHeight(0);
       setSearchText('');
       onSearchChange?.('');
     }
@@ -264,7 +220,6 @@ const SDropdown = ({
           onPress={() => {
             if (disabled) return;
             Keyboard.dismiss();
-            setShowScrollDown(false);
             setModalVisible(true);
             setIsFocus(true);
           }}
@@ -351,54 +306,17 @@ const SDropdown = ({
                 ]}
               >
                 <ScrollView
-                  ref={scrollRef}
                   style={[
                     styles.modalScroll,
                     { maxHeight: fittedScrollHeight },
                   ]}
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator
-                  onContentSizeChange={(_w, h) => {
-                    contentHeightRef.current = h;
-                    setListContentHeight(h);
-                    const layoutH = scrollLayoutHeightRef.current;
-                    setShowScrollDown(layoutH > 0 && h > layoutH);
-                  }}
-                  onLayout={(e) => {
-                    const { height } = e.nativeEvent.layout;
-                    scrollLayoutHeightRef.current = height;
-                    const contentH = contentHeightRef.current;
-                    setShowScrollDown(contentH > height);
-                  }}
-                  onScroll={(e) => {
-                    const { contentOffset, contentSize, layoutMeasurement } =
-                      e.nativeEvent;
-                    const canScroll =
-                      contentSize.height > layoutMeasurement.height;
-                    const nearBottom =
-                      contentOffset.y >=
-                      contentSize.height - layoutMeasurement.height - 20;
-                    setShowScrollDown(canScroll && !nearBottom);
-                  }}
-                  scrollEventThrottle={32}
                 >
                   {displayListData.length > 0
                     ? displayListData.map((item: any) => renderItem(item))
                     : renderEmptyContent()}
                 </ScrollView>
-                {showScrollDown ? (
-                  <ScrollDownHint
-                    onPress={() => {
-                      scrollRef.current?.scrollTo({
-                        y:
-                          contentHeightRef.current -
-                          scrollLayoutHeightRef.current +
-                          20,
-                        animated: true,
-                      });
-                    }}
-                  />
-                ) : null}
               </View>
             </Pressable>
           </Pressable>
@@ -594,20 +512,5 @@ const styles = StyleSheet.create({
   },
   modalScroll: {
     maxHeight: 320,
-  },
-  scrollDownBtn: {
-    position: 'absolute',
-    bottom: 6,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-  },
-  scrollDownIconWrap: {
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
   },
 });

@@ -24,8 +24,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   isCaseOrPackUnit,
   isIncompleteCaseOrPackPickReason,
+  isPickedErrorTypeRequiringImage,
   PRODUCT_ACTIONS,
   PRODUCT_PICKED_ERROR_TYPES,
+  REQUIRE_PICKED_IMAGE_FOR_ERROR_TYPES,
   type ProductAction,
 } from '@/core/constants/product';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
@@ -36,6 +38,7 @@ import {
   useSetOrderItemPicked,
   type SetOrderItemPickedProduct,
 } from '~/src/api/app-pick/use-set-order-item-picked';
+import ImageUploader from '~/src/components/ImageUploader';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { useConfig } from '~/src/core/store/config';
 import {
@@ -99,6 +102,7 @@ const BOTTOM_SHEET_WEIGHT_RANGE_SECTION = WEIGHT_RANGE_LIST_MAX_HEIGHT; // 4 ite
 const BOTTOM_SHEET_BOX_SECTION = 96;
 const BOTTOM_SHEET_SECTION_GAP = 16;
 const BOTTOM_SHEET_REASON_SECTION = 72;
+const BOTTOM_SHEET_IMAGE_SECTION = 120;
 const BOTTOM_SHEET_CONFIRM_BUTTON = 48;
 
 const QUICK_ACTION_TO_ERROR_TYPE: Partial<
@@ -125,6 +129,7 @@ function computeInputAmountBottomSheetHeight({
   isWeightRange = false,
   hasConversionBadge = false,
   hasPackWarning = false,
+  hasImageSection = false,
 }: {
   windowHeight: number;
   safeAreaTop: number;
@@ -133,6 +138,7 @@ function computeInputAmountBottomSheetHeight({
   isWeightRange?: boolean;
   hasConversionBadge?: boolean;
   hasPackWarning?: boolean;
+  hasImageSection?: boolean;
 }) {
   const headerHeight =
     BOTTOM_SHEET_TOP_HEADER_HEIGHT +
@@ -157,6 +163,9 @@ function computeInputAmountBottomSheetHeight({
     (isUnitBox ? BOTTOM_SHEET_SECTION_GAP + BOTTOM_SHEET_BOX_SECTION : 0) +
     BOTTOM_SHEET_SECTION_GAP +
     BOTTOM_SHEET_REASON_SECTION +
+    (hasImageSection
+      ? BOTTOM_SHEET_SECTION_GAP + BOTTOM_SHEET_IMAGE_SECTION
+      : 0) +
     BOTTOM_SHEET_SECTION_GAP +
     BOTTOM_SHEET_CONFIRM_BUTTON +
     BOTTOM_SHEET_FORM_PADDING_BOTTOM;
@@ -376,17 +385,20 @@ const ReasonDropdown = memo(
         isIncompleteCaseOrPackPickReason({ id: values?.pickedErrorType })
       ) {
         setFieldValue('pickedErrorType', '');
+        setFieldValue('pickedImage', '');
         return;
       }
       if (isWeightRange) {
         if (!isWeightRangeEnough || !values?.pickedErrorType) return;
         setFieldValue('pickedErrorType', '');
+        setFieldValue('pickedImage', '');
         return;
       }
       if (!isQuantityEnough || hasQuickAction || !values?.pickedErrorType) {
         return;
       }
       setFieldValue('pickedErrorType', '');
+      setFieldValue('pickedImage', '');
     }, [
       isWeightRange,
       isWeightRangeEnough,
@@ -394,11 +406,15 @@ const ReasonDropdown = memo(
       hasQuickAction,
       values?.pickedErrorType,
       setFieldValue,
+      unit,
     ]);
 
     const handleSelect = useCallback(
       (value: string) => {
         setFieldValue('pickedErrorType', value);
+        if (!isPickedErrorTypeRequiringImage(value)) {
+          setFieldValue('pickedImage', '');
+        }
         setErrors({});
       },
       [setFieldValue, setErrors],
@@ -407,6 +423,7 @@ const ReasonDropdown = memo(
     const handleClear = useCallback(() => {
       if (isDisabled) return;
       setFieldValue('pickedErrorType', '');
+      setFieldValue('pickedImage', '');
     }, [setFieldValue, isDisabled]);
 
     const productPickedErrorsWithUnit = useMemo(() => {
@@ -587,6 +604,7 @@ const FormContent = memo(
     shoudShowBoxInput,
     shouldShowWeightRangeInput,
     onInputFocus,
+    onImageUploadingChange,
   }: any) => {
     // Init số lượng + hộp thùng khi đổi sản phẩm
     useEffect(() => {
@@ -653,6 +671,23 @@ const FormContent = memo(
           currentProduct={currentProduct}
           isWeightRange={shouldShowWeightRangeInput}
         />
+        {isPickedErrorTypeRequiringImage(values?.pickedErrorType) ? (
+          <ImageUploader
+            key={`pick-evidence-${currentProduct?.id}-${values?.pickedErrorType}`}
+            title="Thêm Hình ảnh"
+            variant="dashed"
+            cameraOnly
+            maxImages={1}
+            required
+            proofDeliveryImages={
+              values?.pickedImage ? [values.pickedImage] : undefined
+            }
+            onImagesChange={(urls) => {
+              setFieldValue('pickedImage', urls[0] || '');
+            }}
+            onUploadingChange={onImageUploadingChange}
+          />
+        ) : null}
       </View>
     );
   },
@@ -663,6 +698,7 @@ const InputAmountPopup = () => {
   const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isPickedByManualBarcodeInput =
@@ -899,6 +935,7 @@ const InputAmountPopup = () => {
   useEffect(() => {
     if (!isShowAmountInput) {
       setIsKeyboardVisible(false);
+      setIsImageUploading(false);
     }
   }, [isShowAmountInput]);
 
@@ -915,7 +952,7 @@ const InputAmountPopup = () => {
   }, [currentProduct?.unit]);
   const hasConversionBadge = false;
 
-  const bottomSheetHeight = useMemo(
+  const bottomSheetHeightBase = useMemo(
     () =>
       computeInputAmountBottomSheetHeight({
         windowHeight,
@@ -925,6 +962,30 @@ const InputAmountPopup = () => {
         isWeightRange,
         hasConversionBadge,
         hasPackWarning,
+        hasImageSection: false,
+      }),
+    [
+      windowHeight,
+      insets.top,
+      currentProduct?.productPickingGuidelines,
+      isUnitBox,
+      isWeightRange,
+      hasConversionBadge,
+      hasPackWarning,
+    ],
+  );
+
+  const bottomSheetHeightWithImage = useMemo(
+    () =>
+      computeInputAmountBottomSheetHeight({
+        windowHeight,
+        safeAreaTop: insets.top,
+        guidelinesCount: currentProduct?.productPickingGuidelines?.length ?? 0,
+        isUnitBox,
+        isWeightRange,
+        hasConversionBadge,
+        hasPackWarning,
+        hasImageSection: true,
       }),
     [
       windowHeight,
@@ -1002,6 +1063,7 @@ const InputAmountPopup = () => {
             ? ''
             : values?.pickedErrorType,
         pickedNote: values?.pickedNote,
+        ...(values?.pickedImage ? { pickedImage: values.pickedImage } : {}),
         pickedTime: moment().valueOf(),
         isAllowEditPickQuantity: true,
         ...((isUnitBox || isWeightRange) && {
@@ -1057,6 +1119,7 @@ const InputAmountPopup = () => {
         : displayPickedQuantity,
       pickedErrorType: (currentProduct as Product)?.pickedErrorType || '',
       pickedNote: (currentProduct as Product)?.pickedNote || '',
+      pickedImage: (currentProduct as Product)?.pickedImage || '',
       ...(isUnitBox && {
         fullBoxQuantity:
           (currentProduct as Product)?.pickedExtraQuantities?.fullBoxQuantity ||
@@ -1094,6 +1157,24 @@ const InputAmountPopup = () => {
             !values?.pickedErrorType
           : Number(values?.pickedQuantity) < Number(orderQuantity) &&
             !values?.pickedErrorType;
+
+        const needsPickedImage = isPickedErrorTypeRequiringImage(
+          values?.pickedErrorType,
+        );
+        const isMissingRequiredImage =
+          REQUIRE_PICKED_IMAGE_FOR_ERROR_TYPES &&
+          needsPickedImage &&
+          !values?.pickedImage;
+
+        useEffect(() => {
+          if (!needsPickedImage) {
+            setIsImageUploading(false);
+          }
+        }, [needsPickedImage]);
+
+        const bottomSheetHeight = needsPickedImage
+          ? bottomSheetHeightWithImage
+          : bottomSheetHeightBase;
 
         const weightRangeItemsRef = useRef<number[]>([]);
         weightRangeItemsRef.current = values?.weightRangeItemKGs ?? [];
@@ -1196,7 +1277,9 @@ const InputAmountPopup = () => {
                 <Button
                   onPress={() => handleSubmit()}
                   label="Xác nhận"
-                  disabled={isError}
+                  disabled={
+                    isError || isMissingRequiredImage || isImageUploading
+                  }
                   loading={isSetOrderTemToPickedPending}
                 />
               )
@@ -1216,6 +1299,7 @@ const InputAmountPopup = () => {
               shoudShowBoxInput={isUnitBox}
               shouldShowWeightRangeInput={isWeightRange}
               onInputFocus={handleInputFocus}
+              onImageUploadingChange={setIsImageUploading}
             />
           </SBottomSheet>
         );

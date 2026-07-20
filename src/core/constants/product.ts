@@ -12,7 +12,33 @@ export const PRODUCT_PICKED_ERROR_TYPES = {
   INCORRECT_ORDERED_WEIGHT: 'INCORRECT_ORDERED_WEIGHT',
   /** SP pick không đủ nguyên thùng/lốc */
   INCOMPLETE_CASE_OR_PACK: 'INCOMPLETE_CASE_OR_PACK',
+  WAITING_SUPPLIER_PROCESS: 'WAITING_SUPPLIER_PROCESS',
+  PRODUCT_NOT_MEET_CUSTOMER_REQUIRE: 'PRODUCT_NOT_MEET_CUSTOMER_REQUIRE',
 } as const;
+
+/** Lý do lỗi cần chụp ảnh xác nhận (hết hàng / giảm chất lượng…). */
+export const PRODUCT_PICKED_ERROR_TYPES_REQUIRING_IMAGE = [
+  PRODUCT_PICKED_ERROR_TYPES.EXPIRED_ONLINE_SALE_DATE_NOT_YET_DISCOUNT_DATE,
+  PRODUCT_PICKED_ERROR_TYPES.NEAR_EXPIRY_DATE_NOT_YET_DISCOUNT_STAMPED,
+  PRODUCT_PICKED_ERROR_TYPES.QUALITY_DECLINE,
+  PRODUCT_PICKED_ERROR_TYPES.WAITING_SUPPLIER_PROCESS,
+  PRODUCT_PICKED_ERROR_TYPES.PRODUCT_NOT_MEET_CUSTOMER_REQUIRE,
+] as const;
+
+/**
+ * Tạm thời optional để test siêu thị — bật `true` khi muốn chặn xác nhận
+ * nếu chưa chụp ảnh với các lý do trong PRODUCT_PICKED_ERROR_TYPES_REQUIRING_IMAGE.
+ */
+export const REQUIRE_PICKED_IMAGE_FOR_ERROR_TYPES = false;
+
+export const isPickedErrorTypeRequiringImage = (
+  errorType?: string | null,
+): boolean => {
+  if (!errorType) return false;
+  return (
+    PRODUCT_PICKED_ERROR_TYPES_REQUIRING_IMAGE as readonly string[]
+  ).includes(errorType);
+};
 
 export const PRODUCT_ACTIONS = {
   OUT_OF_STOCK: 'out-of-stock',

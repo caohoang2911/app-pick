@@ -4,15 +4,9 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "*"
-      ],
-      "@/*": [
-        "./src/*"
-      ],
-      "@env": [
-        "./env.ts"
-      ]
+      "~/*": ["*"],
+      "@/*": ["./src/*"],
+      "@env": ["./env.ts"]
     },
     "esModuleInterop": true,
     "checkJs": true
@@ -30,7 +24,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "declarations.d.ts"
   ],
   "compileOnSave": true
 }

@@ -4,6 +4,7 @@ import { Product } from '~/src/types/product';
 
 export type SetOrderItemPickedProduct = Product & {
   isPickedByManualBarcodeInput?: boolean;
+  pickedImage?: string;
 };
 
 export type SetOrderItemPickedVariables = {

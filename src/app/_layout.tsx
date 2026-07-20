@@ -307,10 +307,12 @@ function Providers({ children }: { children: React.ReactNode }) {
         console.error('App Error Boundary caught error:', error, errorInfo);
       }}
     >
-      <BottomSheetModalProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <PortalProvider>
-            <APIProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <PortalProvider>
+          <APIProvider>
+            {/* BottomSheetModal portal host phải nằm TRONG QueryClientProvider,
+                nếu không hook trong sheet (vd useUploadImages) sẽ mất context. */}
+            <BottomSheetModalProvider>
               <View style={{ flex: 1 }}>
                 <View
                   style={{ flex: 1 }}
@@ -351,10 +353,10 @@ function Providers({ children }: { children: React.ReactNode }) {
                 {/* Portal + zIndex/elevation: trên BottomSheet modal (@gorhom) */}
                 <Portal>{flashMessagePortal}</Portal>
               </View>
-            </APIProvider>
-          </PortalProvider>
-        </GestureHandlerRootView>
-      </BottomSheetModalProvider>
+            </BottomSheetModalProvider>
+          </APIProvider>
+        </PortalProvider>
+      </GestureHandlerRootView>
     </CustomErrorBoundary>
   );
 }
