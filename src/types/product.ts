@@ -31,6 +31,8 @@ export type Product = {
   substituteItems?: Array<Product>;
   pickedErrorType?: string;
   pickedNote?: string;
+  /** URL ảnh xác nhận lý do lỗi (upload/uploadImages). */
+  pickedImage?: string;
   pickedQuantity?: number;
   unitType?: string;
   quantity: number;

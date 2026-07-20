@@ -25,7 +25,23 @@ interface ExpoImageUploaderProps {
   maxImageSize?: number;
   minImageWidth?: number;
   onUploadedImages?: (image: string) => void;
+  /** Danh sách URL đã upload (local + remote) sau mỗi lần thêm/xóa. */
+  onImagesChange?: (images: string[]) => void;
+  /** Báo khi đang upload (để disable nút xác nhận…). */
+  onUploadingChange?: (uploading: boolean) => void;
   proofDeliveryImages?: string[];
+  /** Chỉ mở camera — không cho chọn ảnh thư viện. */
+  cameraOnly?: boolean;
+  /** Số ảnh tối đa (mặc định không giới hạn). */
+  maxImages?: number;
+  /** Hiện dấu * bên cạnh title. */
+  required?: boolean;
+  /**
+   * `dashed`: ô dashed full-width (pick evidence).
+   * `default`: layout bằng chứng giao hàng.
+   */
+  variant?: 'default' | 'dashed';
+  instruction?: string;
 }
 
 export default function ExpoImageUploader({
@@ -34,6 +50,13 @@ export default function ExpoImageUploader({
   minImageWidth = 80, // Minimum width of each image in pixels
   proofDeliveryImages,
   onUploadedImages,
+  onImagesChange,
+  onUploadingChange,
+  cameraOnly = false,
+  maxImages,
+  required = true,
+  variant = 'default',
+  instruction,
 }: ExpoImageUploaderProps) {
   const [isPending, setIsPending] = useState(false);
   const [images, setImages] = useState<string[]>([]);
@@ -55,14 +78,24 @@ export default function ExpoImageUploader({
     async (data) => {
       // Mark current image as uploaded on success
       if (currentUploadingUri) {
+        const remoteUrl = data?.[0];
         setIsPending(false);
-        setUploadedImages((prev) => ({
-          ...prev,
-          [currentUploadingUri]: 'uploaded',
-        }));
+        setUploadedImages((prev) => {
+          const next = {
+            ...prev,
+            [currentUploadingUri]: remoteUrl || 'uploaded',
+          };
+          const urls = Object.values(next).filter(
+            (v) => v && v !== 'uploaded',
+          ) as string[];
+          onImagesChange?.(urls);
+          return next;
+        });
         setCurrentUploadingUri(null);
         refFirstImage.current = false;
-        onUploadedImages?.(data?.[0]);
+        if (remoteUrl) {
+          onUploadedImages?.(remoteUrl);
+        }
       }
     },
     (error) => {
@@ -71,20 +104,28 @@ export default function ExpoImageUploader({
         setImages((prev) => prev.filter((img) => img !== currentUploadingUri));
         setCurrentUploadingUri(null);
       }
+      setIsPending(false);
     },
   );
+
+  useEffect(() => {
+    onUploadingChange?.(isPending);
+    return () => {
+      onUploadingChange?.(false);
+    };
+  }, [isPending, onUploadingChange]);
   useEffect(() => {
     if (proofDeliveryImages?.length) {
       if (refFirstImage.current) {
         refFirstImage.current = false;
-        proofDeliveryImages?.map((image) => {
-          setUploadedImages((prev) => ({
-            ...prev,
-            [image]: 'uploaded',
-          }));
+        const nextUploaded: { [key: string]: string } = {};
+        proofDeliveryImages.forEach((image) => {
+          nextUploaded[image] = image;
           onUploadedImages?.(image);
         });
+        setUploadedImages((prev) => ({ ...prev, ...nextUploaded }));
         setImages(proofDeliveryImages || []);
+        onImagesChange?.(proofDeliveryImages);
       }
     }
   }, [proofDeliveryImages]);
@@ -202,8 +243,17 @@ export default function ExpoImageUploader({
       setUploadedImages((prev) => {
         const newState = { ...prev };
         delete newState[imageToRemove];
+        const urls = Object.values(newState).filter(
+          (v) => v && v !== 'uploaded',
+        ) as string[];
+        onImagesChange?.(urls);
         return newState;
       });
+    } else {
+      const urls = Object.values(uploadedImages).filter(
+        (v) => v && v !== 'uploaded',
+      ) as string[];
+      onImagesChange?.(urls);
     }
 
     // If this was the uploading image, clear the current uploading URI
@@ -426,6 +476,27 @@ export default function ExpoImageUploader({
     }
   };
 
+  const canAddMoreImages = maxImages == null || images.length < maxImages;
+
+  const openAddImage = () => {
+    if (isPending || !canAddMoreImages) return;
+
+    if (cameraOnly) {
+      takePicture();
+      return;
+    }
+
+    Alert.alert(
+      'Chọn phương thức',
+      'Bạn muốn chụp ảnh hay chọn ảnh từ thư viện?',
+      [
+        { text: 'Hủy', style: 'cancel' },
+        { text: 'Chụp ảnh', onPress: takePicture },
+        { text: 'Chọn từ thư viện', onPress: pickImages },
+      ],
+    );
+  };
+
   // Group images in rows based on calculated imagesPerRow
   const renderImageRows = () => {
     const rows = [];
@@ -479,39 +550,105 @@ export default function ExpoImageUploader({
 
   return (
     <View style={styles.container} onLayout={onContainerLayout}>
-      <View className="flex-row justify-between mb-2">
-        <View>
-          {title && (
-            <Text style={styles.title}>
-              {title} <Text style={styles.required}>*</Text>
-            </Text>
+      {variant === 'dashed' ? (
+        <>
+          {images.length === 0 ? (
+            <TouchableOpacity
+              style={styles.dashedAddBox}
+              onPress={openAddImage}
+              disabled={isPending}
+              activeOpacity={0.7}
+            >
+              {isPending ? (
+                <ActivityIndicator color="#666" size="small" />
+              ) : (
+                <>
+                  <Ionicons name="camera-outline" size={28} color="#666" />
+                  {title ? (
+                    <Text style={styles.dashedAddLabel}>
+                      {title}
+                      {required ? (
+                        <Text style={styles.required}> *</Text>
+                      ) : null}
+                    </Text>
+                  ) : null}
+                </>
+              )}
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.dashedPreviewList}>
+              {images.map((image, idx) => (
+                <View key={`${image}-${idx}`} style={styles.dashedPreviewItem}>
+                  <Image
+                    source={{ uri: image }}
+                    style={styles.dashedPreviewImage}
+                  />
+                  {isPending && currentUploadingUri === image && (
+                    <View style={styles.uploadingOverlay}>
+                      <ActivityIndicator color="#fff" size="small" />
+                    </View>
+                  )}
+                  {uploadedImages[image] && (
+                    <View style={styles.uploadedIndicator}>
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={16}
+                        color="#4CAF50"
+                      />
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => handleRemoveImage(idx)}
+                    disabled={isPending && currentUploadingUri === image}
+                  >
+                    <Ionicons name="close-circle" size={24} color="white" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {canAddMoreImages ? (
+                <TouchableOpacity
+                  style={styles.dashedAddBoxCompact}
+                  onPress={openAddImage}
+                  disabled={isPending}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="camera-outline" size={22} color="#666" />
+                </TouchableOpacity>
+              ) : null}
+            </View>
           )}
-          <Text style={styles.instruction} className="text-gray-500 mt-1">
-            Tải lên ảnh để hoàn thành đơn hàng
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[styles.addButton, { width: 40, height: 40 }]}
-          onPress={() => {
-            Alert.alert(
-              'Chọn phương thức',
-              'Bạn muốn chụp ảnh hay chọn ảnh từ thư viện?',
-              [
-                { text: 'Hủy', style: 'cancel' },
-                { text: 'Chụp ảnh', onPress: takePicture },
-                { text: 'Chọn từ thư viện', onPress: pickImages },
-              ],
-            );
-          }}
-          disabled={isPending}
-        >
-          <Ionicons name="camera" size={20} color="#666" />
-        </TouchableOpacity>
-      </View>
+        </>
+      ) : (
+        <>
+          <View className="flex-row justify-between mb-2">
+            <View>
+              {title && (
+                <Text style={styles.title}>
+                  {title}
+                  {required ? <Text style={styles.required}> *</Text> : null}
+                </Text>
+              )}
+              <Text style={styles.instruction} className="text-gray-500 mt-1">
+                {instruction || 'Tải lên ảnh để hoàn thành đơn hàng'}
+              </Text>
+            </View>
+            {canAddMoreImages ? (
+              <TouchableOpacity
+                style={[styles.addButton, { width: 40, height: 40 }]}
+                onPress={openAddImage}
+                disabled={isPending}
+              >
+                <Ionicons name="camera" size={20} color="#666" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
 
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.imageGrid}>{renderImageRows()}</View>
-      </ScrollView>
+          <ScrollView style={styles.scrollContainer}>
+            <View style={styles.imageGrid}>{renderImageRows()}</View>
+          </ScrollView>
+        </>
+      )}
 
       {isPending && (
         <View style={styles.uploadingStatusBar}>
@@ -602,6 +739,51 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  dashedAddBox: {
+    width: '100%',
+    minHeight: 96,
+    borderWidth: 1.5,
+    borderColor: '#d1d5db',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    gap: 6,
+    paddingVertical: 16,
+  },
+  dashedAddBoxCompact: {
+    width: 96,
+    height: 96,
+    borderWidth: 1.5,
+    borderColor: '#d1d5db',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  dashedAddLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4b5563',
+  },
+  dashedPreviewList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  dashedPreviewItem: {
+    width: 96,
+    height: 96,
+    borderRadius: 8,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  dashedPreviewImage: {
+    width: '100%',
+    height: '100%',
   },
   uploadingStatusBar: {
     flexDirection: 'row',
