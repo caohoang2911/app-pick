@@ -3,6 +3,8 @@
 //  1) meta-data `default_notification_sound = ding`
 //  2) CustomFirebaseMessagingService.kt + đăng ký Manifest
 //     (skip tray cho push cuộc gọi Stringee — tránh "You have a new notification")
+//  3) `firebase-messaging` trên :app (RNFirebase dùng `implementation` nên app
+//     không thấy FirebaseMessagingService nếu không khai báo trực tiếp)
 //
 // LƯU Ý:
 //  - `default_notification_channel_id` KHÔNG đặt ở đây vì expo-notifications tự
@@ -14,15 +16,22 @@ const path = require('path');
 const {
   AndroidConfig,
   withAndroidManifest,
+  withAppBuildGradle,
   withDangerousMod,
   createRunOncePlugin,
 } = require('@expo/config-plugins');
 
-const pkg = { name: 'with-fcm-notification-config', version: '1.1.0' };
+const pkg = { name: 'with-fcm-notification-config', version: '1.2.0' };
 
 const META_NAME = 'com.google.firebase.messaging.default_notification_sound';
 const META_VALUE = 'ding';
 const SERVICE_CLASS = '.CustomFirebaseMessagingService';
+const FIREBASE_MESSAGING_DEP =
+  'implementation "com.google.firebase:firebase-messaging"';
+const FIREBASE_BOM_DEP =
+  'implementation platform("com.google.firebase:firebase-bom:31.4.0")';
+const FIREBASE_MESSAGING_MARKER =
+  '// [withFcmNotificationConfig] CustomFirebaseMessagingService classpath';
 
 function buildKotlinSource(packageName) {
   return `package ${packageName}
@@ -241,9 +250,40 @@ function withFcmMessagingServiceKotlin(config) {
   ]);
 }
 
+function ensureFirebaseMessagingDependency(buildGradle) {
+  if (buildGradle.includes(FIREBASE_MESSAGING_MARKER)) {
+    return buildGradle;
+  }
+
+  const deps = [
+    `    ${FIREBASE_MESSAGING_MARKER}`,
+    `    ${FIREBASE_BOM_DEP}`,
+    `    ${FIREBASE_MESSAGING_DEP}`,
+  ].join('\n');
+
+  if (buildGradle.includes('dependencies {')) {
+    return buildGradle.replace(
+      /dependencies\s*\{/,
+      (match) => `${match}\n${deps}`,
+    );
+  }
+
+  return `${buildGradle}\n\ndependencies {\n${deps}\n}\n`;
+}
+
+function withFcmAppBuildGradle(config) {
+  return withAppBuildGradle(config, (cfg) => {
+    cfg.modResults.contents = ensureFirebaseMessagingDependency(
+      cfg.modResults.contents,
+    );
+    return cfg;
+  });
+}
+
 const withFcmNotificationConfig = (config) => {
   config = withFcmManifest(config);
   config = withFcmMessagingServiceKotlin(config);
+  config = withFcmAppBuildGradle(config);
   return config;
 };
 

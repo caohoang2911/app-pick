@@ -109,9 +109,6 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    // Note: namespace and applicationId are set by Expo prebuild from app.config.ts
-    // These values are for dev builds. Production builds will use different values.
-    // If you run 'expo prebuild', these will be regenerated from app.config.ts
     namespace 'com.caohoang2911.AppPickDev'
     defaultConfig {
         applicationId 'com.caohoang2911.AppPickDev'
@@ -170,17 +167,16 @@ android {
 }
 
 dependencies {
+    // [withFcmNotificationConfig] CustomFirebaseMessagingService classpath
+    implementation platform("com.google.firebase:firebase-bom:31.4.0")
+    implementation "com.google.firebase:firebase-messaging"
+
     implementation(project(':react-native-tcp-socket')) {
         exclude group: 'org.bouncycastle'
     }
     
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-
-    // Firebase dependencies
-    implementation platform('com.google.firebase:firebase-bom:32.7.4')
-    implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-analytics'
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
