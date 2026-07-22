@@ -263,16 +263,14 @@ const OrderScanToDelivery = () => {
     useSetOrderScannedBagLabelScanned();
 
   const { checkShift } = useCheckShift(() => {
-    const isCustomerPickup =
-      deliveryType === ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP;
     showAlertDialog({
       // Cùng stackId → double-tap nút / auto-trigger sau scan túi (PICK UP) chỉ
       // giữ 1 dialog confirm, không stack thành nhiều popup gọi tạo hóa đơn.
       stackId: `create-invoice-${code}`,
       title: 'Tạo hoá đơn & hoàn tất đơn hàng',
       message: generateMessageCreateInvoice,
-      isHideCancelButton: isCustomerPickup,
-      blockDismiss: isCustomerPickup,
+      isHideCancelButton: true,
+      blockDismiss: true,
       onConfirm: () => {
         hideAlert();
         createInvoiceFlowOrderCodeRef.current = code;
