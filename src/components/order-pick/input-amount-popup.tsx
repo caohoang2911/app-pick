@@ -379,10 +379,24 @@ const ReasonDropdown = memo(
       : isQuantityEnough || hasQuickAction;
     const { unit } = currentProduct || {};
 
+    const pickedQty = Number(values?.pickedQuantity || 0);
+    const hasPickedSomething = isWeightRange
+      ? (values?.weightRangeItemKGs?.length ?? 0) > 0
+      : pickedQty > 0;
+
     useEffect(() => {
       if (
         (isWeightRange || !isCaseOrPackUnit(unit)) &&
         isIncompleteCaseOrPackPickReason({ id: values?.pickedErrorType })
+      ) {
+        setFieldValue('pickedErrorType', '');
+        setFieldValue('pickedImage', '');
+        return;
+      }
+      // Đã pick > 0 → không được giữ lý do hết hàng
+      if (
+        hasPickedSomething &&
+        values?.pickedErrorType === PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK
       ) {
         setFieldValue('pickedErrorType', '');
         setFieldValue('pickedImage', '');
@@ -404,6 +418,7 @@ const ReasonDropdown = memo(
       isWeightRangeEnough,
       isQuantityEnough,
       hasQuickAction,
+      hasPickedSomething,
       values?.pickedErrorType,
       setFieldValue,
       unit,
@@ -429,6 +444,13 @@ const ReasonDropdown = memo(
     const productPickedErrorsWithUnit = useMemo(() => {
       return productPickedErrorTypes
         .map((item: any) => {
+          if (item.id === PRODUCT_PICKED_ERROR_TYPES.OUT_OF_STOCK) {
+            return {
+              ...item,
+              // Đã pick > 0 → không cho chọn hết hàng
+              disabled: hasPickedSomething,
+            };
+          }
           if (item.id === PRODUCT_PICKED_ERROR_TYPES.INCORRECT_ORDERED_WEIGHT) {
             return {
               ...item,
@@ -446,7 +468,7 @@ const ReasonDropdown = memo(
           return item;
         })
         ?.reverse();
-    }, [productPickedErrorTypes, unit, isWeightRange]);
+    }, [productPickedErrorTypes, unit, isWeightRange, hasPickedSomething]);
 
     const dropdownModalHeight = useMemo(() => {
       const screenHeight = Dimensions.get('window').height;
