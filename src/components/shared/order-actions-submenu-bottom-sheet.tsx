@@ -106,12 +106,12 @@ const OrderActionsSubmenuBottomSheet = ({
     () => [
       {
         key: 'book-ahamove',
-        title: 'Book tài xế',
+        title: 'Book tài xế giao hàng',
         icon: <EBikeLine />,
       },
       {
         key: 'cancel-book-shipper',
-        title: 'Huỷ tài xế',
+        title: 'Hủy book tài xế giao hàng',
         icon: (
           <MaterialCommunityIcons
             name="book-cancel-outline"

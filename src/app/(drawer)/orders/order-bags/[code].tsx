@@ -3,7 +3,7 @@ import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
-import { ScrollView } from 'react-native-gesture-handler';
+import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { useSetOrderBagLabels } from '~/src/api/app-pick/use-set-order-bag-labels';
 import { queryClient } from '~/src/api/shared';
@@ -48,6 +48,7 @@ const OrderBags = () => {
   const orderBags = useOrderBags.use.orderBags();
 
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const deliveryType = orderDetail?.header?.deliveryType;
 
@@ -96,6 +97,20 @@ const OrderBags = () => {
   const handleBagQuantitiesHasChanged = useCallback((hasChanged: boolean) => {
     hasBagUnsavedRef.current = hasChanged;
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    if (!code) return;
+    setIsRefreshing(true);
+    try {
+      // Refetch orderDetail → HeaderBag (tags/label đơn) + bags + package size cập nhật.
+      await queryClient.refetchQueries({
+        queryKey: ['orderDetail', code],
+        exact: true,
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [code]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener(
@@ -195,6 +210,9 @@ const OrderBags = () => {
       <ScrollView
         className="flex-1 pt-3"
         contentContainerStyle={{ paddingBottom: 30 }}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        }
       >
         <View className="flex flex-col gap-4">
           <HeaderBag />
