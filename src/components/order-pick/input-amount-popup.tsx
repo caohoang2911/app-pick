@@ -59,6 +59,8 @@ import {
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
   useOrderPick,
+  setSuccessForBarcodeScan,
+  setIsEditManual,
 } from '~/src/core/store/order-pick';
 import {
   formatDecimal,
@@ -1066,6 +1068,9 @@ const InputAmountPopup = () => {
     toggleShowAmountInput(false);
     setCurrentId(null);
     setQuantityFromBarcode(0);
+    setSuccessForBarcodeScan('');
+    setScanMoreProduct(false);
+    setIsEditManual(false);
     clearWeightRangePendingScanKGs();
     setWeightRangeDraft(null);
     setActionProduct(null);
