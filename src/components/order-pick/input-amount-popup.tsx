@@ -63,7 +63,6 @@ import {
   setSuccessForBarcodeScan,
   setIsEditManual,
   setIsPickedByManualBarcodeInput,
-  setBarcodeScrollTo,
 } from '~/src/core/store/order-pick';
 import {
   formatDecimal,
@@ -1076,8 +1075,7 @@ const InputAmountPopup = () => {
     setIsEditManual(false);
     setIsPickedByManualBarcodeInput(false);
     clearScannedIds();
-    setLastScannedId(null);
-    setBarcodeScrollTo('');
+    // Giữ lastScannedId / barcodeScrollTo để list vẫn scroll/highlight SP vừa quét/pick.
     clearWeightRangePendingScanKGs();
     setWeightRangeDraft(null);
     setActionProduct(null);
