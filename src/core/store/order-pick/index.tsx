@@ -39,6 +39,7 @@ interface OrderPickState {
   setKeyword: (keyword: string) => void;
   toggleScanQrCode: (status: boolean) => void;
   toggleShowAmountInput: (isShowAmountInput: boolean, id?: number) => void;
+  clearScannedIds: () => void;
   setSuccessForBarcodeScan: (barcode: string) => void;
   setBarcodeScrollTo: (barcode: string) => void;
   setLastScannedId: (id: number | null) => void;
@@ -151,6 +152,9 @@ const _useOrderPick = create<OrderPickState>((set, get) => ({
       scannedIds: id ? { ...state.scannedIds, [id]: true } : state.scannedIds,
     }));
   },
+  clearScannedIds: () => {
+    set({ scannedIds: {} });
+  },
   setSuccessForBarcodeScan: (barcode: string) => {
     set({ barcodeScanSuccess: barcode });
   },
@@ -226,6 +230,8 @@ export const toggleShowAmountInput = (
   isShowAmountInput: boolean,
   id?: number,
 ) => _useOrderPick.getState().toggleShowAmountInput(isShowAmountInput, id);
+
+export const clearScannedIds = () => _useOrderPick.getState().clearScannedIds();
 
 export const getIsShowAmountInput = () =>
   _useOrderPick.getState().isShowAmountInput;

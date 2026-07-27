@@ -51,6 +51,7 @@ import {
   setOrderPickProduct,
   setQuantityFromBarcode,
   setReplacePickedProductId,
+  clearScannedIds,
   clearWeightRangePendingScanKGs,
   drainWeightRangePendingScanKGs,
   getWeightRangeDraft,
@@ -61,6 +62,8 @@ import {
   useOrderPick,
   setSuccessForBarcodeScan,
   setIsEditManual,
+  setIsPickedByManualBarcodeInput,
+  setBarcodeScrollTo,
 } from '~/src/core/store/order-pick';
 import {
   formatDecimal,
@@ -1071,6 +1074,10 @@ const InputAmountPopup = () => {
     setSuccessForBarcodeScan('');
     setScanMoreProduct(false);
     setIsEditManual(false);
+    setIsPickedByManualBarcodeInput(false);
+    clearScannedIds();
+    setLastScannedId(null);
+    setBarcodeScrollTo('');
     clearWeightRangePendingScanKGs();
     setWeightRangeDraft(null);
     setActionProduct(null);
@@ -1120,7 +1127,8 @@ const InputAmountPopup = () => {
 
       const pickedItem = {
         ...currentProduct,
-        barcode: barcodeScanSuccess,
+        // Giữ barcode gốc của SP trên đơn — không ghi đè bằng cache scan.
+        barcode: currentProduct?.barcode || barcodeScanSuccess,
         isPickedByManualBarcodeInput,
         pickedQuantity: pickedQty,
         pickedErrorType: isWeightRange
