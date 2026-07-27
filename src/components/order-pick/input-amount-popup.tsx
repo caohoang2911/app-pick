@@ -11,6 +11,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   Keyboard,
   Platform,
@@ -20,7 +21,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   isCaseOrPackUnit,
   isIncompleteCaseOrPackPickReason,
@@ -44,6 +45,7 @@ import { useConfig } from '~/src/core/store/config';
 import {
   setActionProduct,
   setCurrentId,
+  setInitOrderPickProducts,
   setIsVisibleReplaceProduct,
   setLastScannedId,
   setOrderPickProduct,
@@ -721,6 +723,7 @@ const InputAmountPopup = () => {
   const insets = useSafeAreaInsets();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
+  const [isRefreshingOrderDetail, setIsRefreshingOrderDetail] = useState(false);
   const barcodeScanSuccess = useOrderPick.use.barcodeScanSuccess();
   const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isPickedByManualBarcodeInput =
@@ -834,6 +837,29 @@ const InputAmountPopup = () => {
 
   const isWeightRange = isWeightRangeProduct(currentProduct);
 
+  const handleRefreshOrderDetail = useCallback(async () => {
+    if (!code || isRefreshingOrderDetail) return;
+    setIsRefreshingOrderDetail(true);
+    try {
+      await queryClient.refetchQueries({
+        queryKey: ['orderDetail', code],
+        exact: true,
+      });
+      const cached = queryClient.getQueryData<OrderDetailQueryData>([
+        'orderDetail',
+        code,
+      ]);
+      const itemGroups = cached?.data?.delivery?.itemGroups;
+      if (itemGroups) {
+        setInitOrderPickProducts(
+          Object.values(itemGroups).map((item: any) => item) as never[],
+        );
+      }
+    } finally {
+      setIsRefreshingOrderDetail(false);
+    }
+  }, [code, isRefreshingOrderDetail, queryClient]);
+
   // Memoize title component
   const renderTitle = useMemo(
     () => (
@@ -904,10 +930,25 @@ const InputAmountPopup = () => {
     ],
   );
 
+  const renderHeaderLeft = useMemo(
+    () => (
+      <Button
+        label="Làm mới"
+        size="sm"
+        icon={<Ionicons name="refresh" size={16} color="#fff" />}
+        onPress={handleRefreshOrderDetail}
+        disabled={isRefreshingOrderDetail}
+        loading={isRefreshingOrderDetail}
+        accessibilityLabel="Làm mới đơn hàng"
+      />
+    ),
+    [handleRefreshOrderDetail, isRefreshingOrderDetail],
+  );
+
   const renderTopHeader = useMemo(
     () => (
       <Pressable
-        className="mb-2 relative pt-10"
+        className="mb-2 pt-8"
         onPress={() => {
           Keyboard.dismiss();
         }}
@@ -1286,6 +1327,7 @@ const InputAmountPopup = () => {
         return (
           <SBottomSheet
             topHeader={renderTopHeader}
+            headerLeft={renderHeaderLeft}
             renderTitle={renderTitle}
             ref={inputBottomSheetRef}
             snapPoints={[bottomSheetHeight]}

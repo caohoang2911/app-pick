@@ -27,6 +27,8 @@ type Props = {
   hideHeader?: boolean;
   extraButton?: React.ReactNode;
   topHeader?: React.ReactNode;
+  /** Nút góc trái header — căn hàng với nút close khi có topHeader. */
+  headerLeft?: React.ReactNode;
   onClose: () => void;
   disableScrollView?: boolean; // When true, children won't be wrapped in ScrollView (useful for BottomSheetFlatList)
   scrollViewKey?: string;
@@ -42,11 +44,15 @@ type HeaderProps = {
   extraTitle?: React.ReactNode;
   hideHeader?: boolean;
   topHeader?: React.ReactNode;
+  headerLeft?: React.ReactNode;
   titleAlign?: 'left' | 'center';
   bottomSheetModalRef: React.MutableRefObject<any>;
   hideCloseButton?: boolean;
   onClose?: () => void;
 };
+
+const HEADER_ACTION_TOP = 0;
+const HEADER_ACTION_SIDE = 10;
 
 const HeaderBase = ({
   title,
@@ -54,6 +60,7 @@ const HeaderBase = ({
   extraTitle,
   hideHeader,
   topHeader,
+  headerLeft,
   titleAlign,
   bottomSheetModalRef,
   hideCloseButton,
@@ -72,8 +79,9 @@ const HeaderBase = ({
         style={[
           !!topHeader && {
             position: 'absolute',
-            right: 10,
-            top: -0,
+            right: HEADER_ACTION_SIDE,
+            top: HEADER_ACTION_TOP,
+            zIndex: 2,
           },
         ]}
         hitSlop={15}
@@ -82,6 +90,23 @@ const HeaderBase = ({
       </Pressable>
     );
   }, [onClose, bottomSheetModalRef, hideCloseButton, topHeader]);
+
+  const renderHeaderLeft = useMemo(() => {
+    if (!headerLeft || !topHeader) return null;
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          left: HEADER_ACTION_SIDE,
+          top: HEADER_ACTION_TOP,
+          zIndex: 2,
+        }}
+        pointerEvents="box-none"
+      >
+        {headerLeft}
+      </View>
+    );
+  }, [headerLeft, topHeader]);
 
   if (hideHeader) return null;
 
@@ -105,6 +130,7 @@ const HeaderBase = ({
         )}
         {!topHeader && renderCloseButton}
       </View>
+      {topHeader && renderHeaderLeft}
       {topHeader && renderCloseButton}
       {extraTitle && extraTitle}
     </View>
@@ -124,6 +150,7 @@ const SBottomSheet = forwardRef<any, Props>(
       titleAlign = 'left',
       visible,
       topHeader,
+      headerLeft,
       hideHeader = false,
       extraButton,
       onClose,
@@ -222,6 +249,7 @@ const SBottomSheet = forwardRef<any, Props>(
         <Header
           hideCloseButton={hideCloseButton}
           topHeader={topHeader}
+          headerLeft={headerLeft}
           title={title}
           renderTitle={renderTitle}
           extraTitle={extraTitle}
