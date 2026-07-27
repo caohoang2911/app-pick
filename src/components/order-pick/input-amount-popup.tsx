@@ -63,7 +63,6 @@ import {
   setSuccessForBarcodeScan,
   setIsEditManual,
   setIsPickedByManualBarcodeInput,
-  setBarcodeScrollTo,
 } from '~/src/core/store/order-pick';
 import {
   formatDecimal,
