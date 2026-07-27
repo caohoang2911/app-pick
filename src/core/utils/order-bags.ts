@@ -185,7 +185,21 @@ export const handleScanBarcode = ({
   isScanMoreProduct?: boolean;
   barcode: string;
 }): number => {
-  if ((isEditManual || isScanMoreProduct) && currentId !== null) {
+  // Pick thêm: chỉ cộng vào SP đang mở và BẮT BUỘC barcode khớp SP đó.
+  // Tránh quét mã SP khác trong đơn vẫn cộng SL/KG vào SP đang pick thêm.
+  if (isScanMoreProduct && currentId !== null) {
+    const index = orderPickProductsFlat.findIndex(
+      (item) => item?.id === currentId,
+    );
+    if (index === -1) return -1;
+    const current = orderPickProductsFlat[index];
+    if (!barcodeCondition(barcode, current?.refBarcodes)) {
+      return -1;
+    }
+    return index;
+  }
+
+  if (isEditManual && currentId !== null) {
     const index = orderPickProductsFlat.findIndex(
       (item) => item?.id === currentId,
     );

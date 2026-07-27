@@ -28,6 +28,7 @@ import { usePdaScanTarget } from '~/src/core/hooks/usePdaScanTarget';
 import { splitBarcode } from '~/src/core/utils/number';
 import {
   handleScanBarcode,
+  barcodeCondition,
   resolvePickScanBarcode,
 } from '~/src/core/utils/order-bags';
 import { BarcodeScanningResult } from '~/src/types/scanner';
@@ -86,7 +87,37 @@ const OrderPick = () => {
 
       const barcode = resolvePickScanBarcode(rawBarcode, orderPickProductsFlat);
 
-      if (!barcode) {
+      // Snapshot cờ trong lần quét này — setState không đổi biến local ngay.
+      let scanMore = isScanMoreProduct;
+      if (scanMore && currentId == null) {
+        setScanMoreProduct(false);
+        scanMore = false;
+      }
+
+      // Pick thêm: chỉ cho quét đúng barcode của SP đang mở.
+      if (scanMore && currentId != null) {
+        const pickMoreProduct = orderPickProductsFlat.find(
+          (item) => item?.id === currentId,
+        );
+
+        if (!barcode) {
+          showMessage({
+            message: `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
+            type: 'warning',
+          });
+          setScanMoreProduct(false);
+          return;
+        }
+
+        if (!barcodeCondition(barcode, pickMoreProduct?.refBarcodes)) {
+          showMessage({
+            message: `Mã ${rawBarcode} khác barcode sản phẩm đang pick thêm`,
+            type: 'warning',
+          });
+          setScanMoreProduct(false);
+          return;
+        }
+      } else if (!barcode) {
         showMessage({
           message: `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
           type: 'warning',
@@ -98,12 +129,32 @@ const OrderPick = () => {
         orderPickProductsFlat,
         currentId,
         isEditManual,
-        isScanMoreProduct,
-        barcode,
+        isScanMoreProduct: scanMore,
+        barcode: barcode as string,
       });
 
+      if (indexOfCodeScanned === -1) {
+        showMessage({
+          message: scanMore
+            ? `Mã ${rawBarcode} khác barcode sản phẩm đang pick thêm`
+            : `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
+          type: 'warning',
+        });
+        if (scanMore) {
+          setScanMoreProduct(false);
+        }
+        return;
+      }
+
       const currentProduct = orderPickProductsFlat?.[indexOfCodeScanned];
-      setCurrentId(currentProduct?.id);
+      if (!currentProduct?.id) {
+        if (scanMore) {
+          setScanMoreProduct(false);
+        }
+        return;
+      }
+
+      setCurrentId(currentProduct.id);
 
       const isWeightRangeProduct = getIsWeightRangeProduct(currentProduct);
       const weightRange = currentProduct?.orderQuantityConversion?.weightRange;
@@ -114,11 +165,14 @@ const OrderPick = () => {
             message: `SP ${currentProduct?.name} chỉ được pick nằm trong khoảng trọng lượng ${minWeight} - ${maxWeight} KG`,
             type: 'warning',
           });
+          if (scanMore) {
+            setScanMoreProduct(false);
+          }
           return;
         }
       }
       const currentBarcode: string | undefined = currentProduct?.barcode;
-      const currentAmount = !isScanMoreProduct
+      const currentAmount = !scanMore
         ? Number(currentProduct?.pickedQuantity) + 1 || 1
         : 1;
 
@@ -137,7 +191,7 @@ const OrderPick = () => {
         if (isWeightRangeProduct && amountForBarcode != null) {
           appendWeightRangeScanKg(amountForBarcode);
         }
-        if (isScanMoreProduct) {
+        if (scanMore) {
           setScanMoreProduct(false);
         }
         toggleShowAmountInput(
@@ -145,6 +199,9 @@ const OrderPick = () => {
           orderPickProductsFlat?.[indexOfCodeScanned]?.id,
         );
       } else {
+        if (scanMore) {
+          setScanMoreProduct(false);
+        }
         showMessage({
           message: `codeScanned: ${codeScanned} - indexOfCodeScanned: ${indexOfCodeScanned} - currentBarcode: ${currentBarcode} - barcode: ${barcode}`,
           type: 'warning',
@@ -154,13 +211,10 @@ const OrderPick = () => {
     [
       orderPickProductsFlat,
       quantityFromBarcode,
-      toggleShowAmountInput,
-      setSuccessForBarcodeScan,
       isScanMoreProduct,
       currentId,
       isEditManual,
       scannedIds,
-      isShowAmountInput,
     ],
   );
 
@@ -191,6 +245,7 @@ const OrderPick = () => {
         onSuccessBarcodeScanned={handleSuccessBarCode}
         onDestroy={() => {
           toggleScanQrCodeProduct(false);
+          setScanMoreProduct(false);
         }}
       />
       <OrderPickHeadeActionBottomSheet ref={headerAcrtionRef} />
