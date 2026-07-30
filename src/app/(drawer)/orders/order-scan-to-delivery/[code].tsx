@@ -32,6 +32,7 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
 import CODReceipt from '~/src/components/CODReceipt';
 import Bags from '~/src/components/order-scan-to-delivery/bags';
+import FulfillErrorAlert from '~/src/components/order-scan-to-delivery/fulfill-error-alert';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import InvoiceInfo from '~/src/components/order-scan-to-delivery/invoice-info';
 import { SectionAlert } from '~/src/components/SectionAlert';
@@ -191,6 +192,11 @@ const OrderScanToDelivery = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
 
+      // Đơn có COD: KHÔNG back ở đây. Phải đợi in phiếu thu COD xong mới rời màn
+      // (xử lý ở printCodReceipt.onSettled bên dưới). Nếu back ngay, <CODReceipt>
+      // bị unmount trước khi capture → phiếu thu COD không được in.
+      if (!!Number(codAmount)) return;
+
       if (isMultiGroup) {
         if (assertGroupShippingReadyForSubmit()) {
           router.back();
@@ -203,6 +209,17 @@ const OrderScanToDelivery = () => {
 
   const { mutateAsync: printCodReceipt } = usePrintCodReceiptProcess({
     successMessage: 'In phiếu thu COD thành công',
+    // In phiếu thu xong (thành công hoặc thất bại) mới rời màn — thay cho nhánh
+    // router.back() của đơn không COD ở processCreateInvoice.onSuccess.
+    onSettled: () => {
+      if (isMultiGroup) {
+        if (assertGroupShippingReadyForSubmit()) {
+          router.back();
+        }
+      } else {
+        router.back();
+      }
+    },
   });
 
   const createInvoiceFlowOrderCodeRef = useRef<string | null>(null);
@@ -539,6 +556,7 @@ const OrderScanToDelivery = () => {
             orderDetail={orderDetail}
             codAmount={codAmount}
           />
+          <FulfillErrorAlert fulfillError={header?.fulfillError} />
           <View className="flex flex-col gap-4">
             {deliveryType !== ORDER_DELIVERY_TYPE.CUSTOMER_PICKUP &&
             (deliveryType !== ORDER_DELIVERY_TYPE.APARTMENT_COMPLEX_DELIVERY ||

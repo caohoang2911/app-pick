@@ -20,22 +20,30 @@ import { useSuggestStoreEmployeesByKeyword } from '~/src/api/app-pick/use-sugges
 import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { CheckCircleFill } from '~/src/core/svgs';
 import SearchLine from '~/src/core/svgs/SearchLine';
-import { Option } from '~/src/types/commons';
+import { useConfig } from '~/src/core/store/config';
+import { getConfigNameById } from '~/src/core/utils/config';
+import { Option, Options } from '~/src/types/commons';
+import { Badge } from '../Badge';
 import { Input } from '../Input';
 import SBottomSheet from '../SBottomSheet';
 import Empty from './empty';
 
-type EmployeeType = Option & { username: string };
+type EmployeeType = Option & { username: string; role?: string };
+
+// Ref ổn định để renderItem không đổi identity mỗi lần render.
+const EMPTY_EMPLOYEE_ROLES: Options = [];
 
 // Tách thành component riêng để tránh re-render không cần thiết
 const EmployeeItem = memo(
   ({
     employee,
     selectedId,
+    roleLabel,
     onSelect,
   }: {
     employee: EmployeeType;
     selectedId: string;
+    roleLabel: string;
     onSelect: (store: EmployeeType) => void;
   }) => {
     const isSelected = selectedId === String(employee.id);
@@ -49,13 +57,27 @@ const EmployeeItem = memo(
       <TouchableOpacity disabled={isSelected} onPress={handlePress}>
         <View className="p-4 border-b flex-row items-center gap-2 border-gray-200">
           <Feather name="user" size={24} color="gray" />
-          <View className="flex flex-row items-center gap-1">
-            {isSelected && (
-              <CheckCircleFill width={15} height={15} color={'green'} />
+          <View className="flex-1 gap-1">
+            <View className="flex flex-row items-center gap-1">
+              {isSelected && (
+                <CheckCircleFill width={15} height={15} color={'green'} />
+              )}
+              <Text className="text-base font-semibold">
+                {employee.username}
+              </Text>
+              <Text
+                className="text-base text-gray-600 flex-1"
+                numberOfLines={1}
+              >
+                {` - ${employee.name}`}
+              </Text>
+            </View>
+            {!!roleLabel && (
+              <View className="flex-row">
+                <Badge label={roleLabel} />
+              </View>
             )}
-            <Text className="text-base font-semibold">{employee.username}</Text>
           </View>
-          <Text className="text-base text-gray-600">{` - ${employee.name}`}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -142,6 +164,8 @@ const EmployeeSelection = forwardRef<any, Props>(
     const { data, refetch, isFetching, isPending } =
       useSuggestStoreEmployeesByKeyword(searchQuery);
     const employees = data?.data || [];
+    const employeeRoles: Options =
+      useConfig.use.config()?.employeeRoles || EMPTY_EMPLOYEE_ROLES;
 
     const isKeyboardVisible = useKeyboardVisible();
 
@@ -191,11 +215,14 @@ const EmployeeSelection = forwardRef<any, Props>(
           <EmployeeItem
             employee={item}
             selectedId={selectedId}
+            roleLabel={
+              getConfigNameById(employeeRoles, item.role) || item.role || ''
+            }
             onSelect={handleSelect}
           />
         );
       },
-      [selectedId, handleSelect],
+      [selectedId, handleSelect, employeeRoles],
     );
 
     const keyExtractor = useCallback(
