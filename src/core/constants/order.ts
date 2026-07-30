@@ -87,3 +87,8 @@ export const ORDER_STATUS_BADGE_VARIANT = {
   ORDER_CREATED_INVOICE: 'warning',
   ORDER_PRINTED_BAG_LABEL: 'warning',
 };
+
+/** Lỗi fulfill — store pick sai SL đặt; hiện block cảnh báo trên màn scan túi giao. */
+export const FULFILL_ERROR_TYPE = {
+  STORE_PICKED_INCORRECT_ORDER: 'ERROR_STORE_PICKED_INCORRECT_ORDER',
+} as const;

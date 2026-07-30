@@ -36,17 +36,29 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
   const boldPattern = /\*(.+?)\*/g;
   const italicPattern = /_(.+?)_/g;
   const bracketPattern = /\[([^\]]+)\](?!\()/g; // [text] không phải link
+  const headingPattern = /^(#{1,6})[ \t]+(.+)$/gm; // ### Heading (theo dòng)
 
   const matches: Array<{
-    type: 'bold' | 'italic' | 'link' | 'bracket';
+    type: 'bold' | 'italic' | 'link' | 'bracket' | 'heading';
     start: number;
     end: number;
     content: string;
     url?: string;
   }> = [];
 
-  // Tìm links trước
+  // Tìm heading trước (chiếm trọn dòng, bỏ dấu #)
   let match: RegExpExecArray | null;
+  headingPattern.lastIndex = 0;
+  while ((match = headingPattern.exec(children)) !== null) {
+    matches.push({
+      type: 'heading',
+      start: match.index,
+      end: match.index + match[0].length,
+      content: match[2],
+    });
+  }
+
+  // Tìm links trước
   linkPattern.lastIndex = 0;
   while ((match = linkPattern.exec(children)) !== null) {
     matches.push({
@@ -151,7 +163,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({
       }
     }
 
-    if (match.type === 'bold') {
+    if (match.type === 'bold' || match.type === 'heading') {
       parts.push(
         <Text key={`bold-${key++}`} style={{ fontWeight: '700' }}>
           {match.content}
