@@ -21,6 +21,8 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useIsFocused } from '@react-navigation/native';
+import { showMessage } from 'react-native-flash-message';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   isCaseOrPackUnit,
@@ -736,6 +738,11 @@ const InputAmountPopup = () => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const queryClient = useQueryClient();
   const action = useOrderPick.use.action();
+  // Chống 2 màn order-pick cùng mount (noti push) tranh nhau popup: store là
+  // singleton global nên chỉ instance thuộc màn đang focus + đúng đơn trong store
+  // được phép present/submit. Xem memory: global-store-multi-mounted-screen-pattern.
+  const isFocused = useIsFocused();
+  const currentCode = useOrderPick.use.currentCode();
 
   const {
     mutate: setOrderTemToPicked,
@@ -770,7 +777,13 @@ const InputAmountPopup = () => {
       }
     },
     () => {
-      // setQuantityFromBarcode(0);
+      // Pick lỗi (vd "not exist item id"): store có thể đang lệch server — CS sửa
+      // đơn giữa chừng, item bị thay/xoá nên id trong store đã chết, mà auto-refresh
+      // chỉ so sánh status nên không phát hiện. Refetch để đồng bộ lại danh sách,
+      // tránh retry gửi tiếp đúng id chết đó.
+      if (code) {
+        queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+      }
     },
   );
   const config = useConfig.use.config();
@@ -854,7 +867,9 @@ const InputAmountPopup = () => {
         code,
       ]);
       const itemGroups = cached?.data?.delivery?.itemGroups;
-      if (itemGroups) {
+      // Chỉ ghi store khi store đang thuộc đúng đơn này — chặn instance màn nền
+      // đổ sản phẩm đơn khác vào store dùng chung (poison → pick sau gửi id ngoại lai).
+      if (itemGroups && useOrderPick.getState().currentCode === code) {
         setInitOrderPickProducts(
           Object.values(itemGroups).map((item: any) => item) as never[],
         );
@@ -975,12 +990,17 @@ const InputAmountPopup = () => {
     };
   }, []);
 
-  // Handle BottomSheet visibility
+  // Handle BottomSheet visibility — CHỈ instance thuộc màn đang focus + đúng đơn
+  // trong store mới present. Cờ isShowAmountInput là global: nếu không gate, sheet
+  // của màn order-pick nền (đơn khác, còn mounted do noti push) cũng mở chồng lên,
+  // và submit từ sheet đó sẽ ghép product trong store với orderCode của NÓ →
+  // server báo "not exist item id".
   useEffect(() => {
-    if (isShowAmountInput) {
-      inputBottomSheetRef.current?.present();
-    }
-  }, [isShowAmountInput]);
+    if (!isShowAmountInput) return;
+    if (!isFocused) return;
+    if (currentCode && code && currentCode !== code) return;
+    inputBottomSheetRef.current?.present();
+  }, [isShowAmountInput, isFocused, currentCode, code]);
 
   useEffect(() => {
     const showEvent =
@@ -1091,6 +1111,15 @@ const InputAmountPopup = () => {
     reset();
   }, [isScanQrCodeProduct, reset]);
 
+  // Đơn vừa được đồng bộ lại (refetch sau lỗi pick / CS sửa đơn) mà SP đang mở
+  // không còn trong danh sách → đóng popup, tránh treo form trống và tránh user
+  // xác nhận trên dữ liệu mồ côi.
+  useEffect(() => {
+    if (!isShowAmountInput) return;
+    if (currentProduct?.id != null) return;
+    reset();
+  }, [isShowAmountInput, currentProduct?.id, reset]);
+
   const handleInputFocus = useCallback(
     (field?: 'pickedQuantity' | 'fullBoxQuantity' | 'openedBoxQuantity') => {
       setIsKeyboardVisible(true);
@@ -1117,6 +1146,22 @@ const InputAmountPopup = () => {
   const onSubmit = useCallback(
     (values: any) => {
       if (!productName) return;
+
+      // Chốt chặn cuối trước khi gửi server: product trong store phải thuộc đúng
+      // đơn của màn này. Store là singleton — nếu instance màn nền submit, nó sẽ
+      // ghép product của đơn đang focus với orderCode của màn nền → server báo
+      // "not exist item id". Phát hiện lệch → chặn + đồng bộ lại, không gửi bậy.
+      const storeCode = useOrderPick.getState().currentCode;
+      if (!code || (storeCode && storeCode !== code)) {
+        showMessage({
+          message: 'Dữ liệu đơn hàng không khớp, vui lòng thao tác lại',
+          type: 'warning',
+        });
+        if (code) {
+          queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
+        }
+        return;
+      }
 
       const pickedQty = Number(values?.pickedQuantity || 0);
       const orderQty = Number(orderQuantity || 0);
@@ -1169,6 +1214,7 @@ const InputAmountPopup = () => {
       isUnitBox,
       isWeightRange,
       setOrderTemToPicked,
+      queryClient,
     ],
   );
 
