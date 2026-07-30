@@ -32,6 +32,12 @@ export const useReplacePickedItem = (onSuccess?: () => void) => {
           type: 'success',
         });
       } else {
+        // Cùng lý do với setOrderItemPicked (input-amount-popup): store có thể lệch
+        // server (item bị thay/xoá → id chết) → refetch đồng bộ lại, tránh retry
+        // gửi tiếp đúng id chết đó.
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail', variables.orderCode],
+        });
         showMessage({
           message: data.error,
           type: 'danger',
