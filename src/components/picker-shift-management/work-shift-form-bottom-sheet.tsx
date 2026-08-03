@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import moment from 'moment-timezone';
 import {
   forwardRef,
@@ -16,7 +17,6 @@ import { Button } from '~/src/components/Button';
 import SDropdown from '~/src/components/SDropdown';
 import SBottomSheet from '~/src/components/SBottomSheet';
 import {
-  WORK_SHIFT_EMPLOYEE_ROLES,
   WORK_SHIFT_PRESETS,
   type WorkShiftPreset,
 } from '~/src/core/constants/work-shift';
@@ -54,14 +54,28 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
       useState<EmployeeOption | null>(null);
     const [selectedPreset, setSelectedPreset] =
       useState<WorkShiftPreset | null>(WORK_SHIFT_PRESETS[0] ?? null);
+    const [employeeKeyword, setEmployeeKeyword] = useState('');
     const sheetRef = useRef<any>(null);
     const employeeRoles = useConfig.use.config()?.employeeRoles || [];
 
     const isEdit = !!editingShift;
 
+    const debouncedSetEmployeeKeyword = useMemo(
+      () =>
+        debounce((text: string) => {
+          setEmployeeKeyword(text);
+        }, 300),
+      [],
+    );
+
+    useEffect(() => {
+      return () => {
+        debouncedSetEmployeeKeyword.cancel();
+      };
+    }, [debouncedSetEmployeeKeyword]);
+
     const { data: employeesData } = useSearchEmployees(
-      '',
-      WORK_SHIFT_EMPLOYEE_ROLES,
+      employeeKeyword,
       visible,
     );
 
@@ -114,11 +128,26 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
     });
 
     const resetForm = useCallback(() => {
+      debouncedSetEmployeeKeyword.cancel();
+      setEmployeeKeyword('');
       setSelectedEmployee(null);
       setSelectedPreset(WORK_SHIFT_PRESETS[0] ?? null);
       setEditingShift(null);
       setDayKey('');
-    }, []);
+    }, [debouncedSetEmployeeKeyword]);
+
+    const handleEmployeeSearchChange = useCallback(
+      (text: string) => {
+        // Clear thì gọi ngay để list về full; gõ chữ thì debounce tránh spam API.
+        if (!text) {
+          debouncedSetEmployeeKeyword.cancel();
+          setEmployeeKeyword('');
+          return;
+        }
+        debouncedSetEmployeeKeyword(text);
+      },
+      [debouncedSetEmployeeKeyword],
+    );
 
     useImperativeHandle(ref, () => ({
       present: ({ dayKey: nextDayKey, shift }) => {
@@ -247,6 +276,7 @@ const WorkShiftFormBottomSheet = forwardRef<WorkShiftFormBottomSheetRef, Props>(
             data={employeeDropdownData}
             value={selectedEmployee ? String(selectedEmployee.id) : undefined}
             onSelect={handleSelectEmployee}
+            onSearchChange={handleEmployeeSearchChange}
             modalProps={{ height: 480 }}
           />
 
