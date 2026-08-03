@@ -32,22 +32,22 @@ type SuggestStoreEmployeesParams = {
 
 export const suggestStoreEmployeesByKeyword = async ({
   keyword,
-  roles = DEFAULT_SUGGEST_STORE_EMPLOYEE_ROLES,
-  status = 'ACTIVE',
+  roles,
+  status,
 }: SuggestStoreEmployeesParams = {}): Promise<Response> => {
   return await axiosClient.get('app-pick/suggestStoreEmployeesByKeyword', {
     params: {
       keyword,
-      roles,
-      status,
+      ...(roles != null ? { roles } : {}),
+      ...(status != null ? { status } : {}),
     },
   });
 };
 
 export const useSuggestStoreEmployeesByKeyword = (
   keyword?: string,
-  roles?: EmployeeRole[],
-  status?: string,
+  roles: EmployeeRole[] = DEFAULT_SUGGEST_STORE_EMPLOYEE_ROLES,
+  status = 'ACTIVE',
 ) =>
   useQuery({
     queryKey: ['suggestStoreEmployeesByKeyword', keyword, roles, status],

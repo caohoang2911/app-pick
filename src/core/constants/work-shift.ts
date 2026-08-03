@@ -1,5 +1,3 @@
-import { EmployeeRole } from '~/src/types/employee';
-
 export type WorkShiftPreset = {
   id: string;
   label: string;
@@ -29,10 +27,4 @@ export const WORK_SHIFT_PRESETS: WorkShiftPreset[] = [
     endMinute: 0,
     color: '#6B46C1',
   },
-];
-
-export const WORK_SHIFT_EMPLOYEE_ROLES: EmployeeRole[] = [
-  EmployeeRole.STORE,
-  EmployeeRole.STORE_MANAGER,
-  EmployeeRole.STORE_SHIFT_SUPERVISOR,
 ];

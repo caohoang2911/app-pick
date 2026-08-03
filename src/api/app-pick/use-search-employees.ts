@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { suggestStoreEmployeesByKeyword } from '~/src/api/app-pick/use-suggest-store-employees-by-keyword';
-import type { EmployeeRole } from '~/src/types/employee';
 
 export type SearchEmployeeItem = {
   id: number;
@@ -18,15 +17,12 @@ type Response = { error: string } & {
   data: SearchEmployeeItem[];
 };
 
-export const useSearchEmployees = (
-  keyword = '',
-  roles?: EmployeeRole[],
-  enabled = true,
-) =>
+/** Search NV theo keyword — không gửi roles/status, để server tự xử lý. */
+export const useSearchEmployees = (keyword = '', enabled = true) =>
   useQuery({
-    queryKey: ['suggestStoreEmployeesByKeyword', keyword, roles],
+    queryKey: ['suggestStoreEmployeesByKeyword', keyword],
     queryFn: (): Promise<Response> =>
-      suggestStoreEmployeesByKeyword({ keyword, roles }),
+      suggestStoreEmployeesByKeyword({ keyword }),
     enabled,
     staleTime: 30_000,
   });
