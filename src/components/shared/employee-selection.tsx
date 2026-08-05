@@ -12,12 +12,12 @@ import React, {
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useSuggestStoreEmployeesByKeyword } from '~/src/api/app-pick/use-suggest-store-employees-by-keyword';
-import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
 import { CheckCircleFill } from '~/src/core/svgs';
 import SearchLine from '~/src/core/svgs/SearchLine';
 import { useConfig } from '~/src/core/store/config';
@@ -32,6 +32,9 @@ type EmployeeType = Option & { username: string; role?: string };
 
 // Ref ổn định để renderItem không đổi identity mỗi lần render.
 const EMPTY_EMPLOYEE_ROLES: Options = [];
+
+// Mảng module-level để identity không đổi giữa các render (tránh gorhom re-snap).
+const STATIC_SNAP_POINTS = [550, '80%'];
 
 // Tách thành component riêng để tránh re-render không cần thiết
 const EmployeeItem = memo(
@@ -167,8 +170,6 @@ const EmployeeSelection = forwardRef<any, Props>(
     const employeeRoles: Options =
       useConfig.use.config()?.employeeRoles || EMPTY_EMPLOYEE_ROLES;
 
-    const isKeyboardVisible = useKeyboardVisible();
-
     useEffect(() => {
       if (visible) {
         refetch();
@@ -184,8 +185,9 @@ const EmployeeSelection = forwardRef<any, Props>(
           setVisible(true);
         },
         close: () => {
-          actionRef.current?.close();
-          setVisible(false);
+          // SBottomSheet không có close() — dismiss() mới đóng modal thật sự
+          // (animate + gọi onClose → setVisible(false)).
+          actionRef.current?.dismiss();
         },
       }),
       [],
@@ -198,7 +200,10 @@ const EmployeeSelection = forwardRef<any, Props>(
 
     const handleSelect = useCallback(
       (store: EmployeeType) => {
-        setVisible(false);
+        // Đóng bàn phím trước để keyboard-hide không reposition sheet giữa lúc
+        // đang đóng, rồi dismiss() thật sự (unmount thô sẽ để lại zombie sheet).
+        Keyboard.dismiss();
+        actionRef.current?.dismiss();
         onSelect?.(store);
       },
       [onSelect],
@@ -249,9 +254,14 @@ const EmployeeSelection = forwardRef<any, Props>(
         title="Chọn nhân viên"
         ref={actionRef}
         maintainPositionOnKeyboard={false}
-        snapPoints={[isKeyboardVisible ? 650 : 400, '80%']}
+        // snapPoints CỐ ĐỊNH: đổi identity mảng giữa lúc sheet đang đóng sẽ làm
+        // gorhom re-snap → sheet "bật lại". Bàn phím đã có keyboardBehavior=extend lo.
+        snapPoints={STATIC_SNAP_POINTS}
         onClose={handleClose}
         keyboardBehavior="extend"
+        // Không "restore" vị trí khi bàn phím đóng — restore chạy giữa lúc sheet
+        // đang dismiss sẽ kéo sheet bật ngược lên.
+        keyboardBlurBehavior="none"
       >
         <SearchBar ref={searchBarRef} onSearch={handleSearch} />
         {isFetching || isPending ? (
@@ -266,7 +276,7 @@ const EmployeeSelection = forwardRef<any, Props>(
             windowSize={10}
             ListEmptyComponent={ListEmptyComponent}
             keyboardShouldPersistTaps="handled"
-            getItemLayout={(data, index) => ({
+            getItemLayout={(_data, index) => ({
               length: 100,
               offset: 100 * index,
               index,

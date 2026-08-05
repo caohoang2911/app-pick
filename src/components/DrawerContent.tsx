@@ -16,6 +16,7 @@ import { useSignOut } from '~/src/core/hooks/useSignOut';
 import {
   canManagePickerShift,
   canManageStoreEmployees,
+  canManageStoreTeleGroup,
   stripEmployeeCodeFromName,
 } from '~/src/core/utils/employee';
 import { SafeScrollView } from '~/src/core/utils/safe-scrollview';
@@ -53,6 +54,7 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
   const isDriver = useRoleDriver();
   const canAccessPickerShiftManagement = canManagePickerShift(userInfo?.role);
   const canManageEmployees = canManageStoreEmployees(userInfo?.role);
+  const canManageTeleGroup = canManageStoreTeleGroup(userInfo?.role);
 
   const triggerSignOut = useSignOut();
 
@@ -98,6 +100,13 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
       onPress: () => navigateFromDrawer(ROUTES.APP.EMPLOYEE_MANAGEMENT),
       enable: canManageEmployees,
       show: !isDriver && canManageEmployees,
+    },
+    {
+      label: 'Quản lý nhóm tele',
+      icon: <Ionicons name="paper-plane-outline" size={20} color="black" />,
+      onPress: () => navigateFromDrawer(ROUTES.APP.TELEGRAM_GROUP_MANAGEMENT),
+      enable: canManageTeleGroup,
+      show: !isDriver && canManageTeleGroup,
     },
     {
       label: 'Cài đặt',

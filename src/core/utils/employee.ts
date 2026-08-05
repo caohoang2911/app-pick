@@ -57,3 +57,9 @@ export const canManageStoreEmployees = (role?: string): boolean => {
   if (!role) return false;
   return (STORE_EMPLOYEE_MANAGEMENT_ROLES as string[]).includes(role);
 };
+
+/** Quản lý nhóm Tele siêu thị — chỉ ADMIN, SM (STORE_MANAGER), TC (STORE_SHIFT_SUPERVISOR). */
+export const canManageStoreTeleGroup = (role?: string): boolean => {
+  if (!role) return false;
+  return (STORE_EMPLOYEE_MANAGEMENT_ROLES as string[]).includes(role);
+};

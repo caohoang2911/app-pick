@@ -59,6 +59,7 @@ export const APP_ROUTES = {
   SUPPORT_CENTER: '/support-center',
   PICKER_SHIFT_MANAGEMENT: '/picker-shift-management',
   EMPLOYEE_MANAGEMENT: '/employee-management',
+  TELEGRAM_GROUP_MANAGEMENT: '/telegram-group-management',
   OTA_GATE: '/ota-gate',
 } as const;
 
