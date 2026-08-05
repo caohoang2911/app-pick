@@ -45,7 +45,6 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
   );
   const navigation = useNavigation();
   const toggleMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
-  const closeDrawer = () => navigation.dispatch(DrawerActions.closeDrawer());
 
   const config = useConfig.use.config();
   const employeeRoles = config?.employeeRoles || [];
@@ -59,7 +58,8 @@ export function DrawerContent(_drawerProps: DrawerContentComponentProps) {
   const triggerSignOut = useSignOut();
 
   const navigateFromDrawer = (route: string) => {
-    closeDrawer();
+    // Giữ drawer mở khi push: screen mới đè lên trên, lúc back về drawer vẫn
+    // đang mở để chọn tiếp mục khác (không closeDrawer ở đây).
     router.push(route as any);
   };
 
