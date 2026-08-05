@@ -11,7 +11,8 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary bg-blue-500',
         disabled: 'bg-gray-500',
-        secondary: 'bg-secondary border border-gray-400',
+        // Outline trên nền sáng — border cùng tông với Input (slate-300)
+        secondary: 'bg-white border border-slate-300',
         destructive: 'bg-destructive',
         ghost: 'bg-slate-700',
         warning: 'bg-yellow-500',
@@ -38,7 +39,7 @@ const buttonTextVariants = cva('text-center font-medium', {
     variant: {
       default: 'text-white',
       disabled: 'text-gray-500',
-      secondary: 'text-secondary-foreground',
+      secondary: 'text-contentPrimary',
       destructive: 'text-destructive-foreground',
       warning: 'text-white',
       ghost: 'text-primary-foreground',

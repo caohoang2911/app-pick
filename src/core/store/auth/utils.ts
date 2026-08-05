@@ -15,6 +15,8 @@ export type UserInfo = {
   storeName: string;
   zas?: string;
   tenant?: string;
+  /** Telegram user id — lấy từ bot / profile nhân viên. */
+  teleId?: string | number;
   driverAssignedStoreCodes?: string[];
   driverOrderAssignStatus?: 'ENABLE' | 'DISABLE';
   kposShiftStatus?: 'ON_SHIFT' | 'OFF_SHIFF';
