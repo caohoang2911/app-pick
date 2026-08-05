@@ -1,36 +1,98 @@
 import { getItem, setItem } from '@/core/storage';
 import * as Application from 'expo-application';
 import * as Linking from 'expo-linking';
-import React, { useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
-import TcpSocket from 'react-native-tcp-socket';
-import { useTestSendNoti } from '~/src/api/app-pick/use-test-send-noti';
 import { useGetSettingQuery } from '~/src/api/app-pick/use-get-setting';
+import { useTestSendNoti } from '~/src/api/app-pick/use-test-send-noti';
 import { Button } from '~/src/components/Button';
-import { Input } from '~/src/components/Input';
+import { type DeviceConnectionStatus } from '~/src/components/settings/device-status-badge';
+import PrinterDeviceCard from '~/src/components/settings/printer-device-card';
+import SettingsCard from '~/src/components/settings/settings-card';
+import TelegramCard from '~/src/components/settings/telegram-card';
+import TelegramIdGuideModal from '~/src/components/settings/telegram-id-guide-modal';
 import { Switch } from '~/src/components/Switch';
-import { useAuth, signOut } from '~/src/core';
-import { useKeyboardVisible } from '~/src/core/hooks/useKeyboardVisible';
+import { signOut, useAuth } from '~/src/core';
+import { TELEGRAM_USER_INFO_BOT_LINK } from '~/src/core/constants/telegram';
 import { useConfig } from '~/src/core/store/config';
 import {
   fetchLatestAndroidApkUrl,
   getAndroidApkReleasesPageUrl,
 } from '~/src/core/utils/android-apk-update';
 import { checkNotificationPermission } from '~/src/core/utils/notification-permission';
-import { showPrinterConnectionFailMessage } from '~/src/core/utils/printer-connection';
+import {
+  checkTcpConnection,
+  PRINTER_PORT,
+  showPrinterConnectionFailMessage,
+} from '~/src/core/utils/printer-connection';
 
 /** Tạm ẩn cài đặt đăng ký thông báo theo loại đơn — bật lại khi cần */
 const SHOW_NOTIFICATION_SUBSCRIPTION_SETTINGS = false;
+
+type DeviceKey = 'bill' | 'label';
+
+const DEVICE_KEYS: DeviceKey[] = ['bill', 'label'];
+
+const DEVICE_META: Record<
+  DeviceKey,
+  {
+    title: string;
+    tint: 'blue' | 'orange';
+    placeholder: string;
+    storageKey: string;
+    saveSuccessMessage: string;
+    saveFailMessage: string;
+  }
+> = {
+  bill: {
+    title: 'Máy in hoá đơn',
+    tint: 'blue',
+    placeholder: 'Nhập IP máy tạo hoá đơn',
+    storageKey: 'ipPrinterBill',
+    saveSuccessMessage: 'Lưu IP máy tạo hoá đơn thành công',
+    saveFailMessage:
+      'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
+  },
+  label: {
+    title: 'Máy in label',
+    tint: 'orange',
+    placeholder: 'Nhập IP máy in label',
+    storageKey: 'ipPrinterLabel',
+    saveSuccessMessage: 'Lưu IP máy in label thành công',
+    saveFailMessage: 'Không thể kết nối máy in, lưu IP máy in label thất bại',
+  },
+};
+
+const SectionLabel = ({
+  title,
+  trailing,
+}: {
+  title: string;
+  trailing?: string;
+}) => (
+  <View className="mx-4 mt-1 flex-row items-end justify-between">
+    <Text className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+      {title}
+    </Text>
+    {!!trailing && (
+      <Text
+        numberOfLines={1}
+        className="ml-3 flex-1 text-right text-xs text-gray-500"
+      >
+        {trailing}
+      </Text>
+    )}
+  </View>
+);
 
 const Settings = () => {
   const { data } = useGetSettingQuery();
@@ -38,17 +100,14 @@ const Settings = () => {
   const config = useConfig.use.config();
   const stores = config?.stores || [];
 
-  const labelPrinterTimer = useRef<any>(null);
-  const billPrinterTimer = useRef<any>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const billInputRef = useRef<any>(null);
   const labelInputRef = useRef<any>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const isKeyboardVisible = useKeyboardVisible();
-  const activeInputRef = useRef<'label' | 'bill' | null>(null);
+  const activeInputRef = useRef<DeviceKey | null>(null);
 
   const user = useAuth.use.userInfo();
-  const { storeCode } = user || {};
+  const { storeCode, teleId } = user || {};
 
   const store: any = stores.find((store: any) => store.id === storeCode);
   const {
@@ -57,21 +116,33 @@ const Settings = () => {
     name,
   } = store || {};
 
-  const [labelPrinterIp, setLabelPrinterIp] = useState<string>(
-    getItem('ipPrinterLabel') || storeLabelPrinterIp || '',
-  );
-  const [billPrinterIp, setBillPrinterIp] = useState<string>(
-    getItem('ipPrinterBill') || storeBillPrinterIp || '',
-  );
-  const [isLoadingLabelPrinter, setIsLoadingLabelPrinter] =
-    useState<boolean>(false);
-  const [isLoadingBillPrinter, setIsLoadingBillPrinter] =
-    useState<boolean>(false);
+  const [ips, setIps] = useState<Record<DeviceKey, string>>(() => ({
+    bill: getItem('ipPrinterBill') || storeBillPrinterIp || '',
+    label: getItem('ipPrinterLabel') || storeLabelPrinterIp || '',
+  }));
+  // Trạng thái kết nối từng thiết bị — mở màn hình là 'checking' ngay để
+  // hiện loading indicator trong lúc chờ kết quả check đầu tiên.
+  const [statuses, setStatuses] = useState<
+    Record<DeviceKey, DeviceConnectionStatus>
+  >({ bill: 'checking', label: 'checking' });
+  const [saving, setSaving] = useState<Record<DeviceKey, boolean>>({
+    bill: false,
+    label: false,
+  });
+  const [testing, setTesting] = useState<Record<DeviceKey, boolean>>({
+    bill: false,
+    label: false,
+  });
+  // Đánh số từng lượt check để kết quả cũ (về trễ) không đè kết quả mới.
+  const statusSeq = useRef<Record<DeviceKey, number>>({ bill: 0, label: 0 });
+  const ipsRef = useRef(ips);
+  ipsRef.current = ips;
 
   const { mutate: testSendNoti, isPending: isPendingTestSendNoti } =
     useTestSendNoti();
 
   const [isOpeningApkLink, setIsOpeningApkLink] = useState(false);
+  const [showTelegramGuide, setShowTelegramGuide] = useState(false);
 
   const [isSubcribeOrderStoreDelivery, setIsSubcribeOrderStoreDelivery] =
     useState<any>(false);
@@ -94,15 +165,17 @@ const Settings = () => {
         // Scroll to active input when keyboard shows
         setTimeout(
           () => {
-            if (
-              activeInputRef.current === 'bill' &&
-              billInputRef.current &&
-              scrollViewRef.current
-            ) {
-              billInputRef.current.measureLayout(
+            const inputRef =
+              activeInputRef.current === 'bill'
+                ? billInputRef.current
+                : activeInputRef.current === 'label'
+                  ? labelInputRef.current
+                  : null;
+            if (inputRef && scrollViewRef.current) {
+              inputRef.measureLayout(
                 scrollViewRef.current.getInnerViewNode?.() ||
                   scrollViewRef.current,
-                (x: number, y: number) => {
+                (_x: number, y: number) => {
                   scrollViewRef.current?.scrollTo({
                     y: Math.max(0, y - 100),
                     animated: true,
@@ -112,22 +185,6 @@ const Settings = () => {
                   // Fallback: scroll to end
                   scrollViewRef.current?.scrollToEnd({ animated: true });
                 },
-              );
-            } else if (
-              activeInputRef.current === 'label' &&
-              labelInputRef.current &&
-              scrollViewRef.current
-            ) {
-              labelInputRef.current.measureLayout(
-                scrollViewRef.current.getInnerViewNode?.() ||
-                  scrollViewRef.current,
-                (x: number, y: number) => {
-                  scrollViewRef.current?.scrollTo({
-                    y: Math.max(0, y - 100),
-                    animated: true,
-                  });
-                },
-                () => {},
               );
             }
           },
@@ -149,130 +206,115 @@ const Settings = () => {
     };
   }, []);
 
-  const handleResetLabelPrinter = () => {
-    Keyboard.dismiss();
-    setItem('ipPrinterLabel', storeLabelPrinterIp);
-    setLabelPrinterIp(storeLabelPrinterIp);
-  };
-
-  const handleResetBillPrinter = () => {
-    Keyboard.dismiss();
-    setItem('ipPrinterBill', storeBillPrinterIp);
-    setBillPrinterIp(storeBillPrinterIp);
-  };
-
-  const handleSaveLabelPrinter = () => {
-    setIsLoadingLabelPrinter(true);
-    Keyboard.dismiss();
-    try {
-      const client = TcpSocket.createConnection(
-        {
-          port: 9100,
-          host: labelPrinterIp,
-          reuseAddress: true,
-        },
-        () => {
-          console.log('Connected to label printer');
-          setItem('ipPrinterLabel', labelPrinterIp);
-          showMessage({
-            message: 'Lưu IP máy in label thành công',
-            type: 'success',
-          });
-          if (labelPrinterTimer.current) {
-            clearTimeout(labelPrinterTimer.current);
-          }
-          client.destroy();
-          setIsLoadingLabelPrinter(false);
-        },
-      );
-
-      client.on('error', () => {
-        if (labelPrinterTimer.current) {
-          clearTimeout(labelPrinterTimer.current);
+  /**
+   * Check kết nối tới IP:PORT của thiết bị và cập nhật pill trạng thái.
+   * Trả về kết quả để các luồng test/lưu dùng tiếp.
+   */
+  const runStatusCheck = useCallback(
+    async (device: DeviceKey, ip: string): Promise<boolean> => {
+      const seq = ++statusSeq.current[device];
+      const applyStatus = (status: DeviceConnectionStatus) => {
+        if (statusSeq.current[device] === seq) {
+          setStatuses((prev) => ({ ...prev, [device]: status }));
         }
-        client.destroy();
-        setIsLoadingLabelPrinter(false);
-        void showPrinterConnectionFailMessage(
-          'Không thể kết nối máy in, lưu IP máy in label thất bại',
-        );
-      });
+      };
 
-      labelPrinterTimer.current = setTimeout(() => {
-        client.destroy();
-        setIsLoadingLabelPrinter(false);
-        void showPrinterConnectionFailMessage(
-          'Không thể kết nối máy in, lưu IP máy in label thất bại',
-        );
-      }, 5000);
-    } catch (error) {
-      setIsLoadingLabelPrinter(false);
+      if (!ip) {
+        applyStatus('unknown');
+        return false;
+      }
+
+      applyStatus('checking');
+      const ok = await checkTcpConnection(ip);
+      applyStatus(ok ? 'online' : 'offline');
+      return ok;
+    },
+    [],
+  );
+
+  // Mỗi lần mở (focus) màn hình: check kết nối cả 2 thiết bị song song.
+  useFocusEffect(
+    useCallback(() => {
+      DEVICE_KEYS.forEach((device) => {
+        runStatusCheck(device, ipsRef.current[device]);
+      });
+    }, [runStatusCheck]),
+  );
+
+  const handleChangeIp = (device: DeviceKey, value: string) => {
+    setIps((prev) => ({ ...prev, [device]: value }));
+  };
+
+  const handleTestDevice = async (device: DeviceKey) => {
+    Keyboard.dismiss();
+    const ip = ipsRef.current[device];
+    if (!ip) return;
+    setTesting((prev) => ({ ...prev, [device]: true }));
+    const ok = await runStatusCheck(device, ip);
+    setTesting((prev) => ({ ...prev, [device]: false }));
+    if (ok) {
+      showMessage({
+        message: `Kết nối thành công tới ${ip}:${PRINTER_PORT}`,
+        type: 'success',
+      });
+    } else {
       void showPrinterConnectionFailMessage(
-        'Lỗi không xác định khi kết nối máy in label',
+        `Không thể kết nối tới ${ip}:${PRINTER_PORT}`,
       );
     }
   };
 
-  const handleSaveBillPrinter = () => {
-    setIsLoadingBillPrinter(true);
+  // Giữ hành vi cũ: chỉ lưu IP khi kết nối được tới máy in.
+  const handleSaveDevice = async (device: DeviceKey) => {
     Keyboard.dismiss();
-    try {
-      const client = TcpSocket.createConnection(
-        {
-          port: 9100,
-          host: billPrinterIp,
-          reuseAddress: true,
-        },
-        () => {
-          console.log('Connected to bill printer');
-          setItem('ipPrinterBill', billPrinterIp);
-          showMessage({
-            message: 'Lưu IP máy tạo hoá đơn thành công',
-            type: 'success',
-          });
-          if (billPrinterTimer.current) {
-            clearTimeout(billPrinterTimer.current);
-          }
-          client.destroy();
-          setIsLoadingBillPrinter(false);
-        },
-      );
-
-      client.on('error', () => {
-        if (billPrinterTimer.current) {
-          clearTimeout(billPrinterTimer.current);
-        }
-        client.destroy();
-        setIsLoadingBillPrinter(false);
-        void showPrinterConnectionFailMessage(
-          'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
-        );
-      });
-
-      billPrinterTimer.current = setTimeout(() => {
-        client.destroy();
-        setIsLoadingBillPrinter(false);
-        void showPrinterConnectionFailMessage(
-          'Không thể kết nối máy in, lưu IP máy tạo hoá đơn thất bại',
-        );
-      }, 5000);
-    } catch (error) {
-      setIsLoadingBillPrinter(false);
-      void showPrinterConnectionFailMessage(
-        'Lỗi không xác định khi kết nối máy tạo hoá đơn',
-      );
+    const meta = DEVICE_META[device];
+    const ip = ipsRef.current[device];
+    if (!ip) return;
+    setSaving((prev) => ({ ...prev, [device]: true }));
+    const ok = await runStatusCheck(device, ip);
+    setSaving((prev) => ({ ...prev, [device]: false }));
+    if (ok) {
+      setItem(meta.storageKey, ip);
+      showMessage({ message: meta.saveSuccessMessage, type: 'success' });
+    } else {
+      void showPrinterConnectionFailMessage(meta.saveFailMessage);
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (labelPrinterTimer.current) {
-        clearTimeout(labelPrinterTimer.current);
-      }
-      if (billPrinterTimer.current) {
-        clearTimeout(billPrinterTimer.current);
-      }
-    };
-  }, []);
+  // Behavior cũ: reset về IP mặc định của siêu thị và lưu ngay (không cần
+  // kết nối được), sau đó check lại trạng thái với IP vừa reset.
+  const handleResetDevice = (device: DeviceKey) => {
+    Keyboard.dismiss();
+    const meta = DEVICE_META[device];
+    const fallbackIp =
+      (device === 'bill' ? storeBillPrinterIp : storeLabelPrinterIp) || '';
+    // Siêu thị chưa cấu hình IP mặc định → báo và giữ nguyên IP đang nhập.
+    if (!fallbackIp) {
+      showMessage({
+        message: `Siêu thị chưa có IP mặc định cho ${meta.title.toLowerCase()}`,
+        type: 'warning',
+      });
+      return;
+    }
+    setItem(meta.storageKey, fallbackIp);
+    setIps((prev) => ({ ...prev, [device]: fallbackIp }));
+    runStatusCheck(device, fallbackIp);
+    showMessage({
+      message: `Đã đặt lại IP ${meta.title.toLowerCase()} về mặc định: ${fallbackIp}`,
+      type: 'success',
+    });
+  };
+
+  const handleOpenTelegram = async () => {
+    try {
+      await Linking.openURL(TELEGRAM_USER_INFO_BOT_LINK);
+    } catch {
+      showMessage({
+        message: 'Không mở được Telegram. Thử lại sau.',
+        type: 'danger',
+      });
+    }
+  };
 
   const handleTestPushNotification = async () => {
     const hasPermission = await checkNotificationPermission(undefined, true);
@@ -305,7 +347,7 @@ const Settings = () => {
 
   return (
     <KeyboardAvoidingView
-      className="bg-gray-100 flex-1"
+      className="bg-gray-200 flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
@@ -321,25 +363,43 @@ const Settings = () => {
         keyboardDismissMode="on-drag"
       >
         <View className="flex-grow flex mt-4 gap-3 pb-4">
-          {Platform.OS === 'android' && (
-            <View className="bg-white p-3 mx-4 rounded-lg" style={styles.box}>
-              <Text className="text-base font-bold">Cập nhật ứng dụng</Text>
-              <Text className="text-sm text-gray-500 mt-1">
-                Build hiện tại: {Application.nativeBuildVersion ?? '—'}
-              </Text>
-              <Text className="text-sm text-gray-600 mt-2">
-                Nếu bỏ lỡ thông báo cập nhật, mở link APK mới nhất tại đây.
-              </Text>
-              <View className="mt-3">
-                <Button
-                  label="Link APK"
-                  loading={isOpeningApkLink}
-                  onPress={handleOpenApkLink}
-                />
-              </View>
-            </View>
-          )}
-          <View className="bg-white p-3 mx-4 rounded-lg" style={styles.box}>
+          <TelegramCard
+            badgeText={teleId != null ? String(teleId) : undefined}
+            onOpen={handleOpenTelegram}
+            onOpenGuide={() => setShowTelegramGuide(true)}
+          />
+
+          <SectionLabel title="Thiết bị" trailing={name} />
+
+          {DEVICE_KEYS.map((device) => {
+            const meta = DEVICE_META[device];
+            return (
+              <PrinterDeviceCard
+                key={device}
+                title={meta.title}
+                tint={meta.tint}
+                placeholder={meta.placeholder}
+                ip={ips[device]}
+                status={statuses[device]}
+                busy={testing[device] || saving[device]}
+                saving={saving[device]}
+                onChangeIp={(value) => handleChangeIp(device, value)}
+                onTest={() => handleTestDevice(device)}
+                onSave={() => handleSaveDevice(device)}
+                onReset={() => handleResetDevice(device)}
+                onFocusInput={() => {
+                  activeInputRef.current = device;
+                }}
+                inputWrapperRef={
+                  device === 'bill' ? billInputRef : labelInputRef
+                }
+              />
+            );
+          })}
+
+          <SectionLabel title="Khác" />
+
+          <SettingsCard>
             <Text className="text-base font-bold">Thông báo</Text>
             <View className="flex flex-col gap-4 mt-3">
               {SHOW_NOTIFICATION_SUBSCRIPTION_SETTINGS && (
@@ -382,124 +442,36 @@ const Settings = () => {
                 />
               </View>
             </View>
-          </View>
-          <View className="bg-white p-3 mx-4 rounded-lg" style={styles.box}>
-            <Text numberOfLines={1} className="text-base font-bold">
-              Máy in - {name}
-            </Text>
-            <View className="mt-4 border-t border-gray-200 pt-3">
-              <Text className="text-sm font-semibold mb-3">
-                Máy tạo hoá đơn
-              </Text>
+          </SettingsCard>
 
-              <View className="flex gap-10 mb-3 flex-row items-center">
-                <Image
-                  source={require('~/assets/xprinter.jpg')}
-                  style={{ width: 70, height: 70 }}
+          {Platform.OS === 'android' && (
+            <SettingsCard>
+              <Text className="text-base font-bold">Cập nhật ứng dụng</Text>
+              <Text className="text-sm text-gray-500 mt-1">
+                Build hiện tại: {Application.nativeBuildVersion ?? '—'}
+              </Text>
+              <Text className="text-sm text-gray-600 mt-2">
+                Nếu bỏ lỡ thông báo cập nhật, mở link APK mới nhất tại đây.
+              </Text>
+              <View className="mt-3">
+                <Button
+                  label="Link APK"
+                  loading={isOpeningApkLink}
+                  onPress={handleOpenApkLink}
                 />
-                <View
-                  ref={billInputRef}
-                  collapsable={false}
-                  className="flex flex-1 justify-end gap-3"
-                >
-                  <Input
-                    value={billPrinterIp}
-                    textAlign="right"
-                    className="flex-1 w-full"
-                    placeholder="Nhập IP máy tạo hoá đơn"
-                    onChangeText={setBillPrinterIp}
-                    onFocus={() => {
-                      activeInputRef.current = 'bill';
-                    }}
-                  />
-                  <View className="flex flex-row gap-2">
-                    <Button
-                      loading={isLoadingBillPrinter}
-                      disabled={!billPrinterIp}
-                      label="Lưu"
-                      className="flex-1 w-1/2"
-                      onPress={handleSaveBillPrinter}
-                    />
-                    <Button
-                      variant="warning"
-                      className="flex-1 w-1/2"
-                      label="Reset"
-                      onPress={handleResetBillPrinter}
-                    />
-                  </View>
-                </View>
               </View>
-            </View>
-            <View className="mt-1">
-              <Text className="text-sm font-semibold mb-3">Máy in label</Text>
-              <View className="flex gap-10 mb-3 flex-row items-center">
-                <Image
-                  source={require('~/assets/label-printer.jpg')}
-                  style={{ width: 70, height: 70 }}
-                />
-                <View
-                  ref={labelInputRef}
-                  collapsable={false}
-                  className="flex flex-1 justify-end gap-3"
-                >
-                  <Input
-                    value={labelPrinterIp}
-                    className="flex-1"
-                    placeholder="Nhập IP máy in label"
-                    onChangeText={setLabelPrinterIp}
-                    textAlign="right"
-                    onFocus={() => {
-                      activeInputRef.current = 'label';
-                    }}
-                  />
-                  <View className="flex flex-row gap-2">
-                    <Button
-                      loading={isLoadingLabelPrinter}
-                      disabled={!labelPrinterIp}
-                      label="Lưu"
-                      className="w-1/2 flex-1"
-                      onPress={handleSaveLabelPrinter}
-                    />
-                    <Button
-                      variant="warning"
-                      label="Reset"
-                      className="w-1/2 flex-1"
-                      onPress={handleResetLabelPrinter}
-                    />
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
+            </SettingsCard>
+          )}
         </View>
       </ScrollView>
+
+      <TelegramIdGuideModal
+        visible={showTelegramGuide}
+        onClose={() => setShowTelegramGuide(false)}
+        onOpenTelegram={handleOpenTelegram}
+      />
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  box: {
-    borderRadius: 5,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#222',
-        shadowOffset: { width: 1, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-      },
-      android: {
-        shadowColor: '#222',
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        shadowOpacity: 0.4,
-        shadowRadius: 5.46,
-        elevation: 2,
-      },
-    }),
-  },
-});
 
 export default Settings;

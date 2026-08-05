@@ -25,6 +25,9 @@ import {
 } from '~/src/api/app-pick/use-get-qr-access-token-info';
 import { useRequestAssignMeToStore } from '~/src/api/app-pick/use-request-assign-me-to-store';
 import { useGetConfig } from '~/src/api/config/use-get-config';
+// Nhóm Telegram nhận thông báo duyệt cấp quyền — SM/TC gửi yêu cầu xong tham
+// gia để theo dõi trạng thái. Dùng chung link với màn hình Cài đặt.
+import { TELEGRAM_GROUP_LINK as TELEGRAM_LINK } from '~/src/core/constants/telegram';
 import { hideAlert, showAlert } from '~/src/core/store/alert-dialog';
 import { useAuth } from '~/src/core/store/auth';
 import { useConfig } from '~/src/core/store/config';
@@ -44,10 +47,6 @@ type StoreType = Option & { address: string; tenant: string };
 const STORE_DROPDOWN_MAX_HEIGHT = Math.round(
   Dimensions.get('window').height * 0.7,
 );
-
-// Nhóm Telegram nhận thông báo duyệt cấp quyền — SM/TC gửi yêu cầu xong tham gia
-// để theo dõi trạng thái. Giữ nguyên link như luồng cũ (store-selection).
-const TELEGRAM_LINK = 'https://t.me/+3BgB-1UkLUUyMWU1';
 
 interface Props {
   code?: string | null;
