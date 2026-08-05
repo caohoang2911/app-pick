@@ -184,9 +184,12 @@ const SBottomSheet = forwardRef<any, Props>(
           });
         },
         dismiss: () => {
-          onClose?.();
+          // Dismiss gorhom TRƯỚC khi onClose set visible=false: onClose chạy
+          // trước sẽ unmount BottomSheetModal đang present (visible=false →
+          // return null) trước khi rAF kịp dismiss → sheet zombie kẹt lại.
+          bottomSheetModalRef.current?.dismiss();
           requestAnimationFrame(() => {
-            bottomSheetModalRef.current?.dismiss();
+            onClose?.();
           });
         },
         scrollToEnd: (params?: { animated?: boolean }) => {

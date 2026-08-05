@@ -1,7 +1,7 @@
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { Ionicons } from '@expo/vector-icons';
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -20,9 +20,18 @@ import {
   useSearchStoreEmployees,
   type StoreEmployeeItem,
 } from '~/src/api/app-pick/use-search-store-employees';
+import { useSetStoreEmployeeTeleId } from '~/src/api/app-pick/use-set-store-employee-tele-id';
+import { queryClient } from '~/src/api/shared/api-provider';
 import ButtonBack from '~/src/components/ButtonBack';
+import EmployeeActionsBottomSheet, {
+  type EmployeeActionsBottomSheetRef,
+} from '~/src/components/employee-management/employee-actions-bottom-sheet';
 import EmployeeItem from '~/src/components/employee-management/employee-item';
 import AddEmployeeConfirmContent from '~/src/components/employee-management/add-employee-confirm-content';
+import SetTeleIdBottomSheet, {
+  type SetTeleIdBottomSheetRef,
+  type SetTeleIdEmployee,
+} from '~/src/components/shared/set-tele-id-bottom-sheet';
 import { Input } from '~/src/components/Input';
 import ScannerBox, {
   type BarcodeScanningResult,
@@ -56,12 +65,25 @@ export default function EmployeeManagementScreen() {
   );
   const employees = data ?? [];
 
+  const actionsRef = useRef<EmployeeActionsBottomSheetRef>(null);
+  const setTeleIdRef = useRef<SetTeleIdBottomSheetRef>(null);
+
+  // Đồng bộ lại danh sách mention bên màn Quản lý nhóm Tele.
+  const invalidateStoreDetail = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['getMyStoreDetail'] });
+  }, []);
+
   const { mutate: acceptToken } = useAcceptTokenAssignEmployeeToStore(() =>
     refetch(),
   );
-  const { mutate: removeEmployee } = useRemoveEmployeeFromStore(() =>
-    refetch(),
-  );
+  const { mutate: removeEmployee } = useRemoveEmployeeFromStore(() => {
+    refetch();
+    invalidateStoreDetail();
+  });
+  const { mutate: setEmployeeTeleId } = useSetStoreEmployeeTeleId(() => {
+    refetch();
+    invalidateStoreDetail();
+  });
 
   const handleQRTokenInfo = useCallback(
     (info: QRAccessTokenInfoPayload, token: string) => {
@@ -151,15 +173,31 @@ export default function EmployeeManagementScreen() {
     [removeEmployee],
   );
 
+  const handleOpenSetTeleId = useCallback((employee: StoreEmployeeItem) => {
+    setTeleIdRef.current?.present(employee);
+  }, []);
+
+  const handleSubmitTeleId = useCallback(
+    (employee: SetTeleIdEmployee, teleId: string) => {
+      setLoading(true);
+      setEmployeeTeleId({ employeeCode: employee.username, teleId });
+    },
+    [setEmployeeTeleId],
+  );
+
+  const handleOpenActions = useCallback((employee: StoreEmployeeItem) => {
+    actionsRef.current?.present(employee);
+  }, []);
+
   const renderItem = useCallback(
     ({ item }: { item: StoreEmployeeItem }) => (
       <EmployeeItem
         employee={item}
         roleLabel={getConfigNameById(employeeRoles, item.role) || item.role}
-        onRemove={handleRemove}
+        onOpenActions={handleOpenActions}
       />
     ),
-    [employeeRoles, handleRemove],
+    [employeeRoles, handleOpenActions],
   );
 
   if (!canAccess) {
@@ -227,6 +265,14 @@ export default function EmployeeManagementScreen() {
         onSuccessBarcodeScanned={handleScanned}
         onDestroy={() => setScannerVisible(false)}
       />
+
+      <EmployeeActionsBottomSheet
+        ref={actionsRef}
+        onSetTeleId={handleOpenSetTeleId}
+        onRemove={handleRemove}
+      />
+
+      <SetTeleIdBottomSheet ref={setTeleIdRef} onSubmit={handleSubmitTeleId} />
     </View>
   );
 }
