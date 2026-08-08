@@ -53,7 +53,6 @@ const OrderPick = () => {
   const scannedIds = useOrderPick.use.scannedIds();
   const quantityFromBarcode = useOrderPick.use.quantityFromBarcode();
   const isScanMoreProduct = useOrderPick.use.isScanMoreProduct();
-  const isShowAmountInput = useOrderPick.use.isShowAmountInput();
   const isVisibleReplaceProduct = useOrderPick.use.isVisibleReplaceProduct();
 
   const isEditManual = useOrderPick.use.isEditManual();
