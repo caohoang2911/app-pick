@@ -227,19 +227,6 @@ const OrderScanToDelivery = () => {
     useCreateInvoiceFlow({
       onSuccess: async (orderCode) => {
         await invalidateOrderDetail();
-        const result = await handoverOrder({
-          orderCode: code,
-          proofImages: uploadedImages,
-        });
-        if (result.error) {
-          setLoading(false);
-          showMessage({
-            message: result.error,
-            type: 'danger',
-          });
-          return;
-        }
-
         await processCreateInvoice({ orderCode });
         if (!!Number(codAmount)) {
           setShowPrintReceipt(true);
@@ -292,10 +279,26 @@ const OrderScanToDelivery = () => {
       message: generateMessageCreateInvoice,
       isHideCancelButton: true,
       blockDismiss: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         hideAlert();
         createInvoiceFlowOrderCodeRef.current = code;
         setLoading(true);
+
+        const result = await handoverOrder({
+          orderCode: code,
+          proofImages: uploadedImages,
+        });
+
+        if (result.error) {
+          setLoading(false);
+          showMessage({
+            message: result.error,
+            type: 'danger',
+          });
+
+          return;
+        }
+
         createInvoiceFlow({ orderCode: code });
       },
     });

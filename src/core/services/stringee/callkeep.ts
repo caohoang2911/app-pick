@@ -1,4 +1,5 @@
 import {
+  Alert,
   AppState,
   NativeModules,
   PermissionsAndroid,
@@ -15,6 +16,8 @@ let _isSetup = false;
 let _listenersAdded = false;
 // Đã nhắc user bật "tài khoản gọi" chưa (tránh mở màn cài đặt lặp lại).
 let _promptedEnable = false;
+// User đã từ chối popup quyền/cài đặt trong phiên này — không ép mở Settings.
+let _userDeclinedPhoneAccountPrompt = false;
 // Trạng thái phone account lần check gần nhất — để biết user vừa bật trong
 // Settings (false→true) và cần force `RNCallKeep.setup` lại như cold start.
 let _lastKnownPhoneAccountEnabled: boolean | null = null;
@@ -176,13 +179,25 @@ export const setupCallKeep = async (opts?: {
 }): Promise<void> => {
   if (_isSetup && !opts?.force) return;
   try {
-    await RNCallKeep.setup(SETUP_OPTIONS);
+    // Android managed: setup có thể hiện Alert. OK → library tự openPhoneAccounts
+    // (return true). Huỷ → promise reject (không phải lỗi thật).
+    const openedAccounts = await RNCallKeep.setup(SETUP_OPTIONS);
     if (Platform.OS === 'android') {
       RNCallKeep.setAvailable(true);
+      if (openedAccounts === true) {
+        // Đã mở Settings từ Alert Đồng ý — đừng hỏi/mở lại ở ensurePhoneAccountEnabled.
+        _promptedEnable = true;
+      }
     }
     registerListeners();
     _isSetup = true;
   } catch (e) {
+    if (Platform.OS === 'android') {
+      // User bấm Huỷ trên Alert của react-native-callkeep → reject.
+      // Đánh dấu từ chối để ensurePhoneAccountEnabled không tự mở Settings.
+      _userDeclinedPhoneAccountPrompt = true;
+      _promptedEnable = true;
+    }
     console.warn('[CallKeep] setup failed', e);
   }
 };
@@ -194,9 +209,12 @@ export const setupCallKeep = async (opts?: {
  * account chứ KHÔNG tự bật (managed mode không thể bật bằng code). Nếu chưa bật,
  * `RNCallKeepModule.displayIncomingCall` bị bỏ qua IM LẶNG (guard hasPhoneAccount).
  *
- * Hàm này kiểm tra, nếu chưa bật thì mở thẳng màn cài đặt cho user bật (chỉ 1 lần
- * mỗi phiên). PHẢI gọi ở foreground (sau đăng nhập) — KHÔNG gọi trong headless
- * task vì không mở được UI cài đặt từ đó.
+ * Hàm này kiểm tra, nếu chưa bật thì hỏi lại (OK → mở Settings, Huỷ → thôi).
+ * Không được tự `openPhoneAccounts` khi user vừa bấm Huỷ ở popup setup của
+ * CallKeep — library reject promise Huỷ, rồi code cũ vẫn mở Settings → cảm giác
+ * "bấm Huỷ vẫn vào setting".
+ *
+ * PHẢI gọi ở foreground (sau đăng nhập) — KHÔNG gọi trong headless task.
  */
 export const ensurePhoneAccountEnabled = async (): Promise<void> => {
   if (Platform.OS !== 'android') return;
@@ -208,10 +226,38 @@ export const ensurePhoneAccountEnabled = async (): Promise<void> => {
       RNCallKeep.setAvailable(true);
       return;
     }
-    if (_promptedEnable) return;
+    if (_promptedEnable || _userDeclinedPhoneAccountPrompt) return;
     _promptedEnable = true;
+
+    const shouldOpen = await new Promise<boolean>((resolve) => {
+      Alert.alert(
+        SETUP_OPTIONS.android.alertTitle,
+        SETUP_OPTIONS.android.alertDescription,
+        [
+          {
+            text: SETUP_OPTIONS.android.cancelButton,
+            style: 'cancel',
+            onPress: () => resolve(false),
+          },
+          {
+            text: SETUP_OPTIONS.android.okButton,
+            onPress: () => resolve(true),
+          },
+        ],
+        { cancelable: true, onDismiss: () => resolve(false) },
+      );
+    });
+
+    if (!shouldOpen) {
+      _userDeclinedPhoneAccountPrompt = true;
+      console.warn(
+        '[CallKeep] User huỷ bật tài khoản gọi — không mở Settings.',
+      );
+      return;
+    }
+
     console.warn(
-      '[CallKeep] Tài khoản gọi CHƯA bật → popup nền/kill sẽ KHÔNG hiện + answer rơi vào fallback (dễ mất tiếng). Mở màn cài đặt cho user bật.',
+      '[CallKeep] Tài khoản gọi CHƯA bật → mở màn cài đặt cho user bật.',
     );
     NativeModules.RNCallKeep?.openPhoneAccounts?.();
   } catch (e) {
@@ -425,6 +471,7 @@ export const resetCallKeepState = (): void => {
   _answerHandledUuid = null;
   _answeringUuid = null;
   _promptedEnable = false;
+  _userDeclinedPhoneAccountPrompt = false;
   _lastKnownPhoneAccountEnabled = null;
   try {
     RNCallKeep.endAllCalls();
