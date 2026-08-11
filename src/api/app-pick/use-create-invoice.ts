@@ -38,7 +38,10 @@ const getMutationErrorMessage = (error: unknown, fallback: string): string => {
   );
 };
 
-const cleanupConnection = (client: any, timer: NodeJS.Timeout | null) => {
+const cleanupConnection = (
+  client: any,
+  timer: ReturnType<typeof setTimeout> | null,
+) => {
   if (timer) {
     clearTimeout(timer);
   }
@@ -67,7 +70,7 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
     };
 
     let client: any;
-    let timer: NodeJS.Timeout | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
     try {
       client = TcpSocket.createConnection(options, () => {
@@ -152,9 +155,15 @@ class DuplicateCreateInvoiceError extends Error {
   }
 }
 
+export type CreateInvoiceResponse = Response;
+
 export type UseCreateInvoiceFlowOptions = {
-  /** Gọi khi tạo hóa đơn thành công (vd: gọi in nếu không COD) */
-  onSuccess?: (orderCode: string) => void;
+  /**
+   * Gọi khi tạo hóa đơn thành công (vd: gọi in nếu không COD).
+   * `response` là payload createInvoice — chứa `invoiceCode`, và cũng có thể là
+   * `status: 'FAIL'` (FAIL vẫn đi vào nhánh này để giữ nguyên flow cũ).
+   */
+  onSuccess?: (orderCode: string, response?: CreateInvoiceResponse) => void;
 };
 
 const CREATE_INVOICE_MSG = {
@@ -212,8 +221,8 @@ export const useCreateInvoiceFlow = (options?: UseCreateInvoiceFlowOptions) => {
         inFlightCreateInvoice.delete(params.orderCode);
       }
     },
-    onSuccess: (_data, variables) => {
-      options?.onSuccess?.(variables.orderCode);
+    onSuccess: (data, variables) => {
+      options?.onSuccess?.(variables.orderCode, data);
     },
     onError: (error) => {
       // Request trùng bị chặn: không tắt loading (request đầu vẫn đang chạy).

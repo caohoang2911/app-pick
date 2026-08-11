@@ -1,4 +1,3 @@
-import { ORDER_STATUS } from '@/core/constants/order';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -15,6 +14,7 @@ import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import { queryClient } from '~/src/api/shared/api-provider';
 import { useAuth } from '~/src/core/store/auth';
 import { EBikeLine } from '~/src/core/svgs';
+import { OrderDetail } from '~/src/types/order-pick';
 import CODReceipt from '../CODReceipt';
 import SBottomSheet from '../SBottomSheet';
 import BookShipperActionsBottomsheet from './book-shipper-actions-bottomsheet';
@@ -32,35 +32,49 @@ interface OrderActionsSubmenuBottomSheetProps {
   invoiceCode?: string;
 }
 
+/** Đọc mã hóa đơn mới nhất từ cache orderDetail (dùng sau khi invalidate). */
+const getInvoiceCodeFromCache = (orderCode: string) =>
+  queryClient.getQueryData<{ data: OrderDetail }>(['orderDetail', orderCode])
+    ?.data?.header?.invoiceCode;
+
 const OrderActionsSubmenuBottomSheet = ({
   visible,
   setVisible,
   deliveryType,
   orderCode,
-  status,
   invoiceCode,
 }: OrderActionsSubmenuBottomSheetProps) => {
   const { code } = useLocalSearchParams<{ code: string }>();
   const actionRef = useRef<any>();
   const bookAhamoveActionsBottomsheetRef = useRef<any>();
   const cancelBookShipperBottomsheetRef = useRef<any>();
-  const { orderDetail } = useOrderDetailForCode(code || orderCode);
+
+  const effectiveOrderCode = code || orderCode || '';
+
+  const { orderDetail } = useOrderDetailForCode(effectiveOrderCode);
   const codAmount = orderDetail?.header?.codAmount;
+  const hasCod = Number(codAmount) > 0;
 
   const [reprintWithCapture, setReprintWithCapture] = React.useState(false);
+  /** Mã HĐ in lên phiếu thu COD — có thể là HĐ vừa được tạo trong luồng này. */
+  const [codReceiptInvoiceCode, setCodReceiptInvoiceCode] =
+    React.useState<string>('');
 
   const [orderDeliveryTypeVisible, setOrderDeliveryTypeVisible] =
     React.useState(false);
   const [orderHistoryVisible, setOrderHistoryVisible] = React.useState(false);
 
   const invalidateOrderDetail = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['orderDetail', code] });
-  }, []);
+    if (!effectiveOrderCode) return;
+    await queryClient.invalidateQueries({
+      queryKey: ['orderDetail', effectiveOrderCode],
+    });
+  }, [effectiveOrderCode]);
 
-  const { mutateAsync: reprintInvoice, data: reprintInvoiceData } =
+  const { mutateAsync: printInvoice, isPending: isPrintingInvoice } =
     useCreateInvoiceProcess({
       successMessage: 'In lại hóa đơn thành công',
-      onSuccess: async () => {
+      onSuccess: () => {
         invalidateOrderDetail();
       },
     });
@@ -68,33 +82,42 @@ const OrderActionsSubmenuBottomSheet = ({
     successMessage: 'In phiếu thu COD thành công',
     onSuccess: () => invalidateOrderDetail(),
   });
-  const { mutate: createInvoiceFlow } = useCreateInvoiceFlow({
-    onSuccess: async (orderCodeFromApi) => {
-      await invalidateOrderDetail();
-      await reprintInvoice({ orderCode: orderCodeFromApi });
-      if (!!Number(codAmount)) {
-        setReprintWithCapture(true);
-        setLoading(false);
+
+  /**
+   * In hóa đơn, đơn COD thì in tiếp phiếu thu (qua <CODReceipt> capture).
+   * Lỗi in đã được useCreateInvoiceProcess báo + tắt loading nên chỉ cần dừng luồng.
+   */
+  const printInvoiceThenCodReceipt = useCallback(
+    async (invoiceCodeForReceipt: string) => {
+      try {
+        await printInvoice({ orderCode: effectiveOrderCode });
+      } catch {
+        return;
       }
+
+      if (!hasCod) return;
+
+      setCodReceiptInvoiceCode(invoiceCodeForReceipt);
+      setReprintWithCapture(true);
+      setLoading(false);
     },
-  });
+    [printInvoice, effectiveOrderCode, hasCod],
+  );
+
+  const { mutate: createInvoiceFlow, isPending: isCreatingInvoice } =
+    useCreateInvoiceFlow({
+      onSuccess: async (createdOrderCode, response) => {
+        await invalidateOrderDetail();
+        await printInvoiceThenCodReceipt(
+          response?.data?.invoiceCode ||
+            getInvoiceCodeFromCache(createdOrderCode) ||
+            '',
+        );
+      },
+    });
 
   const user = useAuth.use.userInfo();
   const { name, username } = user || {};
-
-  const invoiceCodeFromAPI = reprintInvoiceData?.data?.invoiceCode;
-
-  // Check if status is from STORE_PACKED onwards
-  const canReprintInvoice = useMemo(() => {
-    if (!status || !invoiceCode) return false;
-    const allowedStatuses = [
-      ORDER_STATUS.STORE_PACKED,
-      ORDER_STATUS.BOOKED_SHIPPER,
-      ORDER_STATUS.SHIPPING,
-      ORDER_STATUS.COMPLETED,
-    ];
-    return allowedStatuses.includes(status as any);
-  }, [status, invoiceCode]);
 
   useEffect(() => {
     if (visible) {
@@ -129,8 +152,6 @@ const OrderActionsSubmenuBottomSheet = ({
         key: 'reprint-invoice',
         title: 'In lại hóa đơn',
         icon: <MaterialIcons name="print" size={24} color="black" />,
-        // enabled: canReprintInvoice,
-        enabled: true,
       },
       {
         key: 'history-order',
@@ -138,7 +159,7 @@ const OrderActionsSubmenuBottomSheet = ({
         icon: <MaterialIcons name="history" size={24} color="black" />,
       },
     ],
-    [canReprintInvoice],
+    [],
   );
 
   const renderItem = ({
@@ -180,17 +201,32 @@ const OrderActionsSubmenuBottomSheet = ({
         setOrderDeliveryTypeVisible(true);
         break;
       case 'reprint-invoice': {
-        const effectiveInvoiceCode =
-          invoiceCode || orderDetail?.header?.invoiceCode;
-        if (!effectiveInvoiceCode?.trim()) {
+        if (!effectiveOrderCode) {
           showMessage({
-            message: 'Đơn hàng chưa tạo hóa đơn không thể in lại hóa đơn',
+            message: 'Thiếu mã đơn hàng, không thể in hóa đơn',
             type: 'warning',
           });
           break;
         }
+
+        // Chống double-tap: một luồng tạo/in đang chạy thì bỏ qua.
+        if (isCreatingInvoice || isPrintingInvoice) break;
+
+        const existingInvoiceCode = (
+          invoiceCode ||
+          orderDetail?.header?.invoiceCode ||
+          ''
+        ).trim();
+
         setLoading(true);
-        createInvoiceFlow({ orderCode: code || orderCode || '' });
+
+        if (existingInvoiceCode) {
+          // Đã có hóa đơn → in lại luôn, không gọi createInvoice để tránh tạo trùng.
+          void printInvoiceThenCodReceipt(existingInvoiceCode);
+        } else {
+          // Chưa có hóa đơn → tạo trước, tạo xong mới đi tiếp flow in.
+          createInvoiceFlow({ orderCode: effectiveOrderCode });
+        }
         break;
       }
       case 'history-order':
@@ -204,12 +240,20 @@ const OrderActionsSubmenuBottomSheet = ({
   const handleReceiptCaptureComplete = useCallback(
     (base64String: string) => {
       setReprintWithCapture(false);
-      printCodReceipt({ codReceiptBase64String: base64String.trim() });
+
+      // Capture lỗi trả về chuỗi rỗng — <CODReceipt> đã báo lỗi, không gọi máy in.
+      const codReceiptBase64String = base64String.trim();
+      if (!codReceiptBase64String) {
+        setLoading(false);
+        return;
+      }
+
+      printCodReceipt({ codReceiptBase64String });
     },
     [printCodReceipt],
   );
 
-  const shouldEnableCapture = reprintWithCapture && Number(codAmount) > 0;
+  const shouldEnableCapture = reprintWithCapture && hasCod;
 
   return (
     <>
@@ -232,8 +276,13 @@ const OrderActionsSubmenuBottomSheet = ({
         ))}
       </SBottomSheet>
       <CODReceipt
-        orderCode={code}
-        invoiceNumber={invoiceCodeFromAPI || invoiceCode || ''}
+        orderCode={effectiveOrderCode}
+        invoiceNumber={
+          codReceiptInvoiceCode ||
+          invoiceCode ||
+          orderDetail?.header?.invoiceCode ||
+          ''
+        }
         codAmount={Number(codAmount)}
         employeeName={name || ''}
         employeeCode={username || ''}
@@ -242,17 +291,17 @@ const OrderActionsSubmenuBottomSheet = ({
       />
       <BookShipperActionsBottomsheet ref={bookAhamoveActionsBottomsheetRef} />
       <CancelBookShipperBottomsheet
-        orderCode={code || orderCode || ''}
+        orderCode={effectiveOrderCode}
         ref={cancelBookShipperBottomsheetRef}
       />
       <OrderDeliveryTypeBottomSheet
         setVisible={setOrderDeliveryTypeVisible}
         visible={orderDeliveryTypeVisible}
         deliveryType={deliveryType || null}
-        orderCode={code || orderCode}
+        orderCode={effectiveOrderCode}
       />
       <OrderHistoryBottomSheet
-        orderCode={code || orderCode || ''}
+        orderCode={effectiveOrderCode}
         setVisible={setOrderHistoryVisible}
         visible={orderHistoryVisible}
         orderDetail={orderDetail || {}}

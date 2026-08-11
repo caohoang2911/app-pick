@@ -11,16 +11,25 @@ import {
 import { hideMessage } from 'react-native-flash-message';
 import { MarkdownText } from '@/core/utils/markdown';
 
+// `codeLine` là field mở rộng của app (mã quét được, mã đơn…) — lib không khai báo.
+declare module 'react-native-flash-message' {
+  interface MessageOptions {
+    codeLine?: string;
+  }
+}
+
 /** Màu nền theo type — layout chuẩn toast (icon | nội dung | kẻ | đóng) */
-const FLASH_TYPE_THEME: Record<string, { bg: string; icon: keyof typeof Ionicons.glyphMap }> =
-  {
-    success: { bg: '#27ae60', icon: 'checkmark-circle' },
-    danger: { bg: '#c0392b', icon: 'close-circle' },
-    error: { bg: '#c0392b', icon: 'close-circle' },
-    info: { bg: '#2980b9', icon: 'information-circle' },
-    warning: { bg: '#f39c12', icon: 'warning-outline' },
-    default: { bg: '#696969', icon: 'information-circle-outline' },
-  };
+const FLASH_TYPE_THEME: Record<
+  string,
+  { bg: string; icon: keyof typeof Ionicons.glyphMap }
+> = {
+  success: { bg: '#27ae60', icon: 'checkmark-circle' },
+  danger: { bg: '#c0392b', icon: 'close-circle' },
+  error: { bg: '#c0392b', icon: 'close-circle' },
+  info: { bg: '#2980b9', icon: 'information-circle' },
+  warning: { bg: '#f39c12', icon: 'warning-outline' },
+  default: { bg: '#696969', icon: 'information-circle-outline' },
+};
 
 const TEXT_COLOR = '#fff';
 const LINK_COLOR = 'rgba(255,255,255,0.95)';
@@ -67,6 +76,24 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: TEXT_COLOR,
   },
+  // Mã (barcode/mã đơn) — chip nền tối + font monospace để không lẫn với nội dung chính.
+  codeChip: {
+    marginTop: 6,
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    backgroundColor: 'rgba(0,0,0,0.22)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  codeText: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    color: 'rgba(255,255,255,0.95)',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
   divider: {
     width: 1,
     alignSelf: 'stretch',
@@ -92,6 +119,8 @@ export interface FlashMessageWithMarkdownMessage {
   message?: string;
   title?: string;
   description?: string;
+  /** Mã hiển thị tách riêng dưới nội dung (vd: mã vừa quét được). */
+  codeLine?: string;
   type?: string;
 }
 
@@ -110,6 +139,7 @@ const FlashMessageWithMarkdown = React.forwardRef<
   const theme = FLASH_TYPE_THEME[type] ?? FLASH_TYPE_THEME.default;
   const title = message.title ?? message.description ?? '';
   const body = message.message ?? '';
+  const codeLine = message.codeLine ?? '';
 
   return (
     <Pressable
@@ -132,6 +162,13 @@ const FlashMessageWithMarkdown = React.forwardRef<
           >
             {body}
           </MarkdownText>
+        )}
+        {codeLine !== '' && (
+          <View style={styles.codeChip}>
+            <Text style={styles.codeText} numberOfLines={2}>
+              {codeLine}
+            </Text>
+          </View>
         )}
       </View>
       <View style={styles.divider} pointerEvents="none" />

@@ -86,6 +86,16 @@ const OrderPick = () => {
 
       const barcode = resolvePickScanBarcode(rawBarcode, orderPickProductsFlat);
 
+      // Warning khi quét: lý do ở nội dung chính, chuỗi máy quét trả về (nguyên bản,
+      // còn cả phần số lượng/trọng lượng nếu có) tách xuống chip `codeLine` để NV đối chiếu.
+      const showScanWarning = (reason: string) => {
+        showMessage({
+          message: reason,
+          codeLine: `Mã quét được: ${codeScanned}`,
+          type: 'warning',
+        });
+      };
+
       // Snapshot cờ trong lần quét này — setState không đổi biến local ngay.
       let scanMore = isScanMoreProduct;
       if (scanMore && currentId == null) {
@@ -100,27 +110,18 @@ const OrderPick = () => {
         );
 
         if (!barcode) {
-          showMessage({
-            message: `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
-            type: 'warning',
-          });
+          showScanWarning('Mã vừa quét không nằm trong đơn hàng');
           setScanMoreProduct(false);
           return;
         }
 
         if (!barcodeCondition(barcode, pickMoreProduct?.refBarcodes)) {
-          showMessage({
-            message: `Mã ${rawBarcode} khác barcode sản phẩm đang pick thêm`,
-            type: 'warning',
-          });
+          showScanWarning('Mã vừa quét khác barcode sản phẩm đang pick thêm');
           setScanMoreProduct(false);
           return;
         }
       } else if (!barcode) {
-        showMessage({
-          message: `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
-          type: 'warning',
-        });
+        showScanWarning('Mã vừa quét không nằm trong đơn hàng');
         return;
       }
 
@@ -133,12 +134,11 @@ const OrderPick = () => {
       });
 
       if (indexOfCodeScanned === -1) {
-        showMessage({
-          message: scanMore
-            ? `Mã ${rawBarcode} khác barcode sản phẩm đang pick thêm`
-            : `Mã ${rawBarcode} vừa quét không nằm trong đơn hàng`,
-          type: 'warning',
-        });
+        showScanWarning(
+          scanMore
+            ? 'Mã vừa quét khác barcode sản phẩm đang pick thêm'
+            : 'Mã vừa quét không nằm trong đơn hàng',
+        );
         if (scanMore) {
           setScanMoreProduct(false);
         }
@@ -160,10 +160,9 @@ const OrderPick = () => {
       if (weightRange?.length === 2 && quantity) {
         const [minWeight, maxWeight] = weightRange;
         if (quantity < minWeight || quantity > maxWeight) {
-          showMessage({
-            message: `SP ${currentProduct?.name} chỉ được pick nằm trong khoảng trọng lượng ${minWeight} - ${maxWeight} KG`,
-            type: 'warning',
-          });
+          showScanWarning(
+            `SP ${currentProduct?.name} chỉ được pick nằm trong khoảng trọng lượng ${minWeight} - ${maxWeight} KG`,
+          );
           if (scanMore) {
             setScanMoreProduct(false);
           }
