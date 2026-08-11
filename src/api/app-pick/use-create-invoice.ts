@@ -22,6 +22,22 @@ const PRINTER_PORT = 9100;
 const BASE64_REGEX = /^(data:image\/[a-zA-Z]+;base64,)?[A-Za-z0-9+/=]+$/;
 const INVOICE_API_URL = Env.INVOICE_API_URL;
 
+/**
+ * Message lỗi in/kết nối máy in. Dùng chung cho cả toast và `new Error(...)` vì
+ * `onError` của các mutation in lại show `error.message` — nếu Error để chuỗi kỹ
+ * thuật tiếng Anh thì NV sẽ thấy toast thứ 2 lệch hẳn nội dung với toast đầu.
+ */
+const PRINTER_ERROR_MSG = {
+  notConfigured:
+    'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
+  connectFail: (host: string) =>
+    `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
+  connectError: 'Lỗi khi kết nối máy in. Vui lòng thử lại.',
+  invalidInvoiceImage: 'Định dạng dữ liệu hóa đơn không hợp lệ',
+  genPrintDataFail: 'Không thể tạo dữ liệu in hóa đơn',
+  printInvoiceFail: 'Không thể in hóa đơn',
+} as const;
+
 /** Error không enumerable → JSON.stringify(error) ra "{}". */
 const getMutationErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) return error.message;
@@ -56,11 +72,10 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
 
     if (!host) {
       showMessage({
-        message:
-          'Chưa cài đặt máy in. Vui lòng cài đặt máy in trước khi xuất hóa đơn.',
+        message: PRINTER_ERROR_MSG.notConfigured,
         type: 'danger',
       });
-      reject(new Error('Printer not configured'));
+      reject(new Error(PRINTER_ERROR_MSG.notConfigured));
       return;
     }
 
@@ -80,25 +95,21 @@ const checkPrinterConnection = (): Promise<TcpSocket.Socket> => {
 
       timer = setTimeout(() => {
         cleanupConnection(client, timer);
-        void showPrinterConnectionFailMessage(
-          `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
-        );
-        reject(new Error('Printer connection timeout'));
+        const failMessage = PRINTER_ERROR_MSG.connectFail(host);
+        void showPrinterConnectionFailMessage(failMessage);
+        reject(new Error(failMessage));
       }, TIMEOUT_CONNECT_PRINTER);
 
-      client.on('error', (error: any) => {
+      client.on('error', () => {
         cleanupConnection(client, timer);
-        void showPrinterConnectionFailMessage(
-          `Không thể kết nối với máy tạo hoá đơn tại IP: ${host}. Vui lòng kiểm tra lại.`,
-        );
-        reject(error);
+        const failMessage = PRINTER_ERROR_MSG.connectFail(host);
+        void showPrinterConnectionFailMessage(failMessage);
+        reject(new Error(failMessage));
       });
-    } catch (error) {
+    } catch {
       cleanupConnection(client, timer);
-      void showPrinterConnectionFailMessage(
-        'Lỗi khi kết nối máy in. Vui lòng thử lại.',
-      );
-      reject(error);
+      void showPrinterConnectionFailMessage(PRINTER_ERROR_MSG.connectError);
+      reject(new Error(PRINTER_ERROR_MSG.connectError));
     }
   });
 };
@@ -238,10 +249,10 @@ const validateBase64Image = (base64Image: string): string => {
   if (!BASE64_REGEX.test(trimmedBase64)) {
     setLoading(false);
     showMessage({
-      message: 'Định dạng dữ liệu hóa đơn không hợp lệ',
+      message: PRINTER_ERROR_MSG.invalidInvoiceImage,
       type: 'danger',
     });
-    throw new Error('Invalid base64 format');
+    throw new Error(PRINTER_ERROR_MSG.invalidInvoiceImage);
   }
 
   return trimmedBase64;
@@ -290,7 +301,7 @@ export const useCreateInvoiceProcess = (
 
         if (hasError && error) {
           setLoading(false);
-          throw new Error(error || 'Generate printer buffer error');
+          throw new Error(error || PRINTER_ERROR_MSG.genPrintDataFail);
         }
 
         if (!error && printerBuffers?.length > 0 && client) {
@@ -314,7 +325,9 @@ export const useCreateInvoiceProcess = (
             client.destroy();
             client = null;
           }
-          throw new Error(error?.toString() || 'Không thể in hóa đơn');
+          throw new Error(
+            error?.toString() || PRINTER_ERROR_MSG.printInvoiceFail,
+          );
         }
 
         return { error: null, data: null };
@@ -334,7 +347,10 @@ export const useCreateInvoiceProcess = (
       }
     },
     onError: (error: unknown) => {
-      const message = getMutationErrorMessage(error, 'Không thể in hóa đơn');
+      const message = getMutationErrorMessage(
+        error,
+        PRINTER_ERROR_MSG.printInvoiceFail,
+      );
       showMessage({
         message,
         type: 'danger',
