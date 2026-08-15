@@ -47,6 +47,12 @@ const ADMIN_ROLES = [
   'STORE_SHIFT_SUPERVISOR',
 ] as const;
 
+// Gorhom yêu cầu snap points tăng dần theo chiều cao. Trộn 700px với 80% có
+// thể đảo thứ tự trên màn hình thấp, khiến sheet thành OVER_EXTENDED và khóa
+// BottomSheetFlatList. Mở ở index cao nhất để list được unlock ngay.
+const STORE_SELECTION_SNAP_POINTS = ['80%', '90%'];
+const STORE_SELECTION_INITIAL_INDEX = 1;
+
 // Tách thành component riêng để tránh re-render không cần thiết
 const StoreItem = memo(
   ({
@@ -343,10 +349,10 @@ const StoreSelection = forwardRef<any, Props>(
           visible={visible}
           title="Chọn cửa hàng"
           ref={actionRef}
-          snapPoints={[700, '80%']}
+          snapPoints={STORE_SELECTION_SNAP_POINTS}
+          index={STORE_SELECTION_INITIAL_INDEX}
           keyboardBehavior="fillParent"
           onClose={handleClose}
-          scrollEnabled={false}
           disableScrollView={true}
         >
           <SearchBar ref={searchBarRef} onSearch={handleSearch} />
