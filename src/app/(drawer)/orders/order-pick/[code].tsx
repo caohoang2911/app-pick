@@ -20,6 +20,7 @@ import {
   setScanMoreProduct,
   toggleScanQrCodeProduct,
   toggleShowAmountInput,
+  getIsShowAmountInput,
   useOrderPick,
 } from '~/src/core/store/order-pick';
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
@@ -77,7 +78,7 @@ const OrderPick = () => {
   };
 
   const handleSuccessBarCode = useCallback(
-    (result: BarcodeScanningResult) => {
+    (result: BarcodeScanningResult, scanMoreOverride?: boolean) => {
       const codeScanned: string = result.data.toString();
 
       const { barcode: rawBarcode, quantity } = splitBarcode({
@@ -97,7 +98,10 @@ const OrderPick = () => {
       };
 
       // Snapshot cờ trong lần quét này — setState không đổi biến local ngay.
-      let scanMore = isScanMoreProduct;
+      // PDA không cần bấm nút mở camera: popup số lượng đang mở đồng nghĩa với
+      // "Pick thêm"; popup đóng luôn là scan thường. Camera giữ nguyên cờ do
+      // action mở ScannerBox thiết lập.
+      let scanMore = scanMoreOverride ?? isScanMoreProduct;
       if (scanMore && currentId == null) {
         setScanMoreProduct(false);
         scanMore = false;
@@ -216,8 +220,14 @@ const OrderPick = () => {
     ],
   );
 
+  const handlePdaSuccessBarCode = useCallback(
+    (result: BarcodeScanningResult) =>
+      handleSuccessBarCode(result, getIsShowAmountInput()),
+    [handleSuccessBarCode],
+  );
+
   // Quét bằng máy PDA (đầu đọc laser) dùng chung handler với camera, không cần mở camera.
-  usePdaScanTarget(handleSuccessBarCode);
+  usePdaScanTarget(handlePdaSuccessBarCode);
 
   if (isOrderDetailLoading) {
     return <Loading description="Đang tải đơn hàng..." />;
