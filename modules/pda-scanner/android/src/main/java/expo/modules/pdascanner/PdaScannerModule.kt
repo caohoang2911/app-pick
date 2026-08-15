@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
@@ -64,19 +65,32 @@ class PdaScannerModule : Module() {
       return
     }
 
+    // Urovo ScanWedge cho phép đổi action/category/tên extra ngay trong Settings.
+    // Đọc provider exported của hãng để receiver đi theo cấu hình hiện tại thay
+    // vì bắt người dùng chỉnh PDA về đúng các giá trị hard-code của App Pick.
+    // Nếu không phải máy Urovo (hoặc provider không tồn tại), các mapping tĩnh
+    // đa hãng bên dưới vẫn hoạt động như trước.
+    ensureUrovoIntentOutput()
+    val urovoSettings = readUrovoIntentSettings(context)
+    val scanActions = (SCAN_ACTIONS + urovoSettings.actions).distinct()
+    val barcodeExtraKeys = (STRING_EXTRA_KEYS + urovoSettings.dataExtraKeys).distinct()
+    val symbologyExtraKeys =
+      (SYMBOLOGY_EXTRA_KEYS + urovoSettings.symbologyExtraKeys).distinct()
+
     val filter = IntentFilter().apply {
-      SCAN_ACTIONS.forEach { addAction(it) }
+      scanActions.forEach { addAction(it) }
       // QUAN TRỌNG: nhiều máy (vd Urovo ScanWedge) gắn category
       // `android.intent.category.DEFAULT` vào broadcast quét. Theo luật khớp của
       // Android, nếu Intent CÓ category thì IntentFilter phải khai báo category
       // đó mới nhận được — filter chỉ-có-action sẽ BỊ LOẠI. Thêm DEFAULT để khớp
       // cả broadcast có-category (Urovo) lẫn không-category (hãng khác).
       addCategory(Intent.CATEGORY_DEFAULT)
+      urovoSettings.categories.forEach { addCategory(it) }
     }
 
     val scanReceiver = object : BroadcastReceiver() {
       override fun onReceive(ctx: Context, intent: Intent) {
-        val data = extractBarcode(intent)
+        val data = extractBarcode(intent, barcodeExtraKeys)
         if (data.isNullOrBlank()) {
           // Nhận được broadcast nhưng không rút ra được mã → dump toàn bộ extra
           // để biết máy này dùng tên key gì mà bổ sung vào STRING_EXTRA_KEYS.
@@ -105,7 +119,7 @@ class PdaScannerModule : Module() {
           bundleOf(
             "data" to data,
             "action" to (intent.action ?: ""),
-            "type" to (extractSymbology(intent) ?: ""),
+            "type" to (extractSymbology(intent, symbologyExtraKeys) ?: ""),
           ),
         )
       }
@@ -121,7 +135,7 @@ class PdaScannerModule : Module() {
       context.registerReceiver(scanReceiver, filter)
     }
     receiver = scanReceiver
-    Log.d(TAG, "Đã đăng ký BroadcastReceiver cho ${SCAN_ACTIONS.size} action")
+    Log.d(TAG, "Đã đăng ký BroadcastReceiver cho ${scanActions.size} action")
   }
 
   private fun unregisterScanReceiver() {
@@ -135,13 +149,13 @@ class PdaScannerModule : Module() {
   }
 
   /** Tìm chuỗi mã vạch trong các extra phổ biến; thử String trước, rồi CharSequence/byte[]. */
-  private fun extractBarcode(intent: Intent): String? {
-    for (key in STRING_EXTRA_KEYS) {
-      val value = intent.getStringExtra(key)
-      if (!value.isNullOrBlank()) return value
-    }
+  private fun extractBarcode(intent: Intent, extraKeys: List<String>): String? {
     val extras = intent.extras ?: return null
-    for (key in STRING_EXTRA_KEYS) {
+
+    // Đọc trực tiếp từ Bundle thay vì gọi getStringExtra trước: Urovo mặc định
+    // còn gửi `barcode` dưới dạng byte[], và một số firmware có thể dùng cùng
+    // tên key cho kiểu dữ liệu khác String.
+    for (key in extraKeys) {
       when (val raw = extras.get(key)) {
         is CharSequence -> if (raw.isNotBlank()) return raw.toString()
         is ByteArray -> if (raw.isNotEmpty()) return String(raw, Charsets.UTF_8).trim()
@@ -150,16 +164,129 @@ class PdaScannerModule : Module() {
     return null
   }
 
-  private fun extractSymbology(intent: Intent): String? {
-    for (key in SYMBOLOGY_EXTRA_KEYS) {
-      val value = intent.getStringExtra(key)
-      if (!value.isNullOrBlank()) return value
+  private fun extractSymbology(intent: Intent, extraKeys: List<String>): String? {
+    val extras = intent.extras ?: return null
+    for (key in extraKeys) {
+      when (val raw = extras.get(key)) {
+        is CharSequence -> if (raw.isNotBlank()) return raw.toString()
+        is Number -> return raw.toString()
+      }
     }
     return null
   }
 
+  /**
+   * Urovo mặc định có thể xuất scan như bàn phím. Khi App Pick bắt đầu nghe,
+   * chuyển sang Intent output bằng SDK chính thức của hãng để người dùng không
+   * phải vào ScanWedge chỉnh tay trên từng máy. Dùng reflection để project vẫn
+   * compile/chạy trên PDA hãng khác mà không cần đóng gói vendor SDK.
+   *
+   * Không ép action/extra về một giá trị riêng của App Pick: receiver sẽ đọc và
+   * đi theo action/extra hiện tại ở [readUrovoIntentSettings], nên cấu hình cũ
+   * đang hoạt động vẫn được giữ nguyên.
+   */
+  private fun ensureUrovoIntentOutput() {
+    try {
+      val scanManagerClass = Class.forName(UROVO_SCAN_MANAGER_CLASS)
+      val scanManager = scanManagerClass.getDeclaredConstructor().newInstance()
+      val outputMode =
+        (scanManagerClass.getMethod("getOutputMode").invoke(scanManager) as? Number)?.toInt()
+
+      if (outputMode == UROVO_OUTPUT_MODE_KEYBOARD) {
+        val switched =
+          scanManagerClass
+            .getMethod("switchOutputMode", Integer.TYPE)
+            .invoke(scanManager, UROVO_OUTPUT_MODE_INTENT) as? Boolean
+        Log.d(TAG, "Urovo output mode keyboard → intent: success=$switched")
+      } else {
+        Log.d(TAG, "Urovo output mode hiện tại=$outputMode; không cần thay đổi")
+      }
+    } catch (_: ClassNotFoundException) {
+      // Không phải thiết bị Urovo — dùng BroadcastReceiver đa hãng như trước.
+    } catch (error: Exception) {
+      // Không để lỗi vendor SDK làm hỏng quá trình đăng ký receiver.
+      Log.w(TAG, "Không thể áp Intent output qua Urovo ScanManager", error)
+    }
+  }
+
+  /**
+   * Đọc các output field của Urovo ScanWedge qua ContentProvider exported.
+   * Đây là thao tác read-only; App Pick không ghi hay reset cấu hình của PDA.
+   * Lấy các field ở mọi profile để receiver vẫn khớp khi ScanWedge đổi profile
+   * theo package/activity ở foreground.
+   */
+  private fun readUrovoIntentSettings(context: Context): UrovoIntentSettings {
+    val actions = linkedSetOf<String>()
+    val categories = linkedSetOf<String>()
+    val dataExtraKeys = linkedSetOf<String>()
+    val symbologyExtraKeys = linkedSetOf<String>()
+    var keyboardEnabled: String? = null
+    var intentEnabled: String? = null
+
+    try {
+      context.contentResolver.query(
+        Uri.parse(UROVO_PROPERTY_SETTINGS_URI),
+        arrayOf("name", "value"),
+        null,
+        null,
+        null,
+      )?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex("name")
+        val valueIndex = cursor.getColumnIndex("value")
+        if (nameIndex < 0 || valueIndex < 0) return@use
+
+        while (cursor.moveToNext()) {
+          val name = cursor.getString(nameIndex) ?: continue
+          val value = cursor.getString(valueIndex)?.trim().orEmpty()
+          when (name) {
+            "WEDGE_INTENT_ACTION_NAME" -> if (value.isNotEmpty()) actions.add(value)
+            "WEDGE_INTENT_CATEGORY_NAME" -> if (value.isNotEmpty()) categories.add(value)
+            "INTENT_DATA_STRING_TAG", "WEDGE_INTENT_DATA_STRING_TAG" ->
+              if (value.isNotEmpty()) dataExtraKeys.add(value)
+            "INTENT_DECODE_DATA_TAG", "WEDGE_INTENT_DECODE_DATA_TAG" ->
+              if (value.isNotEmpty()) dataExtraKeys.add(value)
+            "INTENT_LABEL_TYPE_TAG", "WEDGE_INTENT_LABEL_TYPE_TAG" ->
+              if (value.isNotEmpty()) symbologyExtraKeys.add(value)
+            "WEDGE_KEYBOARD_ENABLE" -> keyboardEnabled = value
+            "WEDGE_INTENT_ENABLE" -> intentEnabled = value
+          }
+        }
+      }
+
+      if (actions.isNotEmpty() || dataExtraKeys.isNotEmpty()) {
+        Log.d(
+          TAG,
+          "Urovo ScanWedge config: intent=$intentEnabled keyboard=$keyboardEnabled " +
+            "actions=$actions categories=$categories dataKeys=$dataExtraKeys",
+        )
+      }
+    } catch (error: Exception) {
+      // Máy hãng khác không có provider này là bình thường; không làm module fail.
+      Log.d(TAG, "Không đọc được Urovo ScanWedge config; dùng mapping mặc định", error)
+    }
+
+    return UrovoIntentSettings(
+      actions = actions,
+      categories = categories,
+      dataExtraKeys = dataExtraKeys,
+      symbologyExtraKeys = symbologyExtraKeys,
+    )
+  }
+
+  private data class UrovoIntentSettings(
+    val actions: Set<String> = emptySet(),
+    val categories: Set<String> = emptySet(),
+    val dataExtraKeys: Set<String> = emptySet(),
+    val symbologyExtraKeys: Set<String> = emptySet(),
+  )
+
   companion object {
     private const val TAG = "PdaScanner"
+    private const val UROVO_SCAN_MANAGER_CLASS = "android.device.ScanManager"
+    private const val UROVO_OUTPUT_MODE_INTENT = 0
+    private const val UROVO_OUTPUT_MODE_KEYBOARD = 1
+    private const val UROVO_PROPERTY_SETTINGS_URI =
+      "content://com.ubx.datawedge.provider/property_settings"
 
     // Bỏ qua cùng 1 mã lặp trong khoảng này (chế độ continuous). Chỉ cần lớn hơn
     // khoảng cách giữa 2 lần decode (~40–150ms) là gom hết 1 loạt về 1 event.

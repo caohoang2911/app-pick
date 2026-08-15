@@ -61,21 +61,32 @@ usePdaScanTarget(handleSuccessBarCode);
 Lưu ý: gọi hook **trước mọi early-return** (quy tắc hook của React). Hook tự gate
 theo `useIsFocused`, nên chỉ màn đang focus mới nhận mã.
 
-## 4. Cấu hình máy PDA (chọn Intent Output)
+## 4. Output mode và cấu hình máy PDA
 
-Cần đặt máy PDA sang chế độ **Intent / Broadcast** (không phải Keyboard/HID).
-Vào app cấu hình quét của máy (tên theo hãng):
+App nhận scan ổn định nhất qua **Intent / Broadcast** (không phải Keyboard/HID).
+Với **Urovo**, App Pick tự kiểm tra output mode bằng `android.device.ScanManager`
+khi listener khởi động:
+
+- Nếu đang là Keyboard Wedge, app gọi `switchOutputMode(0)` để chuyển sang Intent.
+- Nếu đã là Intent, app giữ nguyên output mode.
+- App đọc read-only `com.ubx.datawedge.provider` để tự nhận action, category và
+  tên extra hiện tại; không ép các field này về giá trị riêng của App Pick.
+- Nếu API/provider Urovo không tồn tại, module tự quay về mapping broadcast đa
+  hãng có sẵn.
+
+Vì vậy máy Urovo không còn bắt buộc phải chỉnh action/extra thủ công. Với hãng
+khác chưa có SDK adapter, vào app cấu hình quét của máy (tên theo hãng):
 
 | Hãng             | App cấu hình                         | Ghi chú                                                                                                                                                                                                             |
 | ---------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Urovo            | **ScanSettings / ScanWedge**         | Output Mode → **Intent** (mặc định action `android.intent.ACTION_DECODE_DATA`, extra `barcode_string`).                                                                                                             |
+| Urovo            | **ScanSettings / ScanWedge**         | App tự chuyển sang Intent và tự đọc action/extra; màn hình này chủ yếu dùng để chẩn đoán.                                                                                                                           |
 | Zebra            | **DataWedge**                        | Tạo/sửa Profile → **Intent Output = Enabled**, Intent action đặt = một trong các action app đang nghe (ví dụ `com.scanner.broadcast`), Category `android.intent.category.DEFAULT`, **Intent delivery = Broadcast**. |
 | Honeywell        | **Scanner/Settings**                 | Bật Intent/Broadcast output.                                                                                                                                                                                        |
 | Chainway/Newland | **Scanner Settings / Scan Settings** | Output → Broadcast/Intent.                                                                                                                                                                                          |
 
-Danh sách action + tên extra app đang nghe nằm ở `companion object` trong
-`PdaScannerModule.kt`. Nếu máy dùng action/extra khác → thêm vào 2 danh sách đó
-rồi build lại.
+Danh sách action + tên extra fallback nằm ở `companion object` trong
+`PdaScannerModule.kt`. Riêng Urovo, action/extra tùy chỉnh được discover lúc
+runtime nên không cần thêm hard-code rồi build lại.
 
 ### Cách kiểm tra máy đang ở chế độ nào (không cần app)
 
@@ -90,10 +101,10 @@ Nhiều máy Urovo (vd model có gói `com.ubx.datawedge`) không dùng "ScanSet
 mà dùng app **ScanWedge** (bản DataWedge-clone của Urovo) — đây là service quét
 **duy nhất**, **KHÔNG được disable** (tắt là chết luôn đầu đọc).
 
-Đường đi cấu hình đúng đã kiểm chứng:
+Đường đi để kiểm tra cấu hình đã được xác minh:
 `ScanWedge → profile (ScanWedge) → Default → **Output mode**`:
 
-- **Output Mode** = **Intent output** (tự tắt keystroke).
+- **Output Mode** = **Intent output** (App Pick tự áp nếu máy đang là keystroke).
 - **Intent action** = `com.scanner.broadcast` (mặc định — app đã nghe) hoặc `android.intent.ACTION_DECODE_DATA`.
 - **Intent delivery** = **Broadcast**.
 - **Intent string extra** = `data` (app đã trích; máy còn gửi kèm `com.ubx.datawedge.data_string`).
@@ -131,9 +142,13 @@ cửa sổ đủ để chặn Hand-free sẽ phá luôn tính năng đếm nhi�
 bản dev/EAS build mới:
 
 ```bash
-yarn prebuild:android:dev   # autolink module mới vào android/
-yarn android:dev            # cài lên máy PDA đã cắm
-# hoặc: yarn build:android:dev  (EAS)
+EAS_BUILD_PROFILE=dev yarn expo run:android --device
+
+# Chỉ khi cần đồng bộ lại native project từ Expo config:
+EAS_BUILD_PROFILE=dev yarn expo prebuild --platform android
+
+# Hoặc build APK qua EAS:
+yarn eas build --platform android --profile dev
 ```
 
 Test trên **máy PDA thật** (emulator không có đầu đọc):
@@ -146,11 +161,12 @@ Test trên **máy PDA thật** (emulator không có đầu đọc):
 ## 6. Xử lý sự cố
 
 - **Không có phản ứng gì khi quét:**
-  - Kiểm tra máy đã ở **Intent/Broadcast** chưa (mục 4). Nếu đang Keyboard Wedge,
-    mã đi vào ô focus chứ không vào receiver.
-  - Xem log native: `adb logcat | grep -i scan` để biết máy có phát broadcast
-    không, action/extra tên gì. Nếu khác danh sách trong `PdaScannerModule.kt`,
-    bổ sung action/extra tương ứng rồi build lại.
+  - Trên Urovo, tìm log `Urovo output mode` và `Urovo ScanWedge config` để biết
+    app đã chuyển mode và discover action/extra chưa.
+  - Xem log native: `adb logcat -s PdaScanner:D '*:S'` để biết máy có phát
+    broadcast không, action/extra tên gì.
+  - Với hãng khác, kiểm tra máy đã ở **Intent/Broadcast** chưa (mục 4). Nếu đang
+    Keyboard Wedge, mã đi vào ô focus chứ không vào receiver.
   - `isPdaScannerAvailable` phải là `true` (đã build lại sau khi thêm module).
 - **Quét ra 2 lần / nhân đôi số lượng:** đã có chống double-fire 400ms trong
   `usePdaScan.ts` (`DEDUPE_WINDOW_MS`). Máy nào bắn cách nhau > 400ms thì tăng số
