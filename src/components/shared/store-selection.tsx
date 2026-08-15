@@ -13,7 +13,6 @@ import React, {
 } from 'react';
 import { Portal } from '@gorhom/portal';
 import {
-  Linking,
   Platform,
   StyleSheet,
   Text,

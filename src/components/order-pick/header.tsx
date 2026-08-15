@@ -1,7 +1,6 @@
 import ButtonBack from '@/components/ButtonBack';
 import { More2Fill } from '@/core/svgs';
 import Feather from '@expo/vector-icons/Feather';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useGlobalSearchParams } from 'expo-router';
 import { toLower } from 'lodash';
@@ -19,7 +18,6 @@ import {
 import { useOrderPickProductsFlat } from '~/src/core/hooks/useOrderPickProductsFlat';
 import { getRelativeTime } from '~/src/core/utils/moment';
 import { Employee } from '~/src/types/employee';
-import { OrderDetail } from '~/src/types/order-pick';
 import { Product, ProductItemGroup } from '~/src/types/product';
 import { Badge } from '../Badge';
 import { Input } from '../Input';

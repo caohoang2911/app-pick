@@ -179,8 +179,9 @@ export const safeMemoryManagement = {
    */
   forceGarbageCollection: () => {
     try {
-      if (global.gc) {
-        global.gc();
+      const gc = (globalThis as { gc?: () => void }).gc;
+      if (gc) {
+        gc();
         console.log('Garbage collection triggered');
       } else {
         console.log('Garbage collection not available');
@@ -196,12 +197,19 @@ export const safeMemoryManagement = {
   getMemoryInfo: () => {
     try {
       // Check if performance.memory is available (Chrome/WebView only)
-      if (
-        typeof global !== 'undefined' &&
-        global.performance &&
-        (global.performance as any).memory
-      ) {
-        const memory = (global.performance as any).memory;
+      const performance = (
+        globalThis as {
+          performance?: {
+            memory?: {
+              usedJSHeapSize: number;
+              totalJSHeapSize: number;
+              jsHeapSizeLimit: number;
+            };
+          };
+        }
+      ).performance;
+      const memory = performance?.memory;
+      if (memory) {
         return {
           usedJSHeapSize: memory.usedJSHeapSize,
           totalJSHeapSize: memory.totalJSHeapSize,
@@ -261,7 +269,7 @@ export const safeNavigation = {
  * Safe timer utilities to prevent memory leaks
  */
 class SafeTimers {
-  private timers: Map<string, NodeJS.Timeout> = new Map();
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   /**
    * Set a safe timeout that can be cleared
@@ -311,7 +319,7 @@ class SafeTimers {
    */
   clearAllTimers(): void {
     try {
-      this.timers.forEach((timer: NodeJS.Timeout, key: string) => {
+      this.timers.forEach((timer) => {
         clearTimeout(timer);
       });
       this.timers.clear();
@@ -338,7 +346,7 @@ export const initializeSafeAppManagement = () => {
     }
 
     // Setup periodic memory cleanup
-    const cleanupInterval = safeTimers.setTimeout(
+    safeTimers.setTimeout(
       () => {
         safeMemoryManagement.forceGarbageCollection();
       },

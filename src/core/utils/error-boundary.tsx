@@ -155,7 +155,7 @@ export const SafeComponent: React.FC<{
   return (
     <ErrorBoundary
       fallback={fallback}
-      onError={(error, errorInfo) => {
+      onError={(error) => {
         handleError(error, 'SafeComponent');
         onError?.(error);
       }}

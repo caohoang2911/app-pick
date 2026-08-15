@@ -17,7 +17,7 @@ interface ConfigState {
   hydrateConfig: () => void;
 }
 
-const _useConfig = create<ConfigState>((set, get) => ({
+const _useConfig = create<ConfigState>((set) => ({
   config: null,
   version: '',
   setConfig: (config: ConfigResponse) => {

@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { showMessage } from 'react-native-flash-message';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { setLoading } from '~/src/core/store/loading';

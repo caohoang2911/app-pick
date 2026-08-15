@@ -1,6 +1,5 @@
 import { axiosClient, queryClient } from '@/api/shared';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
 import { useRole } from '~/src/core/hooks/useRole';
 import { Role } from '~/src/types/employee';
 import { OrderDetail } from '~/src/types/order-pick';
@@ -45,9 +44,7 @@ export const prefetchOrderDetailForCode = async ({
   });
 };
 
-export const SHARE_SECRET_KEY = 'uifTjoY24DRGWz3NjcVa7w';
-
-export const useOrderDetailQuery = ({ orderCode }: Variables) => {
+const useOrderDetailQuery = ({ orderCode }: Variables) => {
   const role = useRole();
   return useQuery({
     queryKey: ['orderDetail', orderCode],
@@ -58,25 +55,6 @@ export const useOrderDetailQuery = ({ orderCode }: Variables) => {
     staleTime: 30 * 1000,
     gcTime: Infinity,
   });
-};
-
-const useDelayedBoolean = (value: boolean, delayMs = 300) => {
-  const [delayedValue, setDelayedValue] = useState(false);
-
-  useEffect(() => {
-    if (!value) {
-      setDelayedValue(false);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setDelayedValue(true);
-    }, delayMs);
-
-    return () => clearTimeout(timer);
-  }, [value, delayMs]);
-
-  return delayedValue;
 };
 
 /**

@@ -25,7 +25,6 @@ import { queryClient } from '~/src/api/shared/api-provider';
 import { Button } from '~/src/components/Button';
 import ButtonBack from '~/src/components/ButtonBack';
 import CODReceipt from '~/src/components/CODReceipt';
-import Loading from '~/src/components/Loading';
 import InvoiceAlert from '~/src/components/order-scan-to-delivery/invoice-alert';
 import { SectionAlert } from '~/src/components/SectionAlert';
 import Header from '~/src/components/shared/header';

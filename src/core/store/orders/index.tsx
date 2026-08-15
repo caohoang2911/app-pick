@@ -20,7 +20,7 @@ interface OrdersListState {
   reset: () => void;
 }
 
-const _useOrders = create<OrdersListState>((set, get) => ({
+const _useOrders = create<OrdersListState>((set) => ({
   isScanQrCode: false,
   selectedOrderCounter: TAB_STATUS_DEFAULT,
   keyword: '',

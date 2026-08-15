@@ -1,4 +1,4 @@
-import { EmployeeRole, Role } from '~/src/types/employee';
+import { EmployeeRole } from '~/src/types/employee';
 
 /**
  * Bỏ mã nhân viên khỏi cuối tên (vd. "KFM - Delivery - Sang Nguyễn - SC009226"

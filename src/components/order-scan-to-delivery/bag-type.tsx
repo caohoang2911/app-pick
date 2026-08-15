@@ -1,4 +1,3 @@
-import { useLocalSearchParams } from 'expo-router';
 import React, { memo, useMemo } from 'react';
 import { Text, View, FlatList } from 'react-native';
 import { OrderBagItem, OrderBagType } from '~/src/types/order-bags';
@@ -37,7 +36,6 @@ const BagType = memo(
   ({
     title,
     bagLabels,
-    type,
   }: {
     title: string;
     bagLabels: OrderBagItem[];
@@ -65,7 +63,7 @@ const BagType = memo(
               maxToRenderPerBatch={5} // Render ít items mỗi batch
               windowSize={5} // Giảm kích thước window
               updateCellsBatchingPeriod={50} // Thời gian batching
-              getItemLayout={(data, index) =>
+              getItemLayout={(_, index) =>
                 // Tối ưu hóa scrolling bằng cách xác định trước kích thước item
                 ({ length: 50, offset: 52 * index, index })
               }

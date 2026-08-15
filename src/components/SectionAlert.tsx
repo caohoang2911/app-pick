@@ -2,8 +2,6 @@ import { type VariantProps, cva } from 'class-variance-authority';
 import { memo } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
-import { cn } from '../lib/utils';
-
 const alertVariants = cva('rounded-lg flex justify-center', {
   variants: {
     variant: {

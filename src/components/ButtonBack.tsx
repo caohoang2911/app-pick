@@ -5,11 +5,9 @@ import { NavigationHelpers } from '@/core/utils/navigation';
 
 const ButtonBack = ({
   title,
-  className,
   onPress,
 }: {
   title?: string | React.ReactNode;
-  className?: string;
   onPress?: () => void;
 }) => {
   const goBack = () => {

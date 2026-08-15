@@ -11,7 +11,6 @@ import React, {
   useState,
 } from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   Keyboard,
   Platform,
@@ -821,9 +820,8 @@ const InputAmountPopup = () => {
   }, [orderPickProductsFlat, isEditManual, currentId, barcodeScanSuccess]);
 
   // Extract product properties once
-  const { pickedQuantity, quantity, orderQuantity } = currentProduct || {
+  const { pickedQuantity, orderQuantity } = currentProduct || {
     pickedQuantity: 0,
-    quantity: 0,
     orderQuantity: 0,
   };
   const displayPickedQuantity = useMemo(() => {

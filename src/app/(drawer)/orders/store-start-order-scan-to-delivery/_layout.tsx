@@ -1,10 +1,8 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack } from 'expo-router';
 import Header from '~/src/components/shared/header';
 import HeaderRightAction from '~/src/components/store-start-order-scan-to-delivery/header-right-action';
 
 export default function OrderScanToDeliveryLayout() {
-  const { code } = useLocalSearchParams<{ code: string }>();
-
   return (
     <Stack>
       <Stack.Screen

@@ -11,7 +11,6 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import { useAuth } from '~/src/core';
 
 export enum TargetScreen {
   ORDER_PICK = 'ORDER-PICK',
@@ -34,7 +33,6 @@ Notifications.setNotificationHandler({
 
 export const usePushNotifications: any = () => {
   const queryClient = useQueryClient();
-  const userInfo = useAuth.use.userInfo();
   const [token, setToken] = useState('');
   const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
     [],

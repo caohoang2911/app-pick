@@ -3,10 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRole } from '~/src/core/hooks/useRole';
 import { Role } from '~/src/types/employee';
 
-type Variables = {
-  role: Role;
-};
-
 export type OrderCounterResponse = {
   ALL?: number;
   STORE_PICKING?: number;

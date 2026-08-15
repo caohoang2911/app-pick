@@ -120,9 +120,6 @@ const OrderListSkeleton = () => {
   }, []);
 
   const animStyle = useAnimatedStyle(() => ({ opacity: shimmer.value }));
-  const B = (p: Omit<Parameters<typeof Bone>[0], 'animStyle'>) => (
-    <Bone {...p} animStyle={animStyle} />
-  );
 
   return (
     <ScrollView

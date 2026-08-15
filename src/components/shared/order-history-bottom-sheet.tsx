@@ -2,7 +2,6 @@ import React, { forwardRef, useEffect, useRef } from 'react';
 import { Text, View, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import SBottomSheet from '../SBottomSheet';
-import { useOrderPick } from '@/core/store/order-pick';
 import moment from 'moment';
 import { OrderDetail } from '~/src/types/order-pick';
 
@@ -20,7 +19,7 @@ export interface OrderHistoryBottomSheetRef {
 const OrderHistoryBottomSheet = forwardRef<
   OrderHistoryBottomSheetRef,
   OrderHistoryBottomSheetProps
->(({ visible, setVisible, orderDetail }, ref) => {
+>(({ visible, setVisible, orderDetail }, _ref) => {
   const actionRef = useRef<any>();
 
   useEffect(() => {

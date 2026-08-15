@@ -1,9 +1,7 @@
 import * as Linking from 'expo-linking';
-import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import { useAuth } from '../store/auth';
-import { DeepLinkPath } from '../utils/deep-link';
 import { ROUTES } from '../constants/routes';
 import { NavigationHelpers } from '../utils/navigation';
 
@@ -163,7 +161,6 @@ function routeByPath(path: string, orderCode?: string, deliveryCode?: string) {
 }
 
 const useHandleDeepLink = () => {
-  const [data, setData] = useState<any>(null);
   const status = useAuth.use.status();
   const isRedirectingToLogin = useRef(false);
   const lastHandledUrlRef = useRef<string | null>(null);
@@ -292,8 +289,6 @@ const useHandleDeepLink = () => {
       subscription.remove();
     };
   }, []);
-
-  return { data };
 };
 
 export default useHandleDeepLink;

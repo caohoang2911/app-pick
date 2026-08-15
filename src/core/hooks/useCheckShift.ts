@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { useAuth } from '~/src/core';
 import { useStartMyKposShift } from '~/src/api/app-pick/use-start-my-kpos-shift';

@@ -1,7 +1,5 @@
 import { axiosClient, queryClient } from '@/api/shared';
 import { useMutation } from '@tanstack/react-query';
-import { showMessage } from 'react-native-flash-message';
-import { Product } from '~/src/types/product';
 
 type Variables = {
   orderCode?: string;

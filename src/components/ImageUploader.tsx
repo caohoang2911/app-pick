@@ -98,7 +98,7 @@ export default function ExpoImageUploader({
         }
       }
     },
-    (error) => {
+    () => {
       // Remove the failed image
       if (currentUploadingUri) {
         setImages((prev) => prev.filter((img) => img !== currentUploadingUri));

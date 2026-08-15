@@ -33,10 +33,6 @@ export default (): ExpoConfig => {
   const baseSchemeRaw = baseSchemeValue ?? 'apppick';
   const schemeBase = baseSchemeRaw.replace(/dev$/i, '');
 
-  const baseBundleIdRaw =
-    base.ios?.bundleIdentifier ?? 'com.caohoang2911.seedcom-app-pick';
-  const bundleIdBase = baseBundleIdRaw.replace(/-dev$/i, '');
-
   // Package names that EXACTLY match your Google Services files
   const getAndroidPackage = () => {
     if (isDev) {

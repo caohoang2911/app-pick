@@ -206,8 +206,6 @@ const Authorize = () => {
                 // Extract userId from the content data
                 try {
                   let code = null;
-                  let userName = null;
-                  let userId = null;
 
                   if (contentData?.text) {
                     clearInterval(intervalRef.current);
@@ -220,18 +218,6 @@ const Authorize = () => {
                     if (codeMatch) {
                       code = codeMatch[1];
                       setExtractedCode(code); // Store in state
-                    }
-
-                    // Extract name using regex
-                    const userNameMatch = errorMessage.match(/name:\s*([^,]+)/);
-                    if (userNameMatch) {
-                      userName = userNameMatch[1].trim();
-                    }
-
-                    // Extract id using regex
-                    const userIdMatch = errorMessage.match(/id:\s*(\d+)/);
-                    if (userIdMatch) {
-                      userId = userIdMatch[1];
                     }
                   }
                 } catch (error) {

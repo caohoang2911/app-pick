@@ -82,7 +82,6 @@ const ActionsBottom = () => {
 
   const { orderDetail } = useOrderDetailForCode(code);
 
-  const { shipping } = orderDetail?.header || {};
   const { header } = orderDetail || {};
   const { status } = header || {};
 

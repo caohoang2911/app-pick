@@ -266,7 +266,7 @@ const OrderList = () => {
 
   // Memoize item renderer to prevent unnecessary re-renders
   const renderItem = useCallback(
-    ({ item, index }: { item: any; index: number }) => {
+    ({ item }: { item: any }) => {
       // Fast path: Chỉ render các items gần viewport
       return (
         <MemoizedOrderItem
@@ -276,16 +276,6 @@ const OrderList = () => {
       );
     },
     [selectedOrderCounter],
-  );
-
-  // Optimize list performance with getItemLayout
-  const getItemLayout = useCallback(
-    (_: any, index: number) => ({
-      length: 120, // Estimated item height
-      offset: 120 * index,
-      index,
-    }),
-    [],
   );
 
   // Optimize key extraction

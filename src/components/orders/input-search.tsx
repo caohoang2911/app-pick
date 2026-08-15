@@ -201,7 +201,7 @@ const InputSearch = ({
     return <OrderItem key={item.code} item={item} />;
   }, []);
 
-  const handleSelect = useCallback((item: any) => {
+  const handleSelect = useCallback(() => {
     // This is handled by the OrderItem component now
   }, []);
 

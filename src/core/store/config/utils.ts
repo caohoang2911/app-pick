@@ -1,4 +1,4 @@
-import { getItem, removeItem, setItem } from '@/core/storage';
+import { getItem, setItem } from '@/core/storage';
 
 const CONFIG = 'config';
 const VERSION = 'version';

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import TrackingBottomSheet, {
   TrackingBottomSheetRef,
 } from '../tracking/TrackingBottomSheet';

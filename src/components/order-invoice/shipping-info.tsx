@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import React, { useRef } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, Platform } from 'react-native';
 import { useOrderDetailForCode } from '~/src/api/app-pick/use-get-order-detail';
 import TrackingButton from './tracking-button';

@@ -4,7 +4,6 @@ import { useLocalSearchParams } from 'expo-router';
 import { isNil } from 'lodash';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
-  Dimensions,
   Modal,
   Platform,
   StyleSheet,

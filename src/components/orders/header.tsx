@@ -97,7 +97,7 @@ const Header = () => {
     refreshTokenAsync();
   });
 
-  const { mutateAsync: refreshTokenAsync } = useRefreshToken((data) => {
+  const { mutateAsync: refreshTokenAsync } = useRefreshToken(() => {
     queryClient.invalidateQueries({});
   });
 

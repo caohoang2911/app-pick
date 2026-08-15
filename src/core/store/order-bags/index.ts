@@ -2,10 +2,7 @@ import { create } from 'zustand';
 import { createSelectors } from '../../utils/browser';
 import { OrderBagItem, OrderBagType } from '~/src/types/order-bags';
 import { OrderDetail } from '~/src/types/order-pick';
-import {
-  generateBagName,
-  transformBagsData,
-} from '~/src/core/utils/order-bags';
+import { generateBagName } from '~/src/core/utils/order-bags';
 
 interface OrderBagState {
   orderDetail: OrderDetail;
@@ -27,7 +24,6 @@ interface OrderBagState {
   addOrderBag: (values: OrderBagItem) => void;
   removeOrderBag: (code: string, type: OrderBagType) => void;
   undoLastChange: () => void;
-  savePreviousState: () => void;
 }
 
 const _useOrderBags = create<OrderBagState>((set, get) => ({
@@ -74,10 +70,6 @@ const _useOrderBags = create<OrderBagState>((set, get) => ({
       },
     });
   },
-  savePreviousState: () => {
-    const currentState = get().orderBags;
-    set({ previousOrderBags: currentState });
-  },
   undoLastChange: () => {
     const previousState = get().previousOrderBags;
     if (previousState) {
@@ -106,10 +98,6 @@ export const removeOrderBag = (code: string, type: OrderBagType) => {
 
 export const undoLastChange = () => {
   useOrderBags.getState().undoLastChange();
-};
-
-export const savePreviousState = () => {
-  useOrderBags.getState().savePreviousState();
 };
 
 export const setHasUpdateOrderBagLabels = (
