@@ -1,0 +1,110 @@
+name: Build development native release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        required: true
+        default: android
+        options: [android, ios-device, ios-testflight, android-ios-testflight]
+      release_notes:
+        type: string
+        required: true
+        default: Development native build
+
+defaults:
+  tools:
+    node: '22.9.0'
+    yarn: '1.22.22'
+
+jobs:
+  quality:
+    name: Validate source
+    environment: development
+    env:
+      RELEASE_KIND: native
+      RELEASE_ENVIRONMENT: development
+      RELEASE_CHANNEL: development
+      RELEASE_TARGET: ${{ inputs.target }}
+      RELEASE_MESSAGE: ${{ inputs.release_notes }}
+      RELEASE_GITHUB_REPOSITORY: caohoang2911/ap
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Report release context
+        run: node scripts/ci/report-release-context.js
+      - run: yarn validate:runtime
+      - run: yarn type-check
+      - run: yarn lint:workflow
+
+  build_android:
+    name: Build development APK
+    needs: [quality]
+    if: ${{ contains(inputs.target, 'android') }}
+    type: build
+    params:
+      platform: android
+      profile: dev
+      message: ${{ inputs.release_notes }}
+
+  publish_android_release:
+    name: Publish development APK to GitHub
+    needs: [build_android]
+    environment: development
+    env:
+      GITHUB_RELEASE_REPOSITORY: caohoang2911/ap
+      GITHUB_RELEASE_TAG: dev-android-${{ needs.build_android.outputs.app_build_version }}
+      GITHUB_RELEASE_NAME: App Pick Dev Android ${{ needs.build_android.outputs.app_build_version }}
+      GITHUB_RELEASE_NOTES: ${{ inputs.release_notes }}
+      GITHUB_RELEASE_PRERELEASE: 'true'
+    steps:
+      - uses: eas/checkout
+      - id: download
+        uses: eas/download_build
+        with:
+          build_id: ${{ needs.build_android.outputs.build_id }}
+          extensions: [apk]
+      - run: node scripts/ci/publish-github-release.js "${{ steps.download.outputs.artifact_path }}"
+
+  build_ios_device:
+    name: Build development iOS device app
+    needs: [quality]
+    if: ${{ inputs.target == 'ios-device' }}
+    type: build
+    params:
+      platform: ios
+      profile: dev-device
+      message: ${{ inputs.release_notes }}
+
+  build_ios_testflight:
+    name: Build development iOS for TestFlight
+    needs: [quality]
+    if: ${{ contains(inputs.target, 'testflight') }}
+    type: build
+    params:
+      platform: ios
+      profile: dev
+      message: ${{ inputs.release_notes }}
+
+  testflight:
+    name: Upload development iOS to TestFlight
+    needs: [build_ios_testflight]
+    type: testflight
+    params:
+      build_id: ${{ needs.build_ios_testflight.outputs.build_id }}
+      changelog: ${{ inputs.release_notes }}
+
+  publish_ios_release:
+    name: Publish development iOS release marker
+    needs: [build_ios_testflight, testflight]
+    environment: development
+    env:
+      GITHUB_RELEASE_REPOSITORY: caohoang2911/ap
+      GITHUB_RELEASE_TAG: dev-ios-${{ needs.build_ios_testflight.outputs.app_build_version }}
+      GITHUB_RELEASE_NAME: App Pick Dev iOS ${{ needs.build_ios_testflight.outputs.app_build_version }}
+      GITHUB_RELEASE_NOTES: ${{ inputs.release_notes }}
+      GITHUB_RELEASE_PRERELEASE: 'true'
+    steps:
+      - uses: eas/checkout
+      - run: node scripts/ci/publish-github-release.js

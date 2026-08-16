@@ -4,6 +4,13 @@ set -e  # Exit on error
 
 echo "🚀 Starting prebuild process..."
 
+# EAS file variables được mount thành đường dẫn tạm. Materialize chúng về đúng
+# tên mà app.config.ts và copy-google-services.sh đang dùng. Local build vẫn dùng
+# các file sẵn có ở root như trước.
+if [ -f "./commands/materialize-google-services.sh" ]; then
+  bash ./commands/materialize-google-services.sh
+fi
+
 # Step 1: Run expo prebuild to generate native directories
 echo "📦 Running expo prebuild..."
 npx expo prebuild --clean

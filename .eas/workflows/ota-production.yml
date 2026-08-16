@@ -1,0 +1,81 @@
+name: Publish production OTA
+
+on:
+  workflow_dispatch:
+    inputs:
+      ota_version:
+        type: string
+        required: true
+        description: Immutable display version, for example 1.0.32
+      platform:
+        type: choice
+        required: true
+        default: all
+        options: [all, android, ios]
+
+defaults:
+  tools:
+    node: '22.9.0'
+    yarn: '1.22.22'
+
+jobs:
+  validate:
+    name: Validate OTA compatibility
+    environment: production
+    env:
+      OTA_VERSION: ${{ inputs.ota_version }}
+      RELEASE_KIND: ota
+      RELEASE_ENVIRONMENT: production
+      RELEASE_PROFILE: prod
+      RELEASE_CHANNEL: production
+      RELEASE_PLATFORM: ${{ inputs.platform }}
+      RELEASE_OTA_VERSION: ${{ inputs.ota_version }}
+      RELEASE_ROLLOUT: 25% then approval to 100%
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Resolve previous successful OTA
+        run: node scripts/ci/resolve-ota-base.js --branch production --set-env
+      - name: Report release context
+        run: node scripts/ci/report-release-context.js
+      - name: Validate runtime/native compatibility
+        run: yarn validate:runtime
+      - name: Fetch previous release commit
+        run: node scripts/ci/fetch-base-commit.js
+      - name: Reject native changes
+        run: node scripts/ci/classify-release.js --base FETCH_HEAD --head HEAD --require-ota --ota-version "$OTA_VERSION"
+      - name: Type-check
+        run: yarn type-check
+      - name: Check workflow formatting
+        run: yarn lint:workflow
+
+  approve_publish:
+    name: Publish production OTA to 25%?
+    needs: [validate]
+    type: require-approval
+
+  publish:
+    name: Publish 25% rollout
+    needs: [approve_publish]
+    type: update
+    environment: production
+    env:
+      EAS_BUILD_PROFILE: prod
+      EXPO_PUBLIC_OTA_VERSION: ${{ inputs.ota_version }}
+    params:
+      channel: production
+      platform: ${{ inputs.platform }}
+      rollout_percentage: 25
+
+  approve_rollout:
+    name: Complete production rollout?
+    needs: [publish]
+    type: require-approval
+
+  complete_rollout:
+    name: Roll out to 100%
+    needs: [publish, approve_rollout]
+    type: update-rollout
+    params:
+      update_group_id: ${{ needs.publish.outputs.first_update_group_id }}
+      rollout_percentage: 100

@@ -37,8 +37,10 @@ const RUNTIME_VERSION_RE = /("runtimeVersion"\s*:\s*)"([^"]*)"/g;
 function readCodepushVersion() {
   try {
     const content = fs.readFileSync(VERSION_FILE, 'utf8');
-    const match = content.match(/CODEPUSH_VERSION = ['"](.*?)['"]/);
-    return match && match[1] ? match[1] : '?';
+    const match = content.match(
+      /CODEPUSH_VERSION_FALLBACK\s*=\s*['"](.*?)['"]|CODEPUSH_VERSION\s*=\s*['"](.*?)['"]/,
+    );
+    return match && (match[1] || match[2]) ? match[1] || match[2] : '?';
   } catch (error) {
     return '?';
   }

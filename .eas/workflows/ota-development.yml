@@ -1,0 +1,57 @@
+name: Publish development OTA
+
+on:
+  workflow_dispatch:
+    inputs:
+      ota_version:
+        type: string
+        required: true
+        description: Immutable display version, for example 1.0.32-dev.1
+
+defaults:
+  tools:
+    node: '22.9.0'
+    yarn: '1.22.22'
+
+jobs:
+  validate:
+    name: Validate OTA compatibility
+    environment: development
+    env:
+      OTA_VERSION: ${{ inputs.ota_version }}
+      RELEASE_KIND: ota
+      RELEASE_ENVIRONMENT: development
+      RELEASE_PROFILE: dev
+      RELEASE_CHANNEL: development
+      RELEASE_PLATFORM: all
+      RELEASE_OTA_VERSION: ${{ inputs.ota_version }}
+      RELEASE_ROLLOUT: 100%
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Resolve previous successful OTA
+        run: node scripts/ci/resolve-ota-base.js --branch development --set-env
+      - name: Report release context
+        run: node scripts/ci/report-release-context.js
+      - name: Validate runtime/native compatibility
+        run: yarn validate:runtime
+      - name: Fetch previous release commit
+        run: node scripts/ci/fetch-base-commit.js
+      - name: Reject native changes
+        run: node scripts/ci/classify-release.js --base FETCH_HEAD --head HEAD --require-ota --ota-version "$OTA_VERSION"
+      - name: Type-check
+        run: yarn type-check
+      - name: Check workflow formatting
+        run: yarn lint:workflow
+
+  publish:
+    name: Publish to development channel
+    needs: [validate]
+    type: update
+    environment: development
+    env:
+      EAS_BUILD_PROFILE: dev
+      EXPO_PUBLIC_OTA_VERSION: ${{ inputs.ota_version }}
+    params:
+      channel: development
+      platform: all

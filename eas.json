@@ -2,6 +2,7 @@
   "build": {
     "dev": {
       "node": "22.9.0",
+      "environment": "development",
       "autoIncrement": true,
       "developmentClient": false,
       "android": {
@@ -21,7 +22,9 @@
       },
       "channel": "development",
       "env": {
-        "EAS_BUILD_PROFILE": "dev"
+        "EAS_BUILD_PROFILE": "dev",
+        "EXPO_PUBLIC_GITHUB_REPO": "caohoang2911/ap",
+        "EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX": "dev-"
       }
     },
     "dev-device": {
@@ -32,6 +35,7 @@
     },
     "prod": {
       "node": "22.9.0",
+      "environment": "production",
       "autoIncrement": true,
       "developmentClient": false,
       "android": {
@@ -50,7 +54,9 @@
       },
       "channel": "production",
       "env": {
-        "EAS_BUILD_PROFILE": "prod"
+        "EAS_BUILD_PROFILE": "prod",
+        "EXPO_PUBLIC_GITHUB_REPO": "caohoang2911/ap",
+        "EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX": "prod-"
       }
     }
   },

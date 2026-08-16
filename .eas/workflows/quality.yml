@@ -1,0 +1,30 @@
+name: App Pick quality
+
+on:
+  push:
+    branches: [main, dev-deploy, prod-deploy]
+  pull_request:
+    branches: [main, dev-deploy, prod-deploy]
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+defaults:
+  tools:
+    node: '22.9.0'
+    yarn: '1.22.22'
+
+jobs:
+  quality:
+    name: TypeScript and delivery files
+    environment: development
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Validate runtime/native compatibility
+        run: yarn validate:runtime
+      - name: Type-check
+        run: yarn type-check
+      - name: Check workflow formatting
+        run: yarn lint:workflow

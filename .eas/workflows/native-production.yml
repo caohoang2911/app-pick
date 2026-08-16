@@ -1,0 +1,106 @@
+name: Build production native release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        required: true
+        default: android-ios
+        options: [android, ios, android-ios]
+      release_notes:
+        type: string
+        required: true
+        default: Production native build
+
+defaults:
+  tools:
+    node: '22.9.0'
+    yarn: '1.22.22'
+
+jobs:
+  quality:
+    name: Validate source
+    environment: production
+    env:
+      RELEASE_KIND: native
+      RELEASE_ENVIRONMENT: production
+      RELEASE_PROFILE: prod
+      RELEASE_CHANNEL: production
+      RELEASE_TARGET: ${{ inputs.target }}
+      RELEASE_MESSAGE: ${{ inputs.release_notes }}
+      RELEASE_GITHUB_REPOSITORY: caohoang2911/ap
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Report release context
+        run: node scripts/ci/report-release-context.js
+      - run: yarn validate:runtime
+      - run: yarn type-check
+      - run: yarn lint:workflow
+
+  approve_build:
+    name: Start production native build?
+    needs: [quality]
+    type: require-approval
+
+  build_android:
+    name: Build production APK
+    needs: [approve_build]
+    if: ${{ contains(inputs.target, 'android') }}
+    type: build
+    params:
+      platform: android
+      profile: prod
+      message: ${{ inputs.release_notes }}
+
+  publish_android_release:
+    name: Publish production APK to GitHub
+    needs: [build_android]
+    environment: production
+    env:
+      GITHUB_RELEASE_REPOSITORY: caohoang2911/ap
+      GITHUB_RELEASE_TAG: prod-android-${{ needs.build_android.outputs.app_build_version }}
+      GITHUB_RELEASE_NAME: App Pick Android ${{ needs.build_android.outputs.app_build_version }}
+      GITHUB_RELEASE_NOTES: ${{ inputs.release_notes }}
+      GITHUB_RELEASE_PRERELEASE: 'false'
+    steps:
+      - uses: eas/checkout
+      - id: download
+        uses: eas/download_build
+        with:
+          build_id: ${{ needs.build_android.outputs.build_id }}
+          extensions: [apk]
+      - run: node scripts/ci/publish-github-release.js "${{ steps.download.outputs.artifact_path }}"
+
+  build_ios:
+    name: Build production iOS
+    needs: [approve_build]
+    if: ${{ contains(inputs.target, 'ios') }}
+    type: build
+    params:
+      platform: ios
+      profile: prod
+      message: ${{ inputs.release_notes }}
+
+  testflight:
+    name: Upload production iOS to TestFlight
+    needs: [build_ios]
+    type: testflight
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      changelog: ${{ inputs.release_notes }}
+
+  publish_ios_release:
+    name: Publish production iOS release marker
+    needs: [build_ios, testflight]
+    environment: production
+    env:
+      GITHUB_RELEASE_REPOSITORY: caohoang2911/ap
+      GITHUB_RELEASE_TAG: prod-ios-${{ needs.build_ios.outputs.app_build_version }}
+      GITHUB_RELEASE_NAME: App Pick iOS ${{ needs.build_ios.outputs.app_build_version }}
+      GITHUB_RELEASE_NOTES: ${{ inputs.release_notes }}
+      GITHUB_RELEASE_PRERELEASE: 'false'
+    steps:
+      - uses: eas/checkout
+      - run: node scripts/ci/publish-github-release.js
