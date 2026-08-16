@@ -23,7 +23,7 @@
       "channel": "development",
       "env": {
         "EAS_BUILD_PROFILE": "dev",
-        "EXPO_PUBLIC_GITHUB_REPO": "caohoang2911/ap",
+        "EXPO_PUBLIC_GITHUB_REPO": "caohoang2911/app-pick",
         "EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX": "dev-"
       }
     },
@@ -55,7 +55,7 @@
       "channel": "production",
       "env": {
         "EAS_BUILD_PROFILE": "prod",
-        "EXPO_PUBLIC_GITHUB_REPO": "caohoang2911/ap",
+        "EXPO_PUBLIC_GITHUB_REPO": "caohoang2911/app-pick",
         "EXPO_PUBLIC_GITHUB_RELEASE_TAG_PREFIX": "prod-"
       }
     }

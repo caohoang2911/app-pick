@@ -28,7 +28,7 @@ jobs:
       RELEASE_CHANNEL: development
       RELEASE_TARGET: ${{ inputs.target }}
       RELEASE_MESSAGE: ${{ inputs.release_notes }}
-      RELEASE_GITHUB_REPOSITORY: caohoang2911/ap
+      RELEASE_GITHUB_REPOSITORY: caohoang2911/app-pick
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
@@ -53,7 +53,7 @@ jobs:
     needs: [build_android]
     environment: development
     env:
-      GITHUB_RELEASE_REPOSITORY: caohoang2911/ap
+      GITHUB_RELEASE_REPOSITORY: caohoang2911/app-pick
       GITHUB_RELEASE_TAG: dev-android-${{ needs.build_android.outputs.app_build_version }}
       GITHUB_RELEASE_NAME: App Pick Dev Android ${{ needs.build_android.outputs.app_build_version }}
       GITHUB_RELEASE_NOTES: ${{ inputs.release_notes }}
@@ -100,7 +100,7 @@ jobs:
     needs: [build_ios_testflight, testflight]
     environment: development
     env:
-      GITHUB_RELEASE_REPOSITORY: caohoang2911/ap
+      GITHUB_RELEASE_REPOSITORY: caohoang2911/app-pick
       GITHUB_RELEASE_TAG: dev-ios-${{ needs.build_ios_testflight.outputs.app_build_version }}
       GITHUB_RELEASE_NAME: App Pick Dev iOS ${{ needs.build_ios_testflight.outputs.app_build_version }}
       GITHUB_RELEASE_NOTES: ${{ inputs.release_notes }}

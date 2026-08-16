@@ -91,6 +91,15 @@ hỏi target, release notes và yêu cầu xác nhận:
 yarn workflow:build:dev
 ```
 
+Hoặc chọn thẳng platform; mỗi lệnh vẫn hỏi release notes và xác nhận:
+
+```bash
+yarn workflow:build:dev:android
+yarn workflow:build:dev:ios         # iOS TestFlight
+yarn workflow:build:dev:ios:device  # iOS internal device
+yarn workflow:build:dev:both        # Android + iOS TestFlight
+```
+
 Chạy non-interactive:
 
 ```bash
@@ -117,23 +126,32 @@ Trước khi chạy thật, launcher yêu cầu working tree clean và `HEAD` ph
 Production workflow yêu cầu approval trước khi build. Android tạo APK/GitHub
 Release; iOS build và upload TestFlight.
 
-Chạy có prompt:
+Production cố định Git ref `prod-deploy`. Chạy có prompt chọn platform:
 
 ```bash
-yarn workflow:build:prod --ref prod-deploy
+yarn workflow:build:prod
+```
+
+Hoặc chọn thẳng platform:
+
+```bash
+yarn workflow:build:prod:android
+yarn workflow:build:prod:ios
+yarn workflow:build:prod:both
 ```
 
 Chạy non-interactive:
 
 ```bash
 yarn workflow:build:prod \
-  --ref prod-deploy \
-  --non-interactive \
-  -F target=android-ios \
-  -F release_notes="Production native build"
+  --target android-ios \
+  --release-notes "Production native build"
 ```
 
 Giá trị `target` hợp lệ: `android`, `ios`, `android-ios`.
+
+Trước khi chạy thật, launcher yêu cầu working tree clean và `HEAD` phải khớp
+`origin/prod-deploy`.
 
 ## Runtime version
 

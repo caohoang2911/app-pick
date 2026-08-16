@@ -1,10 +1,14 @@
 name: App Pick quality
 
 on:
-  push:
-    branches: [main, dev-deploy, prod-deploy]
   pull_request:
     branches: [main, dev-deploy, prod-deploy]
+    paths:
+      - '**'
+      - '!README.md'
+      - '!docs/**'
+      - '!.agents/**'
+      - '!.cursor/**'
 
 concurrency:
   cancel_in_progress: true

@@ -46,6 +46,17 @@ EAS_BUILD_PROFILE=dev yarn expo run:ios --device
 eas build --platform android --profile dev
 eas build --platform ios --profile dev
 
+# EAS native workflow — có prompt hoặc chọn thẳng platform
+yarn workflow:build:dev
+yarn workflow:build:dev:android
+yarn workflow:build:dev:ios
+yarn workflow:build:dev:ios:device
+yarn workflow:build:dev:both
+yarn workflow:build:prod
+yarn workflow:build:prod:android
+yarn workflow:build:prod:ios
+yarn workflow:build:prod:both
+
 # Production scripts
 yarn start:prod
 yarn build:android:prod

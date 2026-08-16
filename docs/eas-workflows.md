@@ -6,8 +6,10 @@ phối thực tế là EAS Update.
 
 ## Nguyên tắc phát hành
 
-- Pull request và push vào `main`, `dev-deploy`, `prod-deploy` chỉ tự động chạy
-  quality workflow. Build và OTA luôn được kích hoạt thủ công.
+- Chỉ pull request vào `main`, `dev-deploy`, `prod-deploy` mới tự động chạy
+  quality workflow. Thay đổi thuần `README.md`, `docs/`, `.agents/` hoặc
+  `.cursor/` được bỏ qua để tiết kiệm CI/CD minutes. Build và OTA luôn được kích
+  hoạt thủ công và tự chạy lại các quality gate trước khi phát hành.
 - OTA workflow tự lấy full SHA của update thành công gần nhất có cùng branch và
   runtime từ EAS Update. Guard so diff từ SHA đó đến commit đang chạy và từ chối
   khi có native/config change.
@@ -19,13 +21,14 @@ phối thực tế là EAS Update.
 
 ## Thiết lập một lần trên Expo
 
-1. Kết nối repository `caohoang2911/ap` trong GitHub settings của EAS project.
+1. Kết nối repository `caohoang2911/app-pick` trong GitHub settings của EAS
+   project.
 2. Tạo EAS environments `development` và `production`.
 3. Trong mỗi environment, tạo hai file variables:
    - `GOOGLE_SERVICES_JSON`
    - `GOOGLE_SERVICES_PLIST`
 4. Tạo secret `GITHUB_RELEASE_TOKEN` trong cả hai environment. Token cần quyền
-   tạo release và upload asset cho `caohoang2911/ap`; không đặt tiền tố
+   tạo release và upload asset cho `caohoang2911/app-pick`; không đặt tiền tố
    `EXPO_PUBLIC_` cho token.
 5. Xác nhận Android/iOS signing credentials và App Store Connect connection đã
    được cấu hình cho các profile `dev`, `dev-device`, `prod`.
@@ -52,10 +55,13 @@ yarn workflow:build:dev
 
 Lệnh sẽ hỏi target Android, iOS device, iOS TestFlight hoặc Android + iOS
 TestFlight; sau đó hiển thị ref/runtime và yêu cầu xác nhận trước khi tạo build.
+Có thể chọn thẳng platform bằng `workflow:build:dev:android`,
+`workflow:build:dev:ios`, `workflow:build:dev:ios:device` hoặc
+`workflow:build:dev:both`.
 Muốn chạy không tương tác, truyền input cho launcher, ví dụ:
 
 ```bash
-node scripts/ci/run-native-development-workflow.js \
+yarn workflow:build:dev \
   --target ios-device \
   --release-notes "Development iOS device build"
 ```
@@ -72,8 +78,13 @@ Production native build:
 yarn workflow:build:prod
 ```
 
-Khi CLI hỏi Git ref, chọn đúng commit/branch cần phát hành. Commit đích được lấy
-từ Git ref; không cần nhập lại SHA. Workflow dùng `eas update:list` và
+Có thể chọn thẳng platform bằng `workflow:build:prod:android`,
+`workflow:build:prod:ios` hoặc `workflow:build:prod:both`. Production launcher
+cố định Git ref `prod-deploy`, kiểm tra commit đã push và vẫn yêu cầu xác nhận
+trước khi tạo build.
+
+Với OTA, khi CLI hỏi Git ref, chọn đúng commit/branch cần phát hành. Commit đích
+được lấy từ Git ref; không cần nhập lại SHA. Workflow dùng `eas update:list` và
 `eas update:view` để tự lấy `gitCommitHash` của OTA thành công gần nhất trên đúng
 branch/runtime. Nếu runtime chưa từng có OTA, workflow dùng commit khai báo
 runtimeVersion làm baseline. Rollback hoặc metadata thiếu SHA sẽ bị chặn để tránh
