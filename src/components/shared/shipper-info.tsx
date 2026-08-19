@@ -26,26 +26,18 @@ const ShipperInfo = ({ orderDetail }: { orderDetail: OrderDetail }) => {
   const { shipping } = header || {};
 
   const config = useConfig.use.config();
-  // Try to find shipping providers config, if not available, use provider directly
-  const shippingServiceTypes = (config as any)?.shippingServiceTypes || [];
+  const shippingServiceTypes = config?.shippingServiceTypes || [];
 
   const providerName = useMemo(() => {
-    if (shipping?.provider) {
-      const configName = getConfigNameById(
-        shippingServiceTypes,
-        shipping.provider,
-      );
-      return configName || shipping.provider;
-    }
-    return '';
+    if (!shipping?.provider) return '';
+    const configName = getConfigNameById(
+      shippingServiceTypes,
+      shipping.provider,
+    );
+    return configName || shipping.provider;
   }, [shipping?.provider, shippingServiceTypes]);
 
-  const driverNameWithProvider = useMemo(() => {
-    if (!shipping?.driverName) return '';
-    return providerName
-      ? `${shipping.driverName} - ${providerName}`
-      : shipping.driverName;
-  }, [shipping?.driverName, providerName]);
+  const driverNameDisplay = shipping?.driverName || '';
 
   const logoSource = useMemo(
     () => providerLogoSource(shipping?.provider),
@@ -100,9 +92,9 @@ const ShipperInfo = ({ orderDetail }: { orderDetail: OrderDetail }) => {
           style={{ flexShrink: 0 }}
         />
         <View className="flex-1 min-w-0 gap-1 items-start">
-          {!!driverNameWithProvider && (
+          {!!driverNameDisplay && (
             <Text className="text-sm font-medium" numberOfLines={1}>
-              {driverNameWithProvider}
+              {driverNameDisplay}
             </Text>
           )}
           {!!shipping?.driverPhone && (

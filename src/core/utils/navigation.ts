@@ -66,6 +66,17 @@ export const navigateToAuthorize = () => {
 };
 
 /**
+ * Navigate to the OMS internal account login screen
+ */
+export const navigateToInternalLogin = () => {
+  safeNavigate(
+    () => router.push(ROUTES.AUTH.INTERNAL_LOGIN as any),
+    ROUTES.AUTH.LOGIN,
+    'Không thể mở trang đăng nhập OMS',
+  );
+};
+
+/**
  * Navigate to orders list
  */
 export const navigateToOrders = () => {
@@ -277,6 +288,7 @@ export const goBack = (fallbackRoute?: string) => {
 export const NavigationHelpers = {
   // Auth
   toLogin: navigateToLogin,
+  toInternalLogin: navigateToInternalLogin,
   toAuthorize: navigateToAuthorize,
 
   // Orders

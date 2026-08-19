@@ -22,7 +22,7 @@ const requestAssignMeToStore = async (params: Variables): Promise<Response> => {
 /**
  * Gửi yêu cầu cấp quyền vào siêu thị kèm role đã chọn.
  * onSuccess truyền `token` (data) ra ngoài để caller tự quyết định điều hướng:
- * - role STORE (NV) → hiển thị mã QR cho SM/TC quét duyệt.
+ * - role STORE/STORE_FULLTIME_PICKER → hiển thị mã QR cho SM/TC quét duyệt.
  * - role SM/TC → chờ Admin duyệt (không có QR).
  */
 export const useRequestAssignMeToStore = (cb?: (token: string) => void) => {

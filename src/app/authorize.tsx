@@ -12,7 +12,8 @@ import {
 import { hideAlert, showAlert } from '@/core/store/alert-dialog';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { showMessage } from 'react-native-flash-message';
 import { WebView } from 'react-native-webview';
 import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
@@ -25,8 +26,58 @@ import { setLoading } from '../core/store/loading';
 /** Failsafe: quá lâu không login thì bỏ overlay (SSO chậm / kẹt trang). */
 const AUTHORIZE_OVERLAY_TIMEOUT_MS = 60000;
 
+/** Đồng bộ nhẹ form Haravan với form OMS mà không can thiệp logic SSO. */
+const HARAVAN_FORM_STYLE_SCRIPT = `
+(function () {
+  if (!/(^|\\.)haravan\\.com$/i.test(window.location.hostname)) return true;
+  if (document.getElementById('seedcom-haravan-form-style')) return true;
+
+  var style = document.createElement('style');
+  style.id = 'seedcom-haravan-form-style';
+  style.textContent = \`
+    html, body {
+      background: #f8fafc !important;
+    }
+
+    input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+    select,
+    textarea {
+      min-height: 50px !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 12px !important;
+      background: #ffffff !important;
+      box-shadow: none !important;
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #3280f6 !important;
+      box-shadow: 0 0 0 3px rgba(50, 128, 246, 0.12) !important;
+      outline: none !important;
+    }
+
+    button, [role='button'], input[type='submit'] {
+      min-height: 48px !important;
+      border-radius: 12px !important;
+    }
+
+    button[type='submit'], input[type='submit'], .btn-primary {
+      background: #3280f6 !important;
+      border-color: #3280f6 !important;
+      color: #ffffff !important;
+      font-weight: 600 !important;
+    }
+  \`;
+  document.head.appendChild(style);
+  return true;
+})();
+true;
+`;
+
 const WHITE_LIST_ROLE = [
   EmployeeRole.STORE,
+  EmployeeRole.STORE_FULLTIME_PICKER,
   EmployeeRole.STORE_MANAGER,
   EmployeeRole.ADMIN,
   EmployeeRole.DRIVER,
@@ -250,6 +301,35 @@ const Authorize = () => {
 
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          backgroundColor: '#fff',
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 12,
+          height: 48,
+        }}
+      >
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Quay lại"
+          hitSlop={8}
+          style={{
+            height: 40,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            paddingHorizontal: 8,
+          }}
+        >
+          <MaterialIcons name="chevron-left" size={23} color="#374151" />
+          <Text style={{ color: '#374151', fontSize: 16, fontWeight: '500' }}>
+            Quay lại
+          </Text>
+        </Pressable>
+      </View>
       <WebView
         key={currentUrl || urlRedirect || 'authorize'}
         ref={webViewRef}
@@ -276,7 +356,7 @@ const Authorize = () => {
           // Giống onError: giữ mask trong lúc còn trên WebView SSO.
         }}
         onNavigationStateChange={handleNavigationStateChange}
-        injectedJavaScript={INJECTED_SCRIPT}
+        injectedJavaScript={`${INJECTED_SCRIPT}\n${HARAVAN_FORM_STYLE_SCRIPT}`}
         onMessage={onMessage}
         javaScriptEnabled
         domStorageEnabled

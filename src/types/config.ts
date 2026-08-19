@@ -24,4 +24,5 @@ export type Config = {
   employeeRoles: [];
   orderBagWeightTypes?: OrderBagWeightType[];
   orderShippingCancelReasons?: ConfigOption[];
+  shippingServiceTypes?: ConfigOption[];
 };

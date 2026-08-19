@@ -5,7 +5,7 @@ import { MarkdownText } from '@/core/utils/markdown';
 import { useOrderPick } from '~/src/core/store/order-pick';
 import { OrderDetail } from '~/src/types/order-pick';
 
-const COLLAPSED_LINE_LIMIT = 2;
+const COLLAPSED_LINE_LIMIT = 5;
 
 const stickyNoteShadow = Platform.select({
   ios: {

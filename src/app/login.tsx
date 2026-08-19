@@ -1,13 +1,7 @@
 import { useLogin } from '@/api/auth';
-import { Button } from '@/components/Button';
-import { setRedirectUrl, signIn } from '@/core';
-import {
-  consumePendingDeepLink,
-  processDeepLink,
-} from '@/core/hooks/useHandleDeepLink';
+import { setRedirectUrl } from '@/core';
 import { NavigationHelpers } from '@/core/utils/navigation';
 import { Image } from 'expo-image';
-import { Formik } from 'formik';
 import React, { useEffect, useRef } from 'react';
 import {
   Keyboard,
@@ -18,11 +12,9 @@ import {
   Text,
   View,
 } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Feather from '@expo/vector-icons/Feather';
 import { showMessage } from 'react-native-flash-message';
-import * as Yup from 'yup';
-import { authorizeAppPickClient } from '../api/auth/use-authorize-app-pick-client';
-import { useAuthorizeUserPassword } from '../api/auth/use-authorize-user-password';
-import { Input } from '../components/Input';
 import { setLoading } from '../core/store/loading';
 
 const blurhash =
@@ -36,64 +28,6 @@ export default function Login() {
     reset: resetLoginMutation,
   } = useLogin();
   const loginTimeoutRef = useRef<NodeJS.Timeout>();
-
-  const { mutate: loginRegular, isPending: isPendingRegular } =
-    useAuthorizeUserPassword(async (data) => {
-      if (data.error) {
-        Keyboard.dismiss();
-        showMessage({
-          message: data.error,
-          type: 'danger',
-        });
-        return;
-      }
-
-      const userInfo = data.data || {};
-      const { zas } = userInfo;
-
-      if (!zas || !userInfo) {
-        return;
-      }
-
-      let authorizedZas: string;
-      try {
-        const response = await authorizeAppPickClient({ zas });
-
-        const newZas = response?.data?.zas;
-
-        if (!newZas) {
-          console.error(
-            '[Login] authorizeAppPickClient: missing zas in response',
-          );
-          return;
-        }
-        authorizedZas = newZas;
-      } catch (error) {
-        console.error('[Login] authorizeAppPickClient failed:', error);
-        return;
-      }
-
-      signIn({
-        token: authorizedZas,
-        userInfo: { ...userInfo, zas: authorizedZas },
-      });
-
-      const savedDeepLink = consumePendingDeepLink();
-      if (savedDeepLink && typeof savedDeepLink === 'string') {
-        console.log('[Login] Processing saved deep link:', savedDeepLink);
-        setTimeout(() => {
-          try {
-            processDeepLink(savedDeepLink);
-          } catch (error) {
-            console.error('[Login] Error processing deep link:', error);
-            // NavigationHelpers.replaceWithOrders();
-          }
-        }, 500);
-      } else {
-        // NavigationHelpers.replaceWithOrders();
-      }
-    });
-
   useEffect(() => {
     if (data) {
       setRedirectUrl(data?.data as string);
@@ -133,14 +67,6 @@ export default function Login() {
     login();
   };
 
-  const handleLoginRegular = (values: any) => {
-    Keyboard.dismiss();
-    loginRegular({
-      username: values.username,
-      password: values.password,
-    });
-  };
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -152,106 +78,72 @@ export default function Login() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         bounces={false}
-        className="bg-white"
+        className="bg-slate-50"
       >
         <Pressable
           style={{ flexGrow: 1, justifyContent: 'center' }}
           onPress={Keyboard.dismiss}
           accessible={false}
         >
-          <View className="flex flex-col gap-4 px-8 py-8">
-            <View className="flex flex-col gap-4">
-              <View className="w-full flex justify-center items-center mb-4">
-                <Image
-                  placeholder={{ blurhash }}
-                  contentFit="contain"
-                  source={'logo'}
-                  style={{ width: 200, height: 40 }}
-                />
-              </View>
-              <View className="w-full">
-                <Formik
-                  initialValues={{
-                    username: '',
-                    password: '',
-                  }}
-                  validateOnChange
-                  onSubmit={handleLoginRegular}
-                  className="w-full bg-red-500"
-                  validationSchema={Yup.object({
-                    username: Yup.string().required(
-                      'Vui lòng nhập tên đăng nhập',
-                    ),
-                    password: Yup.string().required('Vui lòng nhập mật khẩu'),
-                  })}
-                >
-                  {({
-                    values,
-                    errors,
-                    handleBlur,
-                    setFieldValue,
-                    handleSubmit,
-                  }) => {
-                    return (
-                      <View className="flex flex-col gap-3">
-                        <Input
-                          selectTextOnFocus
-                          labelClasses="font-medium w-full"
-                          onChangeText={(value: string) => {
-                            setFieldValue('username', value);
-                          }}
-                          placeholder="Tên đăng nhập"
-                          error={errors.username}
-                          name="username"
-                          value={values?.username.toString()}
-                          onBlur={handleBlur('username')}
-                          defaultValue="0"
-                        />
-                        <Input
-                          secureTextEntry={true}
-                          placeholder="Mật khẩu"
-                          value={values.password}
-                          keyboardType="default"
-                          error={errors.password}
-                          handleBlur={handleBlur('password')}
-                          onChangeText={(value: string) => {
-                            setFieldValue('password', value);
-                          }}
-                        />
-                        <View className="mt-3">
-                          <Button
-                            loading={isPendingRegular}
-                            variant={'warning'}
-                            onPress={handleSubmit as any}
-                            size="md"
-                            label="Đăng nhập"
-                          />
-                        </View>
-                      </View>
-                    );
-                  }}
-                </Formik>
-              </View>
-            </View>
-            <View className="flex flex-col gap-2 mt-6">
-              <View className="px-3 w-auto " style={{ marginTop: -11 }}>
-                <View className="flex flex-row gap-2 border-b border-gray-200" />
-                <Text
-                  className="text-center w-auto text-xs bg-white self-center px-3 text-gray-500"
-                  style={{ marginTop: -11 }}
-                >
-                  Hoặc đăng nhập bằng
-                </Text>
-              </View>
-            </View>
-            <View className="w-full">
-              <Button
-                loading={isPending}
-                onPress={handleLogin}
-                size="md"
-                className="w-full"
-                label={'Đăng nhập bằng Harawork '}
+          <View className="flex flex-col px-6 py-10" style={{ gap: 36 }}>
+            <View className="w-full flex justify-center items-center">
+              <Image
+                placeholder={{ blurhash }}
+                contentFit="contain"
+                source={'logo'}
+                style={{ width: 208, height: 42 }}
               />
+              <Text className="text-xl font-semibold text-gray-700 mt-5">
+                Chào mừng bạn trở lại
+              </Text>
+              <Text className="text-sm text-gray-500 mt-2 text-center">
+                Đăng nhập để tiếp tục sử dụng Seedcom
+              </Text>
+            </View>
+
+            <View className="w-full" style={{ gap: 18 }}>
+              <Pressable
+                onPress={handleLogin}
+                disabled={isPending}
+                className="w-full flex flex-row items-center justify-center bg-blue-500 rounded-xl active:opacity-80"
+                style={{
+                  height: 54,
+                  gap: 10,
+                  paddingHorizontal: 20,
+                  opacity: isPending ? 0.65 : 1,
+                  shadowColor: '#2563EB',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.18,
+                  shadowRadius: 8,
+                  elevation: 2,
+                }}
+              >
+                <MaterialIcons name="work-outline" size={21} color="white" />
+                <Text className="text-white text-base font-semibold">
+                  Đăng nhập bằng Harawork
+                </Text>
+                <Feather name="external-link" size={16} color="white" />
+              </Pressable>
+
+              <View className="flex flex-row items-center" style={{ gap: 12 }}>
+                <View className="flex-1 h-px bg-slate-200" />
+                <Text className="text-sm text-gray-500">Hoặc</Text>
+                <View className="flex-1 h-px bg-slate-200" />
+              </View>
+
+              <Pressable
+                onPress={NavigationHelpers.toInternalLogin}
+                className="w-full flex-row items-center rounded-xl border border-slate-300 bg-white px-4 active:bg-slate-100"
+                style={{ height: 54 }}
+              >
+                <View className="h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
+                  <MaterialIcons name="groups" size={21} color="#3280F6" />
+                </View>
+                <Text className="flex-1 px-3 text-base text-gray-700 font-medium">
+                  Đăng nhập bằng tài khoản OMS
+                </Text>
+                <Feather name="chevron-right" size={20} color="#64748B" />
+              </Pressable>
             </View>
           </View>
         </Pressable>

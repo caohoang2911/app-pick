@@ -10,6 +10,7 @@
  */
 export const AUTH_ROUTES = {
   LOGIN: '/login',
+  INTERNAL_LOGIN: '/internal-login',
   AUTHORIZE: '/authorize',
 } as const;
 

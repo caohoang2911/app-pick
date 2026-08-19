@@ -184,6 +184,14 @@ function RootLayoutNav() {
             fullScreenGestureEnabled: false,
           }}
         />
+        <Stack.Screen
+          name="internal-login"
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            animation: 'slide_from_right',
+          }}
+        />
         <Stack.Screen name="settings" />
         <Stack.Screen name="permissions" />
         <Stack.Screen name="notifications" />

@@ -11,6 +11,7 @@ import { useGenXPrinterPrintData } from './use-gen-x-printer-print-data';
 
 type Variables = {
   orderCode: string;
+  note?: string;
 };
 type Response = { error: string } & {
   status: 'SUCCESS' | 'FAIL';

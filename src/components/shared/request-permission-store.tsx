@@ -59,6 +59,10 @@ const ROLE_OPTIONS: { value: EmployeeRole; label: string }[] = [
     label: 'Trưởng Ca Siêu Thị (TC)',
   },
   { value: EmployeeRole.STORE, label: 'Nhân Viên Siêu Thị' },
+  {
+    value: EmployeeRole.STORE_FULLTIME_PICKER,
+    label: 'Fulltime Picker Siêu Thị',
+  },
 ];
 
 // Guideline đổi theo role đang chọn.
@@ -68,12 +72,23 @@ const MANAGER_GUIDELINE = [
   'Đợi Admin duyệt và đăng nhập lại',
 ];
 
+const EMPLOYEE_GUIDELINE = [
+  'Chọn siêu thị bạn sẽ làm việc',
+  'Tạo mã QR và đưa Quản lý / Trưởng ca siêu thị quét duyệt',
+  'Đăng nhập lại để bắt đầu',
+];
+
+const QR_APPROVAL_ROLES = new Set<EmployeeRole>([
+  EmployeeRole.STORE,
+  EmployeeRole.STORE_FULLTIME_PICKER,
+]);
+
+const usesQrApproval = (role: EmployeeRole | null) =>
+  role != null && QR_APPROVAL_ROLES.has(role);
+
 const GUIDELINES: Record<string, string[]> = {
-  [EmployeeRole.STORE]: [
-    'Chọn siêu thị bạn sẽ làm việc',
-    'Tạo mã QR và đưa Quản lý / Trưởng ca siêu thị quét duyệt',
-    'Đăng nhập lại để bắt đầu',
-  ],
+  [EmployeeRole.STORE]: EMPLOYEE_GUIDELINE,
+  [EmployeeRole.STORE_FULLTIME_PICKER]: EMPLOYEE_GUIDELINE,
   [EmployeeRole.STORE_MANAGER]: MANAGER_GUIDELINE,
   [EmployeeRole.STORE_SHIFT_SUPERVISOR]: MANAGER_GUIDELINE,
 };
@@ -120,8 +135,8 @@ const RequestPermissionStore = ({ code }: Props) => {
   const employeeCode = code || userInfo?.username || '';
 
   const onRequestSuccess = useCallback((newToken: string) => {
-    if (selectedRoleRef.current === EmployeeRole.STORE) {
-      // NV → hiển thị mã QR để SM/TC quét duyệt tại chỗ.
+    if (usesQrApproval(selectedRoleRef.current)) {
+      // NV/Fulltime Picker → hiển thị mã QR để SM/TC quét duyệt tại chỗ.
       setApproved(false);
       setToken(newToken);
     } else {
@@ -205,7 +220,7 @@ const RequestPermissionStore = ({ code }: Props) => {
 
   // Đang hiển thị QR (NV) → poll trạng thái duyệt 1s/lần; duyệt xong thì ngừng.
   const isWaitingApproval =
-    !!token && !approved && selectedRole === EmployeeRole.STORE;
+    !!token && !approved && usesQrApproval(selectedRole);
   const approvedHandledRef = useRef(false);
 
   const { data: tokenInfo } = usePollQRAccessTokenStatus(
@@ -244,7 +259,7 @@ const RequestPermissionStore = ({ code }: Props) => {
   if (isFetching) return null;
 
   // NV gửi yêu cầu thành công → màn mã QR để SM/TC quét duyệt.
-  if (token && selectedRole === EmployeeRole.STORE) {
+  if (token && usesQrApproval(selectedRole)) {
     return (
       <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         <TouchableOpacity

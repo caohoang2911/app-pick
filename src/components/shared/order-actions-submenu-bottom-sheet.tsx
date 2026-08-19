@@ -150,7 +150,7 @@ const OrderActionsSubmenuBottomSheet = ({
       },
       {
         key: 'reprint-invoice',
-        title: 'In lại hóa đơn',
+        title: 'Tạo lại hóa đơn',
         icon: <MaterialIcons name="print" size={24} color="black" />,
       },
       {
@@ -225,7 +225,10 @@ const OrderActionsSubmenuBottomSheet = ({
           void printInvoiceThenCodReceipt(existingInvoiceCode);
         } else {
           // Chưa có hóa đơn → tạo trước, tạo xong mới đi tiếp flow in.
-          createInvoiceFlow({ orderCode: effectiveOrderCode });
+          createInvoiceFlow({
+            orderCode: effectiveOrderCode,
+            note: 'In lại hóa đơn',
+          });
         }
         break;
       }

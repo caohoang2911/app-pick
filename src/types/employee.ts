@@ -32,6 +32,7 @@ export type Customer = {
 
 export enum EmployeeRole {
   STORE = 'STORE',
+  STORE_FULLTIME_PICKER = 'STORE_FULLTIME_PICKER',
   STORE_MANAGER = 'STORE_MANAGER',
   ADMIN = 'ADMIN',
   DRIVER = 'DRIVER',

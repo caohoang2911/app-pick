@@ -4,7 +4,7 @@ import { useRouter, useSegments } from 'expo-router';
 import { ROUTES } from '../constants/routes';
 import { useOtaUpdateReadyModal } from '../store/ota-update-modal';
 
-const AUTH_SEGMENTS = new Set(['login', 'authorize']);
+const AUTH_SEGMENTS = new Set(['login', 'internal-login', 'authorize']);
 
 export function useProtectedRoute() {
   const status = useAuth.use.status();
